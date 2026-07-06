@@ -1,0 +1,110 @@
+import { Text, View } from 'react-native';
+import { BadgeCheck } from 'lucide-react-native';
+import { Avatar } from '@/components/ui/Avatar';
+import { FollowButton } from '@/components/ui/FollowButton';
+import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { PersonalityName } from '@/components/ui/PersonalityName';
+import { getPersonalityGradientColors } from '@/utils/personalityRing';
+import type { profileItemDAO } from '@/http/account-api/types';
+
+interface ProfileInfoProps {
+  profile: profileItemDAO;
+  isOwnProfile?: boolean;
+  onEditPress: () => void;
+  onSharePress: () => void;
+}
+
+export function ProfileInfo({
+  profile,
+  isOwnProfile = true,
+  onEditPress,
+  onSharePress,
+}: ProfileInfoProps) {
+  const gradientColors = getPersonalityGradientColors(profile.personality_color);
+
+  return (
+    <View className="px-6 pb-4 gap-4">
+      <View className="flex-row items-center gap-4">
+        <Avatar
+          name={profile.name}
+          src={profile.profile_image_url}
+          size="lg"
+          gradientColors={gradientColors}
+        />
+        <View className="flex-1 gap-2">
+          <View className="flex-row items-center gap-1.5">
+            <Text
+              className="font-geist-bold text-xl text-ink dark:text-gray-100"
+              numberOfLines={1}
+            >
+              {profile.name}
+            </Text>
+            <BadgeCheck size={20} color="white" fill="#3B82F6" />
+          </View>
+          {profile.personality_name ? (
+            <PersonalityName
+              name={profile.personality_name}
+              personalityColor={profile.personality_color}
+            />
+          ) : null}
+        </View>
+      </View>
+
+      {profile.bio ? (
+        <Text className="font-geist text-lg text-gray-600 dark:text-gray-400 leading-5">
+          {profile.bio}
+        </Text>
+      ) : null}
+
+      <View className="flex-row gap-5">
+        <Text className="font-geist text-md text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-xl">{profile.list_count ?? 0}</Text>
+          {' Lists'}
+        </Text>
+        <Text className="font-geist text-md text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-xl">{profile.followers_count}</Text>
+          {' Followers'}
+        </Text>
+        <Text className="font-geist text-md text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-xl">{profile.followed_count}</Text>
+          {' Following'}
+        </Text>
+        <Text className="font-geist text-md text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-xl">{profile.total_likes}</Text>
+          {' Likes'}
+        </Text>
+      </View>
+
+      <View className="flex-row gap-3">
+        {isOwnProfile ? (
+          <LocalNotesButton
+            label="Edit profile"
+            onPress={onEditPress}
+            variant="dark"
+            isRounded
+            isWidthFull={false}
+            className="flex-1"
+            size="md"
+          />
+        ) : profile.id ? (
+          <View className="flex-1 items-center justify-center">
+            <FollowButton
+              userId={profile.id}
+              initialIsFollowed={Boolean(profile.is_followed)}
+              useButton={true}
+            />
+          </View>
+        ) : null}
+        <LocalNotesButton
+          label="Share profile"
+          onPress={onSharePress}
+          variant="light"
+          isRounded
+          isWidthFull={false}
+          className="flex-1"
+          size="md"
+        />
+      </View>
+    </View>
+  );
+}
