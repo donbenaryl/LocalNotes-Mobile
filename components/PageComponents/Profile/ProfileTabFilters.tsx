@@ -41,13 +41,13 @@ export function ProfileTabFilters({
   if (tab === "picks") {
     return (
       <ListFilters
-        selectedCategory=""
-        onCategoryChange={() => {}}
-        categoryOptions={[]}
+        selectedCategory={selectedCategory}
+        onCategoryChange={onCategoryChange}
+        categoryOptions={categoryOptions}
         selectedSort=""
         onSortChange={() => {}}
         sortOptions={[]}
-        showCategory={false}
+        showCategory
         showSort={false}
         showFavorite
         selectedFavorite={pickFavoriteFilter}

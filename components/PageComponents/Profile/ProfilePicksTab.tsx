@@ -1,10 +1,9 @@
 import { useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { LayoutGrid, List, Package } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/utils/cn";
-import { useProfilePicks, useCategories } from "@/hooks/useProfileList";
-import { CategoryChip } from "@/components/ui/CategoryChip";
+import { useProfilePicks } from "@/hooks/useProfileList";
 import { PickCard } from "./PickCard";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
 import { ProfileTabFilters } from "./ProfileTabFilters";
@@ -34,14 +33,13 @@ export function ProfilePicksTab({
 }: ProfilePicksTabProps) {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
-  const [selectedPickCategoryIds, setSelectedPickCategoryIds] = useState<string[]>([]);
-  const { categories: categoryCatalog } = useCategories();
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const viewedUserId = isOwnProfile ? undefined : userId;
   const { picks, isPending, refetch } = useProfilePicks(
     favoriteFilter,
     true,
     viewedUserId,
-    selectedPickCategoryIds,
+    selectedCategory === "All" ? [] : [selectedCategory],
   );
 
   const sortedPicks = useMemo(
@@ -60,8 +58,8 @@ export function ProfilePicksTab({
       <View className="px-4 pt-4">
         <ProfileTabFilters
           tab="picks"
-          selectedCategory=""
-          onCategoryChange={() => {}}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
           selectedStatus=""
           onStatusChange={() => {}}
           selectedSort=""
@@ -72,27 +70,6 @@ export function ProfilePicksTab({
           sortOptions={[]}
           favoriteOptions={favoriteOptions}
         />
-
-        {categoryCatalog.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mt-2 mb-2">
-            <View className="flex-row gap-2">
-              {categoryCatalog.map((category) => (
-                <CategoryChip
-                  key={category.id}
-                  label={category.name}
-                  isSelected={selectedPickCategoryIds.includes(category.id)}
-                  onPress={() =>
-                    setSelectedPickCategoryIds((prev) =>
-                      prev.includes(category.id)
-                        ? prev.filter((id) => id !== category.id)
-                        : [...prev, category.id],
-                    )
-                  }
-                />
-              ))}
-            </View>
-          </ScrollView>
-        )}
 
         {!isPending && picks.length > 0 && (
           <View className="flex-row items-center justify-between mb-2 -mt-4">
