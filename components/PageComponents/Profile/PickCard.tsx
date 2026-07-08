@@ -20,6 +20,7 @@ import { useToastStore } from "@/stores/useToastStore";
 import type { ListItemImage, ListItemPublic } from "@/http/list-api/types";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { NoImage } from "@/components/ui/NoImage";
+import { isOthersCategoryName } from "@/utils/listCategories";
 
 interface PickCardProps {
   data: ListItemPublic;
@@ -159,6 +160,18 @@ function PickCardListLayout({ data, thumbnails, locationLabel }: PickCardListLay
           </Text>
         ) : null}
 
+        {data.categories.length > 0 && (
+          <View className="flex-row flex-wrap items-center gap-1 mt-2">
+            {data.categories.map((category) => (
+              <Badge
+                key={category}
+                label={isOthersCategoryName(category) ? (data.others_name ?? category) : category}
+                variant="secondary"
+              />
+            ))}
+          </View>
+        )}
+
         {data.tags.length > 0 && (
           <View className="flex-row flex-wrap items-center gap-1 mt-2">
             {data.tags.slice(0, 2).map((tag) => (
@@ -231,6 +244,18 @@ function PickCardGridLayout({ data, thumbnails, locationLabel }: PickCardGridLay
             {data.description}
           </Text>
         ) : null}
+
+        {data.categories.length > 0 && (
+          <View className="flex-row flex-wrap items-center gap-1 mt-1">
+            {data.categories.map((category) => (
+              <Badge
+                key={category}
+                label={isOthersCategoryName(category) ? (data.others_name ?? category) : category}
+                variant="secondary"
+              />
+            ))}
+          </View>
+        )}
 
         {data.tags.length > 0 && (
           <View className="flex-row flex-wrap items-center gap-1 mt-1">

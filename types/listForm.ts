@@ -11,6 +11,9 @@ export interface ListPickDraft {
   existingImages?: { id: string; url: string }[];
   business?: string;
   new_tags: string[];
+  /** Full category objects (not just ids) so labels can be rendered without a catalog lookup. */
+  categories?: ListFormCategory[];
+  others_name?: string;
   description: string;
   unverified_business?: string;
   location?: GeoLocation;

@@ -52,6 +52,8 @@ export interface Item {
   id: string;
   business: BusinessDAO | null;
   tags: TagDAO[];
+  categories: string[];
+  others_name?: string | null;
   description: string;
   account: string;
   owner?: Account;
@@ -84,6 +86,8 @@ export interface CreateListItemPayload {
   id?: string;
   business?: string;
   new_tags: string[];
+  categories?: string[];
+  others_name?: string;
   description: string;
   unverified_business?: string;
 }
@@ -211,6 +215,8 @@ export interface ListItemPublic {
   owner: Account;
   description: string;
   tags: TagDAO[];
+  categories: string[];
+  others_name?: string | null;
   images: ListItemImage[];
   list_usage_count: number;
   location?: Location | null;
@@ -221,6 +227,8 @@ export interface CreateListItemDTO {
   description: string;
   business?: string;
   new_tags?: string[];
+  categories?: string[];
+  others_name?: string;
   unverified_business?: string;
   location?: Location;
 }
@@ -230,6 +238,8 @@ export interface UpdateListItemDTO {
   description?: string;
   business?: string;
   new_tags?: string[];
+  categories?: string[];
+  others_name?: string;
   unverified_business?: string;
   location?: Location | null;
 }

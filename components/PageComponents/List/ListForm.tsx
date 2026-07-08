@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { CategoryChip } from "@/components/ui/CategoryChip";
+import { hasOthersCategory } from "@/utils/listCategories";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -38,45 +40,11 @@ import { ListPickFormModal } from "./ListPickFormModal";
 import { LinkExistingPicksSection } from "./LinkExistingPicksSection";
 import { ListUserSearchInput } from "./ListUserSearchInput";
 
-const OTHERS_CATEGORY_NAME = "Others";
 const INTRO_MAX_LENGTH = 280;
 
 interface ListFormProps {
   step: 1 | 2;
   listId?: string;
-}
-
-function hasOthersCategory(categories: ListFormCategory[]): boolean {
-  return categories.some(
-    (c) => c.name.trim().toLowerCase() === OTHERS_CATEGORY_NAME.toLowerCase(),
-  );
-}
-
-function CategoryChip({
-  label,
-  isSelected,
-  onPress,
-}: {
-  label: string;
-  isSelected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      className={`rounded-full px-4 py-2 cursor-pointer ${
-        isSelected ? "bg-brand" : "bg-gray-100 dark:bg-gray-800"
-      }`}
-    >
-      <Text
-        className={`font-geist-medium text-sm ${
-          isSelected ? "text-white" : "text-ink dark:text-gray-200"
-        }`}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
 }
 
 export function ListForm({ step, listId }: ListFormProps) {
@@ -292,6 +260,8 @@ export function ListForm({ step, listId }: ListFormProps) {
           editingPick.businessDisplayName ?? editingPick.unverified_business,
         description: editingPick.description,
         tags: editingPick.new_tags,
+        categories: editingPick.categories?.map((c) => c.name) ?? [],
+        othersName: editingPick.others_name,
         images: editingPick.existingImages,
         location: editingPick.location ?? null,
       }

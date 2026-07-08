@@ -99,15 +99,18 @@ export function useProfilePicks(
   favoriteFilter: string,
   enabled = true,
   viewedUserId?: string,
+  categoryIds: string[] = [],
 ) {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: viewedUserId
-      ? ["profile-picks", viewedUserId, favoriteFilter]
-      : ["profile-picks", favoriteFilter],
+      ? ["profile-picks", viewedUserId, favoriteFilter, categoryIds.join(",")]
+      : ["profile-picks", favoriteFilter, categoryIds.join(",")],
     enabled: enabled && (viewedUserId ? Boolean(viewedUserId) : true),
     queryFn: async () => {
-      const params =
-        favoriteFilter === "Favorites only" ? { is_favorite: true as const } : {};
+      const params = {
+        ...(favoriteFilter === "Favorites only" ? { is_favorite: true as const } : {}),
+        ...(categoryIds.length ? { category_ids: categoryIds } : {}),
+      };
       const response = await listService.fetchListItems(
         viewedUserId ? { ...params, user_id: viewedUserId } : params,
       );

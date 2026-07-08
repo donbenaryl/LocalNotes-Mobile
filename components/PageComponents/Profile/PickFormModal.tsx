@@ -40,6 +40,8 @@ export function PickFormModal({
           description: data.description,
           ...(data.businessId ? { business: data.businessId } : {}),
           ...(data.tags.length ? { new_tags: data.tags } : {}),
+          categories: data.categories,
+          ...(data.othersName ? { others_name: data.othersName } : {}),
           ...(!preserveVerifiedLink && data.unverifiedBusiness
             ? { unverified_business: data.unverifiedBusiness }
             : {}),
@@ -66,6 +68,8 @@ export function PickFormModal({
         description: data.description,
         ...(data.businessId ? { business: data.businessId } : {}),
         ...(data.tags.length ? { new_tags: data.tags } : {}),
+        categories: data.categories,
+        ...(data.othersName ? { others_name: data.othersName } : {}),
         ...(data.unverifiedBusiness ? { unverified_business: data.unverifiedBusiness } : {}),
         ...(data.location ? { location: data.location } : {}),
       });
@@ -101,6 +105,8 @@ export function PickFormModal({
               name: editingItem.business_name ?? undefined,
               description: editingItem.description,
               tags: editingItem.tags.map((tag) => tag.name),
+              categories: editingItem.categories,
+              othersName: editingItem.others_name ?? undefined,
               images: editingItem.images,
               location: editingItem.location,
             }

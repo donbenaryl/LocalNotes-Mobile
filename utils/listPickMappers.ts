@@ -49,6 +49,10 @@ export function mapListItemPublicToPickTag(pick: ListItemPublic): ListPickDraft 
     businessDisplayName: pick.business_name ?? undefined,
     business: pick.business_id ?? undefined,
     new_tags: pick.tags.map((t) => t.name),
+    // No category catalog available here, and this pick already has a serverItemId
+    // (so its categories aren't resubmitted) — id is just a display placeholder.
+    categories: pick.categories.map((name) => ({ id: '', name })),
+    others_name: pick.others_name ?? undefined,
     description: pick.description,
     existingImages: pick.images ?? [],
     ownerPersonalityColor: pick.owner.personality_color,
@@ -80,6 +84,8 @@ export function formSubmitToPickDraft(
     business: data.businessId || undefined,
     unverified_business: data.unverifiedBusiness,
     new_tags: data.tags,
+    categories: data.categoryObjects,
+    others_name: data.othersName,
     description: data.description,
     location: data.location,
     newFiles: data.newFiles.length ? data.newFiles : existing?.newFiles,
@@ -90,12 +96,15 @@ export function formSubmitToPickDraft(
 
 export function itemsPayloadForApi(items: ListPickDraft[]): CreateListItemPayload[] {
   return items.map(
-    ({ business, new_tags, description, unverified_business, serverItemId }) => ({
+    ({ business, new_tags, categories, others_name, description, unverified_business, serverItemId }) => ({
       ...(serverItemId ? { id: serverItemId } : {}),
       business,
       new_tags,
       description,
       unverified_business,
+      // A pick already linked to the server keeps its own categories — only a
+      // brand-new pick needs to submit them here.
+      ...(serverItemId ? {} : { categories: categories?.map((c) => c.id) ?? [], others_name }),
     }),
   );
 }
@@ -108,7 +117,25 @@ export function getPickDisplayName(pick: ListPickDraft): string {
   );
 }
 
-export function mapApiItemToPickDraft(item: Item): ListPickDraft {
+function matchCategoryNames(
+  names: string[],
+  categoryCatalog: ListFormCategory[],
+): ListFormCategory[] {
+  return names
+    .map((name) =>
+      categoryCatalog.find(
+        (category) =>
+          category.name.toLowerCase() === name.toLowerCase() ||
+          category.id === name,
+      ),
+    )
+    .filter((category): category is ListFormCategory => category != null);
+}
+
+export function mapApiItemToPickDraft(
+  item: Item,
+  categoryCatalog: ListFormCategory[] = [],
+): ListPickDraft {
   return {
     id: stableNumericIdFromUuid(String(item.id)),
     serverItemId: item.id,
@@ -118,6 +145,8 @@ export function mapApiItemToPickDraft(item: Item): ListPickDraft {
     businessDisplayName:
       item.business?.name ?? item.unverified_business?.name ?? undefined,
     new_tags: item.tags.map((tag) => tag.name),
+    categories: matchCategoryNames(item.categories ?? [], categoryCatalog),
+    others_name: item.others_name ?? undefined,
     description: item.description,
     unverified_business: item.unverified_business?.name,
     ...(item.location ? { location: item.location } : {}),
@@ -138,21 +167,13 @@ export function mapListItemDaoToFormData(
   list: ListItemDAO,
   categoryCatalog: ListFormCategory[],
 ): ListFormData {
-  const matchedCategories = (list.categories ?? [])
-    .map((name) =>
-      categoryCatalog.find(
-        (category) =>
-          category.name.toLowerCase() === name.toLowerCase() ||
-          category.id === name,
-      ),
-    )
-    .filter((category): category is ListFormCategory => category != null);
+  const matchedCategories = matchCategoryNames(list.categories ?? [], categoryCatalog);
 
   return {
     name: list.name,
     location: list.location,
     categories: matchedCategories,
-    items: (list.items ?? []).map(mapApiItemToPickDraft),
+    items: (list.items ?? []).map((item) => mapApiItemToPickDraft(item, categoryCatalog)),
     notes: stripHtmlTags(list.notes ?? ''),
     others_name: list.others_name ?? '',
     shareOption: normalizeShareOption(list.privacy),

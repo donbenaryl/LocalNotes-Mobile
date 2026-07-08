@@ -1,9 +1,11 @@
 import { Image, Pressable, Text, View } from 'react-native';
 import { Pencil, Trash2 } from 'lucide-react-native';
 import { NoImage } from '@/components/ui/NoImage';
+import { Badge } from '@/components/ui/Badge';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import { getPickDisplayName, getPickSubtitle } from '@/utils/listPickMappers';
+import { isOthersCategoryName } from '@/utils/listCategories';
 import { ListPickCreatorRow } from '@/components/PageComponents/List/ListPickCreatorRow';
 import type { ListPickDraft } from '@/types/listForm';
 
@@ -60,6 +62,17 @@ export function ListFormPickRow({ pick, onEdit, onDelete }: ListFormPickRowProps
           >
             {getPickSubtitle(pick)}
           </Text>
+        ) : null}
+        {pick.categories && pick.categories.length > 0 ? (
+          <View className="mt-1 flex-row flex-wrap items-center gap-1">
+            {pick.categories.map((category) => (
+              <Badge
+                key={category.id || category.name}
+                label={isOthersCategoryName(category.name) ? (pick.others_name ?? category.name) : category.name}
+                variant="secondary"
+              />
+            ))}
+          </View>
         ) : null}
         {creator ? <ListPickCreatorRow owner={creator} /> : null}
       </View>

@@ -6,6 +6,8 @@ import { getDominantPersonalityTextColor } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import type { Item } from "@/http/list-api/types";
 import { NoImage } from "../NoImage";
+import { Badge } from "../Badge";
+import { isOthersCategoryName } from "@/utils/listCategories";
 
 interface ListCardBodyProps {
   title: string;
@@ -92,6 +94,18 @@ export function ListCardBody({
                     >
                       {item.description}
                     </Text>
+                  ) : null}
+
+                  {item.categories.length > 0 ? (
+                    <Badge
+                      label={
+                        isOthersCategoryName(item.categories[0])
+                          ? (item.others_name ?? item.categories[0])
+                          : item.categories[0]
+                      }
+                      variant="secondary"
+                      className="self-start"
+                    />
                   ) : null}
 
                   {visibleTags.length > 0 ? (

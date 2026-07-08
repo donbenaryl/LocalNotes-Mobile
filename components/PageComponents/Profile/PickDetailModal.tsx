@@ -9,6 +9,7 @@ import { resolveImageUrl } from "@/utils/httpHelpers";
 import listService from "@/http/list-api/list.service";
 import { useToastStore } from "@/stores/useToastStore";
 import type { ListItemPublic } from "@/http/list-api/types";
+import { isOthersCategoryName } from "@/utils/listCategories";
 
 interface PickDetailModalProps {
   visible: boolean;
@@ -90,6 +91,18 @@ export function PickDetailModal({ visible, onClose, data }: PickDetailModalProps
               {data.description}
             </Text>
           ) : null}
+
+          {data.categories.length > 0 && (
+            <View className="flex-row flex-wrap gap-1">
+              {data.categories.map((category) => (
+                <Badge
+                  key={category}
+                  label={isOthersCategoryName(category) ? (data.others_name ?? category) : category}
+                  variant="secondary"
+                />
+              ))}
+            </View>
+          )}
 
           {data.tags.length > 0 && (
             <View className="flex-row flex-wrap gap-1">

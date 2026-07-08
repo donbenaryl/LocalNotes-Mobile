@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, Text, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { CheckCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,8 @@ import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { Modal } from "@/components/ui/Modal";
 import { LocationInput } from "@/components/ui/LocationInput";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { CategoryChip } from "@/components/ui/CategoryChip";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Tags } from "./Tags";
 import {
   DEFAULT_MAX_IMAGE_FILES,
@@ -18,15 +20,23 @@ import businessService from "@/http/business-api/business.service";
 import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { useToastStore } from "@/stores/useToastStore";
+import { useCategories } from "@/hooks/useProfileList";
+import { hasOthersCategory } from "@/utils/listCategories";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { Location } from "@/http/list-api/types";
 import type { RNFile } from "@/http/types";
+import type { ListFormCategory } from "@/types/listForm";
 
 export interface FormSubmitData {
   businessId: string;
   unverifiedBusiness?: string;
   displayName?: string;
   tags: string[];
+  /** Selected category ids — what the API expects. */
+  categories: string[];
+  /** Same selection as {id, name} pairs so callers can display labels without a catalog lookup. */
+  categoryObjects: ListFormCategory[];
+  othersName?: string;
   description: string;
   newFiles: RNFile[];
   location?: Location;
@@ -36,6 +46,9 @@ export interface ListItemFormInitialData {
   name?: string;
   description?: string;
   tags?: string[];
+  /** Category names (not ids) — resolved against the catalog inside the form. */
+  categories?: string[];
+  othersName?: string;
   images?: { id: string; url: string }[];
   location?: Location | null;
 }
@@ -61,11 +74,15 @@ export function ListItemForm({
 }: ListItemFormProps) {
   const { t } = useTranslation();
   const showToast = useToastStore((s) => s.show);
+  const { categories: categoryCatalog } = useCategories();
 
   const [nameInput, setNameInput] = useState(initialData?.name ?? "");
   const [innerTagInput, setInnerTagInput] = useState("");
   const [innerTags, setInnerTags] = useState<string[]>(initialData?.tags ?? []);
   const [notesInput, setNotesInput] = useState(initialData?.description ?? "");
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [othersName, setOthersName] = useState(initialData?.othersName ?? "");
+  const categoriesInitialized = useRef(false);
   const [searchResults, setSearchResults] = useState<BusinessItemDAO[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -119,6 +136,21 @@ export function ListItemForm({
     };
   }, [nameInput, searchBusiness]);
 
+  // The API/store only give us category names (not ids) — resolve them against the
+  // category catalog once it loads so the right chips show as selected.
+  useEffect(() => {
+    if (categoriesInitialized.current || categoryCatalog.length === 0) return;
+    const initialCategoryNames = initialData?.categories ?? [];
+    const matchedIds = initialCategoryNames
+      .map((name) => categoryCatalog.find((c) => c.name.toLowerCase() === name.toLowerCase())?.id)
+      .filter((id): id is string => Boolean(id));
+    setSelectedCategoryIds(matchedIds);
+    categoriesInitialized.current = true;
+  }, [categoryCatalog]);
+
+  const selectedCategories = categoryCatalog.filter((c) => selectedCategoryIds.includes(c.id));
+  const isOthersSelected = hasOthersCategory(selectedCategories);
+
   const noteWordCount = notesInput.trim() ? notesInput.trim().split(/\s+/).length : 0;
 
   const handleBusinessSelect = (business: BusinessItemDAO) => {
@@ -167,11 +199,22 @@ export function ListItemForm({
       showToast({ type: "error", message: t("profile.picks.businessRequired") });
       return;
     }
+    if (selectedCategoryIds.length === 0) {
+      showToast({ type: "error", message: t("profile.picks.categoryRequired") });
+      return;
+    }
+    if (isOthersSelected && !othersName.trim()) {
+      showToast({ type: "error", message: t("profile.picks.othersNameRequired") });
+      return;
+    }
     onSubmit({
       businessId: selectedBusiness ? selectedBusiness.id : "",
       unverifiedBusiness: selectedBusiness ? undefined : nameInput.trim(),
       displayName: nameInput.trim(),
       tags: innerTags,
+      categories: selectedCategoryIds,
+      categoryObjects: selectedCategories.map((c) => ({ id: c.id, name: c.name })),
+      othersName: isOthersSelected ? othersName.trim() : undefined,
       description: notesInput.trim(),
       newFiles: newItemPhotos.map((p) => p.file),
       location: location ?? undefined,
@@ -189,7 +232,7 @@ export function ListItemForm({
           label={isEditing ? t("common.save") : t("profile.picks.savePick")}
           onPress={handleSubmit}
           variant="dark"
-          disabled={!nameInput.trim()}
+          disabled={!nameInput.trim() || selectedCategoryIds.length === 0}
           loading={loading}
         />
       }
@@ -241,6 +284,41 @@ export function ListItemForm({
             </View>
           )}
         </View>
+
+        <View>
+          <FieldLabel label={t("profile.picks.categoryLabel")} required />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex-row gap-2">
+              {categoryCatalog.map((category) => (
+                <CategoryChip
+                  key={category.id}
+                  label={category.name}
+                  isSelected={selectedCategoryIds.includes(category.id)}
+                  onPress={() => {
+                    const isSelected = selectedCategoryIds.includes(category.id);
+                    const next = isSelected
+                      ? selectedCategoryIds.filter((id) => id !== category.id)
+                      : [...selectedCategoryIds, category.id];
+                    setSelectedCategoryIds(next);
+                    const stillHasOthers = hasOthersCategory(
+                      categoryCatalog.filter((c) => next.includes(c.id)),
+                    );
+                    if (!stillHasOthers) setOthersName("");
+                  }}
+                />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+
+        {isOthersSelected ? (
+          <TextInput
+            label={t("profile.picks.othersCategoryLabel")}
+            placeholder={t("profile.picks.othersCategoryPlaceholder")}
+            value={othersName}
+            onChangeText={setOthersName}
+          />
+        ) : null}
 
         <TextInput
           label={t("profile.picks.descriptionLabel")}
