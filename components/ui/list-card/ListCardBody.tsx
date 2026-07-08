@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { getDominantPersonalityTextColor } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import type { Item } from "@/http/list-api/types";
+import { NoImage } from "../NoImage";
 
 interface ListCardBodyProps {
   title: string;
@@ -65,9 +66,12 @@ export function ListCardBody({
                       resizeMode="cover"
                     />
                   ) : (
-                    <View className="h-full w-full items-center justify-center">
-                      <ImageOff size={20} color={colorScheme === "dark" ? "#4B5563" : "#D1D5DB"} />
-                    </View>
+                    <NoImage
+                      personalityColor={personalityColor}
+                      size="xs"
+                      appearance="flat"
+                    />
+              
                   )}
                 </View>
 

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { toast } from "@/components/ui/Toast";
 import listService from "@/http/list-api/list.service";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useListFormStore } from "@/stores/useListFormStore";
 import { useSimilarScores } from "@/hooks/useSimilarScores";
 import { formatListLocation } from "@/utils/listUi";
 import type { ListItemDAO } from "@/http/list-api/types";
@@ -35,6 +37,7 @@ export function ListCard({
   similarScoresDummy,
 }: ListCardProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { user } = useAuthStore();
 
   const id = data.id;
@@ -83,7 +86,8 @@ export function ListCard({
 
   const handleEdit = () => {
     if (disableActions) return;
-    toast.info(t("alerts.comingSoon"), { title: t("alerts.comingSoon") });
+    useListFormStore.getState().clearEditHydration();
+    router.push(`/(app)/(stack)/lists/${id}/edit` as never);
   };
 
   const toggleFavorite = async () => {
@@ -137,7 +141,7 @@ export function ListCard({
 
   const handleSeeMore = () => {
     if (disableActions) return;
-    toast.info(t("alerts.comingSoonMessage"), { title: t("alerts.comingSoon") });
+    router.push(`/lists/${id}` as never);
   };
 
   const handleProfileClick = () => {

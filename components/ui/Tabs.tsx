@@ -12,9 +12,10 @@ interface TabsProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
   className?: string;
+  textClassName?: string;
 }
 
-export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
+export function Tabs({ tabs, activeTab, onTabChange, className, textClassName }: TabsProps) {
   return (
     <View className={`border-b border-gray-200 dark:border-gray-700 ${className ?? ''}`}>
       <ScrollView
@@ -38,14 +39,15 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
             >
               <Icon
                 size={12}
-                color={isActive ? '#FF6B1A' : '#9CA3AF'}
+                color={isActive ? '#FF6B1A' : '#6B7280'} // #6B7280 is Tailwind's text-gray-500
+           
               />
               <Text
-                className={
+                className={`${textClassName ?? ''} ${
                   isActive
                     ? 'text-ink dark:text-gray-100 font-geist-bold'
                     : 'text-gray-500 dark:text-gray-400 font-geist-semibold'
-                }
+                }`}
               >
                 {tab.label}
               </Text>

@@ -5,11 +5,15 @@ import { useTranslation } from "react-i18next";
 import { Text, View } from "react-native";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 
-type NoImageSize = "sm" | "md" | "lg" | "full";
+type NoImageSize = "xs" | "sm" | "md" | "lg" | "full";
+type NoImageAppearance = "gradient" | "flat";
 
 interface NoImageProps {
   personalityColor?: Record<string, number> | null;
   size?: NoImageSize;
+  appearance?: NoImageAppearance;
+  innerClassName?: string;
+  outerClassName?: string;
 }
 
 const SIZE_CONFIG: Record<
@@ -23,6 +27,14 @@ const SIZE_CONFIG: Record<
     maskHeight: number;
   }
 > = {
+  xs: {
+    outerClassName: "h-8 w-8 rounded-lg",
+    innerClassName: "rounded-[5px]",
+    iconSize: 14,
+    labelClassName: "text-[5px]",
+    maskWidth: 32,
+    maskHeight: 21,
+  },
   sm: {
     outerClassName: "h-12 w-12 rounded-lg",
     innerClassName: "rounded-[7px]",
@@ -49,7 +61,7 @@ const SIZE_CONFIG: Record<
   },
   full: {
     outerClassName: "h-full w-full",
-    innerClassName: "rounded-0",
+    innerClassName: "",
     iconSize: 28,
     labelClassName: "text-[9px]",
     maskWidth: 64,
@@ -68,28 +80,39 @@ function toLinearGradientColors(colors: string[]): [string, string, ...string[]]
   return colors.slice(0, 4) as [string, string, ...string[]];
 }
 
-export function NoImage({ personalityColor, size = "md" }: NoImageProps) {
+export function NoImage({
+  personalityColor,
+  size = "md",
+  appearance = "gradient",
+  innerClassName = "",
+  outerClassName = "",
+}: NoImageProps) {
   const { t } = useTranslation();
   const config = SIZE_CONFIG[size];
   const gradientColors = toLinearGradientColors(
     getPersonalityGradientColors(personalityColor),
   );
   const label = t("profile.picks.noImage");
+  const outerPadding = appearance === "gradient" ? 1 : 0;
+  const containerClassName =
+    appearance === "gradient"
+      ? `h-full w-full items-center justify-center bg-gray-50 dark:bg-gray-900 ${config.innerClassName} ${innerClassName}`
+      : `h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800 ${config.innerClassName} ${innerClassName}`;
 
   return (
     <View
-      className={`shrink-0 overflow-hidden ${config.outerClassName}`}
-      style={{ padding: 1 }}
+      className={`shrink-0 overflow-hidden ${config.outerClassName} ${outerClassName}`}
+      style={{ padding: outerPadding }}
     >
-      <LinearGradient
-        colors={gradientColors}
-        start={GRADIENT_START}
-        end={GRADIENT_END}
-        style={GRADIENT_FILL}
-      />
-      <View
-        className={`h-full w-full items-center justify-center bg-gray-50 dark:bg-gray-900 ${config.innerClassName}`}
-      >
+      {appearance === "gradient" ? (
+        <LinearGradient
+          colors={gradientColors}
+          start={GRADIENT_START}
+          end={GRADIENT_END}
+          style={GRADIENT_FILL}
+        />
+      ) : null}
+      <View className={containerClassName}>
         <MaskedView
           style={{
             height: config.maskHeight,

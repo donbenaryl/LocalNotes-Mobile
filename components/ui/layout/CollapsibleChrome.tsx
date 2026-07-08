@@ -11,6 +11,7 @@ const ANIMATION_DURATION = 220;
 
 interface CollapsibleChromeBaseProps {
   children: ReactNode;
+  className?: string;
 }
 
 type CollapsibleChromeProps =
@@ -19,6 +20,7 @@ type CollapsibleChromeProps =
 
 export function CollapsibleChrome({
   children,
+  className,
   isHidden,
   hideProgress,
 }: CollapsibleChromeProps) {
@@ -69,7 +71,7 @@ export function CollapsibleChrome({
   });
 
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View className={className} style={animatedStyle}>
       <View
         onLayout={handleLayout}
         // Once measured, take the child out of flow so the animating parent

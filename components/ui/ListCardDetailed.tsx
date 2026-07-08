@@ -86,7 +86,12 @@ function PickPreviewRow({
           />
         </View>
       ) : (
-        <NoImage personalityColor={personalityColor} size="sm" />
+        <NoImage
+          personalityColor={personalityColor}
+          size="sm"
+          appearance="flat"
+          innerClassName="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+        />
       )}
 
       <View className="min-w-0 flex-1 justify-center gap-0.5">
@@ -157,32 +162,25 @@ export function ListCardDetailed({
     <Pressable onPress={handleCardPress} accessibilityRole="button">
       <WhiteBox className="p-0">
         {/* Hero image */}
-        <View className="relative h-44 w-full overflow-hidden">
-          {heroImageUrl ? (
+        {heroImageUrl && (
+          <View className="relative h-44 w-full overflow-hidden">
             <Image
               source={{ uri: heroImageUrl }}
               className="h-full w-full"
               resizeMode="cover"
             />
-          ) : (
-            <LinearGradient
-              colors={toLinearGradientColors(gradientColors)}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-          )}
 
-          {showNewBadge ? (
-            <View className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1">
-              <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
-                {t("home.newBadge", {
-                  time: formatRelativeTimeUpper(list.created_at),
-                })}
-              </Text>
-            </View>
-          ) : null}
-        </View>
+            {showNewBadge ? (
+              <View className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1">
+                <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
+                  {t("home.newBadge", {
+                    time: formatRelativeTimeUpper(list.created_at),
+                  })}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        )}
 
         <View className="px-4 pt-3">
           {/* Author row */}

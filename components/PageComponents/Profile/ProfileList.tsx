@@ -8,12 +8,14 @@ interface ProfileListProps {
   userId: string;
   isOwnProfile?: boolean;
   activeTab: ProfileListTabType;
+  contentTopInset?: number;
 }
 
 export function ProfileList({
   userId,
   isOwnProfile = true,
   activeTab,
+  contentTopInset,
 }: ProfileListProps) {
   const deferredTab = useDeferredValue(activeTab);
   const isTabTransitioning = activeTab !== deferredTab;
@@ -28,10 +30,11 @@ export function ProfileList({
   const favoriteOptions = ["All", "Favorites only"];
 
   return (
-    <View className="flex-1">
+    <View className="flex-1 mt-6">
       <ProfileChromeScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: contentTopInset }}
       >
         {isTabTransitioning ? (
           <View className="p-4">

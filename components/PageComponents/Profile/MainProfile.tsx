@@ -1,5 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import {
   Building2,
   LayoutGrid,
@@ -67,7 +69,12 @@ function MainProfileContent({
   const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
+  const insets = useSafeAreaInsets();
   const { hideProgress, resetChrome } = useProfileChrome();
+
+  const tabsAnimatedStyle = useAnimatedStyle(() => ({
+    paddingTop: insets.top * hideProgress.value,
+  }));
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
     return isTabType(params.tab) ? params.tab : "picks";
@@ -138,7 +145,10 @@ function MainProfileContent({
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <CollapsibleChrome hideProgress={hideProgress}>
+      <CollapsibleChrome
+        hideProgress={hideProgress}
+        className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-md"
+      >
         <PageHeader
           onBack={() => router.back()}
           title="Profile"
@@ -172,21 +182,27 @@ function MainProfileContent({
           </Text>
         </View>
       ) : (
-        <>
-          <CollapsibleChrome hideProgress={hideProgress}>
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              className="mt-4 bg-page dark:bg-gray-900"
-            />
-          </CollapsibleChrome>
+        <View className="flex-1">
           <ProfileList
             userId={profile.id ?? userId ?? ""}
             isOwnProfile={isOwnProfile}
             activeTab={activeTab}
           />
-        </>
+          <Animated.View
+              className="pt-4 border-b-0 bg-white/70 dark:bg-gray-900/80 backdrop-blur-md"
+            style={[
+              tabsAnimatedStyle,
+              { position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 },
+            ]}
+          >
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              className="border-b-0"
+            />
+          </Animated.View>
+        </View>
       )}
     </View>
   );

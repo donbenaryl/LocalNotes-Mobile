@@ -4,7 +4,10 @@ import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 const SCROLL_THRESHOLD = 8;
 const TOP_OFFSET = 10;
 
-export function useScrollChromeHandler(setHidden: (hidden: boolean) => void) {
+export function useScrollChromeHandler(
+  setHidden: (hidden: boolean) => void,
+  setScrolled?: (scrolled: boolean) => void,
+) {
   const lastOffsetY = useRef(0);
 
   const onScroll = useCallback(
@@ -20,9 +23,10 @@ export function useScrollChromeHandler(setHidden: (hidden: boolean) => void) {
         setHidden(false);
       }
 
+      setScrolled?.(offsetY > TOP_OFFSET);
       lastOffsetY.current = offsetY;
     },
-    [setHidden],
+    [setHidden, setScrolled],
   );
 
   return { onScroll, scrollEventThrottle: 16 as const };

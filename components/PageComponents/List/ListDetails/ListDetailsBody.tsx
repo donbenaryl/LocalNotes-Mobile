@@ -15,6 +15,7 @@ import {
 } from "@/utils/listPickLocation";
 import type { Item, ListItemDAO } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
+import { NoImage } from "@/components/ui/NoImage";
 
 interface ListDetailsBodyProps {
   list: ListItemDAO;
@@ -41,7 +42,9 @@ function getPickImageUrl(item: Item): string | null {
   );
 }
 
-function sortItemsWithImagesFirst(items: Item[]): { item: Item; originalIndex: number }[] {
+function sortItemsWithImagesFirst(
+  items: Item[],
+): { item: Item; originalIndex: number }[] {
   return items
     .map((item, originalIndex) => ({ item, originalIndex }))
     .sort((a, b) => {
@@ -87,12 +90,18 @@ function ListDetailsPickCard({
     const nextFavorite = !isFavorite;
     setIsFavorite(nextFavorite);
     setIsTogglingFavorite(true);
-    const { error } = await listService.setListItemFavorite(item.id, nextFavorite);
+    const { error } = await listService.setListItemFavorite(
+      item.id,
+      nextFavorite,
+    );
     setIsTogglingFavorite(false);
 
     if (error) {
       setIsFavorite(!nextFavorite);
-      showToast({ type: "error", message: error.message ?? t("profile.picks.favoriteError") });
+      showToast({
+        type: "error",
+        message: error.message ?? t("profile.picks.favoriteError"),
+      });
     }
   };
 
@@ -110,24 +119,15 @@ function ListDetailsPickCard({
         {t("listDetail.pickLabel", { number: pickNumber })}
       </Text>
 
-      <View className="relative mb-3 h-40 overflow-hidden rounded-xl">
-        {imageUrl ? (
+      {imageUrl && (
+        <View className="relative mb-3 h-40 overflow-hidden rounded-xl">
           <Image
             source={{ uri: imageUrl }}
             className="h-full w-full"
             resizeMode="cover"
           />
-        ) : (
-          <LinearGradient
-            colors={toLinearGradientColors(
-              getPersonalityGradientColors(list.account.personality_color),
-            )}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-        )}
-      </View>
+        </View>
+      )}
 
       <Text className="font-geist-bold text-lg leading-6 text-ink dark:text-gray-100">
         {name}
@@ -213,7 +213,9 @@ function ListDetailsPickCard({
               isFavorite ? "text-brand" : "text-gray-600 dark:text-gray-300"
             }`}
           >
-            {isFavorite ? t("listDetail.savedList") : t("listDetail.reactions.save")}
+            {isFavorite
+              ? t("listDetail.savedList")
+              : t("listDetail.reactions.save")}
           </Text>
         </Pressable>
       </View>
@@ -239,7 +241,6 @@ export function ListDetailsBody({ list, onOpenInMaps }: ListDetailsBodyProps) {
             size="lg"
           />
         ) : null}
-  
 
         <Text className="font-geist-bold text-2xl leading-7 text-ink dark:text-gray-100">
           {list.name}
@@ -262,7 +263,9 @@ export function ListDetailsBody({ list, onOpenInMaps }: ListDetailsBodyProps) {
           </View>
         ) : null}
         {locationLabel ? (
-          <Text className="font-geist-medium text-[11.5px] text-gray-400">·</Text>
+          <Text className="font-geist-medium text-[11.5px] text-gray-400">
+            ·
+          </Text>
         ) : null}
         <Text className="font-geist-medium text-[11.5px] text-gray-500 dark:text-gray-400">
           {t("home.picksCount", { count: picksCount })}

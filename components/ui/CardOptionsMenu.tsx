@@ -22,7 +22,8 @@ interface CardOptionsMenuActionItem {
   kind: "action";
   key: string;
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  renderIcon?: (color: string) => ReactNode;
   onPress: () => void | Promise<void>;
   variant?: "default" | "brand" | "destructive";
 }
@@ -194,7 +195,10 @@ export function CardOptionsMenu({
                       accessibilityRole="button"
                       className={styles.pressable}
                     >
-                      <Icon size={15} color={styles.iconColor} />
+                      {item.renderIcon ? item.renderIcon(styles.iconColor) : null}
+                      {item.renderIcon ? null : Icon ? (
+                        <Icon size={15} color={styles.iconColor} />
+                      ) : null}
                       <Text className={styles.text}>{item.label}</Text>
                     </Pressable>
                   );

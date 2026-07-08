@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { Image, Pressable, Text, View } from "react-native";
 import {
   BadgeCheck,
   Bookmark,
@@ -16,11 +15,11 @@ import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { PickDetailModal } from "./PickDetailModal";
 import { PickFormModal } from "./PickFormModal";
 import { resolveImageUrl } from "@/utils/httpHelpers";
-import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import listService from "@/http/list-api/list.service";
 import { useToastStore } from "@/stores/useToastStore";
 import type { ListItemImage, ListItemPublic } from "@/http/list-api/types";
 import { WhiteBox } from "@/components/ui/WhiteBox";
+import { NoImage } from "@/components/ui/NoImage";
 
 interface PickCardProps {
   data: ListItemPublic;
@@ -36,15 +35,6 @@ function formatLocationLabel(location: ListItemPublic["location"]): string | nul
     location.country ||
     null
   );
-}
-
-function toLinearGradientColors(
-  colors: string[],
-): [string, string, ...string[]] {
-  if (colors.length === 1) {
-    return [colors[0], colors[0]];
-  }
-  return colors.slice(0, 4) as [string, string, ...string[]];
 }
 
 function PickCardOwnerRow({
@@ -129,13 +119,11 @@ function PickCardListLayout({ data, thumbnails, locationLabel }: PickCardListLay
             )}
           </>
         ) : (
-          <LinearGradient
-            colors={toLinearGradientColors(
-              getPersonalityGradientColors(data.owner?.personality_color),
-            )}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
+          <NoImage
+            personalityColor={data.owner?.personality_color}
+            size="full"
+            appearance="flat"
+            innerClassName="border-t border-gray-100 dark:border-t-0"
           />
         )}
       </View>
@@ -208,13 +196,10 @@ function PickCardGridLayout({ data, thumbnails, locationLabel }: PickCardGridLay
         />
       ) : (
         <View className="w-full aspect-[16/12] overflow-hidden rounded-t-2xl">
-          <LinearGradient
-            colors={toLinearGradientColors(
-              getPersonalityGradientColors(data.owner?.personality_color),
-            )}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
+          <NoImage
+            personalityColor={data.owner?.personality_color}
+            size="full"
+            appearance="flat"
           />
         </View>
       )}

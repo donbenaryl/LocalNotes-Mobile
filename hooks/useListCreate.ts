@@ -50,21 +50,26 @@ interface SaveListOptions {
   itemsSnapshot: ListPickDraft[];
 }
 
-export function useListCreate() {
+export function useListCreate(listId?: string) {
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const showToast = useToastStore((s) => s.show);
   const reset = useListFormStore((s) => s.reset);
+  const isEditing = Boolean(listId);
 
   const mutation = useMutation({
     mutationFn: async ({ status, itemsSnapshot }: SaveListOptions) => {
       const payload = buildPayload(status);
-      const { data, error } = await listService.createList(payload);
-      if (error) {
-        throw new Error(error.message ?? 'Failed to save list');
+      const response = isEditing
+        ? await listService.updateList(listId!, payload)
+        : await listService.createList(payload);
+
+      if (response.error) {
+        throw new Error(response.error.message ?? 'Failed to save list');
       }
-      const list = data?.data;
+
+      const list = response.data?.data;
       if (list?.items?.length) {
         await flushListPickImages(list.items, itemsSnapshot);
       }
@@ -72,15 +77,25 @@ export function useListCreate() {
     },
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['profile-lists'] });
+      if (listId) {
+        void queryClient.invalidateQueries({ queryKey: ['list-detail', listId] });
+        queryClient.removeQueries({ queryKey: ['list-edit', listId] });
+      }
       reset();
       showToast({
         type: 'success',
         message:
           variables.status === 'Draft'
             ? t('listForm.draftSaved')
-            : t('listForm.publishSuccess'),
+            : isEditing
+              ? t('listForm.updateSuccess')
+              : t('listForm.publishSuccess'),
       });
-      router.replace('/(app)/(stack)/profile');
+      if (isEditing) {
+        router.replace(`/(app)/(stack)/lists/${listId}` as never);
+      } else {
+        router.replace('/(app)/(stack)/profile');
+      }
     },
     onError: (error, variables) => {
       showToast({
@@ -90,7 +105,9 @@ export function useListCreate() {
             ? t('listForm.draftError')
             : error instanceof Error
               ? error.message
-              : t('listForm.publishError'),
+              : isEditing
+                ? t('listForm.updateError')
+                : t('listForm.publishError'),
       });
     },
   });

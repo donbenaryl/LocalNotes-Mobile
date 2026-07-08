@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Linking,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -10,7 +12,14 @@ import {
 import MapView, { Marker, type Region } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { CardOptionsMenu } from "@/components/ui/CardOptionsMenu";
+import {
+  CardOptionsMenu,
+  type CardOptionsMenuItem,
+} from "@/components/ui/CardOptionsMenu";
+import { AppleLogoIcon } from "@/components/ui/icons/AppleLogoIcon";
+import { GoogleLogoIcon } from "@/components/ui/icons/GoogleLogoIcon";
+import { WazeLogoIcon } from "@/components/ui/icons/WazeLogoIcon";
+import { toast } from "@/components/ui/Toast";
 import { buildMapPicks, getMapRegion } from "@/utils/listPickLocation";
 import type { ListItemDAO } from "@/http/list-api/types";
 
@@ -56,6 +65,7 @@ export function ListDetailsMap({
 
   const initialRegion = useMemo(() => getMapRegion(mapPicks), [mapPicks]);
   const sheetMaxHeight = windowHeight * 0.42;
+  const activePick = mapPicks[activeIndex];
 
   useEffect(() => {
     if (!visible) return;
@@ -86,6 +96,79 @@ export function ListDetailsMap({
     setActiveIndex(index);
   };
 
+  const handleOpenMapProvider = async (
+    providerName: string,
+    appUrl: string,
+    fallbackUrl?: string,
+  ) => {
+    try {
+      const supportedUrl = (await Linking.canOpenURL(appUrl))
+        ? appUrl
+        : fallbackUrl;
+
+      if (!supportedUrl) {
+        toast.error(t("listDetail.mapAppUnavailable", { appName: providerName }), {
+          title: t("alerts.error"),
+        });
+        return;
+      }
+
+      await Linking.openURL(supportedUrl);
+    } catch (error) {
+      console.error(`Failed to open ${providerName}:`, error);
+      toast.error(t("listDetail.mapOpenFailed", { appName: providerName }), {
+        title: t("alerts.error"),
+      });
+    }
+  };
+
+  const mapMenuItems = useMemo<CardOptionsMenuItem[]>(() => {
+    if (!activePick) return [];
+
+    const { latitude, longitude, name } = activePick;
+    const encodedName = encodeURIComponent(name);
+    const googleMapsUrl = `comgooglemaps://?q=${encodedName}&center=${latitude},${longitude}&zoom=14`;
+    const googleMapsFallbackUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    const appleMapsUrl = `http://maps.apple.com/?ll=${latitude},${longitude}&q=${encodedName}`;
+    const wazeUrl = `waze://?ll=${latitude},${longitude}&navigate=yes`;
+    const wazeFallbackUrl = `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+
+    const items: CardOptionsMenuItem[] = [
+      {
+        kind: "action",
+        key: "google-maps",
+        label: t("listDetail.navigateWithGoogleMaps"),
+        renderIcon: () => <GoogleLogoIcon />,
+        onPress: () =>
+          handleOpenMapProvider(
+            "Google Maps",
+            googleMapsUrl,
+            googleMapsFallbackUrl,
+          ),
+      },
+      {
+        kind: "action",
+        key: "waze",
+        label: t("listDetail.navigateWithWaze"),
+        renderIcon: () => <WazeLogoIcon />,
+        onPress: () =>
+          handleOpenMapProvider("Waze", wazeUrl, wazeFallbackUrl),
+      },
+    ];
+
+    if (Platform.OS === "ios") {
+      items.splice(1, 0, {
+        kind: "action",
+        key: "apple-maps",
+        label: t("listDetail.navigateWithAppleMaps"),
+        renderIcon: () => <AppleLogoIcon />,
+        onPress: () => handleOpenMapProvider("Apple Maps", appleMapsUrl),
+      });
+    }
+
+    return items;
+  }, [activePick, t]);
+
   if (!visible) return null;
 
   return (
@@ -95,7 +178,7 @@ export function ListDetailsMap({
           <PageHeader
             borderless
             onBack={onClose}
-            rightChild={<CardOptionsMenu />}
+            rightChild={<CardOptionsMenu items={mapMenuItems} />}
           />
         </View>
 

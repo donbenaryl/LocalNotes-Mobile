@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   ScrollView,
@@ -22,6 +23,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { RadioButton } from "@/components/ui/RadioButton";
 import { useCategories } from "@/hooks/useProfileList";
 import { useListCreate } from "@/hooks/useListCreate";
+import { useListEditHydration } from "@/hooks/useListEditHydration";
 import { useListFormStore } from "@/stores/useListFormStore";
 import { useToastStore } from "@/stores/useToastStore";
 import { VISIBILITY_OPTIONS } from "@/constants/visibility";
@@ -41,6 +43,7 @@ const INTRO_MAX_LENGTH = 280;
 
 interface ListFormProps {
   step: 1 | 2;
+  listId?: string;
 }
 
 function hasOthersCategory(categories: ListFormCategory[]): boolean {
@@ -76,12 +79,19 @@ function CategoryChip({
   );
 }
 
-export function ListForm({ step }: ListFormProps) {
+export function ListForm({ step, listId }: ListFormProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const showToast = useToastStore((s) => s.show);
+  const isEditing = Boolean(listId);
   const { categories, isPending: categoriesLoading } = useCategories();
-  const { saveList, isSaving } = useListCreate();
+  const { saveList, isSaving } = useListCreate(listId);
+  const {
+    isLoading: isHydrating,
+    isError: hydrationError,
+    selectedUserDetails,
+    setSelectedUserDetails,
+  } = useListEditHydration(listId);
 
   const name = useListFormStore((s) => s.name);
   const location = useListFormStore((s) => s.location);
@@ -110,9 +120,16 @@ export function ListForm({ step }: ListFormProps) {
 
   const [pickModalVisible, setPickModalVisible] = useState(false);
   const [editingPick, setEditingPick] = useState<ListPickDraft | null>(null);
-  const [selectedUserDetails, setSelectedUserDetails] = useState<
+  const [createSelectedUserDetails, setCreateSelectedUserDetails] = useState<
     searchUserDAO[]
   >([]);
+
+  const resolvedSelectedUserDetails = isEditing
+    ? selectedUserDetails
+    : createSelectedUserDetails;
+  const setResolvedSelectedUserDetails = isEditing
+    ? setSelectedUserDetails
+    : setCreateSelectedUserDetails;
 
   const isOthersSelected = hasOthersCategory(selectedCategories);
 
@@ -226,8 +243,12 @@ export function ListForm({ step }: ListFormProps) {
 
   const handleContinueToShare = useCallback(() => {
     if (!validateStep1()) return;
+    if (isEditing && listId) {
+      router.push(`/(app)/(stack)/lists/${listId}/edit/share` as never);
+      return;
+    }
     router.push("/(app)/(stack)/lists/new/share");
-  }, [router, validateStep1]);
+  }, [isEditing, listId, router, validateStep1]);
 
   const handlePublish = useCallback(() => {
     const snapshot = items.map((item) => ({ ...item }));
@@ -277,17 +298,51 @@ export function ListForm({ step }: ListFormProps) {
     : undefined;
 
   const handleAddUser = (user: searchUserDAO) => {
-    if (selectedUserDetails.some((u) => u.id === user.id)) return;
-    const next = [...selectedUserDetails, user];
-    setSelectedUserDetails(next);
+    if (resolvedSelectedUserDetails.some((u) => u.id === user.id)) return;
+    const next = [...resolvedSelectedUserDetails, user];
+    setResolvedSelectedUserDetails(next);
     setSpecificUsers(next.map((u) => u.id));
   };
 
   const handleRemoveUser = (userId: string) => {
-    const next = selectedUserDetails.filter((u) => u.id !== userId);
-    setSelectedUserDetails(next);
+    const next = resolvedSelectedUserDetails.filter((u) => u.id !== userId);
+    setResolvedSelectedUserDetails(next);
     setSpecificUsers(next.map((u) => u.id));
   };
+
+  if (isEditing && isHydrating) {
+    return (
+      <SafeAreaView
+        edges={["bottom"]}
+        className="flex-1 items-center justify-center bg-page dark:bg-gray-900"
+      >
+        <ActivityIndicator size="large" color="#FF6B1A" />
+        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
+          {t("common.pleaseWait")}
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (isEditing && hydrationError) {
+    return (
+      <SafeAreaView
+        edges={["bottom"]}
+        className="flex-1 items-center justify-center bg-page px-6 dark:bg-gray-900"
+      >
+        <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+          {t("listForm.loadError")}
+        </Text>
+        <View className="mt-4 w-full max-w-xs">
+          <LocalNotesButton
+            label={t("listForm.back")}
+            onPress={() => router.back()}
+            variant="light"
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (step === 2) {
     return (
@@ -331,7 +386,7 @@ export function ListForm({ step }: ListFormProps) {
                     setShareOption(option.value);
                     if (option.value !== "Specific People") {
                       setSpecificUsers([]);
-                      setSelectedUserDetails([]);
+                      setResolvedSelectedUserDetails([]);
                     }
                   }}
                   className={`flex-row items-center gap-3 rounded-2xl border p-3 cursor-pointer ${
@@ -352,7 +407,7 @@ export function ListForm({ step }: ListFormProps) {
                     </Text>
                     {option.value === "Specific People" && isActive ? (
                       <ListUserSearchInput
-                        selectedUsers={selectedUserDetails}
+                        selectedUsers={resolvedSelectedUserDetails}
                         onAddUser={handleAddUser}
                         onRemoveUser={handleRemoveUser}
                       />
@@ -404,7 +459,9 @@ export function ListForm({ step }: ListFormProps) {
             </View>
             <View className="flex-1">
               <LocalNotesButton
-                label={t("listForm.publishList")}
+                label={
+                  isEditing ? t("listForm.updateList") : t("listForm.publishList")
+                }
                 onPress={handlePublish}
                 variant="dark"
                 loading={isSaving}
@@ -425,7 +482,9 @@ export function ListForm({ step }: ListFormProps) {
       className="flex-1 bg-page dark:bg-gray-900"
     >
       <PageHeader
-        title={t("listForm.newListTitle")}
+        title={
+          isEditing ? t("listForm.editListTitle") : t("listForm.newListTitle")
+        }
         leftChild={
           <TouchableOpacity
             onPress={handleCancel}
@@ -461,13 +520,17 @@ export function ListForm({ step }: ListFormProps) {
       >
         <View className="mb-6 mt-2">
           <Text className="font-geist-bold text-xl text-ink dark:text-gray-100">
-            {t("listForm.heroTitle")}{" "}
-            <Text className="font-fraunces text-xl text-brand">
-              {t("listForm.heroTitleItalic")}
-            </Text>
+            {isEditing ? t("listForm.editHeroTitle") : t("listForm.heroTitle")}{" "}
+            {!isEditing ? (
+              <Text className="font-fraunces text-xl text-brand">
+                {t("listForm.heroTitleItalic")}
+              </Text>
+            ) : null}
           </Text>
           <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
-            {t("listForm.heroSubtitle")}
+            {isEditing
+              ? t("listForm.editHeroSubtitle")
+              : t("listForm.heroSubtitle")}
           </Text>
         </View>
 

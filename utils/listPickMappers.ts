@@ -1,6 +1,36 @@
-import type { CreateListItemPayload, ListItemPublic } from '@/http/list-api/types';
+import type {
+  CreateListItemPayload,
+  Item,
+  ListItemDAO,
+  ListItemPublic,
+} from '@/http/list-api/types';
 import type { FormSubmitData } from '@/components/PageComponents/Profile/ListItemForm';
-import type { ListPickDraft } from '@/types/listForm';
+import type {
+  ListFormCategory,
+  ListFormData,
+  ListPickDraft,
+  ShareOption,
+} from '@/types/listForm';
+
+function stripHtmlTags(html: string): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+function normalizeShareOption(privacy: string): ShareOption {
+  switch (privacy) {
+    case 'Public':
+      return 'Public';
+    case 'Friends':
+      return 'Friends';
+    case 'Private':
+      return 'Private';
+    case 'Specific People':
+      return 'Specific People';
+    default:
+      return 'Public';
+  }
+}
 
 export function stableNumericIdFromUuid(uuid: string): number {
   const hex = uuid.replace(/-/g, '');
@@ -76,6 +106,60 @@ export function getPickDisplayName(pick: ListPickDraft): string {
     pick.unverified_business?.trim() ||
     'Unnamed place'
   );
+}
+
+export function mapApiItemToPickDraft(item: Item): ListPickDraft {
+  return {
+    id: stableNumericIdFromUuid(String(item.id)),
+    serverItemId: item.id,
+    linkedFromLibrary: true,
+    existingImages: item.images ?? [],
+    business: item.business?.id,
+    businessDisplayName:
+      item.business?.name ?? item.unverified_business?.name ?? undefined,
+    new_tags: item.tags.map((tag) => tag.name),
+    description: item.description,
+    unverified_business: item.unverified_business?.name,
+    ...(item.location ? { location: item.location } : {}),
+    ...(item.owner
+      ? {
+          owner: {
+            id: item.owner.id,
+            name: item.owner.name,
+            profile_image: item.owner.profile_image,
+          },
+          ownerPersonalityColor: item.owner.personality_color,
+        }
+      : {}),
+  };
+}
+
+export function mapListItemDaoToFormData(
+  list: ListItemDAO,
+  categoryCatalog: ListFormCategory[],
+): ListFormData {
+  const matchedCategories = (list.categories ?? [])
+    .map((name) =>
+      categoryCatalog.find(
+        (category) =>
+          category.name.toLowerCase() === name.toLowerCase() ||
+          category.id === name,
+      ),
+    )
+    .filter((category): category is ListFormCategory => category != null);
+
+  return {
+    name: list.name,
+    location: list.location,
+    categories: matchedCategories,
+    items: (list.items ?? []).map(mapApiItemToPickDraft),
+    notes: stripHtmlTags(list.notes ?? ''),
+    others_name: list.others_name ?? '',
+    shareOption: normalizeShareOption(list.privacy),
+    allowComments: list.others_can_comment,
+    allowShare: list.others_can_share,
+    specificUsers: list.shared_with ?? [],
+  };
 }
 
 export function getPickSubtitle(pick: ListPickDraft): string {

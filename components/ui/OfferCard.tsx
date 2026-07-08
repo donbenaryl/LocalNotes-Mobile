@@ -11,6 +11,7 @@ import type { OfferCardItem } from "@/types/offer";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel } from "@/utils/time";
 import { WhiteBox } from "./WhiteBox";
+import { NoImage } from "./NoImage";
 
 interface OfferCardProps {
   offer: OfferCardItem;
@@ -113,9 +114,9 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
             />
           ) : (
             <View className="h-full w-full items-center justify-center bg-gray-900">
-              <ImageOff
-                size={32}
-                color={colorScheme === "dark" ? "#4B5563" : "#D1D5DB"}
+              <NoImage
+                size="full"
+                appearance="flat"
               />
             </View>
           )}
