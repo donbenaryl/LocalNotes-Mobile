@@ -31,7 +31,7 @@ export function Tabs({ tabs, activeTab, onTabChange, className, textClassName }:
               activeOpacity={1}
               key={tab.id}
               onPress={() => onTabChange(tab.id)}
-              className={`px-2 relative flex-row items-center gap-2 pb-3 mr-6 cursor-pointer border-b-2 ${
+              className={`px-2 pr-4 relative flex-row items-center gap-2 pb-3 mr-6 cursor-pointer border-b-2 ${
                 isActive
                   ? 'border-brand'
                   : 'border-transparent'

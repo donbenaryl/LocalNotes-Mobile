@@ -16,8 +16,8 @@ const TABS = [
   { label: 'Home', Icon: LayoutGrid, route: '/(app)/home', segment: '/home' },
   { label: 'Smart Picks', Icon: Star, route: '/personality', segment: '/personality' },
   null,
-  { label: 'Saved', Icon: Bookmark, route: '/pre-home-onboarding', segment: '/saved' },
-  { label: 'Search', Icon: Search, route: '/(app)/search', segment: '/search' },
+  { label: 'Saved', Icon: Bookmark, route: '/(app)/(tabs)/saved/draft', segment: '/saved' },
+  { label: 'Search', Icon: Search, route: '/(app)/(stack)/search/lists', segment: '/search' },
 ] as const;
 
 const FAB_SHADOW = Platform.select({
@@ -75,7 +75,10 @@ export function GuardedFooter() {
       pointerEvents="box-none"
     >
       <View className="relative w-full max-w-md">
-        <View className="absolute top-2 left-0 right-0 z-20 items-center">
+        <View
+          className="absolute top-2 left-0 right-0 z-20 items-center"
+          pointerEvents="box-none"
+        >
           <TouchableOpacity
             onPress={() => setIsCreatePickerOpen(true)}
             className="h-14 w-14 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-gray-900"

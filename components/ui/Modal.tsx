@@ -146,7 +146,7 @@ export function Modal({
               className="w-full items-center pt-3 pb-3"
               {...panResponder.panHandlers}
             >
-              <View className="absolute w-24 h-[5px] rounded-full bg-gray-300 dark:bg-gray-600" />
+              <View className="absolute w-24 h-[5px] rounded-full bg-gray-300 dark:bg-gray-600 mt-2" />
             </View>
 
             {title ? (

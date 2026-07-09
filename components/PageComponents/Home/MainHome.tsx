@@ -44,7 +44,10 @@ export default function MainHome() {
   const pathname = usePathname();
   const router = useRouter();
   const activeTab = getActiveTab(pathname);
-  const isScrolled = useHomeChromeStore((s) => s.isScrolled);
+  // Couple the sticky Tabs to the header's visibility so they return to their
+  // original in-flow position the moment the GuardedHeader is shown, and stick
+  // to the top exactly when it hides.
+  const isHidden = useHomeChromeStore((s) => s.isHidden);
   const resetChrome = useHomeChromeStore((s) => s.reset);
 
   useEffect(() => {
@@ -60,19 +63,19 @@ export default function MainHome() {
 
   return (
     <View
-      className="flex-1 bg-page dark:bg-gray-900 -mt-6"
+      className="flex-1 bg-page dark:bg-gray-900 -mt-10"
       style={{ paddingTop: insets.top }}
     >
       <View
-        className={isScrolled ? "absolute left-0 right-0 z-10 bg-white/70 dark:bg-gray-900/80 backdrop-blur-md" : undefined}
-        style={isScrolled ? { paddingTop: insets.top + 18 } : undefined}
+        className={isHidden ? "absolute left-0 right-0 z-10 bg-white/70 dark:bg-gray-900/80 backdrop-blur-md" : undefined}
+        style={isHidden ? { paddingTop: insets.top + 35 } : undefined}
       >
         <Tabs
-          className={isScrolled ? "border-b-0" : undefined}
+          className={isHidden ? "border-b-0" : undefined}
           tabs={TABS}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          textClassName={isScrolled ? "text-gray-900 dark:text-gray-100" : undefined}
+          textClassName={isHidden ? "text-gray-900 dark:text-gray-100" : undefined}
         />
       </View>
 

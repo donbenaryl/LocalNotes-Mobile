@@ -1,7 +1,14 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
-import { Calendar, Clock, Eye, Heart, ImageOff, MapPin } from "lucide-react-native";
+import {
+  Calendar,
+  Clock,
+  Eye,
+  Heart,
+  ImageOff,
+  MapPin,
+} from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
@@ -105,30 +112,23 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
     <Pressable onPress={handlePress} accessibilityRole="button">
       <WhiteBox className="p-0">
         {/* Hero image */}
-        <View className="relative h-44 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-          {imageSrc ? (
+        {imageSrc && (
+          <View className="relative h-44 w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
             <Image
               source={{ uri: imageSrc }}
               className="h-full w-full"
               resizeMode="cover"
             />
-          ) : (
-            <View className="h-full w-full items-center justify-center bg-gray-900">
-              <NoImage
-                size="full"
-                appearance="flat"
-              />
-            </View>
-          )}
 
-          {offer.expiresAt && isLessThanADay ? (
-            <View className="absolute left-3 top-3 rounded-full bg-[#de4f2d] px-2.5 py-1">
-              <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
-                {untilLabel}
-              </Text>
-            </View>
-          ) : null}
-        </View>
+            {offer.expiresAt && isLessThanADay ? (
+              <View className="absolute left-3 top-3 rounded-full bg-[#de4f2d] px-2.5 py-1">
+                <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
+                  {untilLabel}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        )}
 
         <View className="px-4 pt-3">
           {/* Author row */}

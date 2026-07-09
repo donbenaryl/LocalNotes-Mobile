@@ -1,6 +1,7 @@
 import { ProfileActivityTab } from "./ProfileActivityTab";
 import { ProfileListTabPanel } from "./ProfileListTabPanel";
 import { ProfilePicksTab } from "./ProfilePicksTab";
+import { ComingSoon } from "@/components/ui/ComingSoon";
 import type { ProfileTabCategory } from "@/hooks/useProfileList";
 
 export type ProfileListTabType =
@@ -59,6 +60,10 @@ export function ProfileTabPanel({
 
   if (tab === "recent") {
     return <ProfileActivityTab userId={userId} />;
+  }
+
+  if (tab === "contributed") {
+    return <ComingSoon />;
   }
 
   return (

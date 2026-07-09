@@ -20,6 +20,7 @@ import { AppleLogoIcon } from "@/components/ui/icons/AppleLogoIcon";
 import { GoogleLogoIcon } from "@/components/ui/icons/GoogleLogoIcon";
 import { WazeLogoIcon } from "@/components/ui/icons/WazeLogoIcon";
 import { toast } from "@/components/ui/Toast";
+import { MapPinMarker } from "@/components/ui/MapPinMarker";
 import { buildMapPicks, getMapRegion } from "@/utils/listPickLocation";
 import type { ListItemDAO } from "@/http/list-api/types";
 
@@ -28,27 +29,6 @@ interface ListDetailsMapProps {
   list: ListItemDAO;
   initialIndex: number;
   onClose: () => void;
-}
-
-function MapPinMarker({
-  number,
-  isActive,
-}: {
-  number: number;
-  isActive: boolean;
-}) {
-  return (
-    <View className="items-center">
-      <View
-        className={`h-8 w-8 items-center justify-center rounded-full border-[2.5px] border-white ${
-          isActive ? "bg-brand" : "bg-ink"
-        }`}
-      >
-        <Text className="font-geist-bold text-[13px] text-white">{number}</Text>
-      </View>
-      <View className="h-0 w-0 border-l-[5px] border-r-[5px] border-t-[7px] border-l-transparent border-r-transparent border-t-white" />
-    </View>
-  );
 }
 
 export function ListDetailsMap({

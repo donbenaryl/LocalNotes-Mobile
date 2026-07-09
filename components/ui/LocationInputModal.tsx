@@ -14,8 +14,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MapPin, Bookmark, ChevronDown, Globe } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useColorScheme } from 'nativewind';
 import { LocationInput } from '@/components/ui/LocationInput';
 import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
+import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import type { Location as GeoLocation } from '@/http/list-api/types';
 
 function formatLocationLabel(location: GeoLocation): string {
@@ -59,24 +61,21 @@ export function LocationInputModalTrigger({
   onAllSelected,
 }: LocationInputModalTriggerProps) {
   const [visible, setVisible] = useState(false);
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#191B1C';
 
   return (
     <>
-      <Pressable
+      <LocalNotesButton
+        label={cityLabel}
         onPress={() => setVisible(true)}
-        className="cursor-pointer flex-row items-center border border-gray-200 dark:border-gray-700 rounded-full px-3 py-1.5"
-      >
-        <MapPin size={13} color="#6B7280" />
-        <Text
-          className="ml-1 font-geist-medium text-gray-800 dark:text-gray-400"
-          numberOfLines={1}
-        >
-          {cityLabel}
-        </Text>
-        <View className="ml-0.5 opacity-55">
-          <ChevronDown size={9} />
-        </View>
-      </Pressable>
+        variant="light"
+        size="xs"
+        isRounded
+        isWidthFull={false}
+        leftIcon={<MapPin size={14} color={iconColor} />}
+        rightIcon={<ChevronDown size={12} color={iconColor} />}
+      />
       <LocationInputModal
         visible={visible}
         isAllSelected={isAllSelected}

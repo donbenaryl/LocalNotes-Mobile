@@ -84,9 +84,9 @@ function MainProfileContent({
     { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
     { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
     { id: "saved", label: t("profile.tabs.saved"), icon: List },
-    { id: "contributed", label: t("profile.tabs.contributed"), icon: ListChecks },
     { id: "shared-with-me", label: t("profile.tabs.sharedWithMe"), icon: Share2 },
     { id: "recent", label: t("profile.tabs.recent"), icon: Tv },
+    { id: "contributed", label: t("profile.tabs.contributed"), icon: ListChecks },
   ];
 
   const tabs = useMemo(() => {
