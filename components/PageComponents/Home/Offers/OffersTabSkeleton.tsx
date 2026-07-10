@@ -48,7 +48,7 @@ export function OffersTabSkeleton() {
   return (
     <HomeChromeScrollView
       className="flex-1"
-      contentContainerClassName="px-4 pb-28 pt-4"
+      contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
     >
       <View className="mb-6 gap-2">

@@ -11,7 +11,7 @@ interface ThemeStore {
 }
 
 export const useThemeStore = create<ThemeStore>((set) => ({
-  theme: 'light',
+  theme: 'dark',
   setTheme: async (theme) => {
     set({ theme });
     colorScheme.set(theme);

@@ -6,10 +6,11 @@ import {
 } from "react-native";
 import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
 import { useTranslation } from "react-i18next";
-import type { ListItemDAO, Location as GeoLocation } from "@/http/list-api/types";
+import type { ListItemDAO, ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import {
   HomeFilterHeader,
+  type HomeContentType,
   type HomeListFilter,
 } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
 import { HomeEditorialHeader } from "@/components/PageComponents/Home/Home/HomeEditorialHeader";
@@ -18,12 +19,16 @@ import { HomeTabSkeleton } from "@/components/PageComponents/Home/Home/HomeTabSk
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
+import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useHomeLists } from "@/hooks/useHomeLists";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
+import { sortPicksWithImagesFirst } from "@/utils/homePicks";
 import {
   getTimeOfDayLabel,
   type TimeOfDayPeriod,
 } from "@/utils/time";
+import { cn } from "@/utils/cn";
 
 function formatCityLabel(location: GeoLocation): string {
   return location.region
@@ -61,12 +66,14 @@ function sortListsWithImagesFirst(lists: ListItemDAO[]): ListItemDAO[] {
 function HomeSection({
   title,
   children,
+  className,
 }: {
   title: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <View className="mb-6">
+    <View className={cn("mb-6", className)}>
       <Text className="mb-3 font-geist-bold text-lg text-ink dark:text-gray-100">
         {title}
       </Text>
@@ -75,10 +82,34 @@ function HomeSection({
   );
 }
 
+function HomePicksGrid({
+  picks,
+  onRefresh,
+}: {
+  picks: ListItemPublic[];
+  onRefresh: () => void;
+}) {
+  return (
+    <View className="flex-row flex-wrap justify-between gap-y-4">
+      {picks.map((pick) => (
+        <View key={pick.id} className="w-[48%]">
+          <PickCard
+            data={pick}
+            variant="grid"
+            readOnly
+            onRefresh={onRefresh}
+          />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 type HomeLocationMode = "auto" | "city" | "all";
 
 export function HomeTab() {
   const { t, i18n } = useTranslation();
+  const [contentType, setContentType] = useState<HomeContentType>("lists");
   const [activeFilters, setActiveFilters] = useState<HomeListFilter[]>([]);
   const [matchThreshold, setMatchThreshold] = useState<number | null>(null);
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
@@ -131,6 +162,9 @@ export function HomeTab() {
     forYouLists,
     topMatchPercent,
     discoverLists,
+    forYouPicks,
+    nearYouPicks,
+    discoverPicks,
     isLoading,
     error,
     refetch,
@@ -143,6 +177,7 @@ export function HomeTab() {
     locationOverride: locationMode === "city" ? manualLocation : null,
     skipLocationFilter: locationMode === "all",
     selectedVibes,
+    contentType,
   });
 
   const timeLabel = useMemo(
@@ -170,6 +205,21 @@ export function HomeTab() {
     [discoverLists],
   );
 
+  const sortedForYouPicks = useMemo(
+    () => sortPicksWithImagesFirst(forYouPicks),
+    [forYouPicks],
+  );
+
+  const sortedNearYouPicks = useMemo(
+    () => sortPicksWithImagesFirst(nearYouPicks),
+    [nearYouPicks],
+  );
+
+  const sortedDiscoverPicks = useMemo(
+    () => sortPicksWithImagesFirst(discoverPicks),
+    [discoverPicks],
+  );
+
   if (error) {
     return (
       <View className="flex-1 items-center justify-center px-6">
@@ -187,14 +237,18 @@ export function HomeTab() {
   }
 
   const isEmpty =
-    forYouLists.length === 0 &&
-    !showNearYouSection &&
-    discoverLists.length === 0;
+    contentType === "picks"
+      ? forYouPicks.length === 0 &&
+        !showNearYouSection &&
+        discoverPicks.length === 0
+      : forYouLists.length === 0 &&
+        !showNearYouSection &&
+        discoverLists.length === 0;
 
   return (
     <HomeChromeScrollView
       className="flex-1"
-      contentContainerClassName="px-4 pb-28 pt-4"
+      contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl
@@ -223,6 +277,8 @@ export function HomeTab() {
             selectedVibes={selectedVibes}
             onVibesChange={handleVibesChange}
             vibeMatchCount={vibeMatchCount}
+            contentType={contentType}
+            onContentTypeChange={setContentType}
           />
 
           <HomeEditorialHeader
@@ -231,31 +287,80 @@ export function HomeTab() {
             isCityLoading={isLocationLoading}
           />
 
-          <ForYouSection
-            lists={sortedForYouLists}
-            topMatchPercent={topMatchPercent}
-          />
+          {contentType === "lists" ? (
+            <>
+              <ForYouSection
+                lists={sortedForYouLists}
+                topMatchPercent={topMatchPercent}
+              />
 
-          {showNearYouSection ? (
-            <HomeSection title={t("home.newNearYou")}>
-              {sortedNearYouLists.map((list) => (
-                <ListCardDetailed key={list.id} list={list} />
-              ))}
-            </HomeSection>
-          ) : null}
+              {showNearYouSection ? (
+                <HomeSection title={t("home.newNearYou")}>
+                  {sortedNearYouLists.map((list) => (
+                    <ListCardDetailed key={list.id} list={list} />
+                  ))}
+                </HomeSection>
+              ) : null}
 
-          {sortedDiscoverLists.length > 0 ? (
-            <HomeSection title={t("home.discover")}>
-              {sortedDiscoverLists.map((list) => (
-                <ListCardDetailed key={list.id} list={list} />
-              ))}
-            </HomeSection>
-          ) : null}
+              {sortedDiscoverLists.length > 0 ? (
+                <HomeSection title={t("home.discover")}>
+                  {sortedDiscoverLists.map((list) => (
+                    <ListCardDetailed key={list.id} list={list} />
+                  ))}
+                </HomeSection>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {sortedForYouPicks.length > 0 ? (
+                <View className="mb-6">
+                  <View className="mb-2.5 flex-row items-baseline justify-between">
+                    <PageSectionTitle>{t("home.forYou.eyebrow")}</PageSectionTitle>
+                    {topMatchPercent != null ? (
+                      <Text className="font-geist-bold text-xs text-brand">
+                        {t("home.forYou.match", { percent: topMatchPercent })}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <HomePicksGrid
+                    picks={sortedForYouPicks}
+                    onRefresh={() => void refetch()}
+                  />
+                </View>
+              ) : null}
+
+              {showNearYouSection ? (
+                <HomeSection title={t("home.newNearYou")}>
+                  <HomePicksGrid
+                    picks={sortedNearYouPicks}
+                    onRefresh={() => void refetch()}
+                  />
+                </HomeSection>
+              ) : null}
+
+              {sortedDiscoverPicks.length > 0 ? (
+                <HomeSection title={t("home.discover")}>
+                  <HomePicksGrid
+                    picks={sortedDiscoverPicks}
+                    onRefresh={() => void refetch()}
+                  />
+                </HomeSection>
+              ) : null}
+            </>
+          )}
 
           {isEmpty ? (
             <EmptyScreen
-              title={t("home.emptyDiscover")}
-              description={t("home.emptyDiscoverDescription")}
+              title={
+                contentType === "picks"
+                  ? t("home.emptyPicksDiscover")
+                  : t("home.emptyDiscover")
+              }
+              description={
+                contentType === "picks"
+                  ? t("home.emptyPicksDiscoverDescription")
+                  : t("home.emptyDiscoverDescription")
+              }
               className="justify-center py-20"
             />
           ) : null}

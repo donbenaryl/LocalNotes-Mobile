@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 import accountService from "@/http/account-api/account.services";
@@ -18,6 +18,10 @@ export function FollowButton({
   const { t } = useTranslation();
   const [isFollowed, setIsFollowed] = useState(initialIsFollowed);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setIsFollowed(initialIsFollowed);
+  }, [initialIsFollowed]);
 
   const handlePress = async () => {
     if (loading) return;

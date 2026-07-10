@@ -1,9 +1,9 @@
 import { Pressable, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { WhiteBox } from "@/components/ui/WhiteBox";
-import { toast } from "@/components/ui/Toast";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import {
@@ -19,6 +19,7 @@ interface PeopleCardProps {
 
 export function PeopleCard({ data, onPress }: PeopleCardProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const role = data.personality_name ?? "";
   const matchValue = Math.max(0, Math.min(100, Math.round(data.match ?? 0)));
   const roleColor = getPersonalityRoleColor(role);
@@ -35,9 +36,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
       onPress();
       return;
     }
-    toast.info(t("alerts.comingSoonMessage"), {
-      title: t("alerts.comingSoon"),
-    });
+    router.push(`/profile/${data.id}` as never);
   };
 
   return (
@@ -114,7 +113,10 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
                   }),
                 })}
               </Text>
-              <FollowButton userId={data.id} initialIsFollowed={false} />
+              <FollowButton
+                userId={data.id}
+                initialIsFollowed={data.is_followed ?? false}
+              />
             </View>
           </View>
         </View>

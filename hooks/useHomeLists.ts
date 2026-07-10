@@ -8,6 +8,12 @@ import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { useUserSimilarityScores } from "@/hooks/useUserSimilarityScores";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { isCreatedToday } from "@/utils/time";
+import {
+  countMatchingPicks,
+  countVibeMatchingPicks,
+  flattenListsToPicks,
+  type HomeContentType,
+} from "@/utils/homePicks";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 10;
@@ -20,6 +26,7 @@ export interface UseHomeListsOptions {
   locationOverride: GeoLocation | null;
   skipLocationFilter?: boolean;
   selectedVibes: string[];
+  contentType?: HomeContentType;
 }
 
 interface EffectiveCoordinates {
@@ -228,33 +235,104 @@ export function useHomeLists(options: UseHomeListsOptions) {
     [discoverListsRaw, forYouIds],
   );
 
-  const unfilteredDiscoverLists = discoverQuery.data ?? [];
+  const { forYouPicks, nearYouPicks, discoverPicks } = useMemo(() => {
+    const forYou = flattenListsToPicks(
+      forYouLists,
+      options.selectedVibes,
+    );
+    const forYouPickIds = new Set(forYou.map((pick) => pick.id));
 
-  const matchingCount = useMemo(
-    () =>
-      countMatchingLists(
+    const nearYou = flattenListsToPicks(
+      nearYouLists,
+      options.selectedVibes,
+      forYouPickIds,
+    );
+    const nearYouPickIds = new Set([
+      ...forYouPickIds,
+      ...nearYou.map((pick) => pick.id),
+    ]);
+
+    const discover = flattenListsToPicks(
+      discoverLists,
+      options.selectedVibes,
+      nearYouPickIds,
+    );
+
+    return {
+      forYouPicks: forYou,
+      nearYouPicks: nearYou,
+      discoverPicks: discover,
+    };
+  }, [
+    forYouLists,
+    nearYouLists,
+    discoverLists,
+    options.selectedVibes,
+  ]);
+
+  const unfilteredDiscoverLists = discoverQuery.data ?? [];
+  const contentType = options.contentType ?? "lists";
+
+  const matchingCount = useMemo(() => {
+    if (contentType === "picks") {
+      return countMatchingPicks(
         unfilteredDiscoverLists,
         matchByAccountId,
         options.matchThreshold,
-      ),
-    [unfilteredDiscoverLists, matchByAccountId, options.matchThreshold],
-  );
+        options.selectedVibes,
+      );
+    }
+    return countMatchingLists(
+      unfilteredDiscoverLists,
+      matchByAccountId,
+      options.matchThreshold,
+    );
+  }, [
+    contentType,
+    unfilteredDiscoverLists,
+    matchByAccountId,
+    options.matchThreshold,
+    options.selectedVibes,
+  ]);
 
-  const vibeMatchCount = useMemo(
-    () => countVibeMatchingLists(unfilteredDiscoverLists, options.selectedVibes),
-    [unfilteredDiscoverLists, options.selectedVibes],
-  );
+  const vibeMatchCount = useMemo(() => {
+    if (contentType === "picks") {
+      return countVibeMatchingPicks(
+        unfilteredDiscoverLists,
+        options.selectedVibes,
+      );
+    }
+    return countVibeMatchingLists(unfilteredDiscoverLists, options.selectedVibes);
+  }, [contentType, unfilteredDiscoverLists, options.selectedVibes]);
 
   const getMatchingCount = useCallback(
-    (threshold: number | null) =>
-      countMatchingLists(unfilteredDiscoverLists, matchByAccountId, threshold),
-    [unfilteredDiscoverLists, matchByAccountId],
+    (threshold: number | null) => {
+      if (contentType === "picks") {
+        return countMatchingPicks(
+          unfilteredDiscoverLists,
+          matchByAccountId,
+          threshold,
+          options.selectedVibes,
+        );
+      }
+      return countMatchingLists(unfilteredDiscoverLists, matchByAccountId, threshold);
+    },
+    [
+      contentType,
+      unfilteredDiscoverLists,
+      matchByAccountId,
+      options.selectedVibes,
+    ],
   );
 
   const getVibeMatchCount = useCallback(
-    (vibes: string[]) =>
-      countVibeMatchingLists(unfilteredDiscoverLists, vibes),
-    [unfilteredDiscoverLists],
+    (vibes: string[]) => {
+      if (contentType === "picks") {
+        return countVibeMatchingPicks(unfilteredDiscoverLists, vibes);
+      }
+      return countVibeMatchingLists(unfilteredDiscoverLists, vibes);
+    },
+    [contentType, unfilteredDiscoverLists],
   );
 
   const isLoading =
@@ -276,16 +354,23 @@ export function useHomeLists(options: UseHomeListsOptions) {
     ]);
   };
 
+  const showNearYouSection =
+    effectiveCoordinates !== null &&
+    (contentType === "picks" ? nearYouPicks.length > 0 : nearYouLists.length > 0);
+
   return {
     nearYouLists,
     forYouLists,
     topMatchPercent,
     discoverLists,
+    forYouPicks,
+    nearYouPicks,
+    discoverPicks,
     isLoading,
     error,
     refetch,
     hasCoordinates: effectiveCoordinates !== null,
-    showNearYouSection: effectiveCoordinates !== null && nearYouLists.length > 0,
+    showNearYouSection,
     matchingCount,
     vibeMatchCount,
     getMatchingCount,

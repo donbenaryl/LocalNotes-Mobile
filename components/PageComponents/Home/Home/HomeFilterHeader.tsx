@@ -8,7 +8,11 @@ import { LocationInputModalTrigger } from "@/components/ui/LocationInputModal";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { MatchThreshhold } from "@/components/ui/MatchThreshhold";
+import { Toggle } from "@/components/ui/Toggle";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
+import type { HomeContentType } from "@/utils/homePicks";
+
+export type { HomeContentType };
 
 export type HomeListFilter = "personality_match" | "vibe" | "distance" | "newest";
 
@@ -27,6 +31,8 @@ interface HomeFilterHeaderProps {
   selectedVibes?: string[];
   onVibesChange?: (vibes: string[]) => void;
   vibeMatchCount?: number;
+  contentType: HomeContentType;
+  onContentTypeChange: (type: HomeContentType) => void;
 }
 
 const FILTER_OPTIONS: HomeListFilter[] = [
@@ -64,13 +70,15 @@ export function HomeFilterHeader({
   selectedVibes = [],
   onVibesChange,
   vibeMatchCount,
+  contentType,
+  onContentTypeChange,
 }: HomeFilterHeaderProps) {
   const { t } = useTranslation();
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
 
   return (
-    <View className="mb-4">
+    <View className="mb-4 mt-2">
       <View className="mb-3.5 flex-row items-center">
         {isCityLoading ? (
           <>
@@ -103,8 +111,16 @@ export function HomeFilterHeader({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerClassName="flex-row gap-1.5"
+        contentContainerClassName="flex-row items-center gap-1.5"
       >
+        <Toggle
+          value={contentType}
+          onChange={onContentTypeChange}
+          options={[
+            { value: "lists", label: t("home.contentType.lists") },
+            { value: "picks", label: t("home.contentType.picks") },
+          ]}
+        />
         {FILTER_OPTIONS.map((filter) => (
           <LocalNotesButton
             key={filter}

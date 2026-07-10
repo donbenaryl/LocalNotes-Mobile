@@ -1,5 +1,4 @@
 import { View, TouchableOpacity } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColorScheme } from "nativewind";
 import { Bell } from "lucide-react-native";
 import { router } from "expo-router";
@@ -10,7 +9,6 @@ import { Avatar } from "../Avatar";
 import { LocalNotesText } from "../LocalNotesText";
 
 export function GuardedHeader() {
-  const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
   const clearAuth = useAuthStore((s) => s.clearAuth);
@@ -28,8 +26,7 @@ export function GuardedHeader() {
 
   return (
     <View
-      className="bg-page dark:bg-gray-900 px-4 pb-3 flex-row items-center justify-between"
-      style={{ paddingTop: insets.top + 8 }}
+      className="bg-page dark:bg-gray-900 px-4 pt-2 pb-3 flex-row items-center justify-between"
     >
       <LocalNotesText size="sm" />
       <View className="flex-row items-center gap-3">

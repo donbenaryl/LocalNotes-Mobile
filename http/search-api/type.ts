@@ -40,6 +40,7 @@ export interface UnifiedSearchPersonDAO {
   personality_color?: Record<string, number> | null;
   list_count: number;
   match: number;
+  is_followed?: boolean;
 }
 
 export interface UnifiedSearchPeopleResultDAO {

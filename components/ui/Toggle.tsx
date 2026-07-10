@@ -42,7 +42,7 @@ export function Toggle<T extends string>({
             key={option.value}
             onPress={() => onChange(option.value)}
             className={cn(
-              "cursor-pointer rounded-full px-4 py-1.5",
+              "cursor-pointer rounded-full px-4 py-2",
               isActive ? "bg-white dark:bg-gray-700" : "bg-transparent",
             )}
             style={isActive ? ACTIVE_SHADOW : undefined}

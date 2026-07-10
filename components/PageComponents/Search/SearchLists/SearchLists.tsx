@@ -1,4 +1,4 @@
-import { ListCard } from "@/components/ui/ListCard";
+import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { SearchResultsLayout } from "@/components/PageComponents/Search/SearchResultsLayout";
 import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
 import { useSearchStore } from "@/stores/useSearchStore";
@@ -37,7 +37,7 @@ export function SearchLists() {
       areaLabel={areaLabel}
       data={lists}
       keyExtractor={(item) => item.id}
-      renderItem={(item) => <ListCard data={item} />}
+      renderItem={(item) => <ListCardDetailed list={item} />}
       isLoading={isLoading}
       isPending={isPending}
       error={error}

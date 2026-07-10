@@ -366,6 +366,12 @@ const en = {
     retry: 'Try again',
     emptyDiscover: 'No lists to show yet',
     emptyDiscoverDescription: 'Check back soon for new lists from curators near you',
+    contentType: {
+      lists: 'List',
+      picks: 'Pick',
+    },
+    emptyPicksDiscover: 'No picks to show yet',
+    emptyPicksDiscoverDescription: 'Check back soon for new picks from curators near you',
     filters: {
       personalityMatch: 'Personality match',
       vibe: 'Vibe',
@@ -410,7 +416,8 @@ const en = {
       emptyTitle: 'No drafts yet',
       emptyDescription: "Lists and picks you haven't published yet will show up here",
       smartSuggestEyebrow: 'Suggested',
-      smartSuggestTitle: 'You captured 4 places in Brooklyn this week.',
+      smartSuggestTitle_one: 'You captured {{count}} place in {{location}}.',
+      smartSuggestTitle_other: 'You captured {{count}} places in {{location}}.',
       smartSuggestDetail: "Make them a list? We'll pre-fill the picks.",
       notNow: 'Not now',
       makeList: 'Make list →',

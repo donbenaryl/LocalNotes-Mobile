@@ -84,7 +84,7 @@ export function FollowingTab() {
         </View>
       )}
 
-      <View className="m-4">
+      <View className="mx-4 mt-2">
         <PageSectionTitle className="mb-4">{t('home.following.latestActivity')}</PageSectionTitle>
 
         {activityLoading && <FollowingListSkeleton />}

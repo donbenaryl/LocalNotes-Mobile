@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { CollapsibleChrome } from '../../../components/ui/layout/CollapsibleChrome';
 import { GuardedHeader } from '../../../components/ui/layout/GuardedHeader';
@@ -10,11 +11,15 @@ import { useHomeChromeStore } from '../../../stores/useHomeChromeStore';
 
 export default function TabsLayout() {
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
   const { isOpen, close } = usePickModalStore();
   const isHidden = useHomeChromeStore((s) => s.isHidden);
 
   return (
-    <View className="flex-1 bg-page">
+    // Reserve the status-bar/notch inset permanently here so it survives the
+    // GuardedHeader collapsing to height 0 — the Tabs then land just below the
+    // safe area when the header is hidden.
+    <View className="flex-1 bg-page dark:bg-gray-900" style={{ paddingTop: insets.top }}>
       <CollapsibleChrome isHidden={isHidden}>
         <GuardedHeader />
       </CollapsibleChrome>

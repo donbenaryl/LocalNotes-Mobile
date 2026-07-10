@@ -176,17 +176,31 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       user_id?: string;
       is_favorite?: boolean;
       category_ids?: string[];
+      latitude?: number;
+      longitude?: number;
+      radius_km?: number;
+      with_image?: boolean;
     }) {
       const query: {
         keyword?: string;
         user_id?: string;
         is_favorite?: string;
         category_ids?: string;
+        latitude?: number;
+        longitude?: number;
+        radius_km?: number;
+        with_image?: string;
       } = {};
       if (params?.keyword) query.keyword = params.keyword;
       if (params?.user_id) query.user_id = params.user_id;
       if (params?.is_favorite) query.is_favorite = "true";
       if (params?.category_ids?.length) query.category_ids = params.category_ids.join(",");
+      if (params?.latitude !== undefined && params?.longitude !== undefined) {
+        query.latitude = params.latitude;
+        query.longitude = params.longitude;
+        if (params?.radius_km !== undefined) query.radius_km = params.radius_km;
+      }
+      if (params?.with_image) query.with_image = "true";
       return await this.SendRequest<ListItemPublic[]>({
         method: "get",
         path: "/list-items",
