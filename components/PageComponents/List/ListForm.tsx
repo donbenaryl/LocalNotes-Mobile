@@ -38,7 +38,7 @@ import type { ListItemFormInitialData } from "@/components/PageComponents/Profil
 import { ListFormPickRow } from "./ListFormPickRow";
 import { ListPickFormModal } from "./ListPickFormModal";
 import { LinkExistingPicksSection } from "./LinkExistingPicksSection";
-import { ListUserSearchInput } from "./ListUserSearchInput";
+import { UserSearchInput } from "@/components/ui/UserSearchInput";
 
 const INTRO_MAX_LENGTH = 280;
 
@@ -376,7 +376,7 @@ export function ListForm({ step, listId }: ListFormProps) {
                       {t(option.descriptionKey)}
                     </Text>
                     {option.value === "Specific People" && isActive ? (
-                      <ListUserSearchInput
+                      <UserSearchInput
                         selectedUsers={resolvedSelectedUserDetails}
                         onAddUser={handleAddUser}
                         onRemoveUser={handleRemoveUser}

@@ -10,21 +10,26 @@ import { Plus, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/Badge';
 import { TextInput } from '@/components/ui/TextInput';
-import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import accountService from '@/http/account-api/account.services';
 import type { searchUserDAO } from '@/http/account-api/types';
 
-interface ListUserSearchInputProps {
+interface UserSearchInputProps {
   selectedUsers: searchUserDAO[];
   onAddUser: (user: searchUserDAO) => void;
   onRemoveUser: (userId: string) => void;
+  className?: string;
+  placeholderKey?: string;
+  showSelectedLabel?: boolean;
 }
 
-export function ListUserSearchInput({
+export function UserSearchInput({
   selectedUsers,
   onAddUser,
   onRemoveUser,
-}: ListUserSearchInputProps) {
+  className = 'mt-3 gap-3 border-t border-brand/20 pt-3',
+  placeholderKey = 'listForm.placeholders.searchUsers',
+  showSelectedLabel = true,
+}: UserSearchInputProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<searchUserDAO[]>([]);
@@ -76,11 +81,11 @@ export function ListUserSearchInput({
   };
 
   return (
-    <View className="mt-3 gap-3 border-t border-brand/20 pt-3">
+    <View className={className}>
       <View className="flex-row items-end gap-2">
         <View className="flex-1">
           <TextInput
-            placeholder={t('listForm.placeholders.searchUsers')}
+            placeholder={t(placeholderKey)}
             value={query}
             onChangeText={setQuery}
             onFocus={() => {
@@ -115,9 +120,11 @@ export function ListUserSearchInput({
 
       {selectedUsers.length > 0 ? (
         <View className="gap-2">
-          <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
-            {t('listForm.fields.selectedUsers')}
-          </Text>
+          {showSelectedLabel ? (
+            <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+              {t('listForm.fields.selectedUsers')}
+            </Text>
+          ) : null}
           <View className="flex-row flex-wrap gap-2">
             {selectedUsers.map((user) => (
               <Badge

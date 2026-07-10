@@ -11,6 +11,7 @@ import type {
   ListPickDraft,
   ShareOption,
 } from '@/types/listForm';
+import type { ConversationResult, WebResult } from '@/http/smart-pick-api/types';
 
 function stripHtmlTags(html: string): string {
   if (!html) return '';
@@ -160,6 +161,44 @@ export function mapApiItemToPickDraft(
           ownerPersonalityColor: item.owner.personality_color,
         }
       : {}),
+  };
+}
+
+/** Maps a Smart Pick recommendation into a draft the list-creation form can prefill from. */
+export function mapSmartPickResultToPickDraft(result: ConversationResult): ListPickDraft {
+  const pick = result.pick;
+
+  return {
+    id: stableNumericIdFromUuid(result.id),
+    business: pick?.business?.id,
+    businessDisplayName: pick?.business?.name ?? pick?.unverified_business?.name ?? undefined,
+    unverified_business: pick?.unverified_business?.name,
+    new_tags: pick?.tags.map((tag) => tag.name) ?? [],
+    description: pick?.description ?? result.description ?? '',
+    existingImages: pick?.images ?? [],
+    ...(pick?.location ? { location: pick.location } : {}),
+    ...(pick?.user
+      ? {
+          owner: {
+            id: pick.user.id,
+            name: pick.user.name,
+            profile_image: pick.user.profile_image_url,
+          },
+          ownerPersonalityColor: pick.user.personality_color as Record<string, number> | null,
+        }
+      : {}),
+  };
+}
+
+/** Maps an "around the web" Smart Pick suggestion (not yet in LocalNotes) into a new pick draft. */
+export function mapWebResultToPickDraft(webResult: WebResult): ListPickDraft {
+  return {
+    id: Date.now(),
+    unverified_business: webResult.name,
+    businessDisplayName: webResult.name,
+    new_tags: [],
+    description: webResult.description ?? webResult.why_it_fits ?? '',
+    existingImages: webResult.image_url ? [{ id: webResult.name, url: webResult.image_url }] : [],
   };
 }
 

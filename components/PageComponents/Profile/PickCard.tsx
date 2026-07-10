@@ -202,19 +202,11 @@ interface PickCardGridLayoutProps {
 function PickCardGridLayout({ data, thumbnails, locationLabel }: PickCardGridLayoutProps) {
   return (
     <View className="w-full">
-      {thumbnails.length > 0 ? (
+      {thumbnails.length > 0 && (
         <Image
           source={{ uri: resolveImageUrl(thumbnails[0].url) ?? thumbnails[0].url }}
           className="w-full aspect-[16/12] rounded-t-2xl"
         />
-      ) : (
-        <View className="w-full aspect-[16/12] overflow-hidden rounded-t-2xl">
-          <NoImage
-            personalityColor={data.owner?.personality_color}
-            size="full"
-            appearance="flat"
-          />
-        </View>
       )}
 
       <View className="p-3 gap-1">
