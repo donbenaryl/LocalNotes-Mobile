@@ -11,6 +11,7 @@ interface ContinueWithProps {
   dividerText?: string;
   onSocialAuth?: (provider: "google" | "apple") => void;
   socialDisabled?: boolean;
+  hideTerms?: boolean;
 }
 
 export function ContinueWith({
@@ -20,6 +21,7 @@ export function ContinueWith({
   dividerText,
   onSocialAuth,
   socialDisabled = false,
+  hideTerms = false,
 }: ContinueWithProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -66,36 +68,42 @@ export function ContinueWith({
         <Text className="font-geist text-gray-500 dark:text-gray-400">
           {promptText}
         </Text>
-        <TouchableOpacity onPress={onLinkPress} hitSlop={8} className="cursor-pointer">
+        <TouchableOpacity
+          onPress={onLinkPress}
+          hitSlop={8}
+          className="cursor-pointer"
+        >
           <Text className="font-geist-bold text-brand">{linkText}</Text>
         </TouchableOpacity>
       </View>
 
-      <View className="px-14">
-        <Text className="font-geist text-center text-sm leading-5 text-gray-500 dark:text-gray-400">
-          {t("auth.signIn.terms.prefix")}
-          <Text
-            className="font-geist text-ink underline dark:text-gray-100 cursor-pointer"
-            onPress={() => router.push("/terms" as Href)}
-          >
-            {t("auth.signIn.terms.termsLink")}
+      {!hideTerms && (
+        <View className="px-14">
+          <Text className="font-geist text-center text-sm leading-5 text-gray-500 dark:text-gray-400">
+            {t("auth.signIn.terms.prefix")}
+            <Text
+              className="font-geist text-ink underline dark:text-gray-100 cursor-pointer"
+              onPress={() => router.push("/terms" as Href)}
+            >
+              {t("auth.signIn.terms.termsLink")}
+            </Text>
+            {t("auth.signIn.terms.separator")}
+            <Text
+              className="font-geist text-ink underline dark:text-gray-100 cursor-pointer"
+              onPress={() => router.push("/privacy-policy" as Href)}
+            >
+              {t("auth.signIn.terms.privacyLink")}
+            </Text>
+            {t("auth.signIn.terms.andSeparator")}
+            <Text
+              className="font-geist text-ink underline dark:text-gray-100 cursor-pointer"
+              onPress={() => router.push("/community-guidelines" as Href)}
+            >
+              {t("auth.signIn.terms.guidelinesLink")}
+            </Text>
           </Text>
-          {t("auth.signIn.terms.separator")}
-          <Text
-            className="font-geist text-ink underline dark:text-gray-100 cursor-pointer"
-            onPress={() => router.push("/privacy-policy" as Href)}
-          >
-            {t("auth.signIn.terms.privacyLink")}
-          </Text>
-          {t("auth.signIn.terms.andSeparator")}
-          <Text
-            className="font-geist text-ink underline dark:text-gray-100 cursor-pointer"
-            onPress={() => router.push("/community-guidelines" as Href)}
-          >
-            {t("auth.signIn.terms.guidelinesLink")}
-          </Text>
-        </Text>
-      </View>
+        </View>
+      )}
     </>
   );
 }

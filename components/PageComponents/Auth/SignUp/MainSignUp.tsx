@@ -250,6 +250,7 @@ export function MainSignUp() {
 
       {step === 'email' ? (
         <ContinueWith
+          hideTerms={true}
           promptText={t('auth.signUpFooter.haveAccount')}
           linkText={t('auth.signUpFooter.signIn')}
           onLinkPress={() => router.replace('/sign-in' as Href)}
