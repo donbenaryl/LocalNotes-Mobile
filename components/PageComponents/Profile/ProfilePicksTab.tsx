@@ -1,20 +1,13 @@
 import { useMemo, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { LayoutGrid, List, Package } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { Toggle } from "@/components/ui/Toggle";
 import { cn } from "@/utils/cn";
 import { useProfilePicks } from "@/hooks/useProfileList";
 import { PickCard } from "./PickCard";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
 import { ProfileTabFilters } from "./ProfileTabFilters";
-
-const TOGGLE_ACTIVE_SHADOW = {
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.05,
-  shadowRadius: 2,
-  elevation: 1,
-} as const;
 
 interface ProfilePicksTabProps {
   userId: string;
@@ -76,38 +69,14 @@ export function ProfilePicksTab({
             <Text className="text-sm text-gray-500 dark:text-gray-400 pt-3">
               {t("profile.picks.picksCount", { count: picks.length })}
             </Text>
-            <View className="flex-row items-center gap-0.5 rounded-lg bg-soft dark:bg-gray-800 p-1">
-              <Pressable
-                onPress={() => setViewMode("list")}
-                className={cn(
-                  "rounded-lg p-1.5 cursor-pointer",
-                  viewMode === "list"
-                    ? "bg-white dark:bg-gray-700"
-                    : "bg-transparent",
-                )}
-                style={viewMode === "list" ? TOGGLE_ACTIVE_SHADOW : undefined}
-              >
-                <List
-                  size={16}
-                  color={viewMode === "list" ? "#141413" : "#9CA3AF"}
-                />
-              </Pressable>
-              <Pressable
-                onPress={() => setViewMode("grid")}
-                className={cn(
-                  "rounded-lg p-1.5 cursor-pointer",
-                  viewMode === "grid"
-                    ? "bg-white dark:bg-gray-700"
-                    : "bg-transparent",
-                )}
-                style={viewMode === "grid" ? TOGGLE_ACTIVE_SHADOW : undefined}
-              >
-                <LayoutGrid
-                  size={16}
-                  color={viewMode === "grid" ? "#141413" : "#9CA3AF"}
-                />
-              </Pressable>
-            </View>
+            <Toggle
+              value={viewMode}
+              onChange={setViewMode}
+              options={[
+                { value: "list", icon: List },
+                { value: "grid", icon: LayoutGrid },
+              ]}
+            />
           </View>
         )}
       </View>

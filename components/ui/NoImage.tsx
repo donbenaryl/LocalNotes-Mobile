@@ -52,8 +52,8 @@ const SIZE_CONFIG: Record<
     maskHeight: 32,
   },
   lg: {
-    outerClassName: "w-full aspect-square rounded-t-2xl",
-    innerClassName: "rounded-t-[15px]",
+    outerClassName: "w-full aspect-square rounded-t-4xl",
+    innerClassName: "rounded-t-lg",
     iconSize: 32,
     labelClassName: "text-[10px]",
     maskWidth: 72,

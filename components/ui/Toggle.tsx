@@ -1,3 +1,4 @@
+import type { LucideIcon } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { cn } from "@/utils/cn";
 
@@ -19,7 +20,8 @@ const THUMB_SHADOW = {
 
 export interface ToggleOption<T extends string> {
   value: T;
-  label: string;
+  label?: string;
+  icon?: LucideIcon;
 }
 
 interface ToggleProps<T extends string> {
@@ -35,6 +37,8 @@ export function Toggle<T extends string>({
   options,
   className,
 }: ToggleProps<T>) {
+  const isIconOnly = options.every((option) => option.icon && !option.label);
+
   return (
     <View
       className={cn(
@@ -44,27 +48,37 @@ export function Toggle<T extends string>({
     >
       {options.map((option) => {
         const isActive = option.value === value;
+        const Icon = option.icon;
 
         return (
           <Pressable
             key={option.value}
             onPress={() => onChange(option.value)}
             className={cn(
-              "cursor-pointer rounded-full px-4 py-2",
+              "cursor-pointer rounded-full",
+              isIconOnly ? "p-1.5" : "px-4 py-2",
               isActive ? "bg-white dark:bg-gray-700" : "bg-transparent",
             )}
             style={isActive ? ACTIVE_SHADOW : undefined}
           >
-            <Text
-              className={cn(
-                "text-xs",
-                isActive
-                  ? "font-geist-bold text-ink dark:text-gray-100"
-                  : "font-geist-semibold text-gray-500 dark:text-gray-400",
-              )}
-            >
-              {option.label}
-            </Text>
+            {Icon ? (
+              <Icon
+                size={16}
+                color={isActive ? "#141413" : "#9CA3AF"}
+              />
+            ) : null}
+            {option.label ? (
+              <Text
+                className={cn(
+                  "text-xs",
+                  isActive
+                    ? "font-geist-bold text-ink dark:text-gray-100"
+                    : "font-geist-semibold text-gray-500 dark:text-gray-400",
+                )}
+              >
+                {option.label}
+              </Text>
+            ) : null}
           </Pressable>
         );
       })}

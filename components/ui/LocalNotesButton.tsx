@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 type LocalNotesButtonSize = "xs" | "sm" | "md" | "lg";
-type LocalNotesButtonVariant = "dark" | "light" | "brand";
+type LocalNotesButtonVariant = "dark" | "light" | "brand" | "danger";
 
 interface LocalNotesButtonProps {
   label: string;
@@ -36,12 +36,14 @@ const VARIANT_CONTAINER_CLASS: Record<LocalNotesButtonVariant, string> = {
   dark: "bg-ink dark:bg-paper border border-ink dark:border-paper",
   light: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
   brand: "bg-brand border-brand",
+  danger: "bg-red-700 border border-red-700",
 };
 
 const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
   dark: "text-white dark:text-ink",
   light: "text-ink dark:text-gray-100",
   brand: "text-white",
+  danger: "text-white",
 };
 
 export function LocalNotesButton({
@@ -58,12 +60,16 @@ export function LocalNotesButton({
   loading = false,
 }: LocalNotesButtonProps) {
   const isDisabled = disabled || loading;
+  const isDanger = variant === "danger";
 
   const containerClass = isDisabled
-    ? "bg-disabled dark:bg-gray-700"
+    ? isDanger
+      ? `${VARIANT_CONTAINER_CLASS.danger} opacity-50`
+      : "bg-disabled dark:bg-gray-700"
     : VARIANT_CONTAINER_CLASS[variant];
 
-  const textClass = isDisabled ? "text-white" : VARIANT_TEXT_CLASS[variant];
+  const textClass =
+    isDisabled && !isDanger ? "text-white" : VARIANT_TEXT_CLASS[variant];
 
   const spinnerColor = variant === "light" ? "#191B1C" : "#FFFFFF";
 

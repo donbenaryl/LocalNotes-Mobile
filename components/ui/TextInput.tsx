@@ -19,6 +19,7 @@ interface TextInputProps extends Omit<
   isPassword?: boolean;
   error?: string;
   containerClassName?: string;
+  labelClassName?: string;
 }
 
 export function TextInput({
@@ -32,6 +33,7 @@ export function TextInput({
   textAlignVertical,
   maxLength,
   value,
+  labelClassName = "",
   ...props
 }: TextInputProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +43,7 @@ export function TextInput({
 
   return (
     <View className={cn("w-full", containerClassName)}>
-      {label ? <FieldLabel label={label} required={required} hint={hint} /> : null}
+      {label ? <FieldLabel label={label} required={required} hint={hint} className={labelClassName} /> : null}
       <View
         className={cn(
           "flex-row bg-gray-50 dark:bg-gray-800 border rounded-xl px-4",
