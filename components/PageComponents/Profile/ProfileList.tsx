@@ -25,7 +25,7 @@ export function ProfileList({
   const [selectedSort, setSelectedSort] = useState("Top Engaged List");
   const [pickFavoriteFilter, setPickFavoriteFilter] = useState("All");
 
-  const statusOpts = ["Published", "Draft", "Archived"];
+  const statusOpts = ["Published", "Draft"];
   const sortOptions = ["Top Engaged List"];
   const favoriteOptions = ["All", "Favorites only"];
 
