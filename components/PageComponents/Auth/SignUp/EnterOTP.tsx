@@ -12,7 +12,7 @@ import { mapSignInDaoToUser } from '../../../../utils/mapProfileToUser';
 
 interface EnterOTPProps {
   email: string;
-  onVerified: () => void;
+  onVerified: () => void | Promise<void>;
   onChangeEmail: () => void;
 }
 
@@ -54,8 +54,8 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
     const dao = response.data.data;
     await setAuth(mapDaoToUser(dao), dao.token, dao.refresh_token);
     toast.success(t('auth.signUp.emailVerified'));
+    await onVerified();
     setIsVerifying(false);
-    onVerified();
   }
 
   function handleCodeChange(nextCode: string) {

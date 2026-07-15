@@ -9,8 +9,12 @@ import { useAuthStore } from '../stores/useAuthStore';
 
 export default function PersonalityScreen() {
   const router = useRouter();
-  const { isRetake } = useLocalSearchParams<{ isRetake?: string }>();
+  const { isRetake, fromOnboarding } = useLocalSearchParams<{
+    isRetake?: string;
+    fromOnboarding?: string;
+  }>();
   const isRetakeMode = isRetake === 'true';
+  const hideBack = fromOnboarding === 'true' && !isRetakeMode;
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const [isHydrating, setIsHydrating] = useState(isAuthenticated && !user);
@@ -65,7 +69,10 @@ export default function PersonalityScreen() {
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <Personality onComplete={() => void handleComplete()} />
+      <Personality
+        hideBack={hideBack}
+        onComplete={() => void handleComplete()}
+      />
     </View>
   );
 }

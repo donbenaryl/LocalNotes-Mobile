@@ -13,7 +13,6 @@ import {
   type HomeContentType,
   type HomeListFilter,
 } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
-import { HomeEditorialHeader } from "@/components/PageComponents/Home/Home/HomeEditorialHeader";
 import { ForYouSection } from "@/components/PageComponents/Home/Home/ForYouSection";
 import { HomeTabSkeleton } from "@/components/PageComponents/Home/Home/HomeTabSkeleton";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
@@ -279,12 +278,6 @@ export function HomeTab() {
             vibeMatchCount={vibeMatchCount}
             contentType={contentType}
             onContentTypeChange={setContentType}
-          />
-
-          <HomeEditorialHeader
-            cityLabel={cityLabel}
-            isAllLocations={locationMode === "all"}
-            isCityLoading={isLocationLoading}
           />
 
           {contentType === "lists" ? (

@@ -23,7 +23,9 @@ export function SocialAuthButton({ provider, onPress, disabled }: SocialAuthButt
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.75}
-      className="flex-1 flex-row items-center justify-center border border-gray-200 dark:border-gray-700 rounded-xl h-14 w-full bg-white dark:bg-gray-800 gap-3 cursor-pointer"
+      className={`flex-1 flex-row items-center justify-center border border-gray-200 dark:border-gray-700 rounded-xl h-14 w-full bg-white dark:bg-gray-800 gap-3 cursor-pointer ${
+        disabled ? 'opacity-50' : ''
+      }`}
     >
       <Logo />
       <Text className="text-ink dark:text-gray-100 font-geist-medium text-base">{label}</Text>

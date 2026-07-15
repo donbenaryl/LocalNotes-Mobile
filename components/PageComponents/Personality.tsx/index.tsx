@@ -32,9 +32,10 @@ import {
 
 interface PersonalityProps {
   onComplete: () => void;
+  hideBack?: boolean;
 }
 
-export function Personality({ onComplete }: PersonalityProps) {
+export function Personality({ onComplete, hideBack = false }: PersonalityProps) {
   const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
   const [phase, setPhase] = useState<"quiz" | "submitting" | "result">("quiz");
@@ -166,7 +167,8 @@ export function Personality({ onComplete }: PersonalityProps) {
       <View className="flex-1">
         <PageHeader
           title={t("personality.yourPersonality")}
-          onBack={() => setPhase("quiz")}
+          onBack={hideBack ? undefined : () => setPhase("quiz")}
+          hideBack={hideBack}
         />
 
         <View className="flex-1 px-6 pb-28">
@@ -271,7 +273,7 @@ export function Personality({ onComplete }: PersonalityProps) {
 
   return (
     <View className="flex-1">
-      <PageHeader>
+      <PageHeader hideBack={hideBack}>
         <View className="flex-row items-center justify-between">
           <Text className="font-geist-semibold text-[12px] tracking-[0.16em] uppercase text-brand">
             {t("personality.header")} . {allQuestions.length}Q

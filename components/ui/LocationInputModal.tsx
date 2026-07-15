@@ -60,6 +60,7 @@ export function LocationInputModalTrigger({
   onLocationSelected,
   onAllSelected,
 }: LocationInputModalTriggerProps) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#191B1C';
@@ -67,7 +68,7 @@ export function LocationInputModalTrigger({
   return (
     <>
       <LocalNotesButton
-        label={cityLabel}
+        label={isAllSelected ? t('home.location.chooseLocation') : cityLabel}
         onPress={() => setVisible(true)}
         variant="light"
         size="xs"

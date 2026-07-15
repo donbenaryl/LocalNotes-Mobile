@@ -9,7 +9,8 @@ const en = {
     pleaseWait: 'Please wait…',
     sending: 'Sending…',
     orSignInWith: 'OR CONTINUE WITH',
-    passwordHint: 'Must be at least 8 characters, with a mix of letters and numbers.',
+    passwordHint:
+      'Must be at least 8 characters, with uppercase and lowercase letters, and one of ! / @ .',
     optional: '(optional)',
   },
   imageUpload: {
@@ -24,6 +25,10 @@ const en = {
     passwordRequired: 'Password is required',
     passwordTooShort: 'Password must be at least 8 characters',
     passwordWeakFormat: 'Password must contain both letters and numbers',
+    passwordNeedsMixedCase:
+      'Password must include both uppercase and lowercase letters',
+    passwordNeedsSpecialChar: 'Password must include one of ! / @ .',
+    passwordTooCommon: 'This password is too common.',
     confirmPasswordRequired: 'Please confirm your password',
     passwordsMismatch: 'Passwords do not match',
     fullNameRequired: 'Full name is required',
@@ -79,8 +84,6 @@ const en = {
         privacyLink: 'Privacy Policy',
         andSeparator: ', and ',
         guidelinesLink: 'Community Guidelines',
-        suffix:
-          ' — including that pornographic, dangerous, hateful, racist, or harassing content is never allowed.',
       },
     },
     signUp: {
@@ -124,13 +127,13 @@ const en = {
       },
       consent: {
         badge: 'Required for every new account',
-        agreement:
-          'I agree to the Terms, Privacy Policy, and Community Guidelines.',
-        description:
-          'I understand that pornographic, dangerous, hateful, racist, or harassing content is never allowed and will result in account removal.',
+        prefix: 'I agree to the ',
         terms: 'Terms',
-        privacy: 'Privacy',
+        separator: ', ',
+        privacy: 'Privacy Policy',
+        andSeparator: ', and ',
         guidelines: 'Community Guidelines',
+        suffix: '.',
         error: 'Please agree to continue',
       },
     },
@@ -356,6 +359,7 @@ const en = {
     location: {
       all: 'All',
       allDescription: 'Show lists everywhere',
+      chooseLocation: 'Choose location',
     },
     picksCount: '{{count}} picks',
     updated: 'Updated {{time}}',
@@ -533,25 +537,7 @@ const en = {
       popularCities: 'POPULAR CITIES',
     },
     step2: {
-      kicker: 'STEP 2 · PERMISSIONS',
-      titleRegular: 'Two things that',
-      titleItalic: 'make this work better.',
-      description: 'Both optional. You can always change them later in Settings.',
-      notNow: 'Not now',
-      allow: 'Allow',
-      granted: 'Enabled',
-      skipped: 'Skipped',
-      notifications: {
-        title: 'Notifications',
-        description: "Get notified when curators you follow drop new lists, when friends share offers, and when someone replies to you. We won't spam.",
-      },
-      location: {
-        title: 'Location',
-        description: 'See places near you on the map, get real "near me" results in Search, and surface local offers. Used only when the app is open.',
-      },
-    },
-    step3: {
-      kicker: 'STEP 3 · YOUR TASTE TRIBE',
+      kicker: 'STEP 2 · YOUR TASTE TRIBE',
       titleRegular: 'Six curators',
       titleItalic: 'who match your blend.',
       description: 'Picked because their lists align with what you said you care about. Follow at least 3 to make Home actually useful on day one.',

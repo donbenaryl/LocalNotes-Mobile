@@ -44,7 +44,11 @@ export function OnBoardingPreHome({ onComplete }: OnBoardingPreHomeProps) {
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <PageHeader borderless>
+      <PageHeader
+        borderless
+        hideBack={currentStep === 1}
+        onBack={currentStep === 2 ? () => setCurrentStep(1) : undefined}
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-row gap-2 items-center">
             {([1, 2] as Step[]).map((dot) => (

@@ -10,6 +10,7 @@ interface ContinueWithProps {
   onLinkPress: () => void;
   dividerText?: string;
   onSocialAuth?: (provider: "google" | "apple") => void;
+  socialDisabled?: boolean;
 }
 
 export function ContinueWith({
@@ -18,6 +19,7 @@ export function ContinueWith({
   onLinkPress,
   dividerText,
   onSocialAuth,
+  socialDisabled = false,
 }: ContinueWithProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -50,10 +52,12 @@ export function ContinueWith({
         <SocialAuthButton
           provider="google"
           onPress={() => handleSocialAuth("google")}
+          disabled={socialDisabled}
         />
         <SocialAuthButton
           provider="apple"
           onPress={() => handleSocialAuth("apple")}
+          disabled={socialDisabled}
         />
       </View>
 
@@ -90,7 +94,6 @@ export function ContinueWith({
           >
             {t("auth.signIn.terms.guidelinesLink")}
           </Text>
-          {t("auth.signIn.terms.suffix")}
         </Text>
       </View>
     </>

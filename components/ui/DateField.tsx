@@ -54,7 +54,7 @@ export function DateField({
   return (
     <View className="w-full">
       {label ? (
-        <Text className="text-gray-500 dark:text-gray-200 font-geist-medium text-sm mb-1.5 uppercase">
+        <Text className="text-gray-500 dark:text-gray-200 font-geist-medium text-sm mb-1.5 capitalize">
           {label}
         </Text>
       ) : null}

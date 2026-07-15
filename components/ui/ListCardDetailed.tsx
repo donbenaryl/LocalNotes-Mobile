@@ -270,7 +270,7 @@ export function ListCardDetailed({
         </View>
 
         {/* Footer stats */}
-        <View className="flex-row bg-page overflow-hidden py-2 border-t border-gray-100 dark:border-gray-800">
+        <View className="flex-row bg-page overflow-hidden py-2 border-t border-gray-100 dark:border-gray-800 dark:bg-gray-800">
           <View className="flex-1 items-center justify-center px-2 py-3">
             <Text
               className="text-center font-geist text-xs text-gray-600 dark:text-gray-400"

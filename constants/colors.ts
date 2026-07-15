@@ -22,4 +22,7 @@ export const COLORS = {
   warning: '#EAB308',
 } as const;
 
+export const ICON_COLOR_LIGHT = '#191B1C';
+export const ICON_COLOR_DARK = '#F3F4F6';
+
 export type ColorKey = keyof typeof COLORS;

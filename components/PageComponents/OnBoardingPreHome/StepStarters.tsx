@@ -90,13 +90,13 @@ export function StepStarters() {
         showsVerticalScrollIndicator={false}
       >
         <PageTitleHeading
-          stepTitle={t("preHomeOnboarding.step3.kicker")}
+          stepTitle={t("preHomeOnboarding.step2.kicker")}
           containerClassName="mb-4"
           alignLeft
           hideLogo
-          title={t("preHomeOnboarding.step3.titleRegular")}
-          subtitle={t("preHomeOnboarding.step3.titleItalic")}
-          description={t("preHomeOnboarding.step3.description")}
+          title={t("preHomeOnboarding.step2.titleRegular")}
+          subtitle={t("preHomeOnboarding.step2.titleItalic")}
+          description={t("preHomeOnboarding.step2.description")}
         />
 
         <Text className="font-geist-semibold text-sm mb-5">
@@ -118,7 +118,7 @@ export function StepStarters() {
         {peopleQuery.isLoading ? (
           <View className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
             <Text className="text-center font-geist-medium text-gray-500 dark:text-gray-400">
-              {t("preHomeOnboarding.step3.loading")}
+              {t("preHomeOnboarding.step2.loading")}
             </Text>
           </View>
         ) : null}
@@ -126,7 +126,7 @@ export function StepStarters() {
         {peopleQuery.isError ? (
           <View className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
             <Text className="text-center font-geist-medium text-red-600 dark:text-red-300">
-              {t("preHomeOnboarding.step3.loadError")}
+              {t("preHomeOnboarding.step2.loadError")}
             </Text>
           </View>
         ) : null}
@@ -134,7 +134,7 @@ export function StepStarters() {
         {!peopleQuery.isLoading && !peopleQuery.isError && pairs.length === 0 ? (
           <View className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
             <Text className="text-center font-geist-medium text-gray-500 dark:text-gray-400">
-              {t("preHomeOnboarding.step3.empty")}
+              {t("preHomeOnboarding.step2.empty")}
             </Text>
           </View>
         ) : null}
@@ -149,12 +149,12 @@ export function StepStarters() {
                     <View key={person.id} className="flex-1">
                       <UserCard
                         name={person.name}
-                        role={person.personality_name ?? t("preHomeOnboarding.step3.roleFallback")}
+                        role={person.personality_name ?? t("preHomeOnboarding.step2.roleFallback")}
                         match={person.match ?? 0}
                         personalityDescription={
                           person.personality_description?.trim() ||
                           person.bio?.trim() ||
-                          t("preHomeOnboarding.step3.bioFallback")
+                          t("preHomeOnboarding.step2.bioFallback")
                         }
                         avatarUrl={person.profile_image_url}
                         personalityColor={person.personality_color}
@@ -182,7 +182,7 @@ export function StepStarters() {
           {isReady && <Text className="text-brand"> · ready to go</Text>}
         </Text>
         <LocalNotesButton
-          label={t("preHomeOnboarding.step3.cta")}
+          label={t("preHomeOnboarding.step2.cta")}
           onPress={handleComplete}
           variant="dark"
           isRounded

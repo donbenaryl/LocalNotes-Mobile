@@ -79,7 +79,15 @@ export function HomeFilterHeader({
 
   return (
     <View className="mb-4 mt-2">
-      <View className="mb-3.5 flex-row items-center">
+      <View className="mb-3.5 flex-row items-center justify-between">
+        <Toggle
+          value={contentType}
+          onChange={onContentTypeChange}
+          options={[
+            { value: "lists", label: t("home.contentType.lists") },
+            { value: "picks", label: t("home.contentType.picks") },
+          ]}
+        />
         {isCityLoading ? (
           <>
             <MapPin size={13} color="#6B7280" />
@@ -100,10 +108,6 @@ export function HomeFilterHeader({
               onLocationSelected={onCitySelected}
               onAllSelected={onAllSelected}
             />
-            <Text className="mx-1 text-gray-400">·</Text>
-            <Text className="font-geist-medium text-ink dark:text-gray-100">
-              {timeLabel}
-            </Text>
           </>
         )}
       </View>
@@ -113,14 +117,6 @@ export function HomeFilterHeader({
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="flex-row items-center gap-1.5"
       >
-        <Toggle
-          value={contentType}
-          onChange={onContentTypeChange}
-          options={[
-            { value: "lists", label: t("home.contentType.lists") },
-            { value: "picks", label: t("home.contentType.picks") },
-          ]}
-        />
         {FILTER_OPTIONS.map((filter) => (
           <LocalNotesButton
             key={filter}
