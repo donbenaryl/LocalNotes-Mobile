@@ -19,7 +19,6 @@ export interface NotificationPrefs {
 export interface PrivacyPrefs {
   listVisibility: ListVisibility;
   showHomeCity: boolean;
-  showMatchPercent: boolean;
   showPersonality: boolean;
   appearInSearch: boolean;
   showInSmartPicks: boolean;
@@ -58,7 +57,6 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
 export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
   listVisibility: 'public',
   showHomeCity: true,
-  showMatchPercent: true,
   showPersonality: true,
   appearInSearch: true,
   showInSmartPicks: true,

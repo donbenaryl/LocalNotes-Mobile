@@ -207,11 +207,6 @@ export default function AccountSettingsMenu() {
 
         <SettingsSection title={t('accountSettings.sections.helpLegal')}>
           <SettingsNavRow
-            icon={CircleHelp}
-            title={t('accountSettings.menu.helpSupport')}
-            onPress={handleComingSoon}
-          />
-          <SettingsNavRow
             icon={FileText}
             title={t('accountSettings.menu.termsPrivacy')}
             onPress={() => router.push('/privacy-policy')}

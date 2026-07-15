@@ -93,12 +93,6 @@ export default function PrivacyVisibilitySettings() {
             onValueChange={toggle('showHomeCity')}
           />
           <SettingsSwitchRow
-            title={t('accountSettings.privacy.showMatchPercent')}
-            subtitle={t('accountSettings.privacy.showMatchPercentSub')}
-            value={privacy.showMatchPercent}
-            onValueChange={toggle('showMatchPercent')}
-          />
-          <SettingsSwitchRow
             title={t('accountSettings.privacy.showPersonality')}
             subtitle={personalitySub}
             value={privacy.showPersonality}
@@ -158,15 +152,6 @@ export default function PrivacyVisibilitySettings() {
             title={t('accountSettings.privacy.hiddenLists')}
             subtitle={t('accountSettings.privacy.hiddenListsSub')}
             value="0"
-            onPress={handleComingSoon}
-            isLast
-          />
-        </SettingsSection>
-
-        <SettingsSection title={t('accountSettings.privacy.sections.yourData')}>
-          <SettingsNavRow
-            title={t('accountSettings.privacy.downloadData')}
-            subtitle={t('accountSettings.privacy.downloadDataSub')}
             onPress={handleComingSoon}
             isLast
           />
