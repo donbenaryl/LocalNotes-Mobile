@@ -282,10 +282,11 @@ export function HomeTab() {
 
           {contentType === "lists" ? (
             <>
-              <ForYouSection
+              {/* Just comment as this might be needed in the future */}
+              {/* <ForYouSection
                 lists={sortedForYouLists}
                 topMatchPercent={topMatchPercent}
-              />
+              /> */}
 
               {showNearYouSection ? (
                 <HomeSection title={t("home.newNearYou")}>
