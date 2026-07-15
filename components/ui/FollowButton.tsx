@@ -8,36 +8,58 @@ interface FollowButtonProps {
   userId: string;
   initialIsFollowed: boolean;
   useButton?: boolean;
+  isFollowed?: boolean;
+  onToggle?: () => void | Promise<void>;
+  loading?: boolean;
+  buttonSize?: "xs" | "sm" | "md" | "lg";
+  isButtonFull?: boolean;
 }
 
 export function FollowButton({
   userId,
   initialIsFollowed,
   useButton = false,
+  isFollowed: controlledIsFollowed,
+  onToggle,
+  loading: controlledLoading,
+  buttonSize = "md",
+  isButtonFull = true,
 }: FollowButtonProps) {
   const { t } = useTranslation();
-  const [isFollowed, setIsFollowed] = useState(initialIsFollowed);
-  const [loading, setLoading] = useState(false);
+  const [internalIsFollowed, setInternalIsFollowed] = useState(initialIsFollowed);
+  const [internalLoading, setInternalLoading] = useState(false);
+
+  const isControlled = controlledIsFollowed !== undefined;
+  const isFollowed = isControlled ? controlledIsFollowed : internalIsFollowed;
+  const loading = controlledLoading ?? internalLoading;
 
   useEffect(() => {
-    setIsFollowed(initialIsFollowed);
-  }, [initialIsFollowed]);
+    if (!isControlled) {
+      setInternalIsFollowed(initialIsFollowed);
+    }
+  }, [initialIsFollowed, isControlled]);
 
   const handlePress = async () => {
     if (loading) return;
-    setLoading(true);
+
+    if (onToggle) {
+      await onToggle();
+      return;
+    }
+
+    setInternalLoading(true);
     try {
       if (isFollowed) {
         await accountService.unfollowUser(userId);
-        setIsFollowed(false);
+        setInternalIsFollowed(false);
       } else {
         await accountService.followUser(userId);
-        setIsFollowed(true);
+        setInternalIsFollowed(true);
       }
     } catch (error) {
       console.error("Failed to toggle follow:", error);
     } finally {
-      setLoading(false);
+      setInternalLoading(false);
     }
   };
 
@@ -51,6 +73,8 @@ export function FollowButton({
         variant={isFollowed ? "light" : "dark"}
         loading={loading}
         isRounded
+        size={buttonSize}
+        isWidthFull={isButtonFull}
       />
     );
   }

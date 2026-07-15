@@ -1,9 +1,12 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { TrendingUp } from "lucide-react-native";
+import { Bookmark, Heart, TrendingUp } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import listService from "@/http/list-api/list.service";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
+import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityName } from "@/components/ui/PersonalityName";
 import { useRouter } from "expo-router";
@@ -147,15 +150,71 @@ export function ListCardDetailed({
   const locationLabel = formatListLocation(list.location);
   const cityLabel = list.location?.city ?? locationLabel;
   const heroImageUrl = getHeroImageUrl(list);
-  const previewItems = (list.items ?? []).slice(0, isForYou ? 1 : 2);
+  const previewLimit = isForYou ? 1 : 2;
+  const previewItems = (list.items ?? []).slice(0, previewLimit);
+  const extraPickCount = picksCount - previewItems.length;
   const showNewBadge = isCreatedWithinHours(list.created_at, 24);
   const updatedAt = list.updated_at ?? list.created_at;
   const gradientColors = getPersonalityGradientColors(
     list.account.personality_color,
   );
 
+  const [isSaved, setIsSaved] = useState(list.is_saved);
+  const [isLiked, setIsLiked] = useState(list.is_liked);
+  const [saves, setSaves] = useState(list.saves ?? 0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
+
+  useEffect(() => {
+    setIsSaved(list.is_saved);
+    setIsLiked(list.is_liked);
+    setSaves(list.saves ?? 0);
+  }, [list.id, list.is_saved, list.is_liked, list.saves]);
+
   const handleCardPress = () => {
     router.push(`/lists/${list.id}` as never);
+  };
+
+  const handleSave = async () => {
+    if (isSaving || isOwnList) return;
+    setIsSaving(true);
+    const previousSaved = isSaved;
+    const previousSaves = saves;
+    const nextSaved = !previousSaved;
+    const nextSaves = nextSaved
+      ? previousSaves + 1
+      : Math.max(0, previousSaves - 1);
+
+    setIsSaved(nextSaved);
+    setSaves(nextSaves);
+
+    try {
+      await listService.saveUnsaveList(list.id);
+    } catch (error) {
+      console.error("Failed to toggle save:", error);
+      setIsSaved(previousSaved);
+      setSaves(previousSaves);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLike = async () => {
+    if (isLiking || isOwnList) return;
+    setIsLiking(true);
+    const previousLiked = isLiked;
+    const nextLiked = !previousLiked;
+
+    setIsLiked(nextLiked);
+
+    try {
+      await listService.likeUnlikeList(list.id);
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+      setIsLiked(previousLiked);
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   return (
@@ -223,10 +282,52 @@ export function ListCardDetailed({
             </View>
 
             {!isOwnList ? (
-              <View className="ml-2">
+              <View className="ml-2 flex-row items-center gap-1.5">
+                <LocalNotesButton
+                  onPress={() => void handleLike()}
+                  disabled={isLiking}
+                  loading={isLiking}
+                  size="xs"
+                  variant={isLiked ? "brand" : "light"}
+                  isRounded
+                  isWidthFull={false}
+                  className="px-2.5"
+                  label=""
+                  leftIcon={
+                    <Heart
+                      size={15}
+                      color={isLiked ? "#FFFFFF" : "#9CA3AF"}
+                      fill={isLiked ? "#FFFFFF" : "transparent"}
+                    />
+                  }
+                />
+
+                <LocalNotesButton
+                  onPress={() => void handleSave()}
+                  disabled={isSaving}
+                  loading={isSaving}
+                  size="xs"
+                  variant={isSaved ? "brand" : "light"}
+                  isRounded
+                  isWidthFull={false}
+                  className="px-2.5"
+                  label=""
+                  leftIcon={
+                    <Bookmark
+                      size={15}
+                      color={isSaved ? "#FFFFFF" : "#9CA3AF"}
+                      fill={isSaved ? "#FFFFFF" : "transparent"}
+                      stroke={isSaved ? "#FFFFFF" : "#9CA3AF"}
+                    />
+                  }
+                />
+
                 <FollowButton
                   userId={list.account.id}
                   initialIsFollowed={list.account_is_followed}
+                  buttonSize="xs"
+                  isButtonFull={false}
+                  useButton
                 />
               </View>
             ) : null}
@@ -265,6 +366,11 @@ export function ListCardDetailed({
                   />
                 </View>
               ))}
+              {extraPickCount > 0 ? (
+                <Text className="pb-3 font-geist text-xs text-gray-400">
+                  {t("profile.lists.morePicks", { count: extraPickCount })}
+                </Text>
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -277,12 +383,6 @@ export function ListCardDetailed({
               numberOfLines={1}
             >
               {cityLabel || "—"}
-            </Text>
-          </View>
-
-          <View className="flex-1 items-center justify-center px-2 py-3">
-            <Text className="text-center font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t("home.picksCount", { count: picksCount })}
             </Text>
           </View>
 
@@ -301,7 +401,7 @@ export function ListCardDetailed({
               className="text-center font-geist text-xs text-success"
               numberOfLines={1}
             >
-              {t("home.savesCount", { count: list.saves ?? 0 })}
+              {t("home.savesCount", { count: saves })}
             </Text>
           </View>
         </View>

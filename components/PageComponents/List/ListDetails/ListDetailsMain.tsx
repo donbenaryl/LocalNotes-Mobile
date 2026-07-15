@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin } from "lucide-react-native";
@@ -12,7 +12,6 @@ import { buildMapPicks } from "@/utils/listPickLocation";
 import { ListDetailsHeader } from "./ListDetailsHeader";
 import { ListDetailsBody } from "./ListDetailsBody";
 import { ListDetailsComments } from "./ListDetailsComments";
-import { ListDetailsFooter } from "./ListDetailsFooter";
 import { ListDetailsMap } from "./ListDetailsMap";
 import type { ListItemDAO } from "@/http/list-api/types";
 
@@ -24,7 +23,14 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
   const { t } = useTranslation();
   const [mapVisible, setMapVisible] = useState(false);
   const [mapInitialIndex, setMapInitialIndex] = useState(0);
-  const [savesOverride, setSavesOverride] = useState<number | null>(null);
+  const [savedStateOverride, setSavedStateOverride] = useState<{
+    is_saved: boolean;
+    saves: number;
+  } | null>(null);
+
+  useEffect(() => {
+    setSavedStateOverride(null);
+  }, [listId]);
 
   const {
     data: list,
@@ -42,7 +48,13 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
   });
 
   const displayList =
-    list && savesOverride != null ? { ...list, saves: savesOverride } : list;
+    list && savedStateOverride != null
+      ? {
+          ...list,
+          is_saved: savedStateOverride.is_saved,
+          saves: savedStateOverride.saves,
+        }
+      : list;
 
   const mapPicksCount = displayList ? buildMapPicks(displayList).length : 0;
 
@@ -92,10 +104,15 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
     >
       <KeyboardAwareScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 140 }}
+        contentContainerStyle={{ paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
       >
-        <ListDetailsHeader list={displayList} />
+        <ListDetailsHeader
+          list={displayList}
+          onSavedChange={(isSaved, saves) =>
+            setSavedStateOverride({ is_saved: isSaved, saves })
+          }
+        />
         <ListDetailsBody list={displayList} onOpenInMaps={openMap} />
         <ListDetailsComments list={displayList} />
       </KeyboardAwareScrollView>
@@ -104,7 +121,7 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
         <Pressable
           onPress={() => openMap(0)}
           accessibilityRole="button"
-          className="absolute bottom-24 right-3.5 z-10 flex-row items-center gap-1.5 rounded-full bg-ink px-3.5 py-2.5 shadow-lg cursor-pointer"
+          className="absolute bottom-8 right-3.5 z-10 flex-row items-center gap-1.5 rounded-full bg-ink px-3.5 py-2.5 shadow-lg cursor-pointer"
         >
           <MapPin size={13} color="#FFFFFF" />
           <Text className="font-geist-bold text-xs text-white">
@@ -112,11 +129,6 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
           </Text>
         </Pressable>
       ) : null}
-
-      <ListDetailsFooter
-        list={displayList}
-        onSavedChange={(_, saves) => setSavesOverride(saves)}
-      />
 
       <ListDetailsMap
         visible={mapVisible}

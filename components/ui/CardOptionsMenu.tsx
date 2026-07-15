@@ -68,28 +68,43 @@ export function CardOptionsMenu({
 
   const [visible, setVisible] = useState(false);
   const [buttonLayout, setButtonLayout] = useState<ButtonLayout | null>(null);
+  const [menuItems, setMenuItems] = useState<CardOptionsMenuItem[] | undefined>(
+    items,
+  );
   const triggerRef = useRef<View>(null);
+  const actionLockRef = useRef(false);
 
   const open = () => {
+    // Freeze items at open so later parent state updates don't remount rows mid-press.
+    setMenuItems(items);
     triggerRef.current?.measureInWindow((x, y, width, height) => {
       setButtonLayout({ x, y, width, height });
       setVisible(true);
     });
   };
 
-  const close = () => setVisible(false);
+  const close = () => {
+    setVisible(false);
+    actionLockRef.current = false;
+  };
 
   const handleEdit = () => {
+    if (actionLockRef.current) return;
+    actionLockRef.current = true;
     close();
     onEdit?.();
   };
 
   const handleDelete = () => {
+    if (actionLockRef.current) return;
+    actionLockRef.current = true;
     close();
     onDelete?.();
   };
 
   const handlePin = () => {
+    if (actionLockRef.current) return;
+    actionLockRef.current = true;
     close();
     onPin?.();
   };
@@ -98,7 +113,7 @@ export function CardOptionsMenu({
   const iconColorDefault = isDark ? "#F3F4F6" : "#141413";
   const iconColorBrand = "#FF6B1A";
   const iconColorDestructive = "#EF4444";
-  const hasCustomItems = Boolean(items?.length);
+  const hasCustomItems = Boolean(menuItems?.length);
 
   const dropdownTop = buttonLayout
     ? buttonLayout.y + buttonLayout.height - 6
@@ -108,8 +123,17 @@ export function CardOptionsMenu({
     : 0;
 
   const handleActionItemPress = (item: CardOptionsMenuActionItem) => {
-    close();
-    void item.onPress();
+    if (actionLockRef.current) return;
+    actionLockRef.current = true;
+    const action = item.onPress;
+    setVisible(false);
+    // Defer so the modal fully dismisses before the action runs — avoids
+    // ghost presses landing on other menu rows or content underneath.
+    setTimeout(() => {
+      void Promise.resolve(action()).finally(() => {
+        actionLockRef.current = false;
+      });
+    }, 0);
   };
 
   const getActionStyles = (
@@ -117,7 +141,8 @@ export function CardOptionsMenu({
   ) => {
     if (variant === "brand") {
       return {
-        pressable: "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
+        pressable:
+          "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
         text: "font-geist text-sm text-brand",
         iconColor: iconColorBrand,
       };
@@ -133,7 +158,8 @@ export function CardOptionsMenu({
     }
 
     return {
-      pressable: "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
+      pressable:
+        "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
       text: "font-geist text-sm text-ink dark:text-gray-100",
       iconColor: iconColorDefault,
     };
@@ -163,90 +189,93 @@ export function CardOptionsMenu({
         statusBarTranslucent
         onRequestClose={close}
       >
-        <Pressable className="absolute inset-0" onPress={close} />
+        <View className="flex-1">
+          <Pressable className="absolute inset-0" onPress={close} />
 
-        {buttonLayout ? (
-          <View
-            className={`absolute ${hasCustomItems ? "w-56" : "w-44"} overflow-hidden rounded-xl border border-gray-200 bg-white py-2 dark:border-gray-700 dark:bg-gray-800`}
-            style={{
-              top: dropdownTop,
-              right: dropdownRight,
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.12,
-              shadowRadius: 12,
-              elevation: 8,
-            }}
-            pointerEvents="box-none"
-          >
-            {items?.length
-              ? items.map((item) => {
-                  if (item.kind === "custom") {
-                    return <View key={item.key}>{item.render()}</View>;
-                  }
+          {buttonLayout ? (
+            <View
+              className={`absolute ${hasCustomItems ? "w-56" : "w-44"} overflow-hidden rounded-xl border border-gray-200 bg-white py-2 dark:border-gray-700 dark:bg-gray-800`}
+              style={{
+                top: dropdownTop,
+                right: dropdownRight,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.12,
+                shadowRadius: 12,
+                elevation: 8,
+              }}
+            >
+              {menuItems?.length
+                ? menuItems.map((item) => {
+                    if (item.kind === "custom") {
+                      return <View key={item.key}>{item.render()}</View>;
+                    }
 
-                  const styles = getActionStyles(item.variant);
-                  const Icon = item.icon;
+                    const styles = getActionStyles(item.variant);
+                    const Icon = item.icon;
 
-                  return (
-                    <Pressable
-                      key={item.key}
-                      onPress={() => handleActionItemPress(item)}
-                      accessibilityRole="button"
-                      className={styles.pressable}
-                    >
-                      {item.renderIcon ? item.renderIcon(styles.iconColor) : null}
-                      {item.renderIcon ? null : Icon ? (
-                        <Icon size={15} color={styles.iconColor} />
-                      ) : null}
-                      <Text className={styles.text}>{item.label}</Text>
-                    </Pressable>
-                  );
-                })
-              : (
-                <>
-                  {onEdit ? (
-                    <Pressable
-                      onPress={handleEdit}
-                      accessibilityRole="button"
-                      className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
-                    >
-                      <Edit size={15} color={iconColorDefault} />
-                      <Text className="font-geist text-sm text-ink dark:text-gray-100">
-                        {t("profile.lists.edit")}
-                      </Text>
-                    </Pressable>
-                  ) : null}
+                    return (
+                      <Pressable
+                        key={item.key}
+                        onPress={() => handleActionItemPress(item)}
+                        accessibilityRole="button"
+                        className={styles.pressable}
+                      >
+                        {item.renderIcon
+                          ? item.renderIcon(styles.iconColor)
+                          : null}
+                        {item.renderIcon ? null : Icon ? (
+                          <Icon size={15} color={styles.iconColor} />
+                        ) : null}
+                        <Text className={styles.text}>{item.label}</Text>
+                      </Pressable>
+                    );
+                  })
+                : (
+                  <>
+                    {onEdit ? (
+                      <Pressable
+                        onPress={handleEdit}
+                        accessibilityRole="button"
+                        className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
+                      >
+                        <Edit size={15} color={iconColorDefault} />
+                        <Text className="font-geist text-sm text-ink dark:text-gray-100">
+                          {t("profile.lists.edit")}
+                        </Text>
+                      </Pressable>
+                    ) : null}
 
-                  {onPin ? (
-                    <Pressable
-                      onPress={handlePin}
-                      accessibilityRole="button"
-                      className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
-                    >
-                      <PinIcon size={15} color={iconColorBrand} />
-                      <Text className="font-geist text-sm text-brand">
-                        {t("profile.lists.pin")}
-                      </Text>
-                    </Pressable>
-                  ) : null}
+                    {onPin ? (
+                      <Pressable
+                        onPress={handlePin}
+                        accessibilityRole="button"
+                        className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
+                      >
+                        <PinIcon size={15} color={iconColorBrand} />
+                        <Text className="font-geist text-sm text-brand">
+                          {t("profile.lists.pin")}
+                        </Text>
+                      </Pressable>
+                    ) : null}
 
-                  {onDelete ? (
-                    <Pressable
-                      onPress={handleDelete}
-                      accessibilityRole="button"
-                      className="flex-row items-center gap-3 px-4 py-3 active:bg-red-50 dark:active:bg-red-950"
-                    >
-                      <Trash2 size={15} color={iconColorDestructive} />
-                      <Text className="font-geist text-sm text-red-500">
-                        {t("profile.lists.delete")}
-                      </Text>
-                    </Pressable>
-                  ) : null}
-                </>
-              )}
-          </View>
-        ) : null}
+                    {onDelete ? (
+                      <Pressable
+                        onPress={handleDelete}
+                        accessibilityRole="button"
+                        className="flex-row items-center gap-3 px-4 py-3 active:bg-red-50 dark:active:bg-red-950"
+                      >
+                        <Trash2 size={15} color={iconColorDestructive} />
+                        <Text className="font-geist text-sm text-red-500">
+                          {t("profile.lists.delete")}
+                        </Text>
+                      </Pressable>
+                    ) : null}
+                  </>
+                )}
+            </View>
+          ) : null}
+        </View>
       </Modal>
     </>
   );
