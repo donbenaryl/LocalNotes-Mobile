@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Moon, Settings, Sparkles, Sun } from "lucide-react-native";
+import { LogOut, Moon, Settings, Sparkles, Sun, Tv } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import {
@@ -31,6 +31,15 @@ export function ProfileHeader() {
         icon: isDark ? Sun : Moon,
         onPress: () => {
           void setTheme(isDark ? "light" : "dark");
+        },
+      },
+      {
+        kind: "action",
+        key: "recent-activity",
+        label: t("settings.recentActivityFeed"),
+        icon: Tv,
+        onPress: () => {
+          router.push("/(app)/(stack)/recent-activity");
         },
       },
       {

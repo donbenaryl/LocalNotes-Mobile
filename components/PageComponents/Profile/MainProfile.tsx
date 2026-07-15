@@ -7,8 +7,6 @@ import {
   LayoutGrid,
   List,
   ListChecks,
-  Share2,
-  Tv,
 } from "lucide-react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
@@ -36,7 +34,6 @@ const TAB_IDS: ProfileListTabType[] = [
   "saved",
   "collaborative",
   "contributed",
-  "recent",
   "shared-with-me",
   "picks",
 ];
@@ -84,8 +81,7 @@ function MainProfileContent({
     { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
     { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
     { id: "saved", label: t("profile.tabs.saved"), icon: List },
-    { id: "shared-with-me", label: t("profile.tabs.sharedWithMe"), icon: Share2 },
-    { id: "recent", label: t("profile.tabs.recent"), icon: Tv },
+    // { id: "shared-with-me", label: t("profile.tabs.sharedWithMe"), icon: Share2 },
     { id: "contributed", label: t("profile.tabs.contributed"), icon: ListChecks },
   ];
 
@@ -98,7 +94,6 @@ function MainProfileContent({
       if (tab.id === "saved") return profile?.show_saved_lists ?? true;
       if (tab.id === "contributed") return profile?.show_contributed_lists ?? true;
       if (tab.id === "shared-with-me") return profile?.show_shared_with_me ?? true;
-      if (tab.id === "recent") return false;
       return true;
     });
   }, [

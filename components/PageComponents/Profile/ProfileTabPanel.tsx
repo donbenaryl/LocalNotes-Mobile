@@ -1,4 +1,3 @@
-import { ProfileActivityTab } from "./ProfileActivityTab";
 import { ProfileListTabPanel } from "./ProfileListTabPanel";
 import { ProfilePicksTab } from "./ProfilePicksTab";
 import { ComingSoon } from "@/components/ui/ComingSoon";
@@ -9,7 +8,6 @@ export type ProfileListTabType =
   | "saved"
   | "collaborative"
   | "contributed"
-  | "recent"
   | "shared-with-me"
   | "picks";
 
@@ -56,10 +54,6 @@ export function ProfileTabPanel({
         favoriteOptions={favoriteOptions}
       />
     );
-  }
-
-  if (tab === "recent") {
-    return <ProfileActivityTab userId={userId} />;
   }
 
   if (tab === "contributed") {

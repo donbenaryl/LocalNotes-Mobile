@@ -34,10 +34,6 @@ export function ProfileTabFilters({
   const { categories } = useCategories();
   const categoryOptions = categories.map((c) => ({ id: c.id, name: c.name }));
 
-  if (tab === "recent") {
-    return null;
-  }
-
   if (tab === "picks") {
     return (
       <ListFilters

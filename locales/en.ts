@@ -236,6 +236,7 @@ const en = {
     appearance: 'Appearance',
     darkMode: 'Dark Mode',
     lightMode: 'Light Mode',
+    recentActivityFeed: 'Recent Activity Feed',
     accountSettings: 'Account Settings',
     retakePersonalityTest: 'Retake Personality Test',
     logout: 'Log Out',
@@ -250,7 +251,6 @@ const en = {
       saved: 'Saved Lists',
       contributed: 'Contributed Lists',
       sharedWithMe: 'Shared With Me',
-      recent: 'Recent Activity Feed',
     },
     filters: {
       filterBy: 'Filter by:',

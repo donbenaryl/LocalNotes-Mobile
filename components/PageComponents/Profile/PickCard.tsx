@@ -200,12 +200,22 @@ interface PickCardGridLayoutProps {
 }
 
 function PickCardGridLayout({ data, thumbnails, locationLabel }: PickCardGridLayoutProps) {
+  const primaryImage = thumbnails[0];
+
   return (
     <View className="w-full">
-      {thumbnails.length > 0 && (
+      {primaryImage ? (
         <Image
-          source={{ uri: resolveImageUrl(thumbnails[0].url) ?? thumbnails[0].url }}
+          source={{ uri: resolveImageUrl(primaryImage.url) ?? primaryImage.url }}
           className="w-full aspect-[16/12] rounded-t-2xl"
+          resizeMode="cover"
+        />
+      ) : (
+        <NoImage
+          personalityColor={data.owner?.personality_color}
+          size="lg"
+          appearance="flat"
+          outerClassName="!aspect-[16/12]"
         />
       )}
 

@@ -9,7 +9,6 @@ export type ProfileTabCategory =
   | "saved"
   | "collaborative"
   | "contributed"
-  | "recent"
   | "shared-with-me"
   | "picks";
 
@@ -46,7 +45,6 @@ export function useProfile({
     enabled:
       enabled &&
       category !== "picks" &&
-      category !== "recent" &&
       (isOwnProfile || Boolean(viewedUserId)),
     queryFn: async (): Promise<ListItemDAO[]> => {
       if (!isOwnProfile && viewedUserId) {

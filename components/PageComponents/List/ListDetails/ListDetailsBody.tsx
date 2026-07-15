@@ -242,6 +242,7 @@ export function ListDetailsBody({ list, onOpenInMaps }: ListDetailsBodyProps) {
             {list.categories.length > 0
               ? list.categories.map((category) => (
                   <Badge
+                    key={category}
                     label={category}
                     variant="primary"
                     className="mb-4"

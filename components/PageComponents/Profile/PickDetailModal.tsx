@@ -157,7 +157,7 @@ export function PickDetailModal({ visible, onClose, data }: PickDetailModalProps
             </View>
           )}
 
-          {data.owner && <PickCardOwner owner={data.owner} />}
+          {/* {data.owner && <PickCardOwner owner={data.owner} />} */}
         </View>
       </ScrollView>
     </Modal>
