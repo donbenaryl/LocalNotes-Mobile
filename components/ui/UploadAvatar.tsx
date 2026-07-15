@@ -24,6 +24,10 @@ export function UploadAvatar({ name, src, gradientColors }: UploadAvatarProps) {
   const pickAndUpload = async (mode: "library" | "camera") => {
     setShowPicker(false);
 
+    // iOS: wait for the modal to fully dismiss before presenting the native picker,
+    // otherwise UIKit throws "presentation already in progress" and the picker silently aborts.
+    await new Promise<void>((resolve) => setTimeout(resolve, 100));
+
     if (mode === "library") {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
@@ -64,7 +68,14 @@ export function UploadAvatar({ name, src, gradientColors }: UploadAvatarProps) {
 
     setUploading(true);
     try {
-      await accountService.updateAccountImage(formData);
+      const { data, error } = await accountService.updateAccountImage(formData);
+      if (error || !data) {
+        showToast({
+          type: "error",
+          message: error?.message ?? "Failed to update photo. Please try again.",
+        });
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ["profile"] });
       showToast({ type: "success", message: "Photo updated successfully." });
     } catch {

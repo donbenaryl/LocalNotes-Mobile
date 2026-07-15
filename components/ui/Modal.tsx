@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { BottomWrapper } from '@/components/ui/BottomWrapper';
 
 interface ModalProps {
@@ -18,7 +20,7 @@ interface ModalProps {
   onClose: () => void;
   children: ReactNode;
   title?: string;
-  position?: 'bottom' | 'center';
+  position?: 'bottom' | 'center' | 'fullscreen';
   footer?: ReactNode;
 }
 
@@ -31,9 +33,22 @@ export function Modal({
   footer,
 }: ModalProps) {
   const isBottom = position === 'bottom';
+  const isFullscreen = position === 'fullscreen';
   const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const translateY = useRef(new Animated.Value(height)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
+
+  const fadeOut = (onDone?: () => void) => {
+    Animated.timing(backdropOpacity, {
+      toValue: 0,
+      duration: 220,
+      useNativeDriver: true,
+    }).start(() => {
+      onDone?.();
+    });
+  };
 
   const slideDown = (onDone?: () => void) => {
     Animated.parallel([
@@ -54,15 +69,21 @@ export function Modal({
 
   useEffect(() => {
     if (visible) {
-      translateY.setValue(height);
+      if (!isFullscreen) {
+        translateY.setValue(height);
+      }
       backdropOpacity.setValue(0);
       Animated.parallel([
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-          bounciness: 0,
-          speed: 20,
-        }),
+        ...(isFullscreen
+          ? []
+          : [
+              Animated.spring(translateY, {
+                toValue: 0,
+                useNativeDriver: true,
+                bounciness: 0,
+                speed: 20,
+              }),
+            ]),
         Animated.timing(backdropOpacity, {
           toValue: 1,
           duration: 250,
@@ -70,9 +91,13 @@ export function Modal({
         }),
       ]).start();
     }
-  }, [visible, height, translateY, backdropOpacity]);
+  }, [visible, height, translateY, backdropOpacity, isFullscreen]);
 
   const handleClose = () => {
+    if (isFullscreen) {
+      fadeOut(onClose);
+      return;
+    }
     slideDown(onClose);
   };
 
@@ -110,6 +135,37 @@ export function Modal({
       },
     })
   ).current;
+
+  if (isFullscreen) {
+    return (
+      <RNModal
+        visible={visible}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+        presentationStyle="overFullScreen"
+        onRequestClose={handleClose}
+      >
+        <Animated.View
+          style={[{ opacity: backdropOpacity }]}
+          className="flex-1 bg-ink"
+        >
+          <View className="flex-1">{children}</View>
+
+          <Pressable
+            onPress={handleClose}
+            accessibilityRole="button"
+            accessibilityLabel={t('common.close')}
+            className="absolute z-10 h-10 w-10 items-center justify-center rounded-full bg-white/15 cursor-pointer"
+            style={{ top: insets.top + 8, right: 16 }}
+            hitSlop={8}
+          >
+            <Text className="text-base leading-none text-white">✕</Text>
+          </Pressable>
+        </Animated.View>
+      </RNModal>
+    );
+  }
 
   return (
     <RNModal

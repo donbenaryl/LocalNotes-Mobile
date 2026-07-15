@@ -4,6 +4,7 @@ import { Bookmark, MapPin, BadgeCheck, List } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
+import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { PickCardOwner } from "./PickCardOwner";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import listService from "@/http/list-api/list.service";
@@ -23,6 +24,9 @@ export function PickDetailModal({ visible, onClose, data }: PickDetailModalProps
   const showToast = useToastStore((s) => s.show);
   const [isFavorite, setIsFavorite] = useState(data.is_favorite ?? false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [isImageFullScreenVisible, setIsImageFullScreenVisible] =
+    useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
 
   useEffect(() => {
     setIsFavorite(data.is_favorite ?? false);
@@ -46,8 +50,17 @@ export function PickDetailModal({ visible, onClose, data }: PickDetailModalProps
     ? [data.location.city, data.location.region, data.location.country].filter(Boolean).join(", ")
     : null;
 
+  const isImageViewerOpen =
+    isImageFullScreenVisible && Boolean(selectedImageUri);
+
   return (
-    <Modal visible={visible} onClose={onClose} title={title} position="bottom">
+    <>
+      <Modal
+        visible={visible && !isImageViewerOpen}
+        onClose={onClose}
+        title={title}
+        position="bottom"
+      >
       <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: height * 0.65 }}>
         <View className="gap-4 pb-6">
           <View className="flex-row items-center justify-between">
@@ -76,13 +89,28 @@ export function PickDetailModal({ visible, onClose, data }: PickDetailModalProps
               showsHorizontalScrollIndicator={false}
               contentContainerClassName="flex-row gap-2"
             >
-              {data.images.map((img) => (
-                <Image
-                  key={img.id}
-                  source={{ uri: resolveImageUrl(img.url) ?? img.url }}
-                  className="w-32 h-32 rounded-xl"
-                />
-              ))}
+              {data.images.map((img) => {
+                const imageUri = resolveImageUrl(img.url) ?? img.url;
+
+                return (
+                  <Pressable
+                    key={img.id}
+                    onPress={() => {
+                      setSelectedImageUri(imageUri);
+                      setIsImageFullScreenVisible(true);
+                    }}
+                    accessibilityRole="imagebutton"
+                    className="h-32 w-32 cursor-pointer overflow-hidden rounded-xl"
+                  >
+                    <View pointerEvents="none" className="h-full w-full">
+                      <Image
+                        source={{ uri: imageUri }}
+                        className="h-full w-full"
+                      />
+                    </View>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
           )}
 
@@ -133,5 +161,15 @@ export function PickDetailModal({ visible, onClose, data }: PickDetailModalProps
         </View>
       </ScrollView>
     </Modal>
+
+      <ImageFullScreen
+        uri={selectedImageUri ?? ''}
+        visible={isImageViewerOpen}
+        onClose={() => {
+          setIsImageFullScreenVisible(false);
+          setSelectedImageUri(null);
+        }}
+      />
+    </>
   );
 }

@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { BadgeCheck } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
 import { FollowButton } from '@/components/ui/FollowButton';
+import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { PersonalityName } from '@/components/ui/PersonalityName';
 import { getPersonalityGradientColors } from '@/utils/personalityRing';
+import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { profileItemDAO } from '@/http/account-api/types';
 
 interface ProfileInfoProps {
@@ -21,15 +24,24 @@ export function ProfileInfo({
   onSharePress,
 }: ProfileInfoProps) {
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
+  const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
+    useState(false);
+  const avatarImageUri = resolveImageUrl(profile.profile_image_url);
 
   return (
-    <View className="px-6 pb-4 gap-4">
+    <>
+      <View className="px-6 pb-4 gap-4">
       <View className="flex-row items-center gap-4">
         <Avatar
           name={profile.name}
           src={profile.profile_image_url}
           size="lg"
           gradientColors={gradientColors}
+          onPress={
+            avatarImageUri
+              ? () => setIsAvatarFullScreenVisible(true)
+              : undefined
+          }
         />
         <View className="flex-1 gap-2">
           <View className="flex-row items-center gap-1.5">
@@ -105,6 +117,15 @@ export function ProfileInfo({
           size="md"
         />
       </View>
-    </View>
+      </View>
+
+      {avatarImageUri ? (
+        <ImageFullScreen
+          uri={avatarImageUri}
+          visible={isAvatarFullScreenVisible}
+          onClose={() => setIsAvatarFullScreenVisible(false)}
+        />
+      ) : null}
+    </>
   );
 }

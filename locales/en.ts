@@ -3,6 +3,7 @@ const en = {
     goBack: 'Go back',
     continue: 'Continue',
     cancel: 'Cancel',
+    close: 'Close',
     apply: 'Apply',
     search: 'Search',
     save: 'Save',

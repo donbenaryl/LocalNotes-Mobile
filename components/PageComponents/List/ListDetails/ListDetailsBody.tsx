@@ -13,6 +13,7 @@ import {
 } from "@/utils/listPickLocation";
 import type { Item, ListItemDAO } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
+import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 
@@ -62,6 +63,8 @@ function ListDetailsPickCard({
   const showToast = useToastStore((s) => s.show);
   const [isFavorite, setIsFavorite] = useState(item.is_favorite ?? false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [isImageFullScreenVisible, setIsImageFullScreenVisible] =
+    useState(false);
 
   useEffect(() => {
     setIsFavorite(item.is_favorite ?? false);
@@ -138,15 +141,28 @@ function ListDetailsPickCard({
       </View>
 
       <View className="px-4 py-4">
-        {imageUrl && (
-          <View className="relative mb-3 h-40 overflow-hidden rounded-xl">
-            <Image
-              source={{ uri: imageUrl }}
-              className="h-full w-full"
-              resizeMode="cover"
+        {imageUrl ? (
+          <>
+            <Pressable
+              onPress={() => setIsImageFullScreenVisible(true)}
+              accessibilityRole="imagebutton"
+              className="relative mb-3 h-40 overflow-hidden rounded-xl cursor-pointer"
+            >
+              <View pointerEvents="none" className="h-full w-full">
+                <Image
+                  source={{ uri: imageUrl }}
+                  className="h-full w-full"
+                  resizeMode="cover"
+                />
+              </View>
+            </Pressable>
+            <ImageFullScreen
+              uri={imageUrl}
+              visible={isImageFullScreenVisible}
+              onClose={() => setIsImageFullScreenVisible(false)}
             />
-          </View>
-        )}
+          </>
+        ) : null}
 
         {categoryLabel ? (
           <Badge label={categoryLabel} variant="primary" size="md" />
