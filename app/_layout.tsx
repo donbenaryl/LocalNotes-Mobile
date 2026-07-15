@@ -17,6 +17,7 @@ import {
 import { Fraunces_400Regular_Italic } from '@expo-google-fonts/fraunces';
 import { useThemeStore } from '../stores/useThemeStore';
 import { useLocaleStore } from '../stores/useLocaleStore';
+import { useAccountSettingsStore } from '../stores/useAccountSettingsStore';
 import { ToastViewport } from '../components/ui/Toast';
 import '../global.css';
 
@@ -37,10 +38,13 @@ export default function RootLayout() {
 
   const { loadTheme } = useThemeStore();
   const { loadLocale } = useLocaleStore();
+  const loadPrefs = useAccountSettingsStore((s) => s.loadPrefs);
   const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    Promise.all([loadTheme(), loadLocale()]).then(() => setAppReady(true));
+    Promise.all([loadTheme(), loadLocale(), loadPrefs()]).then(() =>
+      setAppReady(true),
+    );
   }, []);
 
   useEffect(() => {

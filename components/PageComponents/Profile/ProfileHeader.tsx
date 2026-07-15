@@ -47,7 +47,9 @@ export function ProfileHeader() {
         key: "account-settings",
         label: t("settings.accountSettings"),
         icon: Settings,
-        onPress: () => {},
+        onPress: () => {
+          router.push("/(app)/(stack)/profile/account-settings");
+        },
       },
       {
         kind: "action",
