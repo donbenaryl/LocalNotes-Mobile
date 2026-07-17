@@ -1,5 +1,10 @@
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Text,
+  View,
+  type NativeSyntheticEvent,
+  type NativeTouchEvent,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import {
@@ -43,6 +48,7 @@ function isTabType(value: string | null | undefined): value is ProfileListTabTyp
 }
 
 const PROFILE_CHROME_HIDE_RANGE = 180;
+const REVEAL_GESTURE_DISTANCE = 24;
 
 interface MainProfileProps {
   userId?: string;
@@ -67,7 +73,8 @@ function MainProfileContent({
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const insets = useSafeAreaInsets();
-  const { hideProgress, resetChrome } = useProfileChrome();
+  const { hideProgress, isShortContentLocked, resetChrome } = useProfileChrome();
+  const touchStartY = useRef<number | null>(null);
 
   const tabsAnimatedStyle = useAnimatedStyle(() => ({
     paddingTop: insets.top * hideProgress.value,
@@ -91,14 +98,14 @@ function MainProfileContent({
     }
 
     return ownProfileTabs.filter((tab) => {
-      if (tab.id === "saved") return profile?.show_saved_lists ?? true;
+      if (tab.id === "saved") return profile?.show_saved_list ?? false;
       if (tab.id === "contributed") return profile?.show_contributed_lists ?? true;
       if (tab.id === "shared-with-me") return profile?.show_shared_with_me ?? true;
       return true;
     });
   }, [
     isOwnProfile,
-    profile?.show_saved_lists,
+    profile?.show_saved_list,
     profile?.show_contributed_lists,
     profile?.show_shared_with_me,
     t,
@@ -138,8 +145,38 @@ function MainProfileContent({
     setActiveTab(tabId as ProfileListTabType);
   };
 
+  const handleTouchStart = useCallback(
+    (event: NativeSyntheticEvent<NativeTouchEvent>) => {
+      touchStartY.current = event.nativeEvent.pageY;
+    },
+    [],
+  );
+
+  const handleTouchMove = useCallback(
+    (event: NativeSyntheticEvent<NativeTouchEvent>) => {
+      if (!isShortContentLocked.value || touchStartY.current === null) return;
+
+      const dragDistance = event.nativeEvent.pageY - touchStartY.current;
+      if (dragDistance >= REVEAL_GESTURE_DISTANCE) {
+        resetChrome();
+        touchStartY.current = null;
+      }
+    },
+    [isShortContentLocked, resetChrome],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    touchStartY.current = null;
+  }, []);
+
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View
+      className="flex-1 bg-page dark:bg-gray-900"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+    >
       <CollapsibleChrome
         hideProgress={hideProgress}
         className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-md"

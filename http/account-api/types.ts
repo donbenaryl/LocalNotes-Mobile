@@ -1,3 +1,7 @@
+import type {
+  PrivacyPrefs,
+} from "@/components/PageComponents/Profile/AccountSettings/types";
+
 export interface AccountLocationDTO {
   city: string;
   region?: string;
@@ -35,6 +39,7 @@ export interface profileItemDAO {
   url_facebook?: string | null;
   url_instagram?: string | null;
   show_saved_lists?: boolean;
+  show_saved_list?: boolean;
   show_contributed_lists?: boolean;
   show_shared_with_me?: boolean;
   location_id?: string | null;
@@ -191,8 +196,48 @@ export type notificationDAO = {
   message: string;
   data: notificationItemDAO[];
   pagination: {
-    page: number;  
-    next: number;  
-    total: number; 
+    page: number;
+    next: number;
+    total: number;
   };
 };
+
+export interface PrivacySettingsDAO {
+  show_home_city: boolean;
+  show_personality: boolean;
+  appear_in_search: boolean;
+  show_in_smart_picks: boolean;
+  allow_mentions_from_anyone: boolean;
+  use_precise_location: boolean;
+  show_saved_list: boolean;
+}
+
+export type UpdatePrivacySettingsDTO = Partial<PrivacySettingsDAO>;
+
+export function mapPrivacySettingsDAOToPrefs(dao: PrivacySettingsDAO): PrivacyPrefs {
+  return {
+    showHomeCity: dao.show_home_city,
+    showPersonality: dao.show_personality,
+    appearInSearch: dao.appear_in_search,
+    showInSmartPicks: dao.show_in_smart_picks,
+    allowMentionsFromAnyone: dao.allow_mentions_from_anyone,
+    usePreciseLocation: dao.use_precise_location,
+    showSavedList: dao.show_saved_list,
+  };
+}
+
+export function mapPrivacyPrefsToDAO(
+  prefs: Partial<PrivacyPrefs>,
+): UpdatePrivacySettingsDTO {
+  const dto: UpdatePrivacySettingsDTO = {};
+  if (prefs.showHomeCity !== undefined) dto.show_home_city = prefs.showHomeCity;
+  if (prefs.showPersonality !== undefined) dto.show_personality = prefs.showPersonality;
+  if (prefs.appearInSearch !== undefined) dto.appear_in_search = prefs.appearInSearch;
+  if (prefs.showInSmartPicks !== undefined) dto.show_in_smart_picks = prefs.showInSmartPicks;
+  if (prefs.allowMentionsFromAnyone !== undefined) {
+    dto.allow_mentions_from_anyone = prefs.allowMentionsFromAnyone;
+  }
+  if (prefs.usePreciseLocation !== undefined) dto.use_precise_location = prefs.usePreciseLocation;
+  if (prefs.showSavedList !== undefined) dto.show_saved_list = prefs.showSavedList;
+  return dto;
+}

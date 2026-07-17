@@ -54,22 +54,24 @@ export function ProfileList({
             />
           </View>
         ) : (
-          <ProfileTabPanel
-            tab={deferredTab}
-            userId={userId}
-            isOwnProfile={isOwnProfile}
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-            selectedStatus={selectedStatus}
-            onStatusChange={setSelectedStatus}
-            selectedSort={selectedSort}
-            onSortChange={setSelectedSort}
-            pickFavoriteFilter={pickFavoriteFilter}
-            onPickFavoriteFilterChange={setPickFavoriteFilter}
-            statusOptions={statusOpts}
-            sortOptions={sortOptions}
-            favoriteOptions={favoriteOptions}
-          />
+          <View className="py-10">
+            <ProfileTabPanel
+              tab={deferredTab}
+              userId={userId}
+              isOwnProfile={isOwnProfile}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+              selectedStatus={selectedStatus}
+              onStatusChange={setSelectedStatus}
+              selectedSort={selectedSort}
+              onSortChange={setSelectedSort}
+              pickFavoriteFilter={pickFavoriteFilter}
+              onPickFavoriteFilterChange={setPickFavoriteFilter}
+              statusOptions={statusOpts}
+              sortOptions={sortOptions}
+              favoriteOptions={favoriteOptions}
+            />
+          </View>
         )}
       </ProfileChromeScrollView>
     </View>

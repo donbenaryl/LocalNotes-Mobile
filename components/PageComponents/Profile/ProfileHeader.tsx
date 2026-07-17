@@ -26,24 +26,6 @@ export function ProfileHeader() {
     () => [
       {
         kind: "action",
-        key: "theme",
-        label: themeLabel,
-        icon: isDark ? Sun : Moon,
-        onPress: () => {
-          void setTheme(isDark ? "light" : "dark");
-        },
-      },
-      {
-        kind: "action",
-        key: "recent-activity",
-        label: t("settings.recentActivityFeed"),
-        icon: Tv,
-        onPress: () => {
-          router.push("/(app)/(stack)/recent-activity");
-        },
-      },
-      {
-        kind: "action",
         key: "account-settings",
         label: t("settings.accountSettings"),
         icon: Settings,
@@ -61,6 +43,15 @@ export function ProfileHeader() {
             pathname: "/personality",
             params: { isRetake: "true" },
           });
+        },
+      },
+      {
+        kind: "action",
+        key: "recent-activity",
+        label: t("settings.recentActivityFeed"),
+        icon: Tv,
+        onPress: () => {
+          router.push("/(app)/(stack)/recent-activity");
         },
       },
       {

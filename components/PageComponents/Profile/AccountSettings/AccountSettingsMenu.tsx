@@ -22,7 +22,9 @@ import {
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { HomeLocationFormModal } from '@/components/PageComponents/Profile/HomeLocationFormModal';
 import accountService from '@/http/account-api/account.services';
+import type { Location as GeoLocation } from '@/http/list-api/types';
 import { useAccountSettingsStore } from '@/stores/useAccountSettingsStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useLocaleStore } from '@/stores/useLocaleStore';
@@ -42,6 +44,7 @@ export default function AccountSettingsMenu() {
   const locale = useLocaleStore((s) => s.locale);
   const loadPrefs = useAccountSettingsStore((s) => s.loadPrefs);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [homeLocationModalVisible, setHomeLocationModalVisible] = useState(false);
 
   useEffect(() => {
     void loadPrefs();
@@ -67,6 +70,17 @@ export default function AccountSettingsMenu() {
     locale === 'en' ? t('settings.english') : locale.toUpperCase();
 
   const homeCity = profile?.location?.city ?? '—';
+  const homeLocationInitial: GeoLocation | null = profile?.location
+    ? {
+        city: profile.location.city,
+        region: profile.location.region ?? '',
+        country: profile.location.country,
+        latitude: profile.location.latitude ?? 0,
+        longitude: profile.location.longitude ?? 0,
+        street_address: profile.location.street_address ?? null,
+        postal_code: profile.location.postal_code ?? null,
+      }
+    : null;
   const personalityValue = profile?.personality_name ?? undefined;
   const connectedSummary = useAccountSettingsStore((s) =>
     s.connectedProviders
@@ -140,7 +154,7 @@ export default function AccountSettingsMenu() {
             title={t('accountSettings.menu.homeCity')}
             subtitle={t('accountSettings.menu.homeCitySub')}
             value={homeCity}
-            onPress={goEditProfile}
+            onPress={() => setHomeLocationModalVisible(true)}
             isLast
           />
         </SettingsSection>
@@ -241,6 +255,12 @@ export default function AccountSettingsMenu() {
         visible={deleteModalVisible}
         onClose={() => setDeleteModalVisible(false)}
         onConfirm={handleConfirmDeleteAccount}
+      />
+
+      <HomeLocationFormModal
+        visible={homeLocationModalVisible}
+        onClose={() => setHomeLocationModalVisible(false)}
+        initialLocation={homeLocationInitial}
       />
     </View>
   );

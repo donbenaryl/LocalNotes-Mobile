@@ -8,6 +8,7 @@ import { mapboxToken } from "@/http/environment.config";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import { TextInput } from "@/components/ui/TextInput";
 import { Target } from "lucide-react-native/icons";
+import { useAccountSettingsStore } from "@/stores/useAccountSettingsStore";
 
 interface LocationInputProps {
   onLocationSelected: (location: GeoLocation) => void;
@@ -17,6 +18,10 @@ interface LocationInputProps {
   containerClassName?: string;
   /** Use gesture-handler touchables — required for reliable taps inside RN Modal */
   inModal?: boolean;
+  /** Reveal street address + postal code fields — only for editing a saved home address */
+  showAddressFields?: boolean;
+  /** Prefills the search text and, when showAddressFields is true, the address detail fields */
+  initialLocation?: GeoLocation | null;
 }
 
 function extractLocation(place: Record<string, unknown>): GeoLocation {
@@ -58,18 +63,27 @@ export function LocationInput({
   defaultValue = "",
   containerClassName = "",
   inModal = false,
+  showAddressFields = false,
+  initialLocation = null,
 }: LocationInputProps) {
-  const [query, setQuery] = useState(defaultValue);
+  const initialQuery = initialLocation
+    ? formatLocationLabel(initialLocation)
+    : defaultValue;
+  const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState<Record<string, unknown>[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGeolocating, setIsGeolocating] = useState(false);
+  const [coreLocation, setCoreLocation] = useState<GeoLocation | null>(initialLocation);
+  const [streetAddress, setStreetAddress] = useState(initialLocation?.street_address ?? "");
+  const [postalCode, setPostalCode] = useState(initialLocation?.postal_code ?? "");
   const fetchGenerationRef = useRef(0);
   // When set, `query` was committed via selection/default — never geocode it until the user edits.
   const committedQueryRef = useRef<string | null>(
-    defaultValue.length >= 2 ? defaultValue : null,
+    initialQuery.length >= 2 ? initialQuery : null,
   );
   const isProgrammaticUpdateRef = useRef(false);
+  const usePreciseLocation = useAccountSettingsStore((s) => s.privacy.usePreciseLocation);
 
   const isCommittedQuery = (value: string) =>
     committedQueryRef.current !== null && value === committedQueryRef.current;
@@ -84,8 +98,18 @@ export function LocationInput({
   };
 
   useEffect(() => {
+    if (initialLocation) return;
     applyProgrammaticQuery(defaultValue, defaultValue.length >= 2);
-  }, [defaultValue]);
+  }, [defaultValue, initialLocation]);
+
+  useEffect(() => {
+    if (!initialLocation) return;
+    setCoreLocation(initialLocation);
+    setStreetAddress(initialLocation.street_address ?? "");
+    setPostalCode(initialLocation.postal_code ?? "");
+    applyProgrammaticQuery(formatLocationLabel(initialLocation), true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLocation]);
 
   useEffect(() => {
     if (isCommittedQuery(query)) {
@@ -139,7 +163,16 @@ export function LocationInput({
     fetchGenerationRef.current += 1;
     const location = extractLocation(place);
     const label = formatLocationLabel(location);
-    onLocationSelected(location);
+    setCoreLocation(location);
+    onLocationSelected(
+      showAddressFields
+        ? {
+            ...location,
+            street_address: streetAddress.trim() || null,
+            postal_code: postalCode.trim() || null,
+          }
+        : location,
+    );
     applyProgrammaticQuery(label, true);
     setShowSuggestions(false);
     setSuggestions([]);
@@ -149,6 +182,26 @@ export function LocationInput({
     }
   };
 
+  const handleStreetAddressChange = (text: string) => {
+    setStreetAddress(text);
+    if (!coreLocation) return;
+    onLocationSelected({
+      ...coreLocation,
+      street_address: text.trim() || null,
+      postal_code: postalCode.trim() || null,
+    });
+  };
+
+  const handlePostalCodeChange = (text: string) => {
+    setPostalCode(text);
+    if (!coreLocation) return;
+    onLocationSelected({
+      ...coreLocation,
+      street_address: streetAddress.trim() || null,
+      postal_code: text.trim() || null,
+    });
+  };
+
   const handleUseCurrentLocation = async () => {
     setIsGeolocating(true);
     try {
@@ -156,7 +209,7 @@ export function LocationInput({
       if (status !== "granted") return;
 
       const { coords } = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Balanced,
+        accuracy: usePreciseLocation ? Location.Accuracy.Balanced : Location.Accuracy.Low,
       });
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${coords.longitude},${coords.latitude}.json?access_token=${mapboxToken}&types=place,locality,region,country&limit=1`,
@@ -183,6 +236,11 @@ export function LocationInput({
     setSuggestions([]);
     setShowSuggestions(false);
     setIsLoading(false);
+    setCoreLocation(null);
+    if (showAddressFields) {
+      setStreetAddress("");
+      setPostalCode("");
+    }
   };
 
   return (
@@ -275,6 +333,29 @@ export function LocationInput({
             </Text>
           </View>
         )}
+
+      {/* Address details — only shown when editing a home address */}
+      {showAddressFields && (
+        <View className="gap-4 mb-4">
+          <TextInput
+            label="STREET ADDRESS"
+            value={streetAddress}
+            onChangeText={handleStreetAddressChange}
+            placeholder="Street, house/apartment number"
+            autoCorrect={false}
+            containerClassName="mb-0"
+          />
+          <TextInput
+            label="POSTAL CODE"
+            value={postalCode}
+            onChangeText={handlePostalCodeChange}
+            placeholder="Postal / ZIP code"
+            autoCorrect={false}
+            autoCapitalize="characters"
+            containerClassName="mb-0"
+          />
+        </View>
+      )}
 
       {/* Use current location */}
       <Pressable

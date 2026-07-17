@@ -318,21 +318,14 @@ const en = {
     },
     privacy: {
       title: 'Privacy & visibility',
+      loadError: 'Could not load your latest privacy settings. Showing cached values.',
       sections: {
-        listVisibility: 'Who can see your lists',
         profile: 'Profile',
         discovery: 'Discovery',
         location: 'Location',
         blocked: 'Blocked & restricted',
         yourData: 'Your data',
       },
-      public: 'Public',
-      publicSub:
-        'Anyone on LocalNotes can see your published lists. Default for most users.',
-      followersOnly: 'Followers only',
-      followersOnlySub: 'Only people who follow you can see your lists.',
-      private: 'Private',
-      privateSub: 'Only you. You can still share specific lists individually.',
       showHomeCity: 'Show home city on profile',
       showHomeCitySub: '"{{city}}" appears below your name',
       showHomeCitySubFallback: 'Your city appears below your name',
@@ -347,10 +340,10 @@ const en = {
         'Your lists may surface to people with matching taste',
       allowMentions: 'Allow @-mentions from anyone',
       allowMentionsSub: 'Off means only people you follow can mention you',
+      showSavedList: 'Show saved list',
+      showSavedListSub: 'Off hides your saved list from other users',
       usePreciseLocation: 'Use precise location',
       usePreciseLocationSub: 'Off uses approximate location instead',
-      savePickLocations: 'Save my pick locations to history',
-      savePickLocationsSub: 'Used for "Recent" in the location picker',
       blockedUsers: 'Blocked users',
       blockedUsersSub: "They can't follow you, see your lists, or mention you",
       hiddenLists: 'Hidden lists',
@@ -377,6 +370,9 @@ const en = {
     },
   },
   profile: {
+    info: {
+      homeAddress: 'Home address',
+    },
     tabs: {
       myLists: 'My Lists',
       picks: 'Picks',

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { BadgeCheck } from 'lucide-react-native';
+import { BadgeCheck, MapPin } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/ui/Avatar';
 import { FollowButton } from '@/components/ui/FollowButton';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
@@ -8,7 +9,7 @@ import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { PersonalityName } from '@/components/ui/PersonalityName';
 import { getPersonalityGradientColors } from '@/utils/personalityRing';
 import { resolveImageUrl } from '@/utils/httpHelpers';
-import type { profileItemDAO } from '@/http/account-api/types';
+import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
 
 interface ProfileInfoProps {
   profile: profileItemDAO;
@@ -17,16 +18,32 @@ interface ProfileInfoProps {
   onSharePress: () => void;
 }
 
+function formatFullAddress(location: AccountLocationDTO): string {
+  const cityLine = [location.city, location.region].filter(Boolean).join(', ');
+  return [
+    location.street_address,
+    [cityLine, location.postal_code].filter(Boolean).join(' '),
+    location.country,
+  ]
+    .filter(Boolean)
+    .join(', ');
+}
+
 export function ProfileInfo({
   profile,
   isOwnProfile = true,
   onEditPress,
   onSharePress,
 }: ProfileInfoProps) {
+  const { t } = useTranslation();
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const avatarImageUri = resolveImageUrl(profile.profile_image_url);
+
+  const fullAddress = profile.location
+    ? formatFullAddress(profile.location)
+    : '';
 
   return (
     <>
@@ -58,6 +75,17 @@ export function ProfileInfo({
               name={profile.personality_name}
               personalityColor={profile.personality_color}
             />
+          ) : null}
+          {fullAddress ? (
+            <View className="flex-row items-center gap-1">
+              <MapPin size={12} color="#9CA3AF" />
+              <Text
+                className="font-geist text-xs text-gray-500 dark:text-gray-400"
+                numberOfLines={1}
+              >
+                {fullAddress}
+              </Text>
+            </View>
           ) : null}
         </View>
       </View>

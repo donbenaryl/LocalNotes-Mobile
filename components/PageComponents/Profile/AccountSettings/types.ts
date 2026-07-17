@@ -1,5 +1,3 @@
-export type ListVisibility = 'public' | 'followers' | 'private';
-
 export type ConnectedProviderId = 'google' | 'yelp' | 'amazon' | 'tripadvisor';
 
 export interface NotificationPrefs {
@@ -17,14 +15,13 @@ export interface NotificationPrefs {
 }
 
 export interface PrivacyPrefs {
-  listVisibility: ListVisibility;
   showHomeCity: boolean;
   showPersonality: boolean;
   appearInSearch: boolean;
   showInSmartPicks: boolean;
   allowMentionsFromAnyone: boolean;
   usePreciseLocation: boolean;
-  savePickLocations: boolean;
+  showSavedList: boolean;
 }
 
 export interface ConnectedProvider {
@@ -55,14 +52,13 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
 };
 
 export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
-  listVisibility: 'public',
   showHomeCity: true,
   showPersonality: true,
   appearInSearch: true,
   showInSmartPicks: true,
   allowMentionsFromAnyone: false,
   usePreciseLocation: true,
-  savePickLocations: true,
+  showSavedList: false,
 };
 
 export const DEFAULT_CONNECTED_PROVIDERS: ConnectedProvider[] = [

@@ -72,9 +72,13 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
 
   const variant = variantStyles[toast.type];
   const Icon = variant.icon;
-  const accessibilityLabel = toast.title
-    ? `${toast.title}. ${toast.message}`
-    : toast.message;
+  const hasTitle = Boolean(toast.title);
+  const hasMessage = Boolean(toast.message);
+  const isSingleLine = hasTitle !== hasMessage;
+  const accessibilityLabel =
+    hasTitle && hasMessage
+      ? `${toast.title}. ${toast.message}`
+      : toast.title || toast.message;
 
   const runExit = useCallback(
     (onComplete?: () => void) => {
@@ -208,26 +212,34 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       accessibilityLabel={accessibilityLabel}
       {...panResponder.panHandlers}
     >
-      <View className="flex-row items-start gap-3 rounded-2xl border border-gray-100 bg-paper px-4 py-3.5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <View
+        className={`flex-row gap-3 rounded-2xl border border-gray-100 bg-paper px-4 py-3.5 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${
+          isSingleLine ? 'items-center' : 'items-start'
+        }`}
+      >
         <View
-          className={`mt-0.5 h-9 w-9 items-center justify-center rounded-full ${variant.iconBg}`}
+          className={`h-9 w-9 items-center justify-center rounded-full ${
+            isSingleLine ? '' : 'mt-0.5'
+          } ${variant.iconBg}`}
         >
           <Icon size={18} color={variant.iconColor} strokeWidth={2.25} />
         </View>
 
-        <View className="min-w-0 flex-1 pr-1">
-          {toast.title ? (
+        <View className="min-w-0 flex-1 justify-center pr-1">
+          {hasTitle ? (
             <Text className="font-geist-semibold text-[15px] leading-5 text-ink dark:text-gray-100">
               {toast.title}
             </Text>
           ) : null}
-          <Text
-            className={`font-geist text-sm leading-5 text-gray-500 dark:text-gray-400 ${
-              toast.title ? 'mt-0.5' : ''
-            }`}
-          >
-            {toast.message}
-          </Text>
+          {hasMessage ? (
+            <Text
+              className={`font-geist text-sm leading-5 text-gray-500 dark:text-gray-400 ${
+                hasTitle ? 'mt-0.5' : ''
+              }`}
+            >
+              {toast.message}
+            </Text>
+          ) : null}
         </View>
 
         <Pressable

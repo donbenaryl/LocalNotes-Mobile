@@ -1,10 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
+import accountService from '@/http/account-api/account.services';
+import { useAuthStore } from '@/stores/useAuthStore';
+import {
+  mapPrivacyPrefsToDAO,
+  mapPrivacySettingsDAOToPrefs,
+} from '@/http/account-api/types';
 import {
   DEFAULT_ACCOUNT_SETTINGS,
   type AccountSettingsPrefs,
   type ConnectedProviderId,
-  type ListVisibility,
   type NotificationPrefs,
   type PrivacyPrefs,
 } from '@/components/PageComponents/Profile/AccountSettings/types';
@@ -13,6 +18,7 @@ const STORAGE_KEY = 'account_settings_prefs';
 
 interface AccountSettingsStore extends AccountSettingsPrefs {
   hydrated: boolean;
+  privacyLoadError: boolean;
   loadPrefs: () => Promise<void>;
   setNotification: <K extends keyof NotificationPrefs>(
     key: K,
@@ -22,11 +28,12 @@ interface AccountSettingsStore extends AccountSettingsPrefs {
     key: K,
     value: PrivacyPrefs[K],
   ) => void;
-  setListVisibility: (value: ListVisibility) => void;
   toggleConnectedProvider: (id: ConnectedProviderId) => void;
 }
 
-async function persist(state: AccountSettingsPrefs) {
+async function persistLocalCache(state: AccountSettingsPrefs) {
+  // Notifications and connected providers aren't backed by an API yet; privacy is
+  // cached here too so the screen has something to show instantly while offline.
   const payload: AccountSettingsPrefs = {
     notifications: state.notifications,
     privacy: state.privacy,
@@ -35,32 +42,57 @@ async function persist(state: AccountSettingsPrefs) {
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
 
+async function syncPrivacyPatch(patch: Partial<PrivacyPrefs>) {
+  try {
+    await accountService.updatePrivacySettings(mapPrivacyPrefsToDAO(patch));
+  } catch {
+    // Best-effort sync — the optimistic local update already reflects the change.
+  }
+}
+
 export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) => ({
   ...DEFAULT_ACCOUNT_SETTINGS,
   hydrated: false,
+  privacyLoadError: false,
 
   loadPrefs: async () => {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        set({ hydrated: true });
-        return;
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<AccountSettingsPrefs>;
+        set({
+          notifications: {
+            ...DEFAULT_ACCOUNT_SETTINGS.notifications,
+            ...parsed.notifications,
+          },
+          privacy: {
+            ...DEFAULT_ACCOUNT_SETTINGS.privacy,
+            ...parsed.privacy,
+          },
+          connectedProviders:
+            parsed.connectedProviders ?? DEFAULT_ACCOUNT_SETTINGS.connectedProviders,
+        });
       }
-      const parsed = JSON.parse(raw) as Partial<AccountSettingsPrefs>;
-      set({
-        notifications: {
-          ...DEFAULT_ACCOUNT_SETTINGS.notifications,
-          ...parsed.notifications,
-        },
-        privacy: {
-          ...DEFAULT_ACCOUNT_SETTINGS.privacy,
-          ...parsed.privacy,
-        },
-        connectedProviders:
-          parsed.connectedProviders ?? DEFAULT_ACCOUNT_SETTINGS.connectedProviders,
-        hydrated: true,
-      });
     } catch {
+      // Ignore a corrupt cache — defaults already in state.
+    }
+
+    if (!useAuthStore.getState().isAuthenticated) {
+      set({ hydrated: true });
+      return;
+    }
+
+    try {
+      const response = await accountService.getPrivacySettings();
+      const dao = response.data?.data;
+      if (dao) {
+        set({ privacy: mapPrivacySettingsDAOToPrefs(dao), privacyLoadError: false });
+        void persistLocalCache(get());
+      }
+    } catch {
+      // Offline or request failed — keep the cached/default privacy prefs already in state.
+      set({ privacyLoadError: true });
+    } finally {
       set({ hydrated: true });
     }
   },
@@ -69,21 +101,15 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
     set((state) => ({
       notifications: { ...state.notifications, [key]: value },
     }));
-    void persist(get());
+    void persistLocalCache(get());
   },
 
   setPrivacy: (key, value) => {
     set((state) => ({
       privacy: { ...state.privacy, [key]: value },
     }));
-    void persist(get());
-  },
-
-  setListVisibility: (value) => {
-    set((state) => ({
-      privacy: { ...state.privacy, listVisibility: value },
-    }));
-    void persist(get());
+    void persistLocalCache(get());
+    void syncPrivacyPatch({ [key]: value } as Partial<PrivacyPrefs>);
   },
 
   toggleConnectedProvider: (id) => {
@@ -106,6 +132,6 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
         };
       }),
     }));
-    void persist(get());
+    void persistLocalCache(get());
   },
 }));

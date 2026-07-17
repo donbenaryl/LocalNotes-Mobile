@@ -13,6 +13,8 @@ import type {
   notificationDAO,
   updateAccountDTO,
   completeOnboardingDTO,
+  PrivacySettingsDAO,
+  UpdatePrivacySettingsDTO,
 } from "./types";
 
 class AccountService extends AppHttpService {
@@ -131,6 +133,19 @@ class AccountService extends AppHttpService {
     return await this.SendRequest({
       method: "delete",
       path: `/${userId}/follow`,
+    });
+  }
+  async getPrivacySettings() {
+    return await this.SendRequest<PrivacySettingsDAO>({
+      method: "get",
+      path: "/privacy-settings",
+    });
+  }
+  async updatePrivacySettings(dto: UpdatePrivacySettingsDTO) {
+    return await this.SendRequest<PrivacySettingsDAO>({
+      method: "patch",
+      path: "/privacy-settings",
+      body: dto,
     });
   }
 }

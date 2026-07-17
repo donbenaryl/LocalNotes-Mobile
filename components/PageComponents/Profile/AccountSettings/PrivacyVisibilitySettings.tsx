@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import { useAccountSettingsStore } from '@/stores/useAccountSettingsStore';
 import { SettingsNavRow } from './SettingsNavRow';
 import { SettingsSection } from './SettingsSection';
 import { SettingsSwitchRow } from './SettingsSwitchRow';
-import type { ListVisibility, PrivacyPrefs } from './types';
+import type { PrivacyPrefs } from './types';
 
 export default function PrivacyVisibilitySettings() {
   const { t } = useTranslation();
@@ -17,6 +17,8 @@ export default function PrivacyVisibilitySettings() {
   const privacy = useAccountSettingsStore((s) => s.privacy);
   const setPrivacy = useAccountSettingsStore((s) => s.setPrivacy);
   const loadPrefs = useAccountSettingsStore((s) => s.loadPrefs);
+  const hydrated = useAccountSettingsStore((s) => s.hydrated);
+  const privacyLoadError = useAccountSettingsStore((s) => s.privacyLoadError);
 
   useEffect(() => {
     void loadPrefs();
@@ -30,33 +32,9 @@ export default function PrivacyVisibilitySettings() {
     },
   });
 
-  const toggle =
-    (key: Exclude<keyof PrivacyPrefs, 'listVisibility'>) =>
-    (value: boolean) => {
-      setPrivacy(key, value);
-    };
-
-  const visibilityOptions: {
-    value: ListVisibility;
-    title: string;
-    subtitle: string;
-  }[] = [
-    {
-      value: 'public',
-      title: t('accountSettings.privacy.public'),
-      subtitle: t('accountSettings.privacy.publicSub'),
-    },
-    {
-      value: 'followers',
-      title: t('accountSettings.privacy.followersOnly'),
-      subtitle: t('accountSettings.privacy.followersOnlySub'),
-    },
-    {
-      value: 'private',
-      title: t('accountSettings.privacy.private'),
-      subtitle: t('accountSettings.privacy.privateSub'),
-    },
-  ];
+  const toggle = (key: keyof PrivacyPrefs) => (value: boolean) => {
+    setPrivacy(key, value);
+  };
 
   const homeCitySub = profile?.location?.city
     ? t('accountSettings.privacy.showHomeCitySub', {
@@ -74,6 +52,20 @@ export default function PrivacyVisibilitySettings() {
     Alert.alert(t('accountSettings.menu.comingSoon'));
   };
 
+  if (!hydrated) {
+    return (
+      <View className="flex-1 bg-page dark:bg-gray-900">
+        <PageHeader
+          title={t('accountSettings.privacy.title')}
+          onBack={() => router.back()}
+        />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <PageHeader
@@ -85,6 +77,12 @@ export default function PrivacyVisibilitySettings() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-6 pb-10 pt-4"
       >
+        {privacyLoadError ? (
+          <Text className="mb-4 font-geist text-[12px] text-red-500 dark:text-red-400">
+            {t('accountSettings.privacy.loadError')}
+          </Text>
+        ) : null}
+
         <SettingsSection title={t('accountSettings.privacy.sections.profile')}>
           <SettingsSwitchRow
             title={t('accountSettings.privacy.showHomeCity')}
@@ -121,6 +119,12 @@ export default function PrivacyVisibilitySettings() {
             subtitle={t('accountSettings.privacy.allowMentionsSub')}
             value={privacy.allowMentionsFromAnyone}
             onValueChange={toggle('allowMentionsFromAnyone')}
+          />
+          <SettingsSwitchRow
+            title={t('accountSettings.privacy.showSavedList')}
+            subtitle={t('accountSettings.privacy.showSavedListSub')}
+            value={privacy.showSavedList}
+            onValueChange={toggle('showSavedList')}
             isLast
           />
         </SettingsSection>
@@ -131,12 +135,6 @@ export default function PrivacyVisibilitySettings() {
             subtitle={t('accountSettings.privacy.usePreciseLocationSub')}
             value={privacy.usePreciseLocation}
             onValueChange={toggle('usePreciseLocation')}
-          />
-          <SettingsSwitchRow
-            title={t('accountSettings.privacy.savePickLocations')}
-            subtitle={t('accountSettings.privacy.savePickLocationsSub')}
-            value={privacy.savePickLocations}
-            onValueChange={toggle('savePickLocations')}
             isLast
           />
         </SettingsSection>

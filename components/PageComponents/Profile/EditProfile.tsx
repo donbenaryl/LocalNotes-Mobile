@@ -10,10 +10,12 @@ import { TextInput } from "@/components/ui/TextInput";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { HomeLocationFormModal } from "@/components/PageComponents/Profile/HomeLocationFormModal";
 import { useToastStore } from "@/stores/useToastStore";
 import accountService from "@/http/account-api/account.services";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import type { updateAccountDTO } from "@/http/account-api/types";
+import type { Location as GeoLocation } from "@/http/list-api/types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -121,6 +123,8 @@ export default function EditProfile() {
   const [urlLinkedin, setUrlLinkedin] = useState("");
   const [urlFacebook, setUrlFacebook] = useState("");
   const [urlInstagram, setUrlInstagram] = useState("");
+  const [location, setLocation] = useState<GeoLocation | null>(null);
+  const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
 
   // Seed fields once the profile loads (no-op on subsequent renders).
   useEffect(() => {
@@ -132,9 +136,29 @@ export default function EditProfile() {
     setUrlLinkedin(profile.url_linkedin ?? "");
     setUrlFacebook(profile.url_facebook ?? "");
     setUrlInstagram(profile.url_instagram ?? "");
+    setLocation(
+      profile.location
+        ? {
+            city: profile.location.city,
+            region: profile.location.region ?? "",
+            country: profile.location.country,
+            latitude: profile.location.latitude ?? 0,
+            longitude: profile.location.longitude ?? 0,
+            street_address: profile.location.street_address ?? null,
+            postal_code: profile.location.postal_code ?? null,
+          }
+        : null,
+    );
   }, [profile]);
 
   // ── Derived flags ─────────────────────────────────────────────────────────────
+
+  const isLocationDirty =
+    (location?.city ?? "") !== (profile?.location?.city ?? "") ||
+    (location?.region ?? "") !== (profile?.location?.region ?? "") ||
+    (location?.country ?? "") !== (profile?.location?.country ?? "") ||
+    (location?.street_address ?? "") !== (profile?.location?.street_address ?? "") ||
+    (location?.postal_code ?? "") !== (profile?.location?.postal_code ?? "");
 
   const isDirty =
     firstName.trim() !== (profile?.first_name ?? "").trim() ||
@@ -143,7 +167,8 @@ export default function EditProfile() {
     bio.trim() !== (profile?.bio ?? "").trim() ||
     urlLinkedin.trim() !== (profile?.url_linkedin ?? "").trim() ||
     urlFacebook.trim() !== (profile?.url_facebook ?? "").trim() ||
-    urlInstagram.trim() !== (profile?.url_instagram ?? "").trim();
+    urlInstagram.trim() !== (profile?.url_instagram ?? "").trim() ||
+    isLocationDirty;
 
   const bioOverLimit = bio.length > BIO_MAX_LENGTH;
 
@@ -193,6 +218,19 @@ export default function EditProfile() {
         url_linkedin: linkedinVal || null,
         url_facebook: facebookVal || null,
         url_instagram: instagramVal || null,
+        ...(isLocationDirty && {
+          location: location
+            ? {
+                city: location.city,
+                region: location.region,
+                country: location.country,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                street_address: location.street_address ?? null,
+                postal_code: location.postal_code ?? null,
+              }
+            : null,
+        }),
       };
 
       const res = await accountService.updateAccount(dto);
@@ -243,10 +281,8 @@ export default function EditProfile() {
 
   const placeholderColor = "#6B7280";
 
-  const locationValue = profile.location
-    ? [profile.location.city, profile.location.region]
-        .filter(Boolean)
-        .join(", ")
+  const locationValue = location
+    ? [location.city, location.region].filter(Boolean).join(", ")
     : undefined;
 
   // ── Render ────────────────────────────────────────────────────────────────────
@@ -385,12 +421,7 @@ export default function EditProfile() {
             title="Home City"
             subtitle="Default location for Search, Home, and Offers"
             value={locationValue}
-            onPress={() =>
-              showToast({
-                type: "info",
-                message: "Location picker coming soon.",
-              })
-            }
+            onPress={() => setIsLocationModalVisible(true)}
           />
           <ProfileRow
             title="Personality"
@@ -411,7 +442,7 @@ export default function EditProfile() {
             subtitle="Optional · for account recovery"
             showAddPlaceholder
             onPress={() =>
-              showToast({ type: "info", message: "Phone setup coming soon." })
+              showToast({ type: "info", message: "Phone setup coming soon.", title: "Feature Coming Soon" })
             }
           />
         </View>
@@ -430,6 +461,14 @@ export default function EditProfile() {
           disabled={isSaveDisabled}
         />
       </View>
+
+      {/* ── Home city / address picker ────────────────────────────────────────── */}
+      <HomeLocationFormModal
+        visible={isLocationModalVisible}
+        onClose={() => setIsLocationModalVisible(false)}
+        initialLocation={location}
+        onSaved={setLocation}
+      />
     </SafeAreaView>
   );
 }

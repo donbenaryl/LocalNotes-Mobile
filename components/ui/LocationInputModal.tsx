@@ -181,8 +181,7 @@ export function LocationInputModal({
     const entry: RecentSearchEntry = { location, label, timestamp: Date.now() };
     setRecentSearches((prev) => {
       const filtered = prev.filter(
-        (r) =>
-          !(r.location.city === location.city && r.location.region === location.region)
+        (r) => !(r.location.city === location.city && r.location.region === location.region)
       );
       const updated = [entry, ...filtered].slice(0, 3);
       AsyncStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated)).catch(() => {});

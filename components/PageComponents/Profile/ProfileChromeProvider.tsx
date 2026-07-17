@@ -20,6 +20,7 @@ const BOTTOM_SNAP_RATIO = 0.15;
 
 interface ProfileChromeContextValue {
   hideProgress: SharedValue<number>;
+  isShortContentLocked: SharedValue<boolean>;
   scrollHandler: ReturnType<typeof useAnimatedScrollHandler>;
   resetChrome: () => void;
 }
@@ -36,6 +37,7 @@ export function ProfileChromeProvider({
   hideRange = 100,
 }: ProfileChromeProviderProps) {
   const hideProgress = useSharedValue(0);
+  const isShortContentLocked = useSharedValue(false);
   const lastScrollY = useSharedValue(0);
 
   const scrollHandler = useAnimatedScrollHandler({
@@ -47,13 +49,18 @@ export function ProfileChromeProvider({
       );
       const deltaY = y - lastScrollY.value;
 
-      // Content fits the viewport — collapsing chrome only resizes the list and
-      // causes layout ↔ scroll feedback loops with no real scroll benefit.
+      // If collapsing the chrome makes short content fit, finish the collapse
+      // instead of resetting it. Resetting here grows the chrome again, makes
+      // the content scrollable again, and creates a visible expand/collapse
+      // feedback loop. Content that fit before scrolling remains expanded.
       if (maxScrollY <= SCROLL_DELTA_THRESHOLD) {
-        hideProgress.value = 0;
+        isShortContentLocked.value = hideProgress.value > 0;
+        hideProgress.value = isShortContentLocked.value ? 1 : 0;
         lastScrollY.value = y;
         return;
       }
+
+      isShortContentLocked.value = false;
 
       if (Math.abs(deltaY) < SCROLL_DELTA_THRESHOLD) {
         lastScrollY.value = y;
@@ -87,12 +94,18 @@ export function ProfileChromeProvider({
 
   const resetChrome = useCallback(() => {
     hideProgress.value = 0;
+    isShortContentLocked.value = false;
     lastScrollY.value = 0;
-  }, [hideProgress, lastScrollY]);
+  }, [hideProgress, isShortContentLocked, lastScrollY]);
 
   const value = useMemo(
-    () => ({ hideProgress, scrollHandler, resetChrome }),
-    [hideProgress, scrollHandler, resetChrome],
+    () => ({
+      hideProgress,
+      isShortContentLocked,
+      scrollHandler,
+      resetChrome,
+    }),
+    [hideProgress, isShortContentLocked, scrollHandler, resetChrome],
   );
 
   return (

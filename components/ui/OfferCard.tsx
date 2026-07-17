@@ -18,7 +18,6 @@ import type { OfferCardItem } from "@/types/offer";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel } from "@/utils/time";
 import { WhiteBox } from "./WhiteBox";
-import { NoImage } from "./NoImage";
 
 interface OfferCardProps {
   offer: OfferCardItem;
@@ -205,7 +204,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
         </View>
 
         {/* Footer stats */}
-        <View className="flex-row bg-page overflow-hidden py-2 border-t border-gray-100 dark:border-gray-800 px-4">
+        <View className="flex-row bg-page overflow-hidden py-2 border-t border-gray-100 dark:border-gray-800 px-4 dark:bg-gray-800">
           <View className="flex-1 flex-row items-center justify-center gap-1 px-2 py-3">
             <MapPin size={12} color="#EF4444" />
             <Text
