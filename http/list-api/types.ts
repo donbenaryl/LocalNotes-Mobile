@@ -185,6 +185,7 @@ export interface Comment {
   parent: string | null;
   content: string;
   account: Account;
+  mentioned_accounts: Account[];
   replies_count: number;
   created_at: string;
   likes_count: number;

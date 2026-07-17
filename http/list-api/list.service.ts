@@ -124,7 +124,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
     query: params,  
   });
 }
-    async createListComment(listId:string, dto:{content:string}, parent?: string){
+    async createListComment(listId:string, dto:{content:string; mentioned_account_ids?: string[]}, parent?: string){
       return await this.SendRequest<Comment>({
         method:"post",
         path:`/${listId}/comments`,

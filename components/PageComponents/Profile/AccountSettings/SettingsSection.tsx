@@ -14,9 +14,9 @@ export function SettingsSection({
   className,
 }: SettingsSectionProps) {
   return (
-    <View className={`mb-6 ${className ?? ""}`}>
-      <PageSectionTitle>{title}</PageSectionTitle>
-      <View className="overflow-hidden rounded-2xl bg-paper dark:bg-gray-900">
+    <View className={`mb-4 ${className ?? ""}`}>
+      <PageSectionTitle className="px-6 pb-4">{title}</PageSectionTitle>
+      <View className="overflow-hidden rounded-2xl bg-paper dark:bg-gray-900 px-6">
         {children}
       </View>
     </View>

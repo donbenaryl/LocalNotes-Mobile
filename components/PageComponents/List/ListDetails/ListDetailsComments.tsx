@@ -1,21 +1,18 @@
 import { useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { Heart } from "lucide-react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
+import { MentionedText } from "@/components/ui/MentionedText";
+import { MentionTextInput } from "@/components/ui/MentionTextInput";
 import { PageLoader } from "@/components/ui/PageLoader";
 import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { formatRelativeTime } from "@/utils/time";
 import type { Comment, ListItemDAO } from "@/http/list-api/types";
+import type { MentionSearchResultItem } from "@/http/account-api/types";
 
 interface ListDetailsCommentsProps {
   list: ListItemDAO;
@@ -25,6 +22,9 @@ export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [commentText, setCommentText] = useState("");
+  const [pickedMentions, setPickedMentions] = useState<
+    MentionSearchResultItem[]
+  >([]);
   const [replyTo, setReplyTo] = useState<Comment | null>(null);
   const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
     () => new Set(),
@@ -52,15 +52,20 @@ export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
 
   const createCommentMutation = useMutation({
     mutationFn: async () => {
+      const trimmedContent = commentText.trim();
+      const mentionIds = pickedMentions
+        .filter((user) => trimmedContent.includes(`@${user.name}`))
+        .map((user) => user.id);
       const response = await listService.createListComment(
         list.id,
-        { content: commentText.trim() },
+        { content: trimmedContent, mentioned_account_ids: mentionIds },
         replyTo?.id,
       );
       return response.data?.data ?? null;
     },
     onSuccess: (newComment) => {
       setCommentText("");
+      setPickedMentions([]);
       setReplyTo(null);
 
       if (newComment?.parent) {
@@ -180,9 +185,11 @@ export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
                 {formatRelativeTime(comment.created_at)}
               </Text>
             </View>
-            <Text className="mt-1 font-geist text-[13px] leading-5 text-gray-800 dark:text-gray-200">
-              {comment.content}
-            </Text>
+            <MentionedText
+              content={comment.content}
+              mentionedAccounts={comment.mentioned_accounts}
+              className="mt-1 font-geist text-[13px] leading-5 text-gray-800 dark:text-gray-200"
+            />
             <View className="mt-2 flex-row flex-wrap items-center gap-3">
               {!isReply && list.others_can_comment ? (
                 <Pressable
@@ -287,9 +294,15 @@ export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
               </Pressable>
             </View>
           ) : null}
-          <TextInput
+          <MentionTextInput
             value={commentText}
             onChangeText={setCommentText}
+            onMentionSelect={(user) =>
+              setPickedMentions((prev) => [
+                ...prev.filter((u) => u.id !== user.id),
+                user,
+              ])
+            }
             placeholder={
               replyTo
                 ? t("listDetail.replyPlaceholder")

@@ -126,7 +126,7 @@ export default function AccountSettingsMenu() {
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="px-6 pb-10 pt-4"
+        contentContainerClassName="pb-10 pt-4"
       >
         {profile ? <AccountSettingsCard profile={profile} /> : null}
 

@@ -164,6 +164,22 @@ export interface usernameSearchDAO {
   results: usernameSearchResultItem[];
 }
 
+export interface MentionSearchDTO {
+  q: string;
+}
+
+export interface MentionSearchResultItem {
+  id: string;
+  name: string;
+  username: string;
+  profile_image_url?: string | null;
+}
+
+export interface MentionSearchDAO {
+  query: string;
+  results: MentionSearchResultItem[];
+}
+
 export interface notificationDTO{
   page:number
 } 

@@ -9,6 +9,8 @@ import type {
   searchUserDAO,
   usernameSearchDTO,
   usernameSearchDAO,
+  MentionSearchDTO,
+  MentionSearchDAO,
   notificationDTO,
   notificationDAO,
   updateAccountDTO,
@@ -127,6 +129,13 @@ class AccountService extends AppHttpService {
       method: "get",
       path: "/username-search",
       query: { username: dto.username },
+    });
+  }
+  async searchMentions(dto: MentionSearchDTO) {
+    return await this.SendRequest<MentionSearchDAO>({
+      method: "get",
+      path: "/mention-search",
+      query: { q: dto.q },
     });
   }
   async unfollowUser(userId: string) {

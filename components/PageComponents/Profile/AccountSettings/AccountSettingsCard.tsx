@@ -18,7 +18,7 @@ export function AccountSettingsCard({ profile }: AccountSettingsCardProps) {
     : handle;
 
   return (
-    <WhiteBox className="mb-6 flex-row items-center gap-3">
+    <WhiteBox className="mb-4 flex-row items-center gap-3 mx-6">
       <Avatar
         name={profile.name}
         src={profile.profile_image_url}

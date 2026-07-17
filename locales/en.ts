@@ -801,6 +801,7 @@ const en = {
     cancelReply: 'Cancel',
     postComment: 'Post',
     noComments: 'No comments yet. Start the conversation.',
+    searchingMentions: 'Searching…',
     report: 'Report',
     block: 'Block',
     share: 'Share',
