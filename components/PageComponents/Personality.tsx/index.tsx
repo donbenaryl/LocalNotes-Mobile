@@ -2,11 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { AppScrollView } from "@/components/ui/AppScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { LinearGradient } from "expo-linear-gradient";
 import { ChevronRight, Globe } from "lucide-react-native";
@@ -290,7 +290,7 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
         </View>
       </PageHeader>
 
-      <ScrollView
+      <AppScrollView
         className="flex-1 px-6 mt-4"
         contentContainerStyle={{ paddingBottom: 90 }}
         showsVerticalScrollIndicator={false}
@@ -348,7 +348,7 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
             </View>
           </View>
         ))}
-      </ScrollView>
+      </AppScrollView>
 
       {/* Footer */}
       <PageFooterWrapper>

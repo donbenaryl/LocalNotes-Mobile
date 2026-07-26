@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import { Alert, View } from 'react-native';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
@@ -123,7 +124,7 @@ export default function AccountSettingsMenu() {
         title={t('accountSettings.title')}
         onBack={() => router.back()}
       />
-      <ScrollView
+      <AppScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-10 pt-4"
@@ -249,7 +250,7 @@ export default function AccountSettingsMenu() {
             isLast
           />
         </SettingsSection>
-      </ScrollView>
+      </AppScrollView>
 
       <DeleteAccountModal
         visible={deleteModalVisible}

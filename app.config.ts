@@ -34,6 +34,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'LocalNotes needs access to your photo library to update your profile photo.',
       NSCameraUsageDescription:
         'LocalNotes needs access to your camera to take a profile photo.',
+      // temporary fix for local development
+      NSAppTransportSecurity: {
+        NSAllowsArbitraryLoads: true,
+      },
+      NSLocalNetworkUsageDescription: 'Connect to local development server',
     },
   },
   android: {
@@ -73,6 +78,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         cameraPermission: 'LocalNotes needs access to your camera to take a profile photo.',
       },
     ],
+    'expo-notifications',
   ],
   experiments: {
     typedRoutes: true,

@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useAccountSettingsStore } from '@/stores/useAccountSettingsStore';
 import { SettingsSection } from './SettingsSection';
@@ -30,7 +31,7 @@ export default function NotificationsSettings() {
         title={t('accountSettings.notifications.title')}
         onBack={() => router.back()}
       />
-      <ScrollView
+      <AppScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-6 pb-10 pt-4"
@@ -102,6 +103,18 @@ export default function NotificationsSettings() {
         </SettingsSection>
 
         <SettingsSection
+          title={t('accountSettings.notifications.sections.spotlight')}
+        >
+          <SettingsSwitchRow
+            title={t('accountSettings.notifications.spotlightDigest')}
+            subtitle={t('accountSettings.notifications.spotlightDigestSub')}
+            value={notifications.spotlightDigest}
+            onValueChange={toggle('spotlightDigest')}
+            isLast
+          />
+        </SettingsSection>
+
+        <SettingsSection
           title={t('accountSettings.notifications.sections.emailDigests')}
         >
           <SettingsSwitchRow
@@ -130,7 +143,7 @@ export default function NotificationsSettings() {
             isLast
           />
         </SettingsSection>
-      </ScrollView>
+      </AppScrollView>
     </View>
   );
 }

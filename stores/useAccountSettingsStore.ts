@@ -50,6 +50,14 @@ async function syncPrivacyPatch(patch: Partial<PrivacyPrefs>) {
   }
 }
 
+async function syncSpotlightDigestPatch(value: boolean) {
+  try {
+    await accountService.updateNotificationSettings({ spotlight_digest: value });
+  } catch {
+    // Best-effort sync — the optimistic local update already reflects the change.
+  }
+}
+
 export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) => ({
   ...DEFAULT_ACCOUNT_SETTINGS,
   hydrated: false,
@@ -92,6 +100,19 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
     } catch {
       // Offline or request failed — keep the cached/default privacy prefs already in state.
       set({ privacyLoadError: true });
+    }
+
+    try {
+      const response = await accountService.getNotificationSettings();
+      const dao = response.data?.data;
+      if (dao) {
+        set((state) => ({
+          notifications: { ...state.notifications, spotlightDigest: dao.spotlight_digest },
+        }));
+        void persistLocalCache(get());
+      }
+    } catch {
+      // Offline or request failed — keep the cached/default spotlight digest pref.
     } finally {
       set({ hydrated: true });
     }
@@ -102,6 +123,9 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
       notifications: { ...state.notifications, [key]: value },
     }));
     void persistLocalCache(get());
+    if (key === 'spotlightDigest') {
+      void syncSpotlightDigestPatch(value as boolean);
+    }
   },
 
   setPrivacy: (key, value) => {

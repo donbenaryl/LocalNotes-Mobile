@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { FolderOpen } from "lucide-react-native";
 import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
-import { ListCard } from "@/components/ui/ListCard";
+import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { useProfile } from "@/hooks/useProfileList";
 import { SavedSectionState } from "@/components/PageComponents/Saved/SavedSectionState";
@@ -47,7 +47,11 @@ export function DraftsTab() {
         >
           <View className="gap-4">
             {list.map((item) => (
-              <ListCard key={item.id} data={item} onDeleted={handleListDeleted} />
+              <ListCardDetailed
+                key={item.id}
+                list={item}
+                onDeleted={handleListDeleted}
+              />
             ))}
           </View>
         </SavedSectionState>

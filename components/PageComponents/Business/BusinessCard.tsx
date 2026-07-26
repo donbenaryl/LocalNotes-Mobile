@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -11,7 +10,7 @@ import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { toast } from "@/components/ui/Toast";
-import businessService from "@/http/business-api/business.service";
+import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 
@@ -38,12 +37,11 @@ export function BusinessCard({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === "dark" ? "#D1D5DB" : "#6B7280";
-  const [isFollowed, setIsFollowed] = useState(data.is_followed ?? false);
-  const [isToggling, setIsToggling] = useState(false);
-
-  useEffect(() => {
-    setIsFollowed(data.is_followed ?? false);
-  }, [data.is_followed]);
+  const { isFollowed, isToggling, toggle } = useBusinessFollow(
+    data.id,
+    data.is_followed ?? false,
+    onFollowChange,
+  );
 
   const logoUri = data.logo ? resolveImageUrl(data.logo) ?? data.logo : null;
   const cityLabel = formatBranchCity(data);
@@ -58,25 +56,6 @@ export function BusinessCard({
     toast.info(t("alerts.comingSoonMessage"), {
       title: t("alerts.comingSoon"),
     });
-  };
-
-  const handleFollowToggle = async () => {
-    if (isToggling) return;
-    setIsToggling(true);
-    try {
-      if (isFollowed) {
-        await businessService.unfollowBusiness(data.id);
-      } else {
-        await businessService.followBusiness(data.id);
-      }
-      const next = !isFollowed;
-      setIsFollowed(next);
-      onFollowChange?.(data.id, next);
-    } catch (error) {
-      console.error(`Failed to toggle follow for business ${data.id}:`, error);
-    } finally {
-      setIsToggling(false);
-    }
   };
 
   return (
@@ -147,7 +126,7 @@ export function BusinessCard({
 
         <Pressable
           onPress={() => {
-            void handleFollowToggle();
+            void toggle();
           }}
           disabled={isToggling}
           accessibilityRole="button"

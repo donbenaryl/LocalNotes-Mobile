@@ -14,6 +14,7 @@ import {
   type HomeListFilter,
 } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
 import { ForYouSection } from "@/components/PageComponents/Home/Home/ForYouSection";
+import { HomeEditorialTitle } from "@/components/PageComponents/Home/Home/HomeEditorialTitle";
 import { HomeTabSkeleton } from "@/components/PageComponents/Home/Home/HomeTabSkeleton";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
@@ -24,6 +25,7 @@ import { useHomeLists } from "@/hooks/useHomeLists";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { sortPicksWithImagesFirst } from "@/utils/homePicks";
 import {
+  getEditorialTimePhrase,
   getTimeOfDayLabel,
   type TimeOfDayPeriod,
 } from "@/utils/time";
@@ -94,7 +96,6 @@ function HomePicksGrid({
         <View key={pick.id} className="w-[48%]">
           <PickCard
             data={pick}
-            variant="grid"
             readOnly
             onRefresh={onRefresh}
           />
@@ -189,6 +190,22 @@ export function HomeTab() {
     [t, i18n.language],
   );
 
+  const editorialTimePhrase = useMemo(
+    () =>
+      getEditorialTimePhrase(
+        (period: TimeOfDayPeriod) => t(`home.editorial.timePhrase.${period}`),
+        new Date(),
+      ),
+    [t],
+  );
+
+  const editorialCity =
+    locationMode === "all"
+      ? null
+      : locationMode === "city" && manualLocation
+        ? manualLocation.city
+        : detectedCityLabel || null;
+
   const sortedForYouLists = useMemo(
     () => sortListsWithImagesFirst(forYouLists),
     [forYouLists],
@@ -278,6 +295,11 @@ export function HomeTab() {
             vibeMatchCount={vibeMatchCount}
             contentType={contentType}
             onContentTypeChange={setContentType}
+          />
+
+          <HomeEditorialTitle
+            timePhrase={editorialTimePhrase}
+            city={editorialCity}
           />
 
           {contentType === "lists" ? (

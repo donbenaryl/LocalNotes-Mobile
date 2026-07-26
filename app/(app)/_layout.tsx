@@ -1,6 +1,7 @@
 import { Redirect, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { PageLoader } from '@/components/ui/PageLoader';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { hydrateUserProfile } from '../../services/authBootstrap';
 
@@ -8,6 +9,7 @@ export default function AppLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const [isHydrating, setIsHydrating] = useState(isAuthenticated && !user);
+  usePushNotifications();
 
   useEffect(() => {
     if (!isAuthenticated || user) {

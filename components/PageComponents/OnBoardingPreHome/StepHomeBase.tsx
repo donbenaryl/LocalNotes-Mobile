@@ -1,5 +1,5 @@
-import { ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
+import { AppScrollView } from "@/components/ui/AppScrollView";
 import { LocationInput } from "@/components/ui/LocationInput";
 import { PageTitleHeading } from "@/components/ui/PageTitleHeading";
 import type { Location } from "@/http/list-api/types";
@@ -12,7 +12,7 @@ export function StepHomeBase({ onLocationSelect }: StepHomeBaseProps) {
   const { t } = useTranslation();
 
   return (
-    <ScrollView
+    <AppScrollView
       className="flex-1 px-6"
       contentContainerStyle={{ paddingBottom: 110 }}
       showsVerticalScrollIndicator={false}
@@ -31,6 +31,6 @@ export function StepHomeBase({ onLocationSelect }: StepHomeBaseProps) {
         onLocationSelected={onLocationSelect}
         placeholder={t("preHomeOnboarding.step1.searchPlaceholder")}
       />
-    </ScrollView>
+    </AppScrollView>
   );
 }

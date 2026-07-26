@@ -1,7 +1,8 @@
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { useSmartPickSession } from '@/hooks/useSmartPickSession';
 import { SmartPickResults } from './Result/SmartPickResults';
@@ -42,9 +43,9 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
           />
         </View>
       ) : (
-        <ScrollView contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
+        <AppScrollView contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
           <SmartPickResults conversation={conversation} onBack={() => router.back()} />
-        </ScrollView>
+        </AppScrollView>
       )}
     </View>
   );

@@ -12,6 +12,9 @@ export interface NotificationPrefs {
   weeklyRecap: boolean;
   reengagementNudges: boolean;
   quietHours: boolean;
+  /** Backed by `NotificationSetting.spotlight_digest` — unlike the other keys above, this
+   * one is synced to the backend (see `useAccountSettingsStore.ts`). */
+  spotlightDigest: boolean;
 }
 
 export interface PrivacyPrefs {
@@ -49,6 +52,7 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
   weeklyRecap: true,
   reengagementNudges: false,
   quietHours: true,
+  spotlightDigest: true,
 };
 
 export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {

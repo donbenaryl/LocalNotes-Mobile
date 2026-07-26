@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import {
   Calendar,
@@ -13,7 +12,7 @@ import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
 import { toast } from "@/components/ui/Toast";
-import businessService from "@/http/business-api/business.service";
+import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import type { OfferCardItem } from "@/types/offer";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel } from "@/utils/time";
@@ -35,47 +34,23 @@ function BusinessFollowButton({
   initialIsFollowed,
 }: BusinessFollowButtonProps) {
   const { t } = useTranslation();
-  const [isFollowed, setIsFollowed] = useState(initialIsFollowed);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setIsFollowed(initialIsFollowed);
-  }, [initialIsFollowed]);
-
-  const handlePress = async () => {
-    if (!businessId || loading) return;
-
-    setLoading(true);
-    try {
-      if (isFollowed) {
-        await businessService.unfollowBusiness(businessId);
-        setIsFollowed(false);
-      } else {
-        await businessService.followBusiness(businessId);
-        setIsFollowed(true);
-      }
-    } catch (error) {
-      console.error(
-        `Failed to toggle follow for business ${businessId}:`,
-        error,
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { isFollowed, isToggling, toggle } = useBusinessFollow(
+    businessId,
+    initialIsFollowed,
+  );
 
   if (!businessId) return null;
 
   return (
     <Pressable
       onPress={() => {
-        void handlePress();
+        void toggle();
       }}
-      disabled={loading}
+      disabled={isToggling}
       accessibilityRole="button"
       className="cursor-pointer rounded-full border border-gray-200 px-2.5 py-1 dark:border-gray-700"
     >
-      {loading ? (
+      {isToggling ? (
         <ActivityIndicator size="small" color="#FF6B1A" />
       ) : (
         <Text className="font-geist-medium text-xs text-ink dark:text-gray-100">

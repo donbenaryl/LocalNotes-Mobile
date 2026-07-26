@@ -1,6 +1,7 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import {
   LegalBulletList,
@@ -66,7 +67,7 @@ export function CommunityGuidelines() {
     <View className="flex-1 bg-page dark:bg-gray-900">
       <PageHeader title="Community guidelines" />
 
-      <ScrollView
+      <AppScrollView
         className="flex-1 px-6"
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
@@ -314,7 +315,7 @@ export function CommunityGuidelines() {
             Terms
           </Text>
         </View>
-      </ScrollView>
+      </AppScrollView>
     </View>
   );
 }

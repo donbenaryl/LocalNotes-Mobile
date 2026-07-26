@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { Toggle } from "@/components/ui/Toggle";
@@ -49,12 +49,17 @@ export function ListFilters({
 
   return (
     <View className="mb-4 gap-3">
+      {/* Category Filter Section */}
       {showCategory && (
         <View>
           <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-gray-400">
             {t("profile.filters.category")}
           </Text>
-          <View className="flex-row flex-wrap gap-2">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerClassName="flex-row items-center gap-2"
+          >
             <CategoryChip
               label={t("profile.filters.all")}
               isSelected={selectedCategory === "All"}
@@ -68,7 +73,7 @@ export function ListFilters({
                 onPress={() => onCategoryChange(category.id)}
               />
             ))}
-          </View>
+          </ScrollView>
         </View>
       )}
 

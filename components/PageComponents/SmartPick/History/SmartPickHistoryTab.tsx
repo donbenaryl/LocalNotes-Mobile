@@ -1,7 +1,8 @@
-import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { History } from 'lucide-react-native';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyScreen } from '@/components/ui/EmptyScreen';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -17,7 +18,7 @@ export function SmartPickHistoryTab() {
     <View className="flex-1">
       <PageHeader title={t('smartPick.historyTitle')} />
 
-      <ScrollView contentContainerClassName="gap-2.5 px-4 pb-10 pt-4" showsVerticalScrollIndicator={false}>
+      <AppScrollView contentContainerClassName="gap-2.5 px-4 pb-10 pt-4" showsVerticalScrollIndicator={false}>
         {isPending ? (
           <View className="items-center justify-center py-16">
             <ActivityIndicator size="large" color="#FF6B1A" />
@@ -51,7 +52,7 @@ export function SmartPickHistoryTab() {
             />
           ))
         )}
-      </ScrollView>
+      </AppScrollView>
     </View>
   );
 }

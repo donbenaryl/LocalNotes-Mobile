@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
-import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
+import {
+  ActivityIndicator,
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from "react-native";
 import { CheckCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "@/components/ui/TextInput";
@@ -101,8 +111,51 @@ export function ListItemForm({
   const [isDeletingImage, setIsDeletingImage] = useState(false);
 
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollYRef = useRef(0);
   const { height: windowHeight } = useWindowDimensions();
-  const scrollMaxHeight = Math.round(windowHeight * 0.75 - 100);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const FORM_CHROME = 160;
+  const scrollMaxHeight = Math.round(
+    Math.min(
+      windowHeight * 0.75 - 100,
+      Math.max(windowHeight - keyboardHeight - FORM_CHROME, 200),
+    ),
+  );
+
+  useEffect(() => {
+    if (!visible) {
+      setKeyboardHeight(0);
+      return;
+    }
+
+    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+
+    const showSub = Keyboard.addListener(showEvent, (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [visible]);
+
+  const lockScrollPosition = useCallback(() => {
+    const y = scrollYRef.current;
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ y, animated: false });
+    });
+  }, []);
+
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollYRef.current = event.nativeEvent.contentOffset.y;
+  }, []);
 
   const searchBusiness = useCallback(async (query: string) => {
     if (!query.trim()) {
@@ -227,6 +280,7 @@ export function ListItemForm({
       onClose={onCancel}
       title={title}
       position="bottom"
+      avoidKeyboard={false}
       footer={
         <LocalNotesButton
           label={isEditing ? t("common.save") : t("profile.picks.savePick")}
@@ -237,145 +291,153 @@ export function ListItemForm({
         />
       }
     >
-      <KeyboardAwareScrollView
-        scrollToFocusedInput
-        style={{ maxHeight: scrollMaxHeight }}
-        contentContainerStyle={{ paddingBottom: 88 }}
-      >
-        <View className="gap-4 pb-6">
-        <View className="relative">
+      <View style={{ height: scrollMaxHeight }}>
+        <ScrollView
+          ref={scrollRef}
+          keyboardShouldPersistTaps="handled"
+          automaticallyAdjustKeyboardInsets={false}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={16}
+          onScroll={handleScroll}
+          contentContainerStyle={{ paddingBottom: 88 }}
+        >
+          <View className="gap-4 pb-6">
+          <View className="relative">
+            <TextInput
+              label={t("profile.picks.nameLabel")}
+              placeholder={t("profile.picks.namePlaceholder")}
+              value={nameInput}
+              maxLength={80}
+              onChangeText={(value) => {
+                setNameInput(value);
+                if (selectedBusiness && value !== selectedBusiness.name) {
+                  setSelectedBusiness(null);
+                }
+              }}
+              onFocus={() => {
+                if (nameInput.trim() && searchResults.length > 0) setShowSearchResults(true);
+                lockScrollPosition();
+              }}
+            />
+            {showSearchResults && searchResults.length > 0 && (
+              <View className="mt-1 max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+                {isSearching ? (
+                  <View className="px-4 py-3">
+                    <ActivityIndicator size="small" color="#FF6B1A" />
+                  </View>
+                ) : (
+                  searchResults.map((business) => (
+                    <Pressable
+                      key={business.id}
+                      onPress={() => handleBusinessSelect(business)}
+                      className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer"
+                    >
+                      <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                        {business.name}
+                      </Text>
+                      <Text className="text-xs text-gray-500 dark:text-gray-400">
+                        {business.contact_email || t("profile.picks.noContactInfo")}
+                      </Text>
+                    </Pressable>
+                  ))
+                )}
+              </View>
+            )}
+          </View>
+
+          <View>
+            <FieldLabel label={t("profile.picks.categoryLabel")} required />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View className="flex-row gap-2">
+                {categoryCatalog.map((category) => (
+                  <CategoryChip
+                    key={category.id}
+                    label={category.name}
+                    isSelected={selectedCategoryIds.includes(category.id)}
+                    onPress={() => {
+                      const isSelected = selectedCategoryIds.includes(category.id);
+                      const next = isSelected
+                        ? selectedCategoryIds.filter((id) => id !== category.id)
+                        : [...selectedCategoryIds, category.id];
+                      setSelectedCategoryIds(next);
+                      const stillHasOthers = hasOthersCategory(
+                        categoryCatalog.filter((c) => next.includes(c.id)),
+                      );
+                      if (!stillHasOthers) setOthersName("");
+                    }}
+                  />
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+
+          {isOthersSelected ? (
+            <TextInput
+              label={t("profile.picks.othersCategoryLabel")}
+              placeholder={t("profile.picks.othersCategoryPlaceholder")}
+              value={othersName}
+              onChangeText={setOthersName}
+            />
+          ) : null}
+
           <TextInput
-            label={t("profile.picks.nameLabel")}
-            placeholder={t("profile.picks.namePlaceholder")}
-            value={nameInput}
-            maxLength={80}
-            onChangeText={(value) => {
-              setNameInput(value);
-              if (selectedBusiness && value !== selectedBusiness.name) {
-                setSelectedBusiness(null);
-              }
-            }}
-            onFocus={() => {
-              if (nameInput.trim() && searchResults.length > 0) setShowSearchResults(true);
-            }}
+            label={t("profile.picks.descriptionLabel")}
+            placeholder={t("profile.picks.descriptionPlaceholder")}
+            value={notesInput}
+            maxLength={180}
+            multiline
+            onChangeText={setNotesInput}
+            onFocus={lockScrollPosition}
           />
-          {showSearchResults && searchResults.length > 0 && (
-            <View className="mt-1 max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
-              {isSearching ? (
-                <View className="px-4 py-3">
-                  <ActivityIndicator size="small" color="#FF6B1A" />
-                </View>
-              ) : (
-                searchResults.map((business) => (
-                  <Pressable
-                    key={business.id}
-                    onPress={() => handleBusinessSelect(business)}
-                    className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer"
-                  >
-                    <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
-                      {business.name}
-                    </Text>
-                    <Text className="text-xs text-gray-500 dark:text-gray-400">
-                      {business.contact_email || t("profile.picks.noContactInfo")}
-                    </Text>
-                  </Pressable>
-                ))
-              )}
+          <Text className="text-xs text-gray-500 dark:text-gray-400 -mt-2">
+            {noteWordCount} / 25 {t("profile.picks.words")}
+          </Text>
+
+          <LocationInput
+            placeholder={t("profile.picks.locationOptional")}
+            defaultValue={locationDisplayValue}
+            onLocationSelected={setLocation}
+          />
+
+          <Tags
+            innerTags={innerTags}
+            innerTagInput={innerTagInput}
+            onInnerTagInputChange={setInnerTagInput}
+            onAddInnerTag={handleAddInnerTag}
+            onRemoveInnerTag={(tag) => setInnerTags(innerTags.filter((t) => t !== tag))}
+          />
+
+          <ImageUploadField
+            label={t("profile.picks.photos")}
+            required={false}
+            maxFiles={DEFAULT_MAX_IMAGE_FILES}
+            existingImages={localExistingImages}
+            onRemoveExisting={
+              isEditing
+                ? (id) => {
+                    setPendingDeleteImageId(id);
+                    setShowDeleteImageModal(true);
+                  }
+                : undefined
+            }
+            newFiles={newItemPhotos}
+            onAppendNewFiles={appendNewPickFiles}
+            onRemoveNewAt={(index) =>
+              setNewItemPhotos((prev) => prev.filter((_, i) => i !== index))
+            }
+          />
+
+          {selectedBusiness && (
+            <View className="flex-row items-center gap-2 rounded-md bg-blue-50 dark:bg-blue-950/30 px-3 py-2">
+              <CheckCircle size={16} color="#2563EB" />
+              <Text className="text-sm text-blue-700 dark:text-blue-300">
+                {t("profile.picks.verifiedBusiness", { name: selectedBusiness.name })}
+              </Text>
             </View>
           )}
-        </View>
-
-        <View>
-          <FieldLabel label={t("profile.picks.categoryLabel")} required />
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-2">
-              {categoryCatalog.map((category) => (
-                <CategoryChip
-                  key={category.id}
-                  label={category.name}
-                  isSelected={selectedCategoryIds.includes(category.id)}
-                  onPress={() => {
-                    const isSelected = selectedCategoryIds.includes(category.id);
-                    const next = isSelected
-                      ? selectedCategoryIds.filter((id) => id !== category.id)
-                      : [...selectedCategoryIds, category.id];
-                    setSelectedCategoryIds(next);
-                    const stillHasOthers = hasOthersCategory(
-                      categoryCatalog.filter((c) => next.includes(c.id)),
-                    );
-                    if (!stillHasOthers) setOthersName("");
-                  }}
-                />
-              ))}
-            </View>
-          </ScrollView>
-        </View>
-
-        {isOthersSelected ? (
-          <TextInput
-            label={t("profile.picks.othersCategoryLabel")}
-            placeholder={t("profile.picks.othersCategoryPlaceholder")}
-            value={othersName}
-            onChangeText={setOthersName}
-          />
-        ) : null}
-
-        <TextInput
-          label={t("profile.picks.descriptionLabel")}
-          placeholder={t("profile.picks.descriptionPlaceholder")}
-          value={notesInput}
-          maxLength={180}
-          multiline
-          onChangeText={setNotesInput}
-        />
-        <Text className="text-xs text-gray-500 dark:text-gray-400 -mt-2">
-          {noteWordCount} / 25 {t("profile.picks.words")}
-        </Text>
-
-        <LocationInput
-          placeholder={t("profile.picks.locationOptional")}
-          defaultValue={locationDisplayValue}
-          onLocationSelected={setLocation}
-        />
-
-        <Tags
-          innerTags={innerTags}
-          innerTagInput={innerTagInput}
-          onInnerTagInputChange={setInnerTagInput}
-          onAddInnerTag={handleAddInnerTag}
-          onRemoveInnerTag={(tag) => setInnerTags(innerTags.filter((t) => t !== tag))}
-        />
-
-        <ImageUploadField
-          label={t("profile.picks.photos")}
-          required={false}
-          maxFiles={DEFAULT_MAX_IMAGE_FILES}
-          existingImages={localExistingImages}
-          onRemoveExisting={
-            isEditing
-              ? (id) => {
-                  setPendingDeleteImageId(id);
-                  setShowDeleteImageModal(true);
-                }
-              : undefined
-          }
-          newFiles={newItemPhotos}
-          onAppendNewFiles={appendNewPickFiles}
-          onRemoveNewAt={(index) =>
-            setNewItemPhotos((prev) => prev.filter((_, i) => i !== index))
-          }
-        />
-
-        {selectedBusiness && (
-          <View className="flex-row items-center gap-2 rounded-md bg-blue-50 dark:bg-blue-950/30 px-3 py-2">
-            <CheckCircle size={16} color="#2563EB" />
-            <Text className="text-sm text-blue-700 dark:text-blue-300">
-              {t("profile.picks.verifiedBusiness", { name: selectedBusiness.name })}
-            </Text>
           </View>
-        )}
-        </View>
-      </KeyboardAwareScrollView>
+        </ScrollView>
+      </View>
 
       <ConfirmDeleteModal
         visible={showDeleteImageModal}

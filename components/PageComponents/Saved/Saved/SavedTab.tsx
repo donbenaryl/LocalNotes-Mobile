@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Bookmark, Package } from "lucide-react-native";
 import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
-import { ListCard } from "@/components/ui/ListCard";
+import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useProfile, useProfilePicks } from "@/hooks/useProfileList";
 import { SavedSectionState } from "@/components/PageComponents/Saved/SavedSectionState";
@@ -26,6 +26,12 @@ export function SavedTab() {
     isError: picksError,
     refetch: refetchPicks,
   } = useProfilePicks("Favorites only", subTab === "picks");
+
+  const { leftColumn, rightColumn } = useMemo(() => {
+    const left = savedPicks.filter((_, index) => index % 2 === 0);
+    const right = savedPicks.filter((_, index) => index % 2 === 1);
+    return { leftColumn: left, rightColumn: right };
+  }, [savedPicks]);
 
   const listsLabel = listsPending
     ? t("saved.saved.listsLabel")
@@ -59,7 +65,7 @@ export function SavedTab() {
         >
           <View className="gap-4">
             {savedLists.map((item) => (
-              <ListCard key={item.id} data={item} />
+              <ListCardDetailed key={item.id} list={item} />
             ))}
           </View>
         </SavedSectionState>
@@ -73,15 +79,25 @@ export function SavedTab() {
           emptyTitle={t("saved.saved.emptyPicksTitle")}
           emptyDescription={t("saved.saved.emptyPicksDescription")}
         >
-          <View className="gap-3">
-            {savedPicks.map((pick) => (
-              <PickCard
-                key={pick.id}
-                data={pick}
-                variant="list"
-                onRefresh={() => void refetchPicks()}
-              />
-            ))}
+          <View className="flex-row gap-3">
+            <View className="flex-1 gap-3">
+              {leftColumn.map((pick) => (
+                <PickCard
+                  key={pick.id}
+                  data={pick}
+                  onRefresh={() => void refetchPicks()}
+                />
+              ))}
+            </View>
+            <View className="flex-1 gap-3">
+              {rightColumn.map((pick) => (
+                <PickCard
+                  key={pick.id}
+                  data={pick}
+                  onRefresh={() => void refetchPicks()}
+                />
+              ))}
+            </View>
           </View>
         </SavedSectionState>
       )}

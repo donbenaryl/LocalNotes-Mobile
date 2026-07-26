@@ -37,7 +37,7 @@ export function ProfileListTabPanel({
   favoriteOptions,
 }: ProfileListTabPanelProps) {
   return (
-    <View className="p-4">
+    <View className="px-4">
       <ProfileTabFilters
         tab={tab}
         selectedCategory={selectedCategory}

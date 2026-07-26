@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import { AppScrollView } from "@/components/ui/AppScrollView";
 import { LocalNotesButton } from "../../ui/LocalNotesButton";
 import { PageFooterWrapper } from "../../ui/PageFooterWrapper";
 import { PageTitleHeading } from "@/components/ui/PageTitleHeading";
@@ -84,7 +85,7 @@ export function StepStarters() {
 
   return (
     <View className="flex-1">
-      <ScrollView
+      <AppScrollView
         className="flex-1 px-6"
         contentContainerStyle={{ paddingBottom: 130 }}
         showsVerticalScrollIndicator={false}
@@ -174,7 +175,7 @@ export function StepStarters() {
             ))}
           </View>
         ) : null}
-      </ScrollView>
+      </AppScrollView>
 
       <PageFooterWrapper>
         <Text className="font-geist-medium text-sm text-center text-gray-500 dark:text-gray-400 mb-2">

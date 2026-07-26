@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { AlertCircle, FolderOpen, Sparkles } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ListCard } from "@/components/ui/ListCard";
+import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { SimilarListCard } from "@/components/ui/SimilarListCard";
 import {
@@ -113,7 +113,7 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
       >
         <View className="gap-4">
           {followingList.map((card) => (
-            <ListCard key={card.id} data={card} />
+            <ListCardDetailed key={card.id} list={card} />
           ))}
         </View>
       </ActivitySection>

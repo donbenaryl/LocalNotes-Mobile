@@ -1,6 +1,7 @@
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+import { AppScrollView } from "@/components/ui/AppScrollView";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ProfileActivityTab } from "./ProfileActivityTab";
@@ -16,13 +17,13 @@ export default function RecentActivityFeed() {
         title={t("settings.recentActivityFeed")}
         onBack={() => router.back()}
       />
-      <ScrollView
+      <AppScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pb-8"
       >
         {userId ? <ProfileActivityTab userId={userId} /> : null}
-      </ScrollView>
+      </AppScrollView>
     </View>
   );
 }

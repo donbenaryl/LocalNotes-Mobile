@@ -25,6 +25,7 @@ import { ProfileHeader } from "./ProfileHeader";
 import { ProfileInfoSkeleton } from "./ProfileInfoSkeleton";
 import { ProfileList } from "./ProfileList";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
+import { ProfileStickyInfoBar } from "./ProfileStickyInfoBar";
 import {
   ProfileChromeProvider,
   useProfileChrome,
@@ -49,6 +50,8 @@ function isTabType(value: string | null | undefined): value is ProfileListTabTyp
 
 const PROFILE_CHROME_HIDE_RANGE = 180;
 const REVEAL_GESTURE_DISTANCE = 24;
+/** Approximate collapsed sticky identity row height (avatar sm + vertical padding). */
+const STICKY_INFO_BAR_HEIGHT = 48;
 
 interface MainProfileProps {
   userId?: string;
@@ -78,6 +81,12 @@ function MainProfileContent({
 
   const tabsAnimatedStyle = useAnimatedStyle(() => ({
     paddingTop: insets.top * hideProgress.value,
+  }));
+
+  const stickyInfoBarAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: hideProgress.value,
+    height: STICKY_INFO_BAR_HEIGHT * hideProgress.value,
+    overflow: "hidden" as const,
   }));
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
@@ -183,7 +192,6 @@ function MainProfileContent({
       >
         <PageHeader
           onBack={() => router.back()}
-          title="Profile"
           borderless
           rightChild={isOwnProfile ? <ProfileHeader /> : undefined}
         />
@@ -221,18 +229,28 @@ function MainProfileContent({
             activeTab={activeTab}
           />
           <Animated.View
-              className="pt-4 border-b-0 bg-white/70 dark:bg-gray-900/80 backdrop-blur-md"
+            className="border-b-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md"
             style={[
               tabsAnimatedStyle,
               { position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 },
             ]}
           >
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              className="border-b-0"
-            />
+            <Animated.View style={stickyInfoBarAnimatedStyle}>
+              <View className="h-14 justify-end">
+                <ProfileStickyInfoBar
+                  profile={profile}
+                  isOwnProfile={isOwnProfile}
+                />
+              </View>
+            </Animated.View>
+            <View className="pt-4">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                className="border-b-0"
+              />
+            </View>
           </Animated.View>
         </View>
       )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView } from 'react-native';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { useUserCoordinates } from '@/hooks/useUserCoordinates';
 import { useCreateSmartPick } from '@/hooks/useCreateSmartPick';
@@ -69,9 +69,9 @@ export function SmartPickTab() {
 
   if (step === 'result' && conversation) {
     return (
-      <ScrollView contentContainerClassName="pb-28" showsVerticalScrollIndicator={false}>
+      <AppScrollView contentContainerClassName="pb-28" showsVerticalScrollIndicator={false}>
         <SmartPickResults conversation={conversation} onBack={handleBackToForm} />
-      </ScrollView>
+      </AppScrollView>
     );
   }
 

@@ -4,7 +4,7 @@ import { FolderOpen } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
-import { ListCard } from "@/components/ui/ListCard";
+import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { useProfile, type ProfileTabCategory } from "@/hooks/useProfileList";
 
 interface ProfileListTabContentProps {
@@ -102,7 +102,11 @@ export function ProfileListTabContent({
   return (
     <View className="gap-4">
       {sortedList.map((item) => (
-        <ListCard key={item.id} data={item} onDeleted={handleListDeleted} />
+        <ListCardDetailed
+          key={item.id}
+          list={item}
+          onDeleted={handleListDeleted}
+        />
       ))}
     </View>
   );

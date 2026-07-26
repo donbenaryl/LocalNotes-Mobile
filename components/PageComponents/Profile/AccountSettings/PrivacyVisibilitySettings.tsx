@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, Alert, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { AppScrollView } from '@/components/ui/AppScrollView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import accountService from '@/http/account-api/account.services';
 import { useAccountSettingsStore } from '@/stores/useAccountSettingsStore';
@@ -72,7 +73,7 @@ export default function PrivacyVisibilitySettings() {
         title={t('accountSettings.privacy.title')}
         onBack={() => router.back()}
       />
-      <ScrollView
+      <AppScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-6 pb-10 pt-4"
@@ -154,7 +155,7 @@ export default function PrivacyVisibilitySettings() {
             isLast
           />
         </SettingsSection>
-      </ScrollView>
+      </AppScrollView>
     </View>
   );
 }

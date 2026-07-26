@@ -1,9 +1,7 @@
 import { useMemo, useState } from "react";
 import { Text, View } from "react-native";
-import { LayoutGrid, List, Package } from "lucide-react-native";
+import { Package } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Toggle } from "@/components/ui/Toggle";
-import { cn } from "@/utils/cn";
 import { useProfilePicks } from "@/hooks/useProfileList";
 import { PickCard } from "./PickCard";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
@@ -25,7 +23,6 @@ export function ProfilePicksTab({
   favoriteOptions,
 }: ProfilePicksTabProps) {
   const { t } = useTranslation();
-  const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const viewedUserId = isOwnProfile ? undefined : userId;
   const { picks, isPending, refetch } = useProfilePicks(
@@ -46,9 +43,15 @@ export function ProfilePicksTab({
     [picks],
   );
 
+  const { leftColumn, rightColumn } = useMemo(() => {
+    const left = sortedPicks.filter((_, index) => index % 2 === 0);
+    const right = sortedPicks.filter((_, index) => index % 2 === 1);
+    return { leftColumn: left, rightColumn: right };
+  }, [sortedPicks]);
+
   return (
     <>
-      <View className="px-4 pt-4">
+      <View className="px-4">
         <ProfileTabFilters
           tab="picks"
           selectedCategory={selectedCategory}
@@ -65,23 +68,15 @@ export function ProfilePicksTab({
         />
 
         {!isPending && picks.length > 0 && (
-          <View className="flex-row items-center justify-between mb-2 -mt-4">
+          <View className="mb-2 -mt-4">
             <Text className="text-sm text-gray-500 dark:text-gray-400 pt-3">
               {t("profile.picks.picksCount", { count: picks.length })}
             </Text>
-            <Toggle
-              value={viewMode}
-              onChange={setViewMode}
-              options={[
-                { value: "list", icon: List },
-                { value: "grid", icon: LayoutGrid },
-              ]}
-            />
           </View>
         )}
       </View>
 
-      <View className={`${viewMode === "grid" ? "px-4" : ""}`}>
+      <View className="px-4">
         {isPending ? (
           <ProfilePicksTabSkeleton />
         ) : picks.length === 0 ? (
@@ -95,25 +90,25 @@ export function ProfilePicksTab({
             </Text>
           </View>
         ) : (
-          <View
-            className={cn(
-              viewMode === "grid"
-                ? "flex-row flex-wrap justify-between gap-y-4"
-                : "gap-0",
-            )}
-          >
-            {sortedPicks.map((pick) => (
-              <View
-                key={pick.id}
-                className={viewMode === "grid" ? "w-[48%]" : "w-full"}
-              >
+          <View className="flex-row gap-3">
+            <View className="flex-1 gap-3">
+              {leftColumn.map((pick) => (
                 <PickCard
+                  key={pick.id}
                   data={pick}
                   onRefresh={() => void refetch()}
-                  variant={viewMode}
                 />
-              </View>
-            ))}
+              ))}
+            </View>
+            <View className="flex-1 gap-3">
+              {rightColumn.map((pick) => (
+                <PickCard
+                  key={pick.id}
+                  data={pick}
+                  onRefresh={() => void refetch()}
+                />
+              ))}
+            </View>
           </View>
         )}
       </View>

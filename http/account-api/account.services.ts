@@ -17,6 +17,9 @@ import type {
   completeOnboardingDTO,
   PrivacySettingsDAO,
   UpdatePrivacySettingsDTO,
+  NotificationSettingsDAO,
+  UpdateNotificationSettingsDTO,
+  RegisterNotificationTokenDTO,
 } from "./types";
 
 class AccountService extends AppHttpService {
@@ -154,6 +157,26 @@ class AccountService extends AppHttpService {
     return await this.SendRequest<PrivacySettingsDAO>({
       method: "patch",
       path: "/privacy-settings",
+      body: dto,
+    });
+  }
+  async getNotificationSettings() {
+    return await this.SendRequest<NotificationSettingsDAO>({
+      method: "get",
+      path: "/notification-settings",
+    });
+  }
+  async updateNotificationSettings(dto: UpdateNotificationSettingsDTO) {
+    return await this.SendRequest<NotificationSettingsDAO>({
+      method: "patch",
+      path: "/notification-settings",
+      body: dto,
+    });
+  }
+  async registerNotificationToken(dto: RegisterNotificationTokenDTO) {
+    return await this.SendRequest({
+      method: "post",
+      path: "/notification-token",
       body: dto,
     });
   }

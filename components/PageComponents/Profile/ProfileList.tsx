@@ -30,7 +30,7 @@ export function ProfileList({
   const favoriteOptions = ["All", "Favorites only"];
 
   return (
-    <View className="flex-1 mt-6">
+    <View className="flex-1 mt-6 pt-4">
       <ProfileChromeScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -54,7 +54,7 @@ export function ProfileList({
             />
           </View>
         ) : (
-          <View className="py-10">
+          <View className="pb-10 pt-4">
             <ProfileTabPanel
               tab={deferredTab}
               userId={userId}

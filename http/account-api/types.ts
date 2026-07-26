@@ -218,6 +218,23 @@ export type notificationDAO = {
   };
 };
 
+/**
+ * The backend's `NotificationSetting` model has other fields
+ * (activity_on_self_posts_and_lists / people_and_connections / updates_from_followed_lists /
+ * trendings_and_recommendations) that `NotificationsSettings.tsx` doesn't read/write yet — that
+ * screen's other toggles remain local-only UI (see `useAccountSettingsStore.ts`). Only the one
+ * field this task wires is declared here; extend as more toggles get real backend support.
+ */
+export interface NotificationSettingsDAO {
+  spotlight_digest: boolean;
+}
+
+export type UpdateNotificationSettingsDTO = Partial<NotificationSettingsDAO>;
+
+export interface RegisterNotificationTokenDTO {
+  token: string;
+}
+
 export interface PrivacySettingsDAO {
   show_home_city: boolean;
   show_personality: boolean;

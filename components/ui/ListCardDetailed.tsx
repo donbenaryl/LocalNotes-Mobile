@@ -1,19 +1,34 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Bookmark, Heart, TrendingUp } from "lucide-react-native";
+import {
+  Bookmark,
+  Edit,
+  Heart,
+  Pin,
+  Trash2,
+  TrendingUp,
+  UserPlus,
+} from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "expo-router";
 import listService from "@/http/list-api/list.service";
+import accountService from "@/http/account-api/account.services";
 import { Avatar } from "@/components/ui/Avatar";
-import { FollowButton } from "@/components/ui/FollowButton";
-import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { CardHero } from "@/components/ui/CardHero";
+import {
+  CardOptionsMenu,
+  type CardOptionsMenuItem,
+} from "@/components/ui/CardOptionsMenu";
+import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityName } from "@/components/ui/PersonalityName";
-import { useRouter } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useListFormStore } from "@/stores/useListFormStore";
 import { formatListLocation } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
+import { isOthersCategoryName } from "@/utils/listCategories";
 import {
   formatRelativeTime,
   formatRelativeTimeUpper,
@@ -25,6 +40,7 @@ import { WhiteBox } from "./WhiteBox";
 interface ListCardDetailedProps {
   list: ListItemDAO;
   variant?: "default" | "forYou";
+  onDeleted?: (id: string) => void;
 }
 
 function stripHtml(html: string): string {
@@ -49,13 +65,16 @@ function getPickName(item: Item): string | null {
   return item.business?.name ?? item.unverified_business?.name ?? null;
 }
 
-function toLinearGradientColors(
-  colors: string[],
-): [string, string, ...string[]] {
-  if (colors.length === 1) {
-    return [colors[0], colors[0]];
-  }
-  return colors.slice(0, 4) as [string, string, ...string[]];
+function formatListCategoriesSubtitle(
+  categories: string[],
+  othersName?: string | null,
+): string | undefined {
+  if (categories.length === 0) return undefined;
+  return categories
+    .map((category) =>
+      isOthersCategoryName(category) ? (othersName ?? category) : category,
+    )
+    .join(" · ");
 }
 
 function PickPreviewRow({
@@ -139,9 +158,11 @@ function PickPreviewRow({
 export function ListCardDetailed({
   list,
   variant = "default",
+  onDeleted,
 }: ListCardDetailedProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
 
   const isForYou = variant === "forYou";
@@ -161,9 +182,15 @@ export function ListCardDetailed({
 
   const [isSaved, setIsSaved] = useState(list.is_saved);
   const [isLiked, setIsLiked] = useState(list.is_liked);
+  const [isPinned, setIsPinned] = useState(list.is_pinned);
+  const [isFollowed, setIsFollowed] = useState(list.account_is_followed);
   const [saves, setSaves] = useState(list.saves ?? 0);
   const [isSaving, setIsSaving] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
+  const [isPinning, setIsPinning] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     setIsSaved(list.is_saved);
@@ -171,11 +198,59 @@ export function ListCardDetailed({
     setSaves(list.saves ?? 0);
   }, [list.id, list.is_saved, list.is_liked, list.saves]);
 
+  useEffect(() => {
+    setIsPinned(list.is_pinned);
+  }, [list.id, list.is_pinned]);
+
+  useEffect(() => {
+    setIsFollowed(list.account_is_followed);
+  }, [list.id, list.account_is_followed]);
+
   const handleCardPress = () => {
     router.push(`/lists/${list.id}` as never);
   };
 
-  const handleSave = async () => {
+  const handleEdit = useCallback(() => {
+    useListFormStore.getState().clearEditHydration();
+    router.push(`/(app)/(stack)/lists/${list.id}/edit` as never);
+  }, [list.id, router]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    setIsDeleting(true);
+    try {
+      await listService.deleteList(list.id);
+      setIsDeleteModalOpen(false);
+      onDeleted?.(list.id);
+    } catch (error) {
+      console.error("Failed to delete the list:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  }, [list.id, onDeleted]);
+
+  const handlePin = useCallback(async () => {
+    if (isPinning) return;
+    setIsPinning(true);
+    const previousPinned = isPinned;
+    const nextPinned = !previousPinned;
+
+    setIsPinned(nextPinned);
+
+    try {
+      if (previousPinned) {
+        await listService.unpinLists(list.id);
+      } else {
+        await listService.pinLists(list.id);
+      }
+    } catch (error) {
+      console.error("Failed to toggle pin:", error);
+      setIsPinned(previousPinned);
+    } finally {
+      setIsPinning(false);
+    }
+  }, [isPinning, isPinned, list.id]);
+
+  const handleSave = useCallback(async () => {
     if (isSaving || isOwnList) return;
     setIsSaving(true);
     const previousSaved = isSaved;
@@ -197,10 +272,10 @@ export function ListCardDetailed({
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [isSaving, isOwnList, isSaved, saves, list.id]);
 
-  const handleLike = async () => {
-    if (isLiking || isOwnList) return;
+  const handleLike = useCallback(async () => {
+    if (isLiking) return;
     setIsLiking(true);
     const previousLiked = isLiked;
     const nextLiked = !previousLiked;
@@ -215,164 +290,235 @@ export function ListCardDetailed({
     } finally {
       setIsLiking(false);
     }
+  }, [isLiking, isLiked, list.id]);
+
+  const handleFollowToggle = useCallback(async () => {
+    if (isFollowLoading || isOwnList) return;
+    setIsFollowLoading(true);
+    const previousFollowed = isFollowed;
+    const nextFollowed = !previousFollowed;
+
+    setIsFollowed(nextFollowed);
+
+    try {
+      if (previousFollowed) {
+        await accountService.unfollowUser(list.account.id);
+      } else {
+        await accountService.followUser(list.account.id);
+      }
+    } catch (error) {
+      console.error("Failed to toggle follow:", error);
+      setIsFollowed(previousFollowed);
+    } finally {
+      setIsFollowLoading(false);
+    }
+  }, [isFollowLoading, isOwnList, isFollowed, list.account.id]);
+
+  const menuItems = useMemo((): CardOptionsMenuItem[] => {
+    if (isOwnList) {
+      return [
+        {
+          kind: "action",
+          key: "edit",
+          label: t("profile.lists.edit"),
+          icon: Edit,
+          onPress: handleEdit,
+        },
+        {
+          kind: "action",
+          key: "pin",
+          label: t("profile.lists.pin"),
+          icon: Pin,
+          variant: isPinned ? "brand" : "default",
+          onPress: handlePin,
+        },
+        {
+          kind: "action",
+          key: "like",
+          label: isLiked ? t("listDetail.liked") : t("listDetail.like"),
+          icon: Heart,
+          variant: isLiked ? "brand" : "default",
+          onPress: handleLike,
+        },
+        {
+          kind: "action",
+          key: "delete",
+          label: t("profile.lists.delete"),
+          icon: Trash2,
+          variant: "destructive",
+          onPress: () => setIsDeleteModalOpen(true),
+        },
+      ];
+    }
+
+    return [
+      {
+        kind: "action",
+        key: "like",
+        label: isLiked ? t("listDetail.liked") : t("listDetail.like"),
+        icon: Heart,
+        variant: isLiked ? "brand" : "default",
+        onPress: handleLike,
+      },
+      {
+        kind: "action",
+        key: "save",
+        label: isSaved ? t("listDetail.savedList") : t("listDetail.saveList"),
+        icon: Bookmark,
+        variant: isSaved ? "brand" : "default",
+        onPress: handleSave,
+      },
+      {
+        kind: "action",
+        key: "follow",
+        label: isFollowed
+          ? t("profile.lists.following")
+          : t("profile.lists.follow"),
+        icon: UserPlus,
+        variant: isFollowed ? "brand" : "default",
+        onPress: handleFollowToggle,
+      },
+    ];
+  }, [
+    t,
+    isOwnList,
+    isPinned,
+    isLiked,
+    isSaved,
+    isFollowed,
+    handleEdit,
+    handlePin,
+    handleLike,
+    handleSave,
+    handleFollowToggle,
+  ]);
+
+  const actionIconBackingStyle = {
+    backgroundColor:
+      colorScheme === "dark" ? "rgba(17,24,39,0.8)" : "rgba(255,255,255,0.9)",
   };
 
   return (
-    <Pressable onPress={handleCardPress} accessibilityRole="button">
+    <>
       <WhiteBox className="p-0">
-        {/* Hero image */}
-        {heroImageUrl && (
-          <View className="relative h-44 w-full overflow-hidden">
-            <Image
-              source={{ uri: heroImageUrl }}
-              className="h-full w-full"
-              resizeMode="cover"
+        <Pressable
+          onPress={handleCardPress}
+          accessibilityRole="button"
+          className="cursor-pointer"
+        >
+          {heroImageUrl ? (
+            <CardHero
+              imageUrl={heroImageUrl}
+              title={list.name}
+              subtitle={formatListCategoriesSubtitle(
+                list.categories,
+                list.others_name,
+              )}
+              aspectClassName="h-64"
+              topLeft={
+                showNewBadge ? (
+                  <View className="rounded-full bg-brand px-2.5 py-1">
+                    <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
+                      {t("home.newBadge", {
+                        time: formatRelativeTimeUpper(list.created_at),
+                      })}
+                    </Text>
+                  </View>
+                ) : null
+              }
             />
+          ) : null}
 
-            {showNewBadge ? (
-              <View className="absolute left-3 top-3 rounded-full bg-brand px-2.5 py-1">
-                <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
-                  {t("home.newBadge", {
-                    time: formatRelativeTimeUpper(list.created_at),
-                  })}
-                </Text>
-              </View>
-            ) : null}
-          </View>
-        )}
+          <View className="px-4 pt-3">
+            {/* Author row */}
+            <View className="mb-3 flex-row items-center justify-between">
+              <View className="min-w-0 flex-1 flex-row items-center gap-3">
+                <Avatar
+                  name={list.account.name}
+                  src={resolveImageUrl(list.account.profile_image) ?? undefined}
+                  size="sm"
+                  userId={list.account.id}
+                  gradientColors={gradientColors}
+                />
+                <View className="min-w-0 flex-1">
+                  <View className="flex-row flex-wrap items-center gap-1">
+                    <Text
+                      className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+                      numberOfLines={1}
+                    >
+                      {list.account.name}
+                    </Text>
+                    {list.personality_name ? (
+                      <PersonalityName
+                        name={list.personality_name}
+                        personalityColor={list.personality_color}
+                        variant="text"
+                      />
+                    ) : null}
+                  </View>
 
-        <View className="px-4 pt-3">
-          {/* Author row */}
-          <View className="mb-3 flex-row items-center justify-between">
-            <View className="min-w-0 flex-1 flex-row items-center gap-3">
-              <Avatar
-                name={list.account.name}
-                src={resolveImageUrl(list.account.profile_image) ?? undefined}
-                size="sm"
-                userId={list.account.id}
-                gradientColors={gradientColors}
-              />
-              <View className="min-w-0 flex-1">
-                <View className="flex-row flex-wrap items-center gap-1">
                   <Text
-                    className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+                    className="font-geist text-xs text-gray-500 dark:text-gray-400"
                     numberOfLines={1}
                   >
-                    {list.account.name}
+                    {t("home.authorMeta", {
+                      location: cityLabel || t("home.unknownLocation"),
+                      count: picksCount,
+                    })}
                   </Text>
-                  {list.personality_name ? (
-                    <PersonalityName
-                      name={list.personality_name}
-                      personalityColor={list.personality_color}
-                      variant="text"
-                    />
-                  ) : null}
                 </View>
-
-                <Text
-                  className="font-geist text-xs text-gray-500 dark:text-gray-400"
-                  numberOfLines={1}
-                >
-                  {t("home.authorMeta", {
-                    location: cityLabel || t("home.unknownLocation"),
-                    count: picksCount,
-                  })}
-                </Text>
               </View>
             </View>
 
-            {!isOwnList ? (
-              <View className="ml-2 flex-row items-center gap-1.5">
-                <LocalNotesButton
-                  onPress={() => void handleLike()}
-                  disabled={isLiking}
-                  loading={isLiking}
-                  size="xs"
-                  variant={isLiked ? "brand" : "light"}
-                  isRounded
-                  isWidthFull={false}
-                  className="px-2.5"
-                  label=""
-                  leftIcon={
-                    <Heart
-                      size={15}
-                      color={isLiked ? "#FFFFFF" : "#9CA3AF"}
-                      fill={isLiked ? "#FFFFFF" : "transparent"}
-                    />
-                  }
-                />
+            {!heroImageUrl ? (
+              <Text
+                className="mb-1 font-geist-bold text-lg text-ink dark:text-gray-100"
+                numberOfLines={2}
+              >
+                {list.name}
+              </Text>
+            ) : null}
 
-                <LocalNotesButton
-                  onPress={() => void handleSave()}
-                  disabled={isSaving}
-                  loading={isSaving}
-                  size="xs"
-                  variant={isSaved ? "brand" : "light"}
-                  isRounded
-                  isWidthFull={false}
-                  className="px-2.5"
-                  label=""
-                  leftIcon={
-                    <Bookmark
-                      size={15}
-                      color={isSaved ? "#FFFFFF" : "#9CA3AF"}
-                      fill={isSaved ? "#FFFFFF" : "transparent"}
-                      stroke={isSaved ? "#FFFFFF" : "#9CA3AF"}
-                    />
-                  }
-                />
+            {list.notes ? (
+              <Text
+                className="mb-3 font-geist text-sm italic leading-5 text-gray-500 
+            dark:text-gray-400"
+                numberOfLines={3}
+              >
+                {stripHtml(list.notes)}
+              </Text>
+            ) : null}
 
-                <FollowButton
-                  userId={list.account.id}
-                  initialIsFollowed={list.account_is_followed}
-                  buttonSize="xs"
-                  isButtonFull={false}
-                  useButton
-                />
+            {/* Pick previews */}
+            {previewItems.length > 0 ? (
+              <View className="border-t border-gray-200 dark:border-gray-700">
+                {previewItems.map((item, index) => (
+                  <View key={item.id}>
+                    {index > 0 ? (
+                      <View className="border-t border-gray-100 dark:border-gray-800" />
+                    ) : null}
+                    <PickPreviewRow
+                      item={item}
+                      personalityColor={list.account.personality_color}
+                      compactTags={isForYou}
+                    />
+                  </View>
+                ))}
+                {extraPickCount > 0 ? (
+                  <Text className="pb-3 font-geist text-xs text-gray-400">
+                    {t("profile.lists.morePicks", { count: extraPickCount })}
+                  </Text>
+                ) : null}
               </View>
             ) : null}
           </View>
+        </Pressable>
 
-          {/* Title + description */}
-          <Text
-            className="mb-1 font-geist-bold text-lg text-ink dark:text-gray-100"
-            numberOfLines={2}
-          >
-            {list.name}
-          </Text>
-
-          {list.notes ? (
-            <Text
-              className="mb-3 font-geist text-sm italic leading-5 text-gray-500 
-            dark:text-gray-400"
-              numberOfLines={3}
-            >
-              {stripHtml(list.notes)}
-            </Text>
-          ) : null}
-
-          {/* Pick previews */}
-          {previewItems.length > 0 ? (
-            <View className="border-t border-gray-200 dark:border-gray-700">
-              {previewItems.map((item, index) => (
-                <View key={item.id}>
-                  {index > 0 ? (
-                    <View className="border-t border-gray-100 dark:border-gray-800" />
-                  ) : null}
-                  <PickPreviewRow
-                    item={item}
-                    personalityColor={list.account.personality_color}
-                    compactTags={isForYou}
-                  />
-                </View>
-              ))}
-              {extraPickCount > 0 ? (
-                <Text className="pb-3 font-geist text-xs text-gray-400">
-                  {t("profile.lists.morePicks", { count: extraPickCount })}
-                </Text>
-              ) : null}
-            </View>
-          ) : null}
+        <View
+          className="absolute right-2 top-2 z-10 rounded-full"
+          style={actionIconBackingStyle}
+        >
+          <CardOptionsMenu items={menuItems} isDeleting={isDeleting} />
         </View>
 
         {/* Footer stats */}
@@ -406,6 +552,13 @@ export function ListCardDetailed({
           </View>
         </View>
       </WhiteBox>
-    </Pressable>
+
+      <ConfirmDeleteModal
+        visible={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => void handleConfirmDelete()}
+        isLoading={isDeleting}
+      />
+    </>
   );
 }

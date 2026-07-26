@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react-native";
 import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
-import { ListCard } from "@/components/ui/ListCard";
+import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { useProfile } from "@/hooks/useProfileList";
@@ -61,7 +61,7 @@ export function SharedWithMeTab() {
       >
         <View className="gap-4">
           {sharedLists.map((item) => (
-            <ListCard key={item.id} data={item} />
+            <ListCardDetailed key={item.id} list={item} />
           ))}
         </View>
       </SavedSectionState>

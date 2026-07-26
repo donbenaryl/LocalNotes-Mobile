@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text } from "react-native";
 import { useTranslation } from "react-i18next";
-import accountService from "@/http/account-api/account.services";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { useUserFollow } from "@/hooks/useUserFollow";
 
 interface FollowButtonProps {
   userId: string;
@@ -26,18 +25,15 @@ export function FollowButton({
   isButtonFull = true,
 }: FollowButtonProps) {
   const { t } = useTranslation();
-  const [internalIsFollowed, setInternalIsFollowed] = useState(initialIsFollowed);
-  const [internalLoading, setInternalLoading] = useState(false);
-
   const isControlled = controlledIsFollowed !== undefined;
+  const {
+    isFollowed: internalIsFollowed,
+    isLoading: internalLoading,
+    toggle,
+  } = useUserFollow(userId, initialIsFollowed);
+
   const isFollowed = isControlled ? controlledIsFollowed : internalIsFollowed;
   const loading = controlledLoading ?? internalLoading;
-
-  useEffect(() => {
-    if (!isControlled) {
-      setInternalIsFollowed(initialIsFollowed);
-    }
-  }, [initialIsFollowed, isControlled]);
 
   const handlePress = async () => {
     if (loading) return;
@@ -47,20 +43,7 @@ export function FollowButton({
       return;
     }
 
-    setInternalLoading(true);
-    try {
-      if (isFollowed) {
-        await accountService.unfollowUser(userId);
-        setInternalIsFollowed(false);
-      } else {
-        await accountService.followUser(userId);
-        setInternalIsFollowed(true);
-      }
-    } catch (error) {
-      console.error("Failed to toggle follow:", error);
-    } finally {
-      setInternalLoading(false);
-    }
+    await toggle();
   };
 
   if (useButton) {

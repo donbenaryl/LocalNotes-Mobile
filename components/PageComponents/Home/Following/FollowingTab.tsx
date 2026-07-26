@@ -53,7 +53,7 @@ export function FollowingTab() {
       {followingLoading && <FollowingCreatorsRowSkeleton />}
 
       {showNotesToday && (
-        <View className="mb-8">
+        <View className="mb-8 px-4 mt-2">
           <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-gray-100">
             {t('home.following.notesToday')}
           </Text>

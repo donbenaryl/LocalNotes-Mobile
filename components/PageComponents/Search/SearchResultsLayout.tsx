@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -6,10 +6,13 @@ import {
   Text,
   useWindowDimensions,
   View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import {
   SearchMap,
   type SearchMapMode,
@@ -23,6 +26,7 @@ import {
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { ListItemDAO } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
+import { useScrollToTopControl } from "@/hooks/useScrollToTopControl";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 
 type SearchResultsKind = "lists" | "places" | "people";
@@ -64,6 +68,8 @@ export function SearchResultsLayout<T>({
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
   const [isSheetCollapsed, setIsSheetCollapsed] = useState(false);
+  const listRef = useRef<FlatList<T>>(null);
+  const { visible, onScrollY, scrollToTop } = useScrollToTopControl(listRef);
   const filterHeaderBottom = useSearchChromeStore((s) => s.filterHeaderBottom);
   const maxExpandedHeight = useMemo(() => {
     if (filterHeaderBottom === null) return undefined;
@@ -141,31 +147,39 @@ export function SearchResultsLayout<T>({
               />
             </View>
           ) : (
-            <FlatList
-              data={data}
-              keyExtractor={keyExtractor}
-              contentContainerClassName="gap-3 px-4 pb-28"
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={!isSheetCollapsed}
-              refreshControl={
-                <RefreshControl
-                  refreshing={isLoading && data.length > 0}
-                  onRefresh={onRetry}
-                  tintColor="#FF6B1A"
-                />
-              }
-              ListEmptyComponent={
-                <EmptyScreen
-                  title={emptyTitle}
-                  description={
-                    emptyDescription ?? t("search.empty.description")
-                  }
-                />
-              }
-              renderItem={({ item }) => (
-                <View className="mb-1">{renderItem(item)}</View>
-              )}
-            />
+            <View className="flex-1">
+              <FlatList
+                ref={listRef}
+                data={data}
+                keyExtractor={keyExtractor}
+                contentContainerClassName="gap-3 px-4 pb-28"
+                showsVerticalScrollIndicator={false}
+                scrollEnabled={!isSheetCollapsed}
+                scrollEventThrottle={16}
+                onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                  onScrollY(event.nativeEvent.contentOffset.y);
+                }}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isLoading && data.length > 0}
+                    onRefresh={onRetry}
+                    tintColor="#FF6B1A"
+                  />
+                }
+                ListEmptyComponent={
+                  <EmptyScreen
+                    title={emptyTitle}
+                    description={
+                      emptyDescription ?? t("search.empty.description")
+                    }
+                  />
+                }
+                renderItem={({ item }) => (
+                  <View className="mb-1">{renderItem(item)}</View>
+                )}
+              />
+              <ScrollToTopButton visible={visible} onPress={scrollToTop} />
+            </View>
           )}
         </View>
       </SearchResultsSheet>
