@@ -105,13 +105,17 @@ function ListDetailsPickCard({
             {pickNumber}
           </Text>
         </View>
-        <Text className="font-geist-bold text-[11px] uppercase tracking-[0.14em] text-brand">
-          {/* {t("listDetail.pickEyebrow")} */}
+        {/* Pick Title */}
+        <Text
+          className="min-w-0 flex-1 font-geist-bold text-[11px] uppercase tracking-[0.14em] text-brand"
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           {name}
         </Text>
 
         {/* Favorite Button */}
-        <View className="flex-1 flex-row justify-end">
+        <View className="shrink-0">
           <LocalNotesButton
             onPress={handleToggleFavorite}
             disabled={isTogglingFavorite}
@@ -135,8 +139,6 @@ function ListDetailsPickCard({
                 : t("listDetail.reactions.save")
             }
           />
-   
-    
         </View>
       </View>
 

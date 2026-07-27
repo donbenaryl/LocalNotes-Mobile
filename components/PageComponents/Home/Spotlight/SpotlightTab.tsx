@@ -58,7 +58,7 @@ export function SpotlightTab() {
   return (
     <HomeChromeScrollView
       className="flex-1"
-      contentContainerClassName="pb-8"
+      contentContainerClassName="pb-40"
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={() => void refetch()} tintColor="#FF6B1A" />
