@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { Heart } from "lucide-react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,14 +11,21 @@ import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { formatRelativeTime } from "@/utils/time";
+import { cn } from "@/utils/cn";
 import type { Comment, ListItemDAO } from "@/http/list-api/types";
 import type { MentionSearchResultItem } from "@/http/account-api/types";
 
 interface ListDetailsCommentsProps {
   list: ListItemDAO;
+  containerClassName?: string;
+  onCommentCountChange?: (count: number) => void;
 }
 
-export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
+export function ListDetailsComments({
+  list,
+  containerClassName,
+  onCommentCountChange,
+}: ListDetailsCommentsProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [commentText, setCommentText] = useState("");
@@ -49,6 +56,10 @@ export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
     () => comments.filter((comment) => !comment.parent),
     [comments],
   );
+
+  useEffect(() => {
+    onCommentCountChange?.(comments.length);
+  }, [comments.length, onCommentCountChange]);
 
   const createCommentMutation = useMutation({
     mutationFn: async () => {
@@ -260,7 +271,7 @@ export function ListDetailsComments({ list }: ListDetailsCommentsProps) {
   };
 
   return (
-    <View className="px-[18px] py-[18px]">
+    <View className={cn("px-[18px] py-[18px]", containerClassName)}>
       <Text className="mb-3 font-geist-bold text-[13px] text-ink dark:text-gray-100">
         {t("listDetail.comments", { count: list.comments ?? rootComments.length })}
       </Text>

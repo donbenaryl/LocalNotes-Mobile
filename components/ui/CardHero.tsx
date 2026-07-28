@@ -12,6 +12,10 @@ interface CardHeroProps {
   subtitleExtra?: string;
   /** Size classes — e.g. `aspect-[16/12]` or `h-44` */
   aspectClassName?: string;
+  /** Title text size class — e.g. `text-2xl` or `text-4xl` */
+  titleSize?: string;
+  /** Subtitle text size class — e.g. `text-sm` or `text-md` */
+  subtitleSize?: string;
   topLeft?: ReactNode;
   topRight?: ReactNode;
   className?: string;
@@ -31,6 +35,8 @@ export function CardHero({
   subtitle,
   subtitleExtra,
   aspectClassName = "aspect-[16/12]",
+  titleSize = "text-4xl",
+  subtitleSize = "text-md",
   topLeft,
   topRight,
   className,
@@ -75,7 +81,10 @@ export function CardHero({
       <View className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3.5 pt-8">
         {title ? (
           <Text
-            className="font-geist-bold text-lg text-white"
+            className={twMerge(
+              "font-geist-bold capitalize text-white",
+              titleSize,
+            )}
             numberOfLines={2}
           >
             {title}
@@ -86,7 +95,7 @@ export function CardHero({
           <View className={twMerge("flex-row flex-wrap items-center", title ? "mt-0.5" : undefined)}>
             {subtitle ? (
               <Text
-                className="font-geist-medium text-xs text-white"
+                className={twMerge("text-white", subtitleSize)}
                 numberOfLines={1}
               >
                 {subtitle}

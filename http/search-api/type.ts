@@ -66,8 +66,10 @@ export type UnifiedSearchSortOrder = "asc" | "desc";
 
 export interface UnifiedSearchParams {
   query: string;
-  type: SearchTypeEnum;
+  type?: SearchTypeEnum;
+  scope?: "list" | "people" | "businesses";
   categoryIds?: string[];
+  listItemId?: string;
   longitude?: number;
   latitude?: number;
   radiusKm?: number;

@@ -54,6 +54,8 @@ export function ProfilePicksTab({
       <View className="px-4">
         <ProfileTabFilters
           tab="picks"
+          userId={userId}
+          isOwnProfile={isOwnProfile}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
           selectedStatus=""

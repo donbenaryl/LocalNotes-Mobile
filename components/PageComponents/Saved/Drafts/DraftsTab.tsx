@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { FolderOpen } from "lucide-react-native";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { useProfile } from "@/hooks/useProfileList";
@@ -24,7 +24,7 @@ export function DraftsTab() {
   };
 
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
@@ -63,6 +63,6 @@ export function DraftsTab() {
       <DraftsPickCaptures />
 
       <DraftsProfileLink />
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

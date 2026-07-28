@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react-native";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
@@ -47,7 +47,7 @@ export function SharedWithMeTab() {
   }
 
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
@@ -65,6 +65,6 @@ export function SharedWithMeTab() {
           ))}
         </View>
       </SavedSectionState>
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

@@ -4,7 +4,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { useTranslation } from "react-i18next";
 import type { ListItemDAO, ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -90,17 +90,35 @@ function HomePicksGrid({
   picks: ListItemPublic[];
   onRefresh: () => void;
 }) {
+  const { leftColumn, rightColumn } = useMemo(() => {
+    const left = picks.filter((_, index) => index % 2 === 0);
+    const right = picks.filter((_, index) => index % 2 === 1);
+
+    return { leftColumn: left, rightColumn: right };
+  }, [picks]);
+
   return (
-    <View className="flex-row flex-wrap justify-between gap-y-4">
-      {picks.map((pick) => (
-        <View key={pick.id} className="w-[48%]">
+    <View className="flex-row gap-3">
+      <View className="flex-1 gap-3">
+        {leftColumn.map((pick) => (
           <PickCard
+            key={pick.id}
             data={pick}
             readOnly
             onRefresh={onRefresh}
           />
-        </View>
-      ))}
+        ))}
+      </View>
+      <View className="flex-1 gap-3">
+        {rightColumn.map((pick) => (
+          <PickCard
+            key={pick.id}
+            data={pick}
+            readOnly
+            onRefresh={onRefresh}
+          />
+        ))}
+      </View>
     </View>
   );
 }
@@ -262,7 +280,7 @@ export function HomeTab() {
         discoverLists.length === 0;
 
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
@@ -382,6 +400,6 @@ export function HomeTab() {
           ) : null}
         </>
       )}
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

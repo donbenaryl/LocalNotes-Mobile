@@ -48,7 +48,7 @@ export function PageHeader({
   return (
     <View
       style={{ paddingTop: insets.top }}
-      className={`px-6 pb-4${borderless ? '' : ' border-b border-gray-100 dark:border-gray-800'}`}
+      className={`px-4 pb-4${borderless ? '' : ' border-b border-gray-100 dark:border-gray-800'}`}
     >
       <View className="min-h-10 justify-center">
         {children ? (

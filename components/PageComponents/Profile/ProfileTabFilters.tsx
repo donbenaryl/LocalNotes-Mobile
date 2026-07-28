@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { ListFilters } from "@/components/ui/ListFilters";
-import { useCategories } from "@/hooks/useProfileList";
+import { useTabCategoryOptions } from "@/hooks/useProfileList";
 import type { ProfileListTabType } from "./ProfileTabPanel";
 
 interface ProfileTabFiltersProps {
   tab: ProfileListTabType;
+  userId: string;
+  isOwnProfile?: boolean;
   selectedCategory: string;
   onCategoryChange: (value: string) => void;
   selectedStatus: string;
@@ -19,6 +22,8 @@ interface ProfileTabFiltersProps {
 
 export function ProfileTabFilters({
   tab,
+  userId,
+  isOwnProfile = true,
   selectedCategory,
   onCategoryChange,
   selectedStatus,
@@ -31,8 +36,22 @@ export function ProfileTabFilters({
   sortOptions,
   favoriteOptions,
 }: ProfileTabFiltersProps) {
-  const { categories } = useCategories();
-  const categoryOptions = categories.map((c) => ({ id: c.id, name: c.name }));
+  const { categoryOptions } = useTabCategoryOptions({
+    tab,
+    userId,
+    isOwnProfile,
+    selectedStatus,
+    favoriteFilter: pickFavoriteFilter,
+  });
+
+  useEffect(() => {
+    if (
+      selectedCategory !== "All" &&
+      !categoryOptions.some((c) => c.id === selectedCategory)
+    ) {
+      onCategoryChange("All");
+    }
+  }, [selectedCategory, categoryOptions, onCategoryChange]);
 
   if (tab === "picks") {
     return (

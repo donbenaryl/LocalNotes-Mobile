@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppScrollView } from '@/components/ui/AppScrollView';
 import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
+import { GuardedHeader } from '@/components/ui/layout/GuardedHeader';
 import { useUserCoordinates } from '@/hooks/useUserCoordinates';
 import { useCreateSmartPick } from '@/hooks/useCreateSmartPick';
 import type { ConversationRequest } from '@/http/smart-pick-api/types';
@@ -70,6 +71,7 @@ export function SmartPickTab() {
   if (step === 'result' && conversation) {
     return (
       <AppScrollView contentContainerClassName="pb-28" showsVerticalScrollIndicator={false}>
+        <GuardedHeader />
         <SmartPickResults conversation={conversation} onBack={handleBackToForm} />
       </AppScrollView>
     );
@@ -77,11 +79,12 @@ export function SmartPickTab() {
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1"
-      contentContainerClassName="pb-28"
+      className="flex-1 bg-page dark:bg-gray-900"
+      contentContainerClassName="pb-28 px-4"
       scrollToFocusedInput
       showsVerticalScrollIndicator={false}
     >
+      <GuardedHeader />
       <SmartPickForm
         formState={formState}
         onChange={handleChange}

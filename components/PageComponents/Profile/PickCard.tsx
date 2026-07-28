@@ -99,6 +99,8 @@ function PickCardBody({ data, thumbnails, locationLabel }: PickCardBodyProps) {
           subtitle={tagsSubtitle}
           subtitleExtra={extraTagCount > 0 ? `+${extraTagCount}` : undefined}
           aspectClassName="aspect-[16/12] rounded-t-2xl"
+          titleSize="text-2xl"
+          subtitleSize="text-sm"
         />
       ) : null}
 

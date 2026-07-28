@@ -1,5 +1,6 @@
 import {
   Animated,
+  Easing,
   Keyboard,
   KeyboardAvoidingView,
   Modal as RNModal,
@@ -16,6 +17,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { BottomWrapper } from '@/components/ui/BottomWrapper';
 
+/** Drives the enter/exit choreography of `topContent`: 0 = closed, 1 = fully open. */
+const TOP_CONTENT_ENTER = { duration: 420, easing: Easing.out(Easing.cubic) };
+const TOP_CONTENT_EXIT = { duration: 240, easing: Easing.in(Easing.cubic) };
+
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
@@ -26,6 +31,11 @@ interface ModalProps {
   withCloseIcon?: boolean;
   /** When false, skip KeyboardAvoidingView and lift via keyboard-height padding + maxHeight clamp. */
   avoidKeyboard?: boolean;
+  /** Content shown above the sheet. As a function, it receives the 0→1 open progress. */
+  topContent?: ReactNode | ((progress: Animated.Value) => ReactNode);
+  sheetHeightRatio?: number;
+  backdropOpacityValue?: number;
+  backdropColor?: string;
 }
 
 export function Modal({
@@ -37,6 +47,10 @@ export function Modal({
   footer,
   withCloseIcon = false,
   avoidKeyboard = true,
+  topContent,
+  sheetHeightRatio,
+  backdropOpacityValue = 0.5,
+  backdropColor = '#1C1917',
 }: ModalProps) {
   const isBottom = position === 'bottom';
   const isFullscreen = position === 'fullscreen';
@@ -45,6 +59,7 @@ export function Modal({
   const { t } = useTranslation();
   const translateY = useRef(new Animated.Value(height)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const topProgress = useRef(new Animated.Value(0)).current;
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
@@ -91,6 +106,11 @@ export function Modal({
         duration: 280,
         useNativeDriver: true,
       }),
+      Animated.timing(topProgress, {
+        toValue: 0,
+        ...TOP_CONTENT_EXIT,
+        useNativeDriver: true,
+      }),
     ]).start(() => {
       onDone?.();
     });
@@ -102,6 +122,7 @@ export function Modal({
         translateY.setValue(height);
       }
       backdropOpacity.setValue(0);
+      topProgress.setValue(0);
       Animated.parallel([
         ...(isFullscreen
           ? []
@@ -118,9 +139,14 @@ export function Modal({
           duration: 250,
           useNativeDriver: true,
         }),
+        Animated.timing(topProgress, {
+          toValue: 1,
+          ...TOP_CONTENT_ENTER,
+          useNativeDriver: true,
+        }),
       ]).start();
     }
-  }, [visible, height, translateY, backdropOpacity, isFullscreen]);
+  }, [visible, height, translateY, backdropOpacity, topProgress, isFullscreen]);
 
   const handleClose = () => {
     if (isFullscreen) {
@@ -150,6 +176,11 @@ export function Modal({
             Animated.timing(backdropOpacity, {
               toValue: 0,
               duration: 220,
+              useNativeDriver: true,
+            }),
+            Animated.timing(topProgress, {
+              toValue: 0,
+              ...TOP_CONTENT_EXIT,
               useNativeDriver: true,
             }),
           ]).start(onClose);
@@ -196,16 +227,28 @@ export function Modal({
     );
   }
 
-  const sheetMaxHeight =
+  const configuredSheetMaxHeight =
+    isBottom && sheetHeightRatio != null ? height * sheetHeightRatio : undefined;
+  const keyboardSheetMaxHeight =
     !avoidKeyboard && isBottom ? height - keyboardHeight - insets.top : undefined;
+  const sheetMaxHeight =
+    configuredSheetMaxHeight != null && keyboardSheetMaxHeight != null
+      ? Math.min(configuredSheetMaxHeight, keyboardSheetMaxHeight)
+      : configuredSheetMaxHeight ?? keyboardSheetMaxHeight;
+
+  const hasFixedSheetHeight = configuredSheetMaxHeight != null;
 
   const sheetContent = isBottom ? (
     <Animated.View
       style={{
         transform: [{ translateY }],
-        ...(sheetMaxHeight != null ? { maxHeight: sheetMaxHeight } : null),
+        ...(sheetMaxHeight != null
+          ? hasFixedSheetHeight
+            ? { height: sheetMaxHeight, maxHeight: sheetMaxHeight }
+            : { maxHeight: sheetMaxHeight }
+          : null),
       }}
-      className={`bg-white dark:bg-gray-900 rounded-t-[35px] px-8 ${footer ? 'pb-0' : 'pb-10'}`}
+      className={`bg-white dark:bg-gray-900 rounded-t-[35px] px-8 ${footer ? 'pb-0' : 'pb-10'} ${hasFixedSheetHeight ? 'overflow-hidden' : ''}`}
     >
       <View
         className="w-full items-center pt-3 pb-3"
@@ -243,7 +286,7 @@ export function Modal({
         </View>
       ) : null}
 
-      <View className="relative">
+      <View className={hasFixedSheetHeight ? 'relative min-h-0 flex-1' : 'relative'}>
         {children}
         {footer ? (
           <BottomWrapper className="-mx-8 bg-white dark:bg-gray-900">
@@ -289,6 +332,20 @@ export function Modal({
     </View>
   );
 
+  const topPreview =
+    topContent && isBottom && sheetMaxHeight != null ? (
+      <View
+        pointerEvents="none"
+        className="absolute left-0 right-0 z-20"
+        style={{
+          top: 0,
+          bottom: sheetMaxHeight + (avoidKeyboard ? 0 : keyboardHeight),
+        }}
+      >
+        {typeof topContent === 'function' ? topContent(topProgress) : topContent}
+      </View>
+    ) : null;
+
   return (
     <RNModal
       visible={visible}
@@ -299,28 +356,33 @@ export function Modal({
     >
       <Animated.View
         style={[{ opacity: backdropOpacity }]}
-        className="absolute top-0 inset-0"
+        className="absolute top-0 inset-0 z-0"
         pointerEvents="none"
       >
-        <View className="absolute top-0 inset-0 bg-ink/50" />
+        <View
+          className="absolute top-0 inset-0"
+          style={{ backgroundColor: backdropColor, opacity: backdropOpacityValue }}
+        />
       </Animated.View>
       <Pressable
-        className="absolute top-0 inset-0"
+        className="absolute top-0 inset-0 z-10"
         onPress={handleClose}
         style={{ backgroundColor: 'transparent' }}
       />
 
+      {topPreview}
+
       {avoidKeyboard ? (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1 justify-end"
+          className="z-30 flex-1 justify-end"
           pointerEvents="box-none"
         >
           {sheetContent}
         </KeyboardAvoidingView>
       ) : (
         <View
-          className="flex-1 justify-end"
+          className="z-30 flex-1 justify-end"
           pointerEvents="box-none"
           style={{ paddingBottom: keyboardHeight }}
         >

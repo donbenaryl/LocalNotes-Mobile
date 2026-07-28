@@ -12,11 +12,12 @@ import {
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
+import type { TabItem } from '@/components/ui/Tabs';
 
-/** Matches HTML vitalbar: scrollTop > 300 toggles .show */
-const DEFAULT_REVEAL_THRESHOLD = 300;
+/** Matches profile sticky: scrollTop > 300 toggles show */
+const DEFAULT_REVEAL_THRESHOLD = 100;
 /** Hide below this to avoid flip-flopping around the show threshold. */
-const DEFAULT_HIDE_THRESHOLD = 260;
+const DEFAULT_HIDE_THRESHOLD = 160;
 /** Matches CSS transition: opacity/transform .22s ease */
 const REVEAL_DURATION_MS = 220;
 
@@ -25,27 +26,36 @@ const REVEAL_TIMING = {
   easing: Easing.ease,
 };
 
-interface ProfileChromeContextValue {
+interface HomeTabsChromeContextValue {
   hideProgress: SharedValue<number>;
   scrollHandler: ReturnType<typeof useAnimatedScrollHandler>;
   resetChrome: () => void;
+  tabs: TabItem[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
 }
 
-const ProfileChromeContext = createContext<ProfileChromeContextValue | null>(null);
+const HomeTabsChromeContext = createContext<HomeTabsChromeContextValue | null>(
+  null,
+);
 
-interface ProfileChromeProviderProps {
+interface HomeTabsChromeProviderProps {
   children: ReactNode;
-  /** Scroll Y above which sticky chrome reveals (binary, timed). */
+  tabs: TabItem[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
   revealThreshold?: number;
-  /** Scroll Y below which sticky chrome hides (hysteresis band). */
   hideThreshold?: number;
 }
 
-export function ProfileChromeProvider({
+export function HomeTabsChromeProvider({
   children,
+  tabs,
+  activeTab,
+  onTabChange,
   revealThreshold = DEFAULT_REVEAL_THRESHOLD,
   hideThreshold = DEFAULT_HIDE_THRESHOLD,
-}: ProfileChromeProviderProps) {
+}: HomeTabsChromeProviderProps) {
   const hideProgress = useSharedValue(0);
   const hideProgressTarget = useSharedValue(0);
 
@@ -77,21 +87,26 @@ export function ProfileChromeProvider({
       hideProgress,
       scrollHandler,
       resetChrome,
+      tabs,
+      activeTab,
+      onTabChange,
     }),
-    [hideProgress, scrollHandler, resetChrome],
+    [hideProgress, scrollHandler, resetChrome, tabs, activeTab, onTabChange],
   );
 
   return (
-    <ProfileChromeContext.Provider value={value}>
+    <HomeTabsChromeContext.Provider value={value}>
       {children}
-    </ProfileChromeContext.Provider>
+    </HomeTabsChromeContext.Provider>
   );
 }
 
-export function useProfileChrome() {
-  const context = useContext(ProfileChromeContext);
+export function useHomeTabsChrome() {
+  const context = useContext(HomeTabsChromeContext);
   if (!context) {
-    throw new Error('useProfileChrome must be used within ProfileChromeProvider');
+    throw new Error(
+      'useHomeTabsChrome must be used within HomeTabsChromeProvider',
+    );
   }
   return context;
 }

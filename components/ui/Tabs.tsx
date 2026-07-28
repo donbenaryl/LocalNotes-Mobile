@@ -21,7 +21,6 @@ export function Tabs({ tabs, activeTab, onTabChange, className, textClassName }:
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerClassName="px-4"
       >
         {tabs.map((tab) => {
           const isActive = tab.id === activeTab;

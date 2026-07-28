@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  Text,
-  View,
-  type NativeSyntheticEvent,
-  type NativeTouchEvent,
-} from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import {
   Building2,
   LayoutGrid,
@@ -18,7 +17,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
-import { CollapsibleChrome } from "@/components/ui/layout/CollapsibleChrome";
 import { ProfileChromeScrollView } from "@/components/ui/ProfileChromeScrollView";
 import { ProfileInfo } from "./ProfileInfo";
 import { ProfileHeader } from "./ProfileHeader";
@@ -48,10 +46,8 @@ function isTabType(value: string | null | undefined): value is ProfileListTabTyp
   return value !== null && value !== undefined && TAB_IDS.includes(value as ProfileListTabType);
 }
 
-const PROFILE_CHROME_HIDE_RANGE = 180;
-const REVEAL_GESTURE_DISTANCE = 24;
-/** Approximate collapsed sticky identity row height (avatar sm + vertical padding). */
-const STICKY_INFO_BAR_HEIGHT = 48;
+/** Matches HTML vitalbar: scrollTop > 300 toggles .show */
+const PROFILE_CHROME_REVEAL_THRESHOLD = 300;
 
 interface MainProfileProps {
   userId?: string;
@@ -76,18 +72,26 @@ function MainProfileContent({
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
   const insets = useSafeAreaInsets();
-  const { hideProgress, isShortContentLocked, resetChrome } = useProfileChrome();
-  const touchStartY = useRef<number | null>(null);
+  const { hideProgress, resetChrome } = useProfileChrome();
 
-  const tabsAnimatedStyle = useAnimatedStyle(() => ({
-    paddingTop: insets.top * hideProgress.value,
-  }));
-
-  const stickyInfoBarAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: hideProgress.value,
-    height: STICKY_INFO_BAR_HEIGHT * hideProgress.value,
-    overflow: "hidden" as const,
-  }));
+  const stickyOverlayAnimatedStyle = useAnimatedStyle(() => {
+    const progress = hideProgress.value;
+    return {
+      opacity: progress,
+      paddingTop: insets.top,
+      transform: [
+        {
+          translateY: interpolate(
+            progress,
+            [0, 1],
+            [-8, 0],
+            Extrapolation.CLAMP,
+          ),
+        },
+      ],
+      pointerEvents: progress > 0.5 ? ("auto" as const) : ("none" as const),
+    };
+  });
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
     return isTabType(params.tab) ? params.tab : "picks";
@@ -128,10 +132,6 @@ function MainProfileContent({
   }, [resetChrome]);
 
   useEffect(() => {
-    resetChrome();
-  }, [activeTab, resetChrome]);
-
-  useEffect(() => {
     if (isTabType(params.tab) && visibleTabIds.has(params.tab)) {
       setActiveTab(params.tab);
     } else if (params.tab && !visibleTabIds.has(params.tab)) {
@@ -154,65 +154,45 @@ function MainProfileContent({
     setActiveTab(tabId as ProfileListTabType);
   };
 
-  const handleTouchStart = useCallback(
-    (event: NativeSyntheticEvent<NativeTouchEvent>) => {
-      touchStartY.current = event.nativeEvent.pageY;
-    },
-    [],
-  );
-
-  const handleTouchMove = useCallback(
-    (event: NativeSyntheticEvent<NativeTouchEvent>) => {
-      if (!isShortContentLocked.value || touchStartY.current === null) return;
-
-      const dragDistance = event.nativeEvent.pageY - touchStartY.current;
-      if (dragDistance >= REVEAL_GESTURE_DISTANCE) {
-        resetChrome();
-        touchStartY.current = null;
+  const listHeader = (
+    <View>
+      <PageHeader
+        onBack={() => router.back()}
+        borderless
+        rightChild={isOwnProfile ? <ProfileHeader /> : undefined}
+      />
+      {isPending ? (
+        <ProfileInfoSkeleton />
+      ) : profile ? (
+        <ProfileInfo
+          profile={profile}
+          isOwnProfile={isOwnProfile}
+          onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
+          onSharePress={() => {}}
+        />
+      ) : null}
+      {!isPending && 
+        <View className="pt-4 px-4">
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            className="border-b-0"
+          />
+        </View>
       }
-    },
-    [isShortContentLocked, resetChrome],
+    </View>
   );
-
-  const handleTouchEnd = useCallback(() => {
-    touchStartY.current = null;
-  }, []);
 
   return (
-    <View
-      className="flex-1 bg-page dark:bg-gray-900"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
-    >
-      <CollapsibleChrome
-        hideProgress={hideProgress}
-        className="bg-white/70 dark:bg-gray-900/80 backdrop-blur-md"
-      >
-        <PageHeader
-          onBack={() => router.back()}
-          borderless
-          rightChild={isOwnProfile ? <ProfileHeader /> : undefined}
-        />
-        {isPending ? (
-          <ProfileInfoSkeleton />
-        ) : profile ? (
-          <ProfileInfo
-            profile={profile}
-            isOwnProfile={isOwnProfile}
-            onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
-            onSharePress={() => {}}
-          />
-        ) : null}
-      </CollapsibleChrome>
-
+    <View className="flex-1 bg-page dark:bg-gray-900">
       {isPending ? (
         <ProfileChromeScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerClassName="p-4"
         >
+          {listHeader}
           <ProfilePicksTabSkeleton />
         </ProfileChromeScrollView>
       ) : isError || !profile ? (
@@ -227,23 +207,19 @@ function MainProfileContent({
             userId={profile.id ?? userId ?? ""}
             isOwnProfile={isOwnProfile}
             activeTab={activeTab}
+            listHeader={listHeader}
           />
           <Animated.View
-            className="border-b-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md"
-            style={[
-              tabsAnimatedStyle,
-              { position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 },
-            ]}
+            className="absolute left-0 right-0 top-0 z-10 border-b-0 bg-white/95 dark:bg-gray-900/95"
+            style={stickyOverlayAnimatedStyle}
           >
-            <Animated.View style={stickyInfoBarAnimatedStyle}>
-              <View className="h-14 justify-end">
-                <ProfileStickyInfoBar
-                  profile={profile}
-                  isOwnProfile={isOwnProfile}
-                />
-              </View>
-            </Animated.View>
-            <View className="pt-4">
+            <View className="h-12 justify-end">
+              <ProfileStickyInfoBar
+                profile={profile}
+                isOwnProfile={isOwnProfile}
+              />
+            </View>
+            <View className="pt-4 px-4">
               <Tabs
                 tabs={tabs}
                 activeTab={activeTab}
@@ -289,7 +265,7 @@ export default function MainProfile({ userId }: MainProfileProps) {
   }
 
   return (
-    <ProfileChromeProvider hideRange={PROFILE_CHROME_HIDE_RANGE}>
+    <ProfileChromeProvider revealThreshold={PROFILE_CHROME_REVEAL_THRESHOLD}>
       <MainProfileContent
         userId={userId}
         isOwnProfile={isOwnProfile}

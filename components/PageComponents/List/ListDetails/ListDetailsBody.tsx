@@ -1,236 +1,86 @@
-import { useEffect, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
-import { Bookmark, Building2, MapPin } from "lucide-react-native";
+import { useMemo } from "react";
+import { Text, View } from "react-native";
+import { Building2, MapPin } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import listService from "@/http/list-api/list.service";
-import { useToastStore } from "@/stores/useToastStore";
 import { formatListLocation } from "@/utils/listUi";
-import { resolveImageUrl } from "@/utils/httpHelpers";
 import {
-  formatPickAddress,
-  getPickCategoryLabel,
-  getPickName,
-} from "@/utils/listPickLocation";
-import type { Item, ListItemDAO } from "@/http/list-api/types";
+  mapSearchItemToListItemPublic,
+  sortPicksWithImagesFirst,
+} from "@/utils/homePicks";
+import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
-import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
-import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 
 interface ListDetailsBodyProps {
   list: ListItemDAO;
-  onOpenInMaps: (pickIndex: number) => void;
+  onRefresh?: () => void;
 }
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "");
 }
 
-function getPickImageUrl(item: Item): string | null {
-  return (
-    resolveImageUrl(item.images?.[0]?.url) ??
-    resolveImageUrl(item.business?.logo)
-  );
+function mapListItemsToPicks(list: ListItemDAO): ListItemPublic[] {
+  const picks = (list.items ?? [])
+    .map((item) => {
+      const pick = mapSearchItemToListItemPublic(item);
+      return {
+        ...pick,
+        owner: item.owner ?? list.account,
+        location: pick.location ?? list.location ?? null,
+      };
+    })
+    .filter((pick) => Boolean(pick.business_name));
+
+  return sortPicksWithImagesFirst(picks);
 }
 
-function sortItemsWithImagesFirst(
-  items: Item[],
-): { item: Item; originalIndex: number }[] {
-  return items
-    .map((item, originalIndex) => ({ item, originalIndex }))
-    .sort((a, b) => {
-      const aHasImage = Boolean(getPickImageUrl(a.item));
-      const bHasImage = Boolean(getPickImageUrl(b.item));
-      if (aHasImage === bHasImage) return a.originalIndex - b.originalIndex;
-      return aHasImage ? -1 : 1;
-    });
-}
+function ListDetailsPicksGrid({
+  picks,
+  onRefresh,
+}: {
+  picks: ListItemPublic[];
+  onRefresh?: () => void;
+}) {
+  const { leftColumn, rightColumn } = useMemo(() => {
+    const left = picks.filter((_, index) => index % 2 === 0);
+    const right = picks.filter((_, index) => index % 2 === 1);
 
-interface ListDetailsPickCardProps {
-  item: Item;
-  index: number;
-  list: ListItemDAO;
-  onOpenInMaps: (pickIndex: number) => void;
-}
-
-function ListDetailsPickCard({
-  item,
-  index,
-  list,
-  onOpenInMaps,
-}: ListDetailsPickCardProps) {
-  const { t } = useTranslation();
-  const showToast = useToastStore((s) => s.show);
-  const [isFavorite, setIsFavorite] = useState(item.is_favorite ?? false);
-  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
-  const [isImageFullScreenVisible, setIsImageFullScreenVisible] =
-    useState(false);
-
-  useEffect(() => {
-    setIsFavorite(item.is_favorite ?? false);
-  }, [item.id, item.is_favorite]);
-
-  const handleToggleFavorite = async () => {
-    const nextFavorite = !isFavorite;
-    setIsFavorite(nextFavorite);
-    setIsTogglingFavorite(true);
-    const { error } = await listService.setListItemFavorite(
-      item.id,
-      nextFavorite,
-    );
-    setIsTogglingFavorite(false);
-
-    if (error) {
-      setIsFavorite(!nextFavorite);
-      showToast({
-        type: "error",
-        message: error.message ?? t("profile.picks.favoriteError"),
-      });
-    }
-  };
-
-  const name = getPickName(item);
-  if (!name) return null;
-
-  const imageUrl = getPickImageUrl(item);
-  const categoryLabel = getPickCategoryLabel(item);
-  const address = formatPickAddress(item, list.location);
-  const pickNumber = String(index + 1).padStart(2, "0");
+    return { leftColumn: left, rightColumn: right };
+  }, [picks]);
 
   return (
-    <View className="mx-[18px] mb-3 overflow-hidden rounded-2xl border border-gray-200 bg-paper dark:border-gray-700 dark:bg-gray-900">
-      <View className="flex-row items-center gap-2.5 border-b border-brand/15 bg-brand-tint px-4 py-3 dark:border-brand/25 dark:bg-brand/10">
-        <View className="h-7 w-7 items-center justify-center rounded-lg bg-brand">
-          <Text className="font-geist-bold text-[11px] text-white">
-            {pickNumber}
-          </Text>
-        </View>
-        {/* Pick Title */}
-        <Text
-          className="min-w-0 flex-1 font-geist-bold text-[11px] uppercase tracking-[0.14em] text-brand"
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {name}
-        </Text>
-
-        {/* Favorite Button */}
-        <View className="shrink-0">
-          <LocalNotesButton
-            onPress={handleToggleFavorite}
-            disabled={isTogglingFavorite}
-            loading={isTogglingFavorite}
-            size="xs"
-            variant={isFavorite ? "brand" : "light"}
-            isRounded
-            isWidthFull={false}
-            leftIcon={
-              <Bookmark
-                size={16}
-                color={isFavorite ? "#FFFFFF" : "#737373"}
-                fill={isFavorite ? "#FFFFFF" : "transparent"}
-                stroke={isFavorite ? "#FFFFFF" : "#737373"}
-                style={{ marginRight: 2 }}
-              />
-            }
-            label={
-              isFavorite
-                ? t("listDetail.savedList")
-                : t("listDetail.reactions.save")
-            }
+    <View className="flex-row gap-3 px-[18px]">
+      <View className="flex-1 gap-3">
+        {leftColumn.map((pick) => (
+          <PickCard
+            key={pick.id}
+            data={pick}
+            readOnly
+            onRefresh={onRefresh}
           />
-        </View>
+        ))}
       </View>
-
-      <View className="px-4 py-4">
-        {imageUrl ? (
-          <>
-            <Pressable
-              onPress={() => setIsImageFullScreenVisible(true)}
-              accessibilityRole="imagebutton"
-              className="relative mb-3 h-40 overflow-hidden rounded-xl cursor-pointer"
-            >
-              <View pointerEvents="none" className="h-full w-full">
-                <Image
-                  source={{ uri: imageUrl }}
-                  className="h-full w-full"
-                  resizeMode="cover"
-                />
-              </View>
-            </Pressable>
-            <ImageFullScreen
-              uri={imageUrl}
-              visible={isImageFullScreenVisible}
-              onClose={() => setIsImageFullScreenVisible(false)}
-            />
-          </>
-        ) : null}
-
-        {categoryLabel ? (
-          <Badge label={categoryLabel} variant="primary" size="md" />
-        ) : null}
-
-        {item.description ? (
-          <Text className="mt-2.5 font-geist text-sm leading-[22px] text-gray-800 dark:text-gray-200">
-            {item.description}
-          </Text>
-        ) : null}
-
-        {item.tags.length > 0 ? (
-          <View className="mt-3 flex-row flex-wrap gap-1.5">
-            {item.tags.map((tag) => (
-              <View
-                key={tag.id}
-                className="rounded-full bg-soft px-2.5 py-1.5 dark:bg-gray-800"
-              >
-                <Text className="font-geist-medium text-[11px] text-gray-600 dark:text-gray-300">
-                  {tag.name}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ) : null}
-
-        {address ? (
-          <View className="mt-3 flex-row items-center gap-1.5">
-            <MapPin size={12} color="#737373" />
-            <Text
-              className="min-w-0 flex-1 font-geist-medium text-xs text-gray-600 dark:text-gray-300"
-              numberOfLines={2}
-            >
-              {address}
-            </Text>
-            <Pressable
-              onPress={() => onOpenInMaps(index)}
-              accessibilityRole="button"
-              className="cursor-pointer"
-            >
-              <Text className="font-geist-semibold text-[11.5px] text-brand underline">
-                {t("listDetail.openInMaps")}
-              </Text>
-            </Pressable>
-          </View>
-        ) : (
-          <Pressable
-            onPress={() => onOpenInMaps(index)}
-            accessibilityRole="button"
-            className="mt-3 cursor-pointer self-start"
-          >
-            <Text className="font-geist-semibold text-[11.5px] text-brand underline">
-              {t("listDetail.openInMaps")}
-            </Text>
-          </Pressable>
-        )}
+      <View className="flex-1 gap-3">
+        {rightColumn.map((pick) => (
+          <PickCard
+            key={pick.id}
+            data={pick}
+            readOnly
+            onRefresh={onRefresh}
+          />
+        ))}
       </View>
     </View>
   );
 }
 
-export function ListDetailsBody({ list, onOpenInMaps }: ListDetailsBodyProps) {
+export function ListDetailsBody({ list, onRefresh }: ListDetailsBodyProps) {
   const { t } = useTranslation();
   const locationLabel = formatListLocation(list.location);
   const picksCount = list.items?.length ?? 0;
-  const sortedItems = sortItemsWithImagesFirst(list.items ?? []);
+  const picks = useMemo(() => mapListItemsToPicks(list), [list]);
 
   return (
     <View>
@@ -303,20 +153,12 @@ export function ListDetailsBody({ list, onOpenInMaps }: ListDetailsBodyProps) {
           </View>
         </View>
 
-        {sortedItems.length === 0 ? (
+        {picks.length === 0 ? (
           <Text className="px-[18px] font-geist text-sm text-gray-500 dark:text-gray-400">
             {t("listDetail.noPicks")}
           </Text>
         ) : (
-          sortedItems.map(({ item, originalIndex }) => (
-            <ListDetailsPickCard
-              key={item.id}
-              item={item}
-              index={originalIndex}
-              list={list}
-              onOpenInMaps={onOpenInMaps}
-            />
-          ))
+          <ListDetailsPicksGrid picks={picks} onRefresh={onRefresh} />
         )}
       </View>
     </View>

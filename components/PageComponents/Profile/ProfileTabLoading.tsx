@@ -5,6 +5,8 @@ import type { ProfileListTabType } from "./ProfileTabPanel";
 
 interface ProfileTabLoadingProps {
   tab: ProfileListTabType;
+  userId: string;
+  isOwnProfile?: boolean;
   selectedCategory: string;
   onCategoryChange: (value: string) => void;
   selectedStatus: string;

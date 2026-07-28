@@ -3,7 +3,6 @@ import { Platform, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { ChevronUp } from 'lucide-react-native';
-import { useColorScheme } from 'nativewind';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -57,12 +56,10 @@ interface ScrollToTopButtonProps {
 export function ScrollToTopButton({ visible, onPress }: ScrollToTopButtonProps) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { colorScheme } = useColorScheme();
   const progress = useSharedValue(0);
   const press = useSharedValue(0);
   const bob = useSharedValue(0);
   const pulse = useSharedValue(0);
-  const iconColor = colorScheme === 'dark' ? '#F9FAFB' : '#141413';
 
   useEffect(() => {
     if (visible) {
@@ -132,7 +129,7 @@ export function ScrollToTopButton({ visible, onPress }: ScrollToTopButtonProps) 
         className="h-11 w-11 items-center justify-center rounded-2xl bg-brand border border-gray-200/80 cursor-pointer"
         style={BUTTON_SHADOW}
       >
-        <ChevronUp size={22} color={iconColor} strokeWidth={2.25} />
+        <ChevronUp size={22} color={"#fff"} strokeWidth={2.25} />
       </Pressable>
     </Animated.View>
   );

@@ -40,6 +40,8 @@ export function ProfileListTabPanel({
     <View className="px-4">
       <ProfileTabFilters
         tab={tab}
+        userId={userId}
+        isOwnProfile={isOwnProfile}
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
         selectedStatus={selectedStatus}

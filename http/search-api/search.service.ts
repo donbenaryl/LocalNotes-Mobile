@@ -14,12 +14,23 @@ class SearchService extends AppHttpService {
   async unifiedSearch(params: UnifiedSearchParams) {
     const queryParams: Record<string, unknown> = {
       query: params.query,
-      type: params.type,
     };
+
+    if (params.type) {
+      queryParams.type = params.type;
+    }
+
+    if (params.scope) {
+      queryParams.scope = params.scope;
+    }
 
     const categoryIds = params.categoryIds ?? [];
     if (categoryIds.length > 0) {
       queryParams.categories = categoryIds.join(",");
+    }
+
+    if (params.listItemId) {
+      queryParams.list_item_id = params.listItemId;
     }
 
     if (params.longitude !== undefined && params.latitude !== undefined) {

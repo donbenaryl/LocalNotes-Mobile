@@ -18,11 +18,12 @@ export function HomeEditorialTitle({
 
   return (
     <View className="mb-4">
-      <Text className="font-geist-bold text-3xl leading-[1.05] tracking-tight text-ink dark:text-gray-100">
-        {titlePrefix}
+      <Text className="font-geist-extrabold text-3xl leading-[1.05] tracking-tight text-ink dark:text-gray-100">
+        Picked for you
       </Text>
-      <Text className="font-fraunces text-3xl italic leading-[1.05] tracking-tight text-brand">
-        {t("home.editorial.subtitle")}
+      {/* <Text className="font-fraunces text-3xl italic leading-[1.05] tracking-tight text-brand mt-1"> */}
+      <Text className="font-geist-medium tracking-tight text-gray-500 dark:text-gray-400">
+        Based on your activity and preferences
       </Text>
     </View>
   );

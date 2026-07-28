@@ -4,7 +4,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { Clock, MapPin, Star, Tag } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/Badge";
@@ -103,7 +103,7 @@ export function OffersTab() {
   );
 
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-8"
       showsVerticalScrollIndicator={false}
@@ -162,6 +162,6 @@ export function OffersTab() {
           </>
         )}
       </View>
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

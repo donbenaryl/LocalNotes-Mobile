@@ -121,7 +121,7 @@ export default function MainSearch() {
         />
       </PageHeader>
 
-      <View className="gap-3">
+      <View className="gap-3 px-4">
         <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
         <SearchFilterHeader
           className="-mt-2 mb-3 absolute top-10 z-20"

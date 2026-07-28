@@ -1,8 +1,10 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import homeService from "@/http/home-api/home.service";
 import recommendationsService from "@/http/recommendations-api/recommendations.service";
 import type { ListItemDAO, listedDTO } from "@/http/list-api/types";
+import { resolveUsedCategories } from "@/utils/listCategories";
 
 export type ProfileTabCategory =
   | "my-lists"
@@ -216,4 +218,56 @@ export function useCategories() {
     isPending,
     isError,
   };
+}
+
+interface UseTabCategoryOptionsParams {
+  tab: ProfileTabCategory;
+  userId: string;
+  isOwnProfile?: boolean;
+  selectedStatus?: string;
+  favoriteFilter?: string;
+  enabled?: boolean;
+}
+
+/**
+ * Category chip options derived from items on the active profile tab
+ * (unfiltered by category so chips stay stable when a category is selected).
+ */
+export function useTabCategoryOptions({
+  tab,
+  userId,
+  isOwnProfile = true,
+  selectedStatus = "Published",
+  favoriteFilter = "All",
+  enabled = true,
+}: UseTabCategoryOptionsParams) {
+  const { categories: catalog } = useCategories();
+  const viewedUserId = isOwnProfile ? undefined : userId;
+  const isPicks = tab === "picks";
+
+  const { picks } = useProfilePicks(
+    favoriteFilter,
+    enabled && isPicks,
+    viewedUserId,
+    [],
+  );
+
+  const { list } = useProfile({
+    category: tab,
+    dto: { status: selectedStatus },
+    selectedCategory: "All",
+    enabled: enabled && !isPicks,
+    viewedUserId,
+    isOwnProfile,
+  });
+
+  const categoryOptions = useMemo(() => {
+    const items = isPicks ? picks : list;
+    return resolveUsedCategories(items, catalog).map((c) => ({
+      id: c.id,
+      name: c.name,
+    }));
+  }, [isPicks, picks, list, catalog]);
+
+  return { categoryOptions };
 }

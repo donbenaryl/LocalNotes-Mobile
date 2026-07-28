@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View, Text } from "react-native";
 import { FolderOpen } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -49,6 +49,16 @@ export function ProfileListTabContent({
       }),
     [list],
   );
+
+  const [expandedListId, setExpandedListId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setExpandedListId((prev) =>
+      prev && sortedList.some((l) => l.id === prev)
+        ? prev
+        : (sortedList[0]?.id ?? null),
+    );
+  }, [sortedList]);
 
   const handleListDeleted = () => {
     void queryClient.invalidateQueries({ queryKey: ["profile-lists"] });
@@ -106,6 +116,10 @@ export function ProfileListTabContent({
           key={item.id}
           list={item}
           onDeleted={handleListDeleted}
+          collapsible
+          expanded={expandedListId === item.id}
+          onExpand={() => setExpandedListId(item.id)}
+          onCollapse={() => setExpandedListId(null)}
         />
       ))}
     </View>

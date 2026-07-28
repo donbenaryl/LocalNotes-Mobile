@@ -26,7 +26,7 @@ export function GuardedHeader() {
 
   return (
     <View
-      className="bg-page dark:bg-gray-900 px-4 pt-2 pb-3 flex-row items-center justify-between"
+      className="bg-page dark:bg-gray-900 pt-2 pb-3 flex-row items-center justify-between"
     >
       <LocalNotesText size="sm" />
       <View className="flex-row items-center gap-3">

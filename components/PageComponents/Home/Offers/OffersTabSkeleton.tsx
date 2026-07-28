@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 
@@ -46,7 +46,7 @@ function OffersSectionSkeleton() {
 
 export function OffersTabSkeleton() {
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
@@ -57,6 +57,6 @@ export function OffersTabSkeleton() {
       </View>
       <OffersSectionSkeleton />
       <OffersSectionSkeleton />
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

@@ -22,7 +22,7 @@ const sizeClasses: Record<AvatarSize, string> = {
   sm: "h-8 w-8 text-base",
   md: "h-10 w-10 text-xl",
   lg: "h-20 w-20 text-2xl",
-  xl: "h-24 w-24 text-2xl",
+  xl: "h-24 w-24 text-4xl",
 };
 
 /** Matches Tailwind `h-*` / `w-*` pixel sizes used in `sizeClasses`. */

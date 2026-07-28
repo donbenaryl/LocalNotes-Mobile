@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useState, type ReactNode } from "react";
 import { View } from "react-native";
 import { ProfileChromeScrollView } from "@/components/ui/ProfileChromeScrollView";
 import { ProfileTabLoading } from "./ProfileTabLoading";
@@ -9,6 +9,7 @@ interface ProfileListProps {
   isOwnProfile?: boolean;
   activeTab: ProfileListTabType;
   contentTopInset?: number;
+  listHeader?: ReactNode;
 }
 
 export function ProfileList({
@@ -16,6 +17,7 @@ export function ProfileList({
   isOwnProfile = true,
   activeTab,
   contentTopInset,
+  listHeader,
 }: ProfileListProps) {
   const deferredTab = useDeferredValue(activeTab);
   const isTabTransitioning = activeTab !== deferredTab;
@@ -30,16 +32,19 @@ export function ProfileList({
   const favoriteOptions = ["All", "Favorites only"];
 
   return (
-    <View className="flex-1 mt-6 pt-4">
+    <View className="flex-1">
       <ProfileChromeScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: contentTopInset }}
       >
+        {listHeader}
         {isTabTransitioning ? (
           <View className="p-4">
             <ProfileTabLoading
               tab={activeTab}
+              userId={userId}
+              isOwnProfile={isOwnProfile}
               selectedCategory={selectedCategory}
               onCategoryChange={setSelectedCategory}
               selectedStatus={selectedStatus}

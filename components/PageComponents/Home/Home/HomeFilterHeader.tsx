@@ -78,7 +78,7 @@ export function HomeFilterHeader({
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
 
   return (
-    <View className="mb-4 mt-2">
+    <View className="mb-4">
       <View className="mb-3.5 flex-row items-center justify-between">
         <Toggle
           value={contentType}

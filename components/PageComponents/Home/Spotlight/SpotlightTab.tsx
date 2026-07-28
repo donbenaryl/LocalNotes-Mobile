@@ -1,7 +1,7 @@
 import { RefreshControl, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { useSpotlightEdition } from "@/hooks/useSpotlightEdition";
 import { SpotlightBusinessesSection } from "./SpotlightBusinessesSection";
@@ -56,9 +56,9 @@ export function SpotlightTab() {
   const businessesSection = data.sections.find((section) => section.section_key === "businesses");
 
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
-      contentContainerClassName="pb-40"
+      contentContainerClassName="pb-40 px-4"
       showsVerticalScrollIndicator={false}
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={() => void refetch()} tintColor="#FF6B1A" />
@@ -71,6 +71,6 @@ export function SpotlightTab() {
       {collectionsSection ? <SpotlightCollectionsSection section={collectionsSection} /> : null}
       {businessesSection ? <SpotlightBusinessesSection section={businessesSection} /> : null}
       <SpotlightSponsoredSection sponsored={data.sponsored} />
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

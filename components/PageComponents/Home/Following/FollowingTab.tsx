@@ -1,20 +1,20 @@
-import { useMemo } from 'react';
-import { ScrollView, Text, View } from 'react-native';
-import { HomeChromeScrollView } from '@/components/ui/HomeChromeScrollView';
-import { AlertCircle } from 'lucide-react-native';
-import { useTranslation } from 'react-i18next';
-import { Avatar } from '@/components/ui/Avatar';
-import { ActivityFeedCard } from '@/components/PageComponents/Profile/ActivityFeedCard';
-import type { ActivityItemDAO } from '@/http/home-api/type';
-import { FollowingListCard } from '@/components/PageComponents/Home/Following/FollowingListCard';
+import { useMemo } from "react";
+import { ScrollView, Text, View } from "react-native";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AlertCircle } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Avatar } from "@/components/ui/Avatar";
+import { ActivityFeedCard } from "@/components/PageComponents/Profile/ActivityFeedCard";
+import type { ActivityItemDAO } from "@/http/home-api/type";
+import { FollowingListCard } from "@/components/PageComponents/Home/Following/FollowingListCard";
 import {
   FollowingCreatorsRowSkeleton,
   FollowingListSkeleton,
-} from '@/components/PageComponents/Home/Following/FollowingListSkeleton';
-import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
-import { useActivityFeed, useFollowingLists } from '@/hooks/useProfileList';
-import { EmptyScreen } from '@/components/ui/EmptyScreen';
-import { PageSectionTitle } from '@/components/ui/PageSectionTitle';
+} from "@/components/PageComponents/Home/Following/FollowingListSkeleton";
+import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { useActivityFeed, useFollowingLists } from "@/hooks/useProfileList";
+import { EmptyScreen } from "@/components/ui/EmptyScreen";
+import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 
 export function FollowingTab() {
   const { t } = useTranslation();
@@ -32,7 +32,7 @@ export function FollowingTab() {
     refetch: refetchActivity,
   } = useActivityFeed();
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split("T")[0];
 
   const todayCreators = useMemo(() => {
     const seen = new Set<string>();
@@ -49,13 +49,17 @@ export function FollowingTab() {
     !followingLoading && !followingError && todayCreators.length > 0;
 
   return (
-    <HomeChromeScrollView showsVerticalScrollIndicator={false}>
+    <HomeTabsChromeScrollView
+      showsVerticalScrollIndicator={false}
+      className="flex-1"
+      contentContainerClassName="px-4 pb-28"
+    >
       {followingLoading && <FollowingCreatorsRowSkeleton />}
 
       {showNotesToday && (
-        <View className="mb-8 px-4 mt-2">
+        <View className="mb-8 mt-2">
           <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-gray-100">
-            {t('home.following.notesToday')}
+            {t("home.following.notesToday")}
           </Text>
           <ScrollView
             horizontal
@@ -84,8 +88,10 @@ export function FollowingTab() {
         </View>
       )}
 
-      <View className="mx-4 mt-2">
-        <PageSectionTitle className="mb-4">{t('home.following.latestActivity')}</PageSectionTitle>
+      <View className="">
+        <PageSectionTitle className="mb-4">
+          {t("home.following.latestActivity")}
+        </PageSectionTitle>
 
         {activityLoading && <FollowingListSkeleton />}
 
@@ -93,10 +99,10 @@ export function FollowingTab() {
           <View className="items-center gap-3 py-8">
             <AlertCircle size={40} color="#EF4444" />
             <Text className="font-geist text-sm text-red-500">
-              {t('profile.lists.error')}
+              {t("profile.lists.error")}
             </Text>
             <LocalNotesButton
-              label={t('profile.lists.retry')}
+              label={t("profile.lists.retry")}
               onPress={() => void refetchActivity()}
               variant="dark"
               size="sm"
@@ -107,18 +113,18 @@ export function FollowingTab() {
 
         {!activityLoading && !activityError && activityFeed.length === 0 && (
           <EmptyScreen
-            title={t('home.following.noActivity')}
-            description={t('home.following.noActivityDescription')}
+            title={t("home.following.noActivity")}
+            description={t("home.following.noActivityDescription")}
           />
         )}
 
         {!activityLoading && !activityError && activityFeed.length > 0 && (
           <View className="gap-4">
             {activityFeed.map((item) =>
-              item.entity === 'list' ? (
+              item.entity === "list" ? (
                 <FollowingListCard
                   key={item.id}
-                  item={item as ActivityItemDAO & { entity: 'list' }}
+                  item={item as ActivityItemDAO & { entity: "list" }}
                 />
               ) : (
                 <ActivityFeedCard key={item.id} item={item} />
@@ -127,6 +133,6 @@ export function FollowingTab() {
           </View>
         )}
       </View>
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

@@ -54,7 +54,7 @@ export function SmartPickForm({
   };
 
   return (
-    <View className="gap-6 px-4 pb-10 pt-4 bg-page dark:bg-gray-900">
+    <View className="gap-6 pb-10 pt-4 bg-page dark:bg-gray-900">
       {/* Welcome banner */}
       <View className="overflow-hidden rounded-[18px]">
         <LinearGradient

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Bookmark, Package } from "lucide-react-native";
-import { HomeChromeScrollView } from "@/components/ui/HomeChromeScrollView";
+import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useProfile, useProfilePicks } from "@/hooks/useProfileList";
@@ -41,7 +41,7 @@ export function SavedTab() {
     : `${t("saved.saved.picksLabel")} ${savedPicks.length}`;
 
   return (
-    <HomeChromeScrollView
+    <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
@@ -101,6 +101,6 @@ export function SavedTab() {
           </View>
         </SavedSectionState>
       )}
-    </HomeChromeScrollView>
+    </HomeTabsChromeScrollView>
   );
 }

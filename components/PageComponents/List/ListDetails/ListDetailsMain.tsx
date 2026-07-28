@@ -113,7 +113,11 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
             setSavedStateOverride({ is_saved: isSaved, saves })
           }
         />
-        <ListDetailsBody list={displayList} onOpenInMaps={openMap} />
+        <ListDetailsBody
+          list={displayList}
+          onRefresh={() => void refetch()}
+        />
+
         <ListDetailsComments list={displayList} />
       </KeyboardAwareScrollView>
 
