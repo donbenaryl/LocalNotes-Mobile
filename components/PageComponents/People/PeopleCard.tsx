@@ -11,6 +11,7 @@ import {
   getPersonalityMatchPillStyle,
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
+import { getPeopleMatchPercent } from "@/utils/matchScore";
 
 interface PeopleCardProps {
   data: UnifiedSearchPersonDAO;
@@ -21,7 +22,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const role = data.personality_name ?? "";
-  const matchValue = Math.max(0, Math.min(100, Math.round(data.match ?? 0)));
+  const matchValue = getPeopleMatchPercent(data);
   const roleColor = getPersonalityRoleColor(role);
   const matchPill = getPersonalityMatchPillStyle(data.personality_color);
   const gradientColors = getPersonalityGradientColors(data.personality_color);
@@ -75,7 +76,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
                 ) : null}
               </View>
 
-              {matchValue > 0 ? (
+              {matchValue != null ? (
                 <View
                   className="shrink-0 rounded-[5px] px-1.5 py-0.5"
                   style={{ backgroundColor: matchPill.backgroundColor }}

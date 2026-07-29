@@ -1,13 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import recommendationsService from "@/http/recommendations-api/recommendations.service";
 import type { similarUserScore } from "@/http/recommendations-api/types";
+import { getMatchPercentFromSimilarity } from "@/utils/matchScore";
 
-export function getMatchPercentFromSimilarity(
-  score: similarUserScore | null | undefined,
-): number | null {
-  if (score?.reason?.overall_score === undefined) return null;
-  return Math.round(score.reason.overall_score);
-}
+export { getMatchPercentFromSimilarity } from "@/utils/matchScore";
 
 export function useSimilarScores(userId: string, enabled = true) {
   const shouldFetch = enabled && Boolean(userId);
@@ -21,8 +17,11 @@ export function useSimilarScores(userId: string, enabled = true) {
     },
   });
 
+  const similarScores = data ?? undefined;
+
   return {
-    similarScores: data ?? undefined,
+    similarScores,
+    matchPercent: getMatchPercentFromSimilarity(similarScores ?? null),
     isLoading: isPending,
     isError,
   };

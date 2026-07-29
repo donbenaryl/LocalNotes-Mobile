@@ -10,7 +10,7 @@ export interface similarCreatorItem {
 }
 
 export interface similarUserScore{
-  personal_similarity:number;
+  personality_similarity:number;
   taste_similarity:number;
   location_similarity:number;
   overall_similarity:number;

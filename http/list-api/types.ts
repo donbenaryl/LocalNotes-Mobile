@@ -12,6 +12,18 @@ export interface Account {
   profile_image: string | null;
   personality_color?: { [color: string]: number } | null;
   personality_name?: string | null;
+  /**
+   * The current viewer's personality match with this account, 0-100.
+   * `null` when either side hasn't taken the quiz, this is the viewer's own account,
+   * or the account hides its personality.
+   */
+  personality_match?: number | null;
+  /**
+   * The current viewer's blended overall similarity with this account, 0-100.
+   * `null` when no UserSimilarity row exists. Clients pick this vs personality_match
+   * via MATCH_SCORE_MODE.
+   */
+  overall_match?: number | null;
 }
 
 export interface TagDAO {
@@ -136,6 +148,10 @@ export interface ListItemDAO {
     [color:string]: number
   }
   personality_name?: string;
+  /** Mirror of `account.personality_match` — the viewer's match with the list owner. */
+  personality_match?: number | null;
+  /** Mirror of `account.overall_match` — blended overall similarity with the list owner. */
+  overall_match?: number | null;
   status:string;
   account_is_followed:boolean;
 }

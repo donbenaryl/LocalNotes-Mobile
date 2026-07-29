@@ -5,15 +5,15 @@ import type { UnifiedSearchParams } from "@/http/search-api/type";
 import type { ListItemDAO, Location as GeoLocation } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
-import { useUserSimilarityScores } from "@/hooks/useUserSimilarityScores";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { isCreatedToday } from "@/utils/time";
 import {
   countMatchingPicks,
+  getListPersonalityMatch,
   countVibeMatchingPicks,
   flattenListsToPicks,
   type HomeContentType,
 } from "@/utils/homePicks";
+import { getListMatchPercent } from "@/utils/matchScore";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 10;
@@ -93,14 +93,11 @@ function listMatchesVibes(list: ListItemDAO, vibes: string[]): boolean {
 
 function countMatchingLists(
   lists: ListItemDAO[],
-  matchByAccountId: Record<string, number | null>,
   threshold: number | null,
 ): number {
   if (threshold === null) return lists.length;
 
-  return lists.filter(
-    (list) => (matchByAccountId[list.account.id] ?? 0) >= threshold,
-  ).length;
+  return lists.filter((list) => getListPersonalityMatch(list) >= threshold).length;
 }
 
 function countVibeMatchingLists(
@@ -114,7 +111,6 @@ function countVibeMatchingLists(
 
 export function useHomeLists(options: UseHomeListsOptions) {
   const queryClient = useQueryClient();
-  const { user } = useAuthStore();
   const { coordinates: userCoordinates } = useUserCoordinates();
 
   const effectiveCoordinates = useMemo((): EffectiveCoordinates | null => {
@@ -193,26 +189,12 @@ export function useHomeLists(options: UseHomeListsOptions) {
     return lists.filter((list) => !nearYouIds.has(list.id));
   }, [discoverQuery.data, nearYouIds]);
 
-  const accountIds = useMemo(
-    () => [
-      ...nearYouLists.map((list) => list.account.id),
-      ...discoverListsRaw.map((list) => list.account.id),
-    ],
-    [nearYouLists, discoverListsRaw],
-  );
-
-  const listsLoaded = !discoverQuery.isPending;
-  const { matchByAccountId } = useUserSimilarityScores({
-    accountIds,
-    currentUserId: user?.id,
-    enabled: listsLoaded && accountIds.length > 0,
-  });
-
+  // The match now ships inside each list payload, so there is no per-owner fan-out here.
   const { forYouLists, topMatchPercent } = useMemo(() => {
     const scored = discoverListsRaw
       .map((list) => ({
         list,
-        match: matchByAccountId[list.account.id] ?? null,
+        match: getListMatchPercent(list),
       }))
       .sort((a, b) => (b.match ?? 0) - (a.match ?? 0));
 
@@ -223,7 +205,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
       forYouLists: topLists,
       topMatchPercent: topMatch,
     };
-  }, [discoverListsRaw, matchByAccountId]);
+  }, [discoverListsRaw]);
 
   const forYouIds = useMemo(
     () => new Set(forYouLists.map((list) => list.id)),
@@ -277,20 +259,14 @@ export function useHomeLists(options: UseHomeListsOptions) {
     if (contentType === "picks") {
       return countMatchingPicks(
         unfilteredDiscoverLists,
-        matchByAccountId,
         options.matchThreshold,
         options.selectedVibes,
       );
     }
-    return countMatchingLists(
-      unfilteredDiscoverLists,
-      matchByAccountId,
-      options.matchThreshold,
-    );
+    return countMatchingLists(unfilteredDiscoverLists, options.matchThreshold);
   }, [
     contentType,
     unfilteredDiscoverLists,
-    matchByAccountId,
     options.matchThreshold,
     options.selectedVibes,
   ]);
@@ -310,19 +286,13 @@ export function useHomeLists(options: UseHomeListsOptions) {
       if (contentType === "picks") {
         return countMatchingPicks(
           unfilteredDiscoverLists,
-          matchByAccountId,
           threshold,
           options.selectedVibes,
         );
       }
-      return countMatchingLists(unfilteredDiscoverLists, matchByAccountId, threshold);
+      return countMatchingLists(unfilteredDiscoverLists, threshold);
     },
-    [
-      contentType,
-      unfilteredDiscoverLists,
-      matchByAccountId,
-      options.selectedVibes,
-    ],
+    [contentType, unfilteredDiscoverLists, options.selectedVibes],
   );
 
   const getVibeMatchCount = useCallback(

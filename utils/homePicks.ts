@@ -1,5 +1,6 @@
 import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { getListMatchPercent } from "@/utils/matchScore";
 
 export type HomeContentType = "lists" | "picks";
 
@@ -78,9 +79,13 @@ export function sortPicksWithImagesFirst(
     .map(({ pick }) => pick);
 }
 
+/** The active MATCH_SCORE_MODE match on a list, or 0 when it isn't comparable. */
+export function getListPersonalityMatch(list: ListItemDAO): number {
+  return getListMatchPercent(list) ?? 0;
+}
+
 export function countMatchingPicks(
   lists: ListItemDAO[],
-  matchByAccountId: Record<string, number | null>,
   threshold: number | null,
   selectedVibes: string[],
 ): number {
@@ -92,8 +97,7 @@ export function countMatchingPicks(
   const seen = new Set<string>();
 
   for (const list of lists) {
-    const ownerMatch = matchByAccountId[list.account.id] ?? 0;
-    if (ownerMatch < threshold) continue;
+    if (getListPersonalityMatch(list) < threshold) continue;
 
     for (const item of list.items ?? []) {
       if (!item.id || seen.has(item.id)) continue;

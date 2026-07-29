@@ -24,9 +24,11 @@ import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
 import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { NoImage } from "@/components/ui/NoImage";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { openInMaps } from "@/utils/smartPick";
 import { isOthersCategoryName } from "@/utils/listCategories";
+import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import searchService from "@/http/search-api/search.service";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
@@ -156,6 +158,10 @@ export function PickDetailModal({
   const title = data.business_name?.trim() || t("profile.picks.untitled");
   const locationLabel = formatLocationLabel(data.location);
   const categoryLabel = formatCategoryLabel(data);
+  // Server-computed against the pick's owner; null on your own picks.
+  const personalityMatch = data.is_owner
+    ? null
+    : getEmbeddedMatchPercent(data.owner);
   const hasCoords =
     data.location?.latitude != null &&
     data.location?.longitude != null &&
@@ -361,15 +367,25 @@ export function PickDetailModal({
                 </Pressable>
               </View>
 
-              {locationLabel ? (
+              {locationLabel || personalityMatch != null ? (
                 <View className="mt-3 flex-row items-center gap-1.5 px-1.5">
-                  <MapPin size={14} color="#57534E" />
-                  <Text
-                    className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
-                    numberOfLines={2}
-                  >
-                    {locationLabel}
-                  </Text>
+                  {locationLabel ? (
+                    <>
+                      <MapPin size={14} color="#57534E" />
+                      <Text
+                        className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
+                        numberOfLines={2}
+                      >
+                        {locationLabel}
+                      </Text>
+                    </>
+                  ) : (
+                    <View className="flex-1" />
+                  )}
+                  <PersonalityMatchPill
+                    percent={personalityMatch}
+                    personalityColor={data.owner?.personality_color}
+                  />
                 </View>
               ) : null}
             </View>
@@ -406,10 +422,21 @@ export function PickDetailModal({
                 </View>
               ) : null}
 
-              {categoryLabel ? (
-                <Text className="mt-1 font-geist-semibold text-[13px] text-gray-400">
-                  {categoryLabel}
-                </Text>
+              {categoryLabel || personalityMatch != null ? (
+                <View className="mt-1 flex-row items-center gap-1.5">
+                  {categoryLabel ? (
+                    <Text
+                      className="shrink font-geist-semibold text-[13px] text-gray-400"
+                      numberOfLines={1}
+                    >
+                      {categoryLabel}
+                    </Text>
+                  ) : null}
+                  <PersonalityMatchPill
+                    percent={personalityMatch}
+                    personalityColor={data.owner?.personality_color}
+                  />
+                </View>
               ) : null}
             </View>
           )}

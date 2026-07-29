@@ -1,10 +1,7 @@
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import {
-  getMatchPercentFromSimilarity,
-  useSimilarScores,
-} from "@/hooks/useSimilarScores";
-import { getPersonalityMatchPillStyle } from "@/utils/personalityRing";
+import { useSimilarScores } from "@/hooks/useSimilarScores";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 
 interface MatchBadgeProps {
   userId: string;
@@ -12,31 +9,26 @@ interface MatchBadgeProps {
   enabled?: boolean;
 }
 
+/**
+ * Fetches similarity for a user and shows the active MATCH_SCORE_MODE percent.
+ * Renders via PersonalityMatchPill so styling stays shared.
+ */
 export function MatchBadge({
   userId,
   personalityColor,
   enabled = true,
 }: MatchBadgeProps) {
-  const { t } = useTranslation();
-  const { similarScores } = useSimilarScores(userId, enabled);
-  const matchPercent = getMatchPercentFromSimilarity(similarScores);
-  const matchPillStyle = getPersonalityMatchPillStyle(personalityColor);
+  const { matchPercent } = useSimilarScores(userId, enabled);
 
   if (!enabled || matchPercent == null) {
     return null;
   }
 
   return (
-    <View
-      className="rounded-md px-2.5 py-1"
-      style={{ backgroundColor: matchPillStyle.backgroundColor }}
-    >
-      <Text
-        className="font-geist-bold text-sm"
-        style={{ color: matchPillStyle.color }}
-      >
-        {t("home.forYou.match", { percent: matchPercent })}
-      </Text>
-    </View>
+    <PersonalityMatchPill
+      percent={matchPercent}
+      personalityColor={personalityColor}
+      size="md"
+    />
   );
 }

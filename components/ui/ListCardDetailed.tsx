@@ -23,10 +23,12 @@ import {
 } from "@/components/ui/CardOptionsMenu";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { NoImage } from "@/components/ui/NoImage";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { ListCommentsSheet } from "@/components/PageComponents/List/ListDetails/ListCommentsSheet";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useListFormStore } from "@/stores/useListFormStore";
+import { getListMatchPercent } from "@/utils/matchScore";
 import { formatListLocation } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getDominantPersonalityColor } from "@/utils/personalityRing";
@@ -278,6 +280,8 @@ export function ListCardDetailed({
   const accentColor = getDominantPersonalityColor(
     list.account.personality_color,
   );
+  // Server-computed; clients pick personality vs overall via MATCH_SCORE_MODE.
+  const personalityMatch = getListMatchPercent(list);
 
   const [isSaved, setIsSaved] = useState(list.is_saved);
   const [isLiked, setIsLiked] = useState(list.is_liked);
@@ -612,15 +616,23 @@ export function ListCardDetailed({
                     >
                       {list.account.name}
                     </Text>
-                    {list.personality_name || list.account.personality_name ? (
-                      <Text
-                        className="font-fraunces text-[13px] italic"
-                        style={{ color: accentColor }}
-                        numberOfLines={1}
-                      >
-                        {list.personality_name ?? list.account.personality_name}
-                      </Text>
-                    ) : null}
+                    <View className="flex-row items-center gap-1.5">
+                      {list.personality_name || list.account.personality_name ? (
+                        <Text
+                          className="shrink font-fraunces text-[13px] italic"
+                          style={{ color: accentColor }}
+                          numberOfLines={1}
+                        >
+                          {list.personality_name ?? list.account.personality_name}
+                        </Text>
+                      ) : null}
+                      {!isOwnList ? (
+                        <PersonalityMatchPill
+                          percent={personalityMatch}
+                          personalityColor={list.account.personality_color}
+                        />
+                      ) : null}
+                    </View>
                   </View>
 
                   {!isOwnList ? (
