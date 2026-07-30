@@ -19,7 +19,7 @@ export interface NotificationPrefs {
 
 export interface PrivacyPrefs {
   showHomeCity: boolean;
-  showPersonality: boolean;
+  showPersonalityName: boolean;
   appearInSearch: boolean;
   showInSmartPicks: boolean;
   allowMentionsFromAnyone: boolean;
@@ -57,7 +57,7 @@ export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = {
 
 export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
   showHomeCity: true,
-  showPersonality: true,
+  showPersonalityName: true,
   appearInSearch: true,
   showInSmartPicks: true,
   allowMentionsFromAnyone: false,

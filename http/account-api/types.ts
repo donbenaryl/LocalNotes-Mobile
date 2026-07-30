@@ -237,7 +237,7 @@ export interface RegisterNotificationTokenDTO {
 
 export interface PrivacySettingsDAO {
   show_home_city: boolean;
-  show_personality: boolean;
+  show_personality_name: boolean;
   appear_in_search: boolean;
   show_in_smart_picks: boolean;
   allow_mentions_from_anyone: boolean;
@@ -250,7 +250,7 @@ export type UpdatePrivacySettingsDTO = Partial<PrivacySettingsDAO>;
 export function mapPrivacySettingsDAOToPrefs(dao: PrivacySettingsDAO): PrivacyPrefs {
   return {
     showHomeCity: dao.show_home_city,
-    showPersonality: dao.show_personality,
+    showPersonalityName: dao.show_personality_name,
     appearInSearch: dao.appear_in_search,
     showInSmartPicks: dao.show_in_smart_picks,
     allowMentionsFromAnyone: dao.allow_mentions_from_anyone,
@@ -264,7 +264,9 @@ export function mapPrivacyPrefsToDAO(
 ): UpdatePrivacySettingsDTO {
   const dto: UpdatePrivacySettingsDTO = {};
   if (prefs.showHomeCity !== undefined) dto.show_home_city = prefs.showHomeCity;
-  if (prefs.showPersonality !== undefined) dto.show_personality = prefs.showPersonality;
+  if (prefs.showPersonalityName !== undefined) {
+    dto.show_personality_name = prefs.showPersonalityName;
+  }
   if (prefs.appearInSearch !== undefined) dto.appear_in_search = prefs.appearInSearch;
   if (prefs.showInSmartPicks !== undefined) dto.show_in_smart_picks = prefs.showInSmartPicks;
   if (prefs.allowMentionsFromAnyone !== undefined) {

@@ -44,10 +44,10 @@ export default function PrivacyVisibilitySettings() {
     : t('accountSettings.privacy.showHomeCitySubFallback');
 
   const personalitySub = profile?.personality_name
-    ? t('accountSettings.privacy.showPersonalitySub', {
+    ? t('accountSettings.privacy.showPersonalityNameSub', {
         name: profile.personality_name,
       })
-    : t('accountSettings.privacy.showPersonalitySubFallback');
+    : t('accountSettings.privacy.showPersonalityNameSubFallback');
 
   const handleComingSoon = () => {
     Alert.alert(t('accountSettings.menu.comingSoon'));
@@ -92,10 +92,10 @@ export default function PrivacyVisibilitySettings() {
             onValueChange={toggle('showHomeCity')}
           />
           <SettingsSwitchRow
-            title={t('accountSettings.privacy.showPersonality')}
+            title={t('accountSettings.privacy.showPersonalityName')}
             subtitle={personalitySub}
-            value={privacy.showPersonality}
-            onValueChange={toggle('showPersonality')}
+            value={privacy.showPersonalityName}
+            onValueChange={toggle('showPersonalityName')}
             isLast
           />
         </SettingsSection>
