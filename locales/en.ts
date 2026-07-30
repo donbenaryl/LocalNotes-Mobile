@@ -904,6 +904,7 @@ const en = {
         empty: 'No picks to spotlight yet',
         emptyDescription: 'Check back soon for standout picks from curators near you',
         saveLabel: 'Save {{title}}',
+        loadingLabel: 'Loading pick details',
         carouselLabel: '{{count}} picks and places this week',
       },
       lists: {
@@ -961,6 +962,7 @@ const en = {
     following: 'Following',
     verified: 'Verified',
     collectionFooterCta: 'Explore this collection',
+    collectionListMeta: '{{name}} · {{count}} picks',
   },
 } as const;
 

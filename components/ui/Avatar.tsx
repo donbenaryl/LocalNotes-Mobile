@@ -3,7 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Image, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 
-type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl";
+type AvatarSize = "xs" | "sm" | "md" | "md2" | "lg" | "xl";
 
 interface AvatarProps {
   name: string;
@@ -21,6 +21,7 @@ const sizeClasses: Record<AvatarSize, string> = {
   xs: "h-5 w-5 text-xs",
   sm: "h-8 w-8 text-base",
   md: "h-10 w-10 text-xl",
+  md2: "h-14 w-14 text-2xl",
   lg: "h-20 w-20 text-2xl",
   xl: "h-24 w-24 text-4xl",
 };
@@ -30,6 +31,7 @@ const avatarInnerSizes: Record<AvatarSize, number> = {
   xs: 20,
   sm: 30,
   md: 40,
+  md2: 60,
   lg: 75,
   xl: 96,
 };

@@ -215,6 +215,13 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       });
     }
 
+    async fetchListItem(itemId: string) {
+      return await this.SendRequest<ListItemPublic>({
+        method: "get",
+        path: `/items/${itemId}`,
+      });
+    }
+
     async createListItem(dto: CreateListItemDTO) {
       return await this.SendRequest<Item>({
         method: "post",

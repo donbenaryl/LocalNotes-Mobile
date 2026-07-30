@@ -11,6 +11,7 @@ interface BadgeProps {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   className?: string;
+  textClassname?: string;
 }
 
 const variantStyles: Record<BadgeVariant, { container: string; text: string }> = {
@@ -46,6 +47,7 @@ export function Badge({
   leftIcon,
   rightIcon,
   className,
+  textClassname,
 }: BadgeProps) {
   const styles = variantStyles[variant];
   const sizeStyle = sizeStyles[size];
@@ -55,7 +57,7 @@ export function Badge({
       className={`flex-row items-center self-start ${sizeStyle.container} ${styles.container} ${className ?? ''}`}
     >
       {leftIcon}
-      <Text className={`${sizeStyle.text} ${styles.text}`}>{label}</Text>
+      <Text className={`${sizeStyle.text} ${styles.text} ${textClassname ?? ''}`}>{label}</Text>
       {rightIcon}
     </View>
   );

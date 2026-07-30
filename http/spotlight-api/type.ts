@@ -49,6 +49,8 @@ export type SpotlightCuratorEntityDAO = {
   name: string;
   quote: string | null;
   image: string | null;
+  /** Null when the curator has no profile or hides personality via privacy settings. */
+  personality_name: string | null;
   followers_count: number;
   list_count: number;
 };
@@ -69,12 +71,26 @@ export type SpotlightBusinessEntityDAO = {
   save_count: number;
 };
 
+export type SpotlightCollectionMemberDAO = {
+  id: string;
+  title: string;
+  image: string | null;
+  curator_id: string;
+  curator_name: string;
+  item_count: number;
+  met_criteria: boolean;
+};
+
 export type SpotlightCollectionEntityDAO = {
   type: "collection";
   id: string;
   spotlight_item_id: string | null;
+  met_criteria?: boolean;
   title: string;
   theme_id: string;
+  description: string | null;
+  cover_image: string | null;
+  lists: SpotlightCollectionMemberDAO[];
 };
 
 export type SpotlightUnknownEntityDAO = {

@@ -10,7 +10,7 @@ export function SpotlightNumberSection({ children, quiet = false }: SpotlightNum
   return (
     <Text
       className={cn(
-        "font-geist-bold text-xs",
+        "font-geist-bold text-md",
         quiet ? "text-gray-400 dark:text-gray-500" : "text-brand",
       )}
     >

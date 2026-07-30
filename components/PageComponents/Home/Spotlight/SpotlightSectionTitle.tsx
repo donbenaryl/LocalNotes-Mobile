@@ -10,7 +10,7 @@ export function SpotlightSectionTitle({ children, quiet = false }: SpotlightSect
   return (
     <Text
       className={cn(
-        "italic text-[15.5px]",
+        "italic text-xl",
         quiet ? "text-gray-400 dark:text-gray-500" : "text-ink dark:text-gray-100",
       )}
     >
