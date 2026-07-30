@@ -139,12 +139,6 @@ function PickPreviewRow({
       accessibilityLabel={name}
       className="cursor-pointer flex-row items-center gap-3 py-2.5"
     >
-      <View className="h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-brand-tint">
-        <Text className="font-geist-extrabold text-[12px] text-brand">
-          {index + 1}
-        </Text>
-      </View>
-
       {imageUrl ? (
         <View className="h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-gray-100 dark:bg-gray-800">
           <Image
@@ -584,23 +578,44 @@ export function ListCardDetailed({
                     list.others_name,
                   )}
                   aspectClassName="aspect-[16/10.5]"
-                  topLeft={
-                    showNewBadge ? (
-                      <View className="rounded-full bg-brand px-2.5 py-1">
-                        <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
-                          {t("home.newBadge", {
-                            time: formatRelativeTimeUpper(list.created_at),
-                          })}
-                        </Text>
-                      </View>
-                    ) : null
-                  }
                 />
               ) : null}
 
+              {/* Top-left overlays live on the card shell so they show with or without a hero. */}
+              <View
+                className="absolute left-2 top-2 z-10 gap-1.5"
+                pointerEvents="none"
+              >
+                {!isOwnList ? (
+                  <PersonalityMatchPill
+                    variant="overlay"
+                    percent={personalityMatch}
+                  />
+                ) : null}
+                {showNewBadge ? (
+                  <View className="self-start rounded-full bg-brand px-2.5 py-1">
+                    <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
+                      {t("home.newBadge", {
+                        time: formatRelativeTimeUpper(list.created_at),
+                      })}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+
               <View className="absolute right-2 top-2 z-10">{sideAction}</View>
 
-              <View className="px-4 pt-2.5">
+              <View
+                className={
+                  !heroImageUrl &&
+                  ((!isOwnList &&
+                    personalityMatch != null &&
+                    personalityMatch > 0) ||
+                    showNewBadge)
+                    ? "px-4 pt-10"
+                    : "px-4 pt-2.5"
+                }
+              >
                 <View className="mb-2 flex-row items-center gap-2.5">
                   <Avatar
                     name={list.account.name}
@@ -616,23 +631,15 @@ export function ListCardDetailed({
                     >
                       {list.account.name}
                     </Text>
-                    <View className="flex-row items-center gap-1.5">
-                      {list.personality_name || list.account.personality_name ? (
-                        <Text
-                          className="shrink font-fraunces text-[13px] italic"
-                          style={{ color: accentColor }}
-                          numberOfLines={1}
-                        >
-                          {list.personality_name ?? list.account.personality_name}
-                        </Text>
-                      ) : null}
-                      {!isOwnList ? (
-                        <PersonalityMatchPill
-                          percent={personalityMatch}
-                          personalityColor={list.account.personality_color}
-                        />
-                      ) : null}
-                    </View>
+                    {list.personality_name || list.account.personality_name ? (
+                      <Text
+                        className="shrink font-fraunces text-[13px] italic"
+                        style={{ color: accentColor }}
+                        numberOfLines={1}
+                      >
+                        {list.personality_name ?? list.account.personality_name}
+                      </Text>
+                    ) : null}
                   </View>
 
                   {!isOwnList ? (

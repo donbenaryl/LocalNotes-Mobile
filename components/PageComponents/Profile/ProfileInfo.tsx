@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useColorScheme } from 'nativewind';
 import { MapPin, Upload } from 'lucide-react-native';
@@ -8,6 +8,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { FollowButton } from '@/components/ui/FollowButton';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { useSimilarScores } from '@/hooks/useSimilarScores';
 import {
   getDominantPersonalityColor,
   getPersonalityGradientColors,
@@ -77,6 +78,12 @@ export function ProfileInfo({
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const avatarImageUri = resolveImageUrl(profile.profile_image_url);
+  const { matchPercent } = useSimilarScores(
+    profile.id ?? '',
+    !isOwnProfile && Boolean(profile.id),
+  );
+  const showTasteMatch =
+    !isOwnProfile && matchPercent != null && matchPercent > 0;
 
   const locationLabel = formatLocationLabel(profile.location);
   const joinedYear = formatJoinedYear(profile.created_at);
@@ -236,8 +243,33 @@ export function ProfileInfo({
             isWidthFull={false}
             leftIcon={<Upload size={17} color={shareIconColor} strokeWidth={2.2} />}
           />
-    
         </View>
+
+        {showTasteMatch ? (
+          <View className="mt-3 flex-row items-start gap-2.5 rounded-2xl border border-gray-200 bg-white px-3.5 py-3 dark:border-gray-700 dark:bg-gray-800">
+            <View
+              className="mt-0.5 h-4 w-4 items-center justify-center rounded-full"
+              style={{ backgroundColor: hexToRgba(accentColor, 0.2) }}
+            >
+              <View
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: accentColor }}
+              />
+            </View>
+            <Text className="min-w-0 flex-1 font-geist text-[13px] leading-[1.4]">
+              <Text
+                className="font-geist-bold"
+                style={{ color: accentColor }}
+              >
+                {t('home.forYou.tasteMatch', { percent: matchPercent })}
+              </Text>
+              <Text className="text-gray-600 dark:text-gray-400">
+                {' — '}
+                {t('profile.info.tasteMatchBlurb')}
+              </Text>
+            </Text>
+          </View>
+        ) : null}
       </View>
 
       {avatarImageUri ? (

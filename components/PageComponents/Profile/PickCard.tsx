@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/Badge";
 import { CardHero } from "@/components/ui/CardHero";
 import { CardOptionsMenu } from "@/components/ui/CardOptionsMenu";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { PickDetailModal } from "./PickDetailModal";
 import { PickFormModal } from "./PickFormModal";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import listService from "@/http/list-api/list.service";
 import { useToastStore } from "@/stores/useToastStore";
 import type { ListItemImage, ListItemPublic } from "@/http/list-api/types";
@@ -73,9 +75,15 @@ interface PickCardBodyProps {
   data: ListItemPublic;
   thumbnails: ListItemImage[];
   locationLabel: string | null;
+  padForMatchOverlay?: boolean;
 }
 
-function PickCardBody({ data, thumbnails, locationLabel }: PickCardBodyProps) {
+function PickCardBody({
+  data,
+  thumbnails,
+  locationLabel,
+  padForMatchOverlay = false,
+}: PickCardBodyProps) {
   const primaryImage = thumbnails[0];
   const heroImageUrl = primaryImage
     ? (resolveImageUrl(primaryImage.url) ?? primaryImage.url)
@@ -104,7 +112,7 @@ function PickCardBody({ data, thumbnails, locationLabel }: PickCardBodyProps) {
         />
       ) : null}
 
-      <View className="p-3 gap-1">
+      <View className={!heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1"}>
         {showTitleInBody ? (
           <View className="flex-row items-center gap-1.5">
             <Text
@@ -174,6 +182,9 @@ export function PickCard({
   const canManage = !readOnly && data.is_owner;
   const thumbnails = data.images ?? [];
   const locationLabel = formatLocationLabel(data.location);
+  const personalityMatch = data.is_owner
+    ? null
+    : getEmbeddedMatchPercent(data.owner);
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -234,8 +245,18 @@ export function PickCard({
             data={data}
             thumbnails={thumbnails}
             locationLabel={locationLabel}
+            padForMatchOverlay={
+              personalityMatch != null && personalityMatch > 0
+            }
           />
         </Pressable>
+
+        <View className="absolute left-2 top-2 z-10" pointerEvents="none">
+          <PersonalityMatchPill
+            variant="overlayCompact"
+            percent={personalityMatch}
+          />
+        </View>
 
         <View className="absolute right-2 top-2 flex-row items-center gap-1">
           {!canManage && (
