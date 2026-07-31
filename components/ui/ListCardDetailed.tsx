@@ -22,8 +22,8 @@ import {
   type CardOptionsMenuItem,
 } from "@/components/ui/CardOptionsMenu";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
-import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
+import { PickPreviewImage } from "@/components/ui/PickPreviewImage";
 import { ListCommentsSheet } from "@/components/PageComponents/List/ListDetails/ListCommentsSheet";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -137,25 +137,13 @@ function PickPreviewRow({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={name}
-      className="cursor-pointer flex-row items-center gap-3 py-2.5"
+      className="cursor-pointer flex-row items-center gap-3 py-1"
     >
-      {imageUrl ? (
-        <View className="h-11 w-11 shrink-0 overflow-hidden rounded-[10px] bg-gray-100 dark:bg-gray-800">
-          <Image
-            source={{ uri: imageUrl }}
-            className="h-full w-full"
-            resizeMode="cover"
-          />
-        </View>
-      ) : (
-        <NoImage
-          personalityColor={personalityColor}
-          size="sm"
-          appearance="flat"
-          outerClassName="h-11 w-11 rounded-[10px]"
-          innerClassName="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-[9px]"
-        />
-      )}
+      <PickPreviewImage
+        imageUrl={imageUrl}
+        index={index}
+        personalityColor={personalityColor}
+      />
 
       <View className="min-w-0 flex-1 justify-center">
         <Text

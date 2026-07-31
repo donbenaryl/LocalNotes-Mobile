@@ -7,12 +7,13 @@ import { hydrateUserProfile } from '../../services/authBootstrap';
 
 export default function AppLayout() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isSessionLocked = useAuthStore((s) => s.isSessionLocked);
   const user = useAuthStore((s) => s.user);
   const [isHydrating, setIsHydrating] = useState(isAuthenticated && !user);
   usePushNotifications();
 
   useEffect(() => {
-    if (!isAuthenticated || user) {
+    if (!isAuthenticated || isSessionLocked || user) {
       setIsHydrating(false);
       return;
     }
@@ -34,9 +35,9 @@ export default function AppLayout() {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, isSessionLocked, user]);
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || isSessionLocked) {
     return <Redirect href="/sign-in" />;
   }
 

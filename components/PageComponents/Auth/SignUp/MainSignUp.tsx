@@ -1,6 +1,6 @@
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from '../../../ui/KeyboardAwareScrollView';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
 import { ArrowRight } from 'lucide-react-native';
 import { TextInput } from '../../../ui/TextInput';
+import { UsernameField } from '../../../ui/UsernameField';
 import { LocalNotesButton } from '../../../ui/LocalNotesButton';
 import { Checkbox } from '../../../ui/Checkbox';
 import authService from '../../../../http/auth-api/auth.service';
@@ -21,6 +22,11 @@ import { UserTypeCard } from '../OnBoarding/UserTypeCard';
 import { OnboardingDetailsFields } from '../OnBoarding/OnboardingDetailsFields';
 import { UserIcon } from '../../../ui/icons/UserIcon';
 import { BuildingIcon } from '../../../ui/icons/BuildingIcon';
+import { useSocialAuth } from '@/hooks/useSocialAuth';
+import {
+  isUsernameBlocking,
+  type UsernameAvailabilityStatus,
+} from '@/hooks/useUsernameAvailability';
 
 type Step = 'email' | 'verify';
 
@@ -29,6 +35,7 @@ export function MainSignUp() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
+  const { signInWithProvider, isPending: socialPending } = useSocialAuth();
 
   const [step, setStep] = useState<Step>('email');
   const [email, setEmail] = useState('');
@@ -43,11 +50,22 @@ export function MainSignUp() {
     setIndividualForm,
     businessForm,
     setBusinessForm,
+    username,
+    setUsername,
+    usernameStatus,
+    setUsernameStatus,
     errors,
     clearFieldError,
     validate: validateOnboarding,
     submit: submitOnboarding,
   } = useOnboardingForm();
+
+  const handleUsernameStatusChange = useCallback(
+    (status: UsernameAvailabilityStatus) => {
+      setUsernameStatus(status);
+    },
+    [setUsernameStatus],
+  );
 
   function validateEmail(value: string): string | undefined {
     if (!value.trim()) return t('validation.emailRequired');
@@ -103,14 +121,7 @@ export function MainSignUp() {
     }
   }
 
-  function handleSocialAuth(provider: 'google' | 'apple') {
-    Alert.alert(
-      t('alerts.comingSoon'),
-      provider === 'google'
-        ? t('alerts.comingSoonGoogle')
-        : t('alerts.comingSoonApple'),
-    );
-  }
+  const usernameBlocking = isUsernameBlocking(usernameStatus);
 
   return (
     <KeyboardAwareScrollView
@@ -160,23 +171,32 @@ export function MainSignUp() {
                 onIndividualChange={setIndividualForm}
                 onBusinessChange={setBusinessForm}
                 clearFieldError={clearFieldError}
+                beforePassword={
+                  <>
+                    <TextInput
+                      label={t('auth.signUp.emailLabel')}
+                      placeholder={t('auth.signUp.emailPlaceholder')}
+                      value={email}
+                      onChangeText={(value) => {
+                        setEmail(value);
+                        if (emailError) setEmailError(undefined);
+                      }}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoComplete="email"
+                      error={emailError}
+                    />
+                    <UsernameField
+                      value={username}
+                      onChangeText={setUsername}
+                      error={errors.username}
+                      onStatusChange={handleUsernameStatusChange}
+                      required
+                    />
+                  </>
+                }
               />
             </View>
-
-            <TextInput
-              label={t('auth.signUp.emailLabel')}
-              placeholder={t('auth.signUp.emailPlaceholder')}
-              value={email}
-              onChangeText={(value) => {
-                setEmail(value);
-                if (emailError) setEmailError(undefined);
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              error={emailError}
-              containerClassName="mb-5"
-            />
 
             <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-brand-dark mb-2.5">
               {t('auth.signUp.consent.badge')}
@@ -225,7 +245,9 @@ export function MainSignUp() {
               }
               onPress={handleEmailSubmit}
               variant="dark"
-              disabled={signUpMutation.isPending || !agreed}
+              disabled={
+                signUpMutation.isPending || !agreed || usernameBlocking
+              }
               rightIcon={
                 <ArrowRight
                   size={18}
@@ -254,8 +276,8 @@ export function MainSignUp() {
           promptText={t('auth.signUpFooter.haveAccount')}
           linkText={t('auth.signUpFooter.signIn')}
           onLinkPress={() => router.replace('/sign-in' as Href)}
-          onSocialAuth={handleSocialAuth}
-          socialDisabled={!agreed}
+          onSocialAuth={signInWithProvider}
+          socialDisabled={!agreed || socialPending || signUpMutation.isPending}
         />
       ) : null}
     </KeyboardAwareScrollView>

@@ -9,6 +9,8 @@ import type {
   searchUserDAO,
   usernameSearchDTO,
   usernameSearchDAO,
+  usernameAvailableDTO,
+  usernameAvailableDAO,
   MentionSearchDTO,
   MentionSearchDAO,
   notificationDTO,
@@ -131,6 +133,13 @@ class AccountService extends AppHttpService {
     return await this.SendRequest<usernameSearchDAO>({
       method: "get",
       path: "/username-search",
+      query: { username: dto.username },
+    });
+  }
+  async checkUsernameAvailable(dto: usernameAvailableDTO) {
+    return await this.SendRequest<usernameAvailableDAO>({
+      method: "get",
+      path: "/username-available",
       query: { username: dto.username },
     });
   }

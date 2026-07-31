@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "../../../ui/TextInput";
 import { DateField } from "../../../ui/DateField";
@@ -18,6 +19,7 @@ interface OnboardingDetailsFieldsProps {
   onIndividualChange: (next: IndividualForm) => void;
   onBusinessChange: (next: BusinessForm) => void;
   clearFieldError: (key: string) => void;
+  beforePassword?: ReactNode;
 }
 
 function SectionLabel({ children }: { children: string }) {
@@ -79,6 +81,7 @@ export function OnboardingDetailsFields({
   onIndividualChange,
   onBusinessChange,
   clearFieldError,
+  beforePassword,
 }: OnboardingDetailsFieldsProps) {
   const { t } = useTranslation();
 
@@ -101,13 +104,37 @@ export function OnboardingDetailsFields({
   if (userType === "individual") {
     return (
       <View className="gap-4">
+        <View className="flex-row gap-3">
+          <View className="flex-1">
+            <TextInput
+              label={t("auth.signUp.firstNameLabel")}
+              placeholder={t("auth.signUp.firstNamePlaceholder")}
+              value={individualForm.firstName}
+              onChangeText={(value) => patchIndividual("firstName", value)}
+              autoCapitalize="words"
+              maxLength={250}
+              error={errors.firstName}
+            />
+          </View>
+          <View className="flex-1">
+            <TextInput
+              label={t("auth.signUp.lastNameLabel")}
+              placeholder={t("auth.signUp.lastNamePlaceholder")}
+              value={individualForm.lastName}
+              onChangeText={(value) => patchIndividual("lastName", value)}
+              autoCapitalize="words"
+              maxLength={250}
+              error={errors.lastName}
+            />
+          </View>
+        </View>
         <TextInput
-          label={t("auth.signUp.fullNameLabel")}
-          placeholder={t("auth.signUp.fullNamePlaceholder")}
-          value={individualForm.fullName}
-          onChangeText={(value) => patchIndividual("fullName", value)}
+          label={t("auth.signUp.displayNameLabel")}
+          placeholder={t("auth.signUp.displayNamePlaceholder")}
+          value={individualForm.displayName}
+          onChangeText={(value) => patchIndividual("displayName", value)}
           autoCapitalize="words"
-          error={errors.fullName}
+          error={errors.displayName}
         />
         <DateField
           label={t("auth.onboarding.dateOfBirthLabel")}
@@ -116,6 +143,7 @@ export function OnboardingDetailsFields({
           onChange={(value) => patchIndividual("dateOfBirth", value)}
           error={errors.dateOfBirth}
         />
+        {beforePassword}
         <PasswordFields
           password={individualForm.password}
           confirmPassword={individualForm.confirmPassword}
@@ -166,6 +194,7 @@ export function OnboardingDetailsFields({
         error={errors.businessWebsite}
       />
 
+      {beforePassword}
       <PasswordFields
         password={businessForm.password}
         confirmPassword={businessForm.confirmPassword}

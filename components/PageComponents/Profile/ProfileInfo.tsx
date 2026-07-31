@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useColorScheme } from 'nativewind';
 import { MapPin, Upload } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -130,21 +129,7 @@ export function ProfileInfo({
 
   return (
     <>
-      <View className="relative px-4 pb-1 mt-5">
-        <LinearGradient
-          colors={[hexToRgba(accentColor, 0.05), 'transparent']}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={{
-            position: 'absolute',
-            top: -70,
-            left: -16,
-            right: -16,
-            height: 200,
-          }}
-          pointerEvents="none"
-        />
-
+      <View className="relative px-4 pb-1 pt-5">
         <View className="relative items-center px-2 -mt-4">
           <Avatar
             name={profile.name}

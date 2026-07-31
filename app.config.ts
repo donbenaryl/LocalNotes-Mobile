@@ -1,11 +1,63 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
-const IS_DEV = process.env.APP_VARIANT === 'development';
+const IS_DEV = true;
 const PRODUCTION_API_URL = 'https://api.localnotesapp.com';
 
 const apiUrl = IS_DEV
   ? (process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000')
   : PRODUCTION_API_URL;
+
+const googleWebClientId = (
+  process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? ''
+).trim();
+const googleIosClientId = (
+  process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? ''
+).trim();
+const googleIosUrlScheme = (() => {
+  const explicit = (process.env.EXPO_PUBLIC_GOOGLE_IOS_URL_SCHEME ?? '').trim();
+  if (explicit) return explicit;
+  const match = googleIosClientId.match(
+    /^([\w-]+)\.apps\.googleusercontent\.com$/,
+  );
+  return match ? `com.googleusercontent.apps.${match[1]}` : '';
+})();
+
+const plugins: ExpoConfig['plugins'] = [
+  'expo-router',
+  'expo-secure-store',
+  [
+    'expo-location',
+    {
+      locationWhenInUsePermission:
+        'Allow LocalNotes to use your location for nearby Smart Pick recommendations.',
+    },
+  ],
+  [
+    'expo-image-picker',
+    {
+      photosPermission:
+        'LocalNotes needs access to your photo library to update your profile photo.',
+      cameraPermission:
+        'LocalNotes needs access to your camera to take a profile photo.',
+    },
+  ],
+  'expo-notifications',
+  'expo-apple-authentication',
+  [
+    'expo-local-authentication',
+    {
+      faceIDPermission:
+        'LocalNotes uses Face ID to unlock your account on this device.',
+    },
+  ],
+];
+
+if (googleIosUrlScheme) {
+  plugins.push([
+    '@react-native-google-signin/google-signin',
+    { iosUrlScheme: googleIosUrlScheme },
+  ]);
+}
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -26,7 +78,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     userInterfaceStyle: 'automatic',
-    bundleIdentifier: IS_DEV ? 'com.localnotes.mobile.dev' : 'com.localnotes.mobile',
+    bundleIdentifier: IS_DEV
+      ? 'com.localnotes.mobile.dev'
+      : 'com.localnotes.mobile',
+    usesAppleSignIn: true,
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'LocalNotes uses your location to show nearby businesses in Smart Pick.',
@@ -34,6 +89,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         'LocalNotes needs access to your photo library to update your profile photo.',
       NSCameraUsageDescription:
         'LocalNotes needs access to your camera to take a profile photo.',
+      NSFaceIDUsageDescription:
+        'LocalNotes uses Face ID to unlock your account on this device.',
       // temporary fix for local development
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: true,
@@ -56,35 +113,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.CAMERA',
       'android.permission.READ_MEDIA_IMAGES',
       'android.permission.READ_EXTERNAL_STORAGE',
+      'android.permission.USE_BIOMETRIC',
+      'android.permission.USE_FINGERPRINT',
     ],
   },
   web: {
     favicon: './assets/favicon.png',
   },
-  plugins: [
-    'expo-router',
-    'expo-secure-store',
-    [
-      'expo-location',
-      {
-        locationWhenInUsePermission:
-          'Allow LocalNotes to use your location for nearby Smart Pick recommendations.',
-      },
-    ],
-    [
-      'expo-image-picker',
-      {
-        photosPermission: 'LocalNotes needs access to your photo library to update your profile photo.',
-        cameraPermission: 'LocalNotes needs access to your camera to take a profile photo.',
-      },
-    ],
-    'expo-notifications',
-  ],
+  plugins,
   experiments: {
     typedRoutes: true,
   },
   extra: {
     apiUrl,
+    googleWebClientId,
+    googleIosClientId,
+    googleIosUrlScheme,
     eas: {
       projectId: '4acb42c5-b5a9-43e0-bbb8-57e527cb98be',
     },

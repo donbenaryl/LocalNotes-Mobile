@@ -106,6 +106,9 @@ export interface completeOnboardingIndividualDTO {
   name: string;
   password: string;
   date_of_birth: string;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export type completeOnboardingDTO = completeOnboardingIndividualDTO | FormData;
@@ -162,6 +165,15 @@ export interface usernameSearchDAO {
   query: string;
   available: boolean;
   results: usernameSearchResultItem[];
+}
+
+export interface usernameAvailableDTO {
+  username: string;
+}
+
+export interface usernameAvailableDAO {
+  username: string;
+  available: boolean;
 }
 
 export interface MentionSearchDTO {

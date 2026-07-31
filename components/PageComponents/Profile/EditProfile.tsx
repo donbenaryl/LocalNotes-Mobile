@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react-native";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { UploadAvatar } from "@/components/ui/UploadAvatar";
 import { TextInput } from "@/components/ui/TextInput";
+import { UsernameField } from "@/components/ui/UsernameField";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
@@ -16,6 +17,10 @@ import accountService from "@/http/account-api/account.services";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import type { updateAccountDTO } from "@/http/account-api/types";
 import type { Location as GeoLocation } from "@/http/list-api/types";
+import {
+  isUsernameBlocking,
+  type UsernameAvailabilityStatus,
+} from "@/hooks/useUsernameAvailability";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -119,6 +124,9 @@ export default function EditProfile() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [usernameStatus, setUsernameStatus] =
+    useState<UsernameAvailabilityStatus>("idle");
   const [bio, setBio] = useState("");
   const [urlLinkedin, setUrlLinkedin] = useState("");
   const [urlFacebook, setUrlFacebook] = useState("");
@@ -126,12 +134,20 @@ export default function EditProfile() {
   const [location, setLocation] = useState<GeoLocation | null>(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
 
+  const handleUsernameStatusChange = useCallback(
+    (status: UsernameAvailabilityStatus) => {
+      setUsernameStatus(status);
+    },
+    [],
+  );
+
   // Seed fields once the profile loads (no-op on subsequent renders).
   useEffect(() => {
     if (!profile) return;
     setFirstName(profile.first_name ?? "");
     setLastName(profile.last_name ?? "");
     setName(profile.name ?? "");
+    setUsername(profile.username ?? "");
     setBio(profile.bio ?? "");
     setUrlLinkedin(profile.url_linkedin ?? "");
     setUrlFacebook(profile.url_facebook ?? "");
@@ -164,6 +180,8 @@ export default function EditProfile() {
     firstName.trim() !== (profile?.first_name ?? "").trim() ||
     lastName.trim() !== (profile?.last_name ?? "").trim() ||
     name.trim() !== (profile?.name ?? "").trim() ||
+    username.trim().toLowerCase() !==
+      (profile?.username ?? "").trim().toLowerCase() ||
     bio.trim() !== (profile?.bio ?? "").trim() ||
     urlLinkedin.trim() !== (profile?.url_linkedin ?? "").trim() ||
     urlFacebook.trim() !== (profile?.url_facebook ?? "").trim() ||
@@ -171,12 +189,18 @@ export default function EditProfile() {
     isLocationDirty;
 
   const bioOverLimit = bio.length > BIO_MAX_LENGTH;
+  const usernameBlocking = isUsernameBlocking(usernameStatus);
 
   // ── Save mutation ─────────────────────────────────────────────────────────────
 
   const { mutate: saveProfile, isPending: isSaving } = useMutation({
     mutationFn: async () => {
       if (!name.trim()) throw new Error("Display name is required.");
+      const usernameTrimmed = username.trim().toLowerCase();
+      if (!usernameTrimmed) throw new Error("Username is required.");
+      if (usernameBlocking) {
+        throw new Error("Please choose a valid, available username.");
+      }
       if (bioOverLimit)
         throw new Error(`Bio must be ${BIO_MAX_LENGTH} characters or fewer.`);
 
@@ -213,6 +237,7 @@ export default function EditProfile() {
         first_name: firstName.trim() || undefined,
         last_name: lastName.trim() || undefined,
         name: name.trim(),
+        username: usernameTrimmed,
         bio: bio.trim(),
         // Empty string → null to signal "remove this link" to the API.
         url_linkedin: linkedinVal || null,
@@ -277,7 +302,8 @@ export default function EditProfile() {
   const gradientColors = getPersonalityGradientColors(
     profile.personality_color,
   );
-  const isSaveDisabled = !isDirty || bioOverLimit || isSaving;
+  const isSaveDisabled =
+    !isDirty || bioOverLimit || isSaving || usernameBlocking;
 
   const placeholderColor = "#6B7280";
 
@@ -321,6 +347,7 @@ export default function EditProfile() {
                 placeholder="First"
                 placeholderTextColor={placeholderColor}
                 autoCapitalize="words"
+                maxLength={250}
                 returnKeyType="next"
                 editable={!isSaving}
               />
@@ -333,6 +360,7 @@ export default function EditProfile() {
                 placeholder="Last"
                 placeholderTextColor={placeholderColor}
                 autoCapitalize="words"
+                maxLength={250}
                 returnKeyType="next"
                 editable={!isSaving}
               />
@@ -349,6 +377,13 @@ export default function EditProfile() {
             autoCapitalize="words"
             returnKeyType="next"
             editable={!isSaving}
+          />
+
+          <UsernameField
+            value={username}
+            onChangeText={setUsername}
+            currentUsername={profile.username}
+            onStatusChange={handleUsernameStatusChange}
           />
 
           {/* Bio — multiline textarea with a live character counter. */}

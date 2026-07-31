@@ -7,7 +7,6 @@ import Constants from 'expo-constants';
 import {
   Bell,
   Building2,
-  CircleHelp,
   FileText,
   Globe,
   Info,
@@ -28,12 +27,16 @@ import accountService from '@/http/account-api/account.services';
 import type { Location as GeoLocation } from '@/http/list-api/types';
 import { useAccountSettingsStore } from '@/stores/useAccountSettingsStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useBiometricStore } from '@/stores/useBiometricStore';
 import { useLocaleStore } from '@/stores/useLocaleStore';
 import { useThemeStore } from '@/stores/useThemeStore';
+import { toast } from '@/components/ui/Toast';
 import { AccountSettingsCard } from './AccountSettingsCard';
 import { DeleteAccountModal } from './DeleteAccountModal';
 import { SettingsNavRow } from './SettingsNavRow';
 import { SettingsSection } from './SettingsSection';
+import { SettingsSwitchRow } from './SettingsSwitchRow';
+import { isBiometricHardwareAvailable } from '@/services/biometricAuth';
 
 export default function AccountSettingsMenu() {
   const { t } = useTranslation();
@@ -44,6 +47,9 @@ export default function AccountSettingsMenu() {
   const setTheme = useThemeStore((s) => s.setTheme);
   const locale = useLocaleStore((s) => s.locale);
   const loadPrefs = useAccountSettingsStore((s) => s.loadPrefs);
+  const biometricEnabled = useBiometricStore((s) => s.enabled);
+  const setBiometricEnabled = useBiometricStore((s) => s.setEnabled);
+  const enableBiometricWithPrompt = useBiometricStore((s) => s.enableWithPrompt);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [homeLocationModalVisible, setHomeLocationModalVisible] = useState(false);
 
@@ -107,6 +113,28 @@ export default function AccountSettingsMenu() {
 
   const handleToggleAppearance = () => {
     void setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const handleToggleBiometric = async (value: boolean) => {
+    if (!value) {
+      await setBiometricEnabled(false);
+      return;
+    }
+
+    const available = await isBiometricHardwareAvailable();
+    if (!available) {
+      toast.error(t('accountSettings.menu.biometricUnavailable'), {
+        title: t('alerts.error'),
+      });
+      return;
+    }
+
+    const ok = await enableBiometricWithPrompt(t('faceSignIn.prompt'));
+    if (!ok) {
+      toast.error(t('accountSettings.menu.biometricEnableFailed'), {
+        title: t('alerts.error'),
+      });
+    }
   };
 
   const handleConfirmDeleteAccount = () => {
@@ -196,6 +224,12 @@ export default function AccountSettingsMenu() {
             value={appearanceValue}
             onPress={handleToggleAppearance}
             showChevron={false}
+          />
+          <SettingsSwitchRow
+            title={t('accountSettings.menu.biometricUnlock')}
+            subtitle={t('accountSettings.menu.biometricUnlockSub')}
+            value={biometricEnabled}
+            onValueChange={(value) => void handleToggleBiometric(value)}
             isLast
           />
         </SettingsSection>

@@ -30,6 +30,13 @@ class SignUpService extends PublicHttpService{
       body: dto,
     });
   }
+  async SignInWithApple(dto: {id_token:string}) {
+    return await this.SendRequest<signInDAO>({
+      method: "post",
+      path: "/social-auth/apple",
+      body: dto,
+    });
+  }
   async ForgotPassword(dto:{email:string}) {
     return await this.SendRequest<resetDAO>({
       method: "post",

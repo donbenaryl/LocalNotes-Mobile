@@ -5,11 +5,18 @@ import { toast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { mapProfileToUser } from '@/utils/mapProfileToUser';
 import { isCommonPassword } from '@/utils/isCommonPassword';
+import {
+  isUsernameBlocking,
+  type UsernameAvailabilityStatus,
+} from '@/hooks/useUsernameAvailability';
+import { getUsernameFormatError } from '@/utils/usernameValidation';
 
 export type UserType = 'individual' | 'business';
 
 export interface IndividualForm {
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  displayName: string;
   dateOfBirth: string;
   password: string;
   confirmPassword: string;
@@ -27,7 +34,9 @@ export interface BusinessForm {
 export type FormErrors = Record<string, string>;
 
 const INITIAL_INDIVIDUAL: IndividualForm = {
-  fullName: '',
+  firstName: '',
+  lastName: '',
+  displayName: '',
   dateOfBirth: '',
   password: '',
   confirmPassword: '',
@@ -42,6 +51,8 @@ const INITIAL_BUSINESS: BusinessForm = {
   confirmPassword: '',
 };
 
+const NAME_MAX_LENGTH = 250;
+
 export function useOnboardingForm() {
   const { t } = useTranslation();
   const updateUser = useAuthStore((s) => s.updateUser);
@@ -49,6 +60,9 @@ export function useOnboardingForm() {
   const [userType, setUserType] = useState<UserType>('individual');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [username, setUsername] = useState('');
+  const [usernameStatus, setUsernameStatus] =
+    useState<UsernameAvailabilityStatus>('idle');
 
   const [individualForm, setIndividualForm] =
     useState<IndividualForm>(INITIAL_INDIVIDUAL);
@@ -79,13 +93,39 @@ export function useOnboardingForm() {
     return undefined;
   }
 
+  function validateUsernameValue(value: string): string | undefined {
+    const trimmed = value.trim().toLowerCase();
+    if (!trimmed) return t('validation.usernameRequired');
+    const formatError = getUsernameFormatError(trimmed);
+    if (formatError === 'tooShort') return t('validation.usernameTooShort');
+    if (formatError === 'handleTooLong') return t('validation.usernameTooLong');
+    if (formatError === 'emailTooLong') {
+      return t('validation.usernameEmailTooLong');
+    }
+    if (formatError === 'invalidFormat') {
+      return t('validation.usernameInvalidFormat');
+    }
+    if (isUsernameBlocking(usernameStatus) || usernameStatus !== 'available') {
+      return t('validation.usernameUnavailable');
+    }
+    return undefined;
+  }
+
   function validateIndividual(): FormErrors {
     const next: FormErrors = {};
-    if (!individualForm.fullName.trim()) {
-      next.fullName = t('validation.fullNameRequired');
+    if (!individualForm.displayName.trim()) {
+      next.displayName = t('validation.displayNameRequired');
+    }
+    if (individualForm.firstName.length > NAME_MAX_LENGTH) {
+      next.firstName = t('validation.nameTooLong');
+    }
+    if (individualForm.lastName.length > NAME_MAX_LENGTH) {
+      next.lastName = t('validation.nameTooLong');
     }
     const dobError = validateDateOfBirth(individualForm.dateOfBirth);
     if (dobError) next.dateOfBirth = dobError;
+    const usernameError = validateUsernameValue(username);
+    if (usernameError) next.username = usernameError;
     const passwordError = validatePassword(individualForm.password);
     if (passwordError) next.password = passwordError;
     if (!individualForm.confirmPassword) {
@@ -112,6 +152,8 @@ export function useOnboardingForm() {
     ) {
       next.businessWebsite = t('validation.businessWebsiteInvalid');
     }
+    const usernameError = validateUsernameValue(username);
+    if (usernameError) next.username = usernameError;
     const passwordError = validatePassword(businessForm.password);
     if (passwordError) next.password = passwordError;
     if (!businessForm.confirmPassword) {
@@ -139,10 +181,16 @@ export function useOnboardingForm() {
     }
   }
 
+  function setUsernameValue(value: string) {
+    setUsername(value);
+    clearFieldError('username');
+  }
+
   async function submit(): Promise<boolean> {
     if (!validate()) return false;
 
     setIsSubmitting(true);
+    const normalizedUsername = username.trim().toLowerCase();
 
     let response;
     if (userType === 'business') {
@@ -152,6 +200,7 @@ export function useOnboardingForm() {
       formData.append('password', businessForm.password);
       formData.append('date_of_birth', businessForm.dateOfBirth);
       formData.append('business_name', businessForm.businessName.trim());
+      formData.append('username', normalizedUsername);
       if (businessForm.businessWebsite.trim()) {
         formData.append(
           'business_website',
@@ -160,11 +209,16 @@ export function useOnboardingForm() {
       }
       response = await accountService.completeOnboarding(formData);
     } else {
+      const firstName = individualForm.firstName.trim();
+      const lastName = individualForm.lastName.trim();
       response = await accountService.completeOnboarding({
         user_type: 'individual',
-        name: individualForm.fullName.trim(),
+        name: individualForm.displayName.trim(),
         password: individualForm.password,
         date_of_birth: individualForm.dateOfBirth,
+        username: normalizedUsername,
+        ...(firstName ? { first_name: firstName } : {}),
+        ...(lastName ? { last_name: lastName } : {}),
       });
     }
 
@@ -189,6 +243,10 @@ export function useOnboardingForm() {
     setIndividualForm,
     businessForm,
     setBusinessForm,
+    username,
+    setUsername: setUsernameValue,
+    usernameStatus,
+    setUsernameStatus,
     errors,
     clearFieldError,
     validate,

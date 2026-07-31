@@ -11,13 +11,21 @@ interface AuthActions {
   clearAuth: () => Promise<void>;
   loadToken: () => Promise<void>;
   setAccessToken: (token: string) => Promise<void>;
+  lockSession: () => void;
+  unlockSession: () => void;
 }
 
-export const useAuthStore = create<AuthState & AuthActions>((set) => ({
+export interface AuthStoreState extends AuthState {
+  /** When true, tokens exist but Face ID / biometrics must unlock the app. */
+  isSessionLocked: boolean;
+}
+
+export const useAuthStore = create<AuthStoreState & AuthActions>((set) => ({
   user: null,
   token: null,
   refreshToken: null,
   isAuthenticated: false,
+  isSessionLocked: false,
   accountType: null,
 
   setAuth: async (user, token, refreshToken) => {
@@ -30,6 +38,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       token,
       refreshToken: refreshToken ?? null,
       isAuthenticated: true,
+      isSessionLocked: false,
       accountType: user.accountType,
     });
   },
@@ -53,6 +62,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
       token: null,
       refreshToken: null,
       isAuthenticated: false,
+      isSessionLocked: false,
       accountType: null,
     });
   },
@@ -68,5 +78,13 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   setAccessToken: async (token: string) => {
     await SecureStore.setItemAsync(TOKEN_KEY, token);
     set({ token });
+  },
+
+  lockSession: () => {
+    set({ isSessionLocked: true });
+  },
+
+  unlockSession: () => {
+    set({ isSessionLocked: false });
   },
 }));
