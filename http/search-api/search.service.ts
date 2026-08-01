@@ -42,6 +42,14 @@ class SearchService extends AppHttpService {
       queryParams.radius_km = params.radiusKm;
     }
 
+    if (params.city) {
+      queryParams.city = params.city;
+    }
+
+    if (params.region) {
+      queryParams.region = params.region;
+    }
+
     if (params.matchMin !== undefined) {
       queryParams.match_min = params.matchMin;
     }

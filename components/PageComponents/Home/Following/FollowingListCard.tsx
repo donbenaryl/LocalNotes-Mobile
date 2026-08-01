@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { MapPin } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
+import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityName } from "@/components/ui/PersonalityName";
 import { WhiteBox } from "@/components/ui/WhiteBox";
-import { useRouter } from "expo-router";
 import type { ActivityItemDAO, ActivityListData } from "@/http/home-api/type";
 import { formatListLocation } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -51,7 +52,7 @@ function isActivityListData(
 
 export function FollowingListCard({ item }: FollowingListCardProps) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   if (!isActivityListData(item.data)) {
     return null;
@@ -69,10 +70,6 @@ export function FollowingListCard({ item }: FollowingListCardProps) {
   const similarityPillStyle = getPersonalityMatchPillStyle(
     item.account.personality_color,
   );
-
-  const handleListPress = () => {
-    router.push(`/lists/${list.id}` as never);
-  };
 
   return (
     <WhiteBox className="gap-3 p-4">
@@ -117,7 +114,7 @@ export function FollowingListCard({ item }: FollowingListCardProps) {
       </View>
 
       <Pressable
-        onPress={handleListPress}
+        onPress={() => setIsModalVisible(true)}
         accessibilityRole="button"
         className="cursor-pointer"
       >
@@ -170,6 +167,12 @@ export function FollowingListCard({ item }: FollowingListCardProps) {
           ) : null}
         </View>
       </Pressable>
+
+      <ListDetailModal
+        visible={isModalVisible}
+        listId={list.id}
+        onClose={() => setIsModalVisible(false)}
+      />
     </WhiteBox>
   );
 }

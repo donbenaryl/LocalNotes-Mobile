@@ -21,6 +21,8 @@ const EMPTY_RESULT: UnifiedSearchResultDAO = {
 interface EffectiveCoordinates {
   latitude: number;
   longitude: number;
+  city?: string;
+  region?: string;
 }
 
 function buildSearchParams(
@@ -41,6 +43,12 @@ function buildSearchParams(
     params.latitude = coordinates.latitude;
     params.longitude = coordinates.longitude;
     params.radiusKm = DEFAULT_RADIUS_KM;
+    if (coordinates.city) {
+      params.city = coordinates.city;
+      if (coordinates.region) {
+        params.region = coordinates.region;
+      }
+    }
   }
 
   if (matchThreshold !== null) {
@@ -83,6 +91,8 @@ export function useUnifiedSearch() {
       return {
         latitude: manualLocation.latitude,
         longitude: manualLocation.longitude,
+        city: manualLocation.city || undefined,
+        region: manualLocation.region || undefined,
       };
     }
 
@@ -91,6 +101,12 @@ export function useUnifiedSearch() {
       return {
         latitude: userCoordinates.latitude,
         longitude: userCoordinates.longitude,
+        ...(userCoordinates.source === "profile"
+          ? {
+              city: userCoordinates.city,
+              region: userCoordinates.region,
+            }
+          : {}),
       };
     }
 
@@ -117,6 +133,8 @@ export function useUnifiedSearch() {
       searchParams.latitude ?? null,
       searchParams.longitude ?? null,
       searchParams.radiusKm ?? null,
+      searchParams.city ?? null,
+      searchParams.region ?? null,
     ],
     [searchParams],
   );

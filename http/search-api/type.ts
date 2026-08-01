@@ -73,6 +73,9 @@ export interface UnifiedSearchParams {
   longitude?: number;
   latitude?: number;
   radiusKm?: number;
+  /** When set, backend prefers city-name match over lat/lng radius. */
+  city?: string;
+  region?: string;
   matchMin?: number;
   matchMax?: number;
   vibes?: string[];

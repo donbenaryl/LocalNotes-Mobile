@@ -9,6 +9,8 @@ interface UserCoordinates {
   latitude: number;
   longitude: number;
   source: CoordinateSource;
+  city?: string;
+  region?: string;
 }
 
 interface UseUserCoordinatesResult {
@@ -95,6 +97,8 @@ export function useUserCoordinates(): UseUserCoordinatesResult {
         latitude: profileLat,
         longitude: profileLng,
         source: "profile",
+        city: profile?.location?.city || undefined,
+        region: profile?.location?.region || undefined,
       },
       isLoading: profileLoading,
       error: profileError ? "Failed to load profile location" : null,

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { MapPin } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import type { SpotlightEntityDAO, SpotlightListEntityDAO, SpotlightSectionDAO } from "@/http/spotlight-api/type";
+import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { SpotlightListLandscapeCard } from "./SpotlightListLandscapeCard";
 import { SpotlightListsHeroCard } from "./SpotlightListsHeroCard";
 import { SpotlightNumberSection } from "./SpotlightNumberSection";
@@ -22,6 +24,7 @@ function isListEntity(item: SpotlightEntityDAO): item is SpotlightListEntityDAO 
 
 export function SpotlightListsSection({ section }: SpotlightListsSectionProps) {
   const { t } = useTranslation();
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
   const lists = section.items.filter(isListEntity);
   if (lists.length === 0) return null;
@@ -50,7 +53,7 @@ export function SpotlightListsSection({ section }: SpotlightListsSectionProps) {
         ) : null}
       </View>
 
-      <SpotlightListsHeroCard list={heroList} />
+      <SpotlightListsHeroCard list={heroList} onPressList={setSelectedListId} />
 
       {carouselLists.length > 0 ? (
         <ScrollView
@@ -65,10 +68,20 @@ export function SpotlightListsSection({ section }: SpotlightListsSectionProps) {
           className="mt-2.5"
         >
           {carouselLists.map((list) => (
-            <SpotlightListLandscapeCard key={list.id} list={list} />
+            <SpotlightListLandscapeCard
+              key={list.id}
+              list={list}
+              onPressList={setSelectedListId}
+            />
           ))}
         </ScrollView>
       ) : null}
+
+      <ListDetailModal
+        visible={selectedListId != null}
+        listId={selectedListId}
+        onClose={() => setSelectedListId(null)}
+      />
     </View>
   );
 }

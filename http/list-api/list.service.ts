@@ -179,6 +179,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       latitude?: number;
       longitude?: number;
       radius_km?: number;
+      city?: string;
+      region?: string;
       with_image?: boolean;
     }) {
       const query: {
@@ -189,6 +191,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         latitude?: number;
         longitude?: number;
         radius_km?: number;
+        city?: string;
+        region?: string;
         with_image?: string;
       } = {};
       if (params?.keyword) query.keyword = params.keyword;
@@ -200,6 +204,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         query.longitude = params.longitude;
         if (params?.radius_km !== undefined) query.radius_km = params.radius_km;
       }
+      if (params?.city) query.city = params.city;
+      if (params?.region) query.region = params.region;
       if (params?.with_image) query.with_image = "true";
       return await this.SendRequest<ListItemPublic[]>({
         method: "get",

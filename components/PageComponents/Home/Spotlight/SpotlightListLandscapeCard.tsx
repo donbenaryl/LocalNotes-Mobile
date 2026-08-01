@@ -1,6 +1,5 @@
 import { Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { Bookmark } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
@@ -13,14 +12,17 @@ import { SpotlightFallbackGradient } from "./SpotlightFallbackGradient";
 
 interface SpotlightListLandscapeCardProps {
   list: SpotlightListEntityDAO;
+  onPressList: (id: string) => void;
 }
 
 const FALLBACK_GRADIENT_COLORS = ["#2A2438", "#8A6BA0"] as const;
 const GRADIENT_FILL = { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 } as const;
 
-export function SpotlightListLandscapeCard({ list }: SpotlightListLandscapeCardProps) {
+export function SpotlightListLandscapeCard({
+  list,
+  onPressList,
+}: SpotlightListLandscapeCardProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const imageUrl = resolveImageUrl(list.image);
   const { showFallback, onError } = useSpotlightImageFallback(imageUrl);
   const { isSaved, saveCount, isSaving, toggle } = useSpotlightListSave(
@@ -34,7 +36,7 @@ export function SpotlightListLandscapeCard({ list }: SpotlightListLandscapeCardP
     if (list.spotlight_item_id) {
       void spotlightService.logOpenEvent(list.spotlight_item_id);
     }
-    router.push(`/lists/${list.id}` as never);
+    onPressList(list.id);
   };
 
   return (
