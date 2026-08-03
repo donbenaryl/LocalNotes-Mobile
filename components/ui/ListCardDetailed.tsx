@@ -173,6 +173,8 @@ interface ListCardCollapsedBannerProps {
   accessibilityLabel: string;
   onExpand: () => void;
   sideAction: ReactNode;
+  /** When set, shows PersonalityMatchPill top-left (same as expanded card). */
+  matchPercent?: number | null;
 }
 
 function ListCardCollapsedBanner({
@@ -183,7 +185,10 @@ function ListCardCollapsedBanner({
   accessibilityLabel,
   onExpand,
   sideAction,
+  matchPercent,
 }: ListCardCollapsedBannerProps) {
+  const showMatch = matchPercent !== undefined;
+
   return (
     <View className="h-[92px] overflow-hidden rounded-2xl bg-[#3a2c22]">
       {imageUrl ? (
@@ -213,8 +218,19 @@ function ListCardCollapsedBanner({
         className="absolute inset-0 z-[1] cursor-pointer"
       />
 
+      {showMatch ? (
+        <View
+          className="absolute left-2 top-2 z-[2]"
+          pointerEvents="none"
+        >
+          <PersonalityMatchPill variant="overlay" percent={matchPercent} />
+        </View>
+      ) : null}
+
       <View
-        className="absolute bottom-0 left-3.5 right-[118px] top-0 z-[2] justify-center"
+        className={`absolute bottom-0 left-3.5 right-[118px] z-[2] justify-center ${
+          showMatch ? "top-9" : "top-0"
+        }`}
         pointerEvents="none"
       >
         <Text
@@ -553,6 +569,7 @@ export function ListCardDetailed({
             })}
             onExpand={() => onExpand?.()}
             sideAction={sideAction}
+            matchPercent={isOwnList ? undefined : personalityMatch}
           />
         ) : (
           <>
