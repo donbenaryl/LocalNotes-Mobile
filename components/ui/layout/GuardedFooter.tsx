@@ -17,7 +17,7 @@ const TABS = [
   { label: 'Smart Picks', Icon: Star, route: '/(app)/(tabs)/smart-pick', segment: '/smart-pick' },
   null,
   { label: 'Saved', Icon: Bookmark, route: '/(app)/(tabs)/saved/draft', segment: '/saved' },
-  { label: 'Search', Icon: Search, route: '/(app)/(stack)/search/lists', segment: '/search' },
+  { label: 'Search', Icon: Search, route: '/(app)/(stack)/search/picks', segment: '/search' },
 ] as const;
 
 const FAB_SHADOW = Platform.select({

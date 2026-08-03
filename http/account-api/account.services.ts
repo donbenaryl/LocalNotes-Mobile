@@ -7,6 +7,7 @@ import type {
   newCreatorItem,
   searchUserDTO,
   searchUserDAO,
+  peopleDiscoverySearchDTO,
   usernameSearchDTO,
   usernameSearchDAO,
   usernameAvailableDTO,
@@ -23,6 +24,7 @@ import type {
   UpdateNotificationSettingsDTO,
   RegisterNotificationTokenDTO,
 } from "./types";
+import type { UnifiedSearchPersonDAO } from "../search-api/type";
 
 class AccountService extends AppHttpService {
   constructor() {
@@ -127,6 +129,19 @@ class AccountService extends AppHttpService {
       method: "get",
       path: "/search-friends",
       query: dto,
+    });
+  }
+  async searchPeople(dto: peopleDiscoverySearchDTO) {
+    const query: Record<string, unknown> = { scope: "all" };
+    if (dto.query) query.query = dto.query;
+    if (dto.matchMin !== undefined) query.match_min = dto.matchMin;
+    if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
+    if (dto.limit !== undefined) query.limit = dto.limit;
+
+    return await this.SendRequest<UnifiedSearchPersonDAO[]>({
+      method: "get",
+      path: "/search-friends",
+      query,
     });
   }
   async searchByUsername(dto: usernameSearchDTO) {

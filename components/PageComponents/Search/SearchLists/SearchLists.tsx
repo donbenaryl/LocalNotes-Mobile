@@ -1,6 +1,6 @@
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { SearchResultsLayout } from "@/components/PageComponents/Search/SearchResultsLayout";
-import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
+import { useListSearch } from "@/hooks/useListSearch";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useTranslation } from "react-i18next";
@@ -17,7 +17,7 @@ function formatCityLabel(location: {
 
 export function SearchLists() {
   const { t } = useTranslation();
-  const { lists, isLoading, isPending, error, refetch } = useUnifiedSearch();
+  const { lists, isLoading, isPending, error, refetch } = useListSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();

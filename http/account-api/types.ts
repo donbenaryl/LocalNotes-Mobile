@@ -145,6 +145,13 @@ export interface newCreatorItem {
 export interface searchUserDTO{
   q:string;
 }
+
+export interface peopleDiscoverySearchDTO{
+  query?: string;
+  matchMin?: number;
+  matchMax?: number;
+  limit?: number;
+}
 export interface searchUserDAO{
   id:string;
   name:string;

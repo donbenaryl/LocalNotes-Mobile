@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { BusinessCard } from "@/components/PageComponents/Business/BusinessCard";
 import { SearchResultsLayout } from "@/components/PageComponents/Search/SearchResultsLayout";
-import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
+import { useBusinessSearch } from "@/hooks/useBusinessSearch";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import type { BusinessItemDAO } from "@/http/business-api/types";
@@ -18,7 +18,7 @@ function formatCityLabel(location: {
 export function SearchBusinesses() {
   const { t } = useTranslation();
   const { businesses, isLoading, isPending, error, refetch } =
-    useUnifiedSearch();
+    useBusinessSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();

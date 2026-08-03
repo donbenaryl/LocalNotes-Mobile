@@ -139,10 +139,24 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       })
     }
     async searchLists(dto:serchDTO){
+      const query: Record<string, unknown> = {};
+      if (dto.query) query.query = dto.query;
+      if (dto.matchMin !== undefined) query.match_min = dto.matchMin;
+      if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
+      if (dto.vibe?.length) query.vibe = dto.vibe.join(",");
+      if (dto.city) query.city = dto.city;
+      if (dto.region) query.region = dto.region;
+      if (dto.latitude !== undefined && dto.longitude !== undefined) {
+        query.latitude = dto.latitude;
+        query.longitude = dto.longitude;
+        if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
+      }
+      if (dto.limit !== undefined) query.limit = dto.limit;
+
       return await this.SendRequest<ListItemDAO[]>({
         method:"get",
-        path:"/unified-search",
-        query:dto,
+        path:"/search",
+        query,
       })
     }
     async createList(dto: CreateListDTO){
@@ -175,7 +189,12 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       keyword?: string;
       user_id?: string;
       is_favorite?: boolean;
+      scope?: "mine" | "all";
       category_ids?: string[];
+      vibes?: string[];
+      match_min?: number;
+      match_max?: number;
+      limit?: number;
       latitude?: number;
       longitude?: number;
       radius_km?: number;
@@ -187,7 +206,12 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         keyword?: string;
         user_id?: string;
         is_favorite?: string;
+        scope?: "mine" | "all";
         category_ids?: string;
+        vibe?: string;
+        match_min?: number;
+        match_max?: number;
+        limit?: number;
         latitude?: number;
         longitude?: number;
         radius_km?: number;
@@ -198,7 +222,12 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (params?.keyword) query.keyword = params.keyword;
       if (params?.user_id) query.user_id = params.user_id;
       if (params?.is_favorite) query.is_favorite = "true";
+      if (params?.scope) query.scope = params.scope;
       if (params?.category_ids?.length) query.category_ids = params.category_ids.join(",");
+      if (params?.vibes?.length) query.vibe = params.vibes.join(",");
+      if (params?.match_min !== undefined) query.match_min = params.match_min;
+      if (params?.match_max !== undefined) query.match_max = params.match_max;
+      if (params?.limit !== undefined) query.limit = params.limit;
       if (params?.latitude !== undefined && params?.longitude !== undefined) {
         query.latitude = params.latitude;
         query.longitude = params.longitude;

@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/Badge";
 import { useScrollToTopControl } from "@/hooks/useScrollToTopControl";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 
-type SearchResultsKind = "lists" | "places" | "people";
+type SearchResultsKind = "lists" | "places" | "people" | "picks";
 const SHEET_HEADER_CLEARANCE = 12;
 
 interface SearchResultsLayoutProps<T> {
@@ -40,7 +40,9 @@ interface SearchResultsLayoutProps<T> {
   areaLabel?: string;
   data: T[];
   keyExtractor: (item: T) => string;
-  renderItem: (item: T) => ReactNode;
+  renderItem?: (item: T) => ReactNode;
+  /** Overrides the default single-column FlatList body (e.g. a masonry grid). Still gated by the same isPending/error/data-length states below. */
+  renderBody?: (data: T[]) => ReactNode;
   isLoading: boolean;
   isPending: boolean;
   error: string | null;
@@ -58,6 +60,7 @@ export function SearchResultsLayout<T>({
   data,
   keyExtractor,
   renderItem,
+  renderBody,
   isLoading,
   isPending,
   error,
@@ -148,37 +151,43 @@ export function SearchResultsLayout<T>({
             </View>
           ) : (
             <View className="flex-1">
-              <FlatList
-                ref={listRef}
-                data={data}
-                keyExtractor={keyExtractor}
-                contentContainerClassName="gap-3 px-4 pb-28"
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={!isSheetCollapsed}
-                scrollEventThrottle={16}
-                onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
-                  onScrollY(event.nativeEvent.contentOffset.y);
-                }}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={isLoading && data.length > 0}
-                    onRefresh={onRetry}
-                    tintColor="#FF6B1A"
-                  />
-                }
-                ListEmptyComponent={
-                  <EmptyScreen
-                    title={emptyTitle}
-                    description={
-                      emptyDescription ?? t("search.empty.description")
+              {renderBody ? (
+                renderBody(data)
+              ) : (
+                <>
+                  <FlatList
+                    ref={listRef}
+                    data={data}
+                    keyExtractor={keyExtractor}
+                    contentContainerClassName="gap-3 px-4 pb-28"
+                    showsVerticalScrollIndicator={false}
+                    scrollEnabled={!isSheetCollapsed}
+                    scrollEventThrottle={16}
+                    onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
+                      onScrollY(event.nativeEvent.contentOffset.y);
+                    }}
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={isLoading && data.length > 0}
+                        onRefresh={onRetry}
+                        tintColor="#FF6B1A"
+                      />
                     }
+                    ListEmptyComponent={
+                      <EmptyScreen
+                        title={emptyTitle}
+                        description={
+                          emptyDescription ?? t("search.empty.description")
+                        }
+                      />
+                    }
+                    renderItem={({ item }) => (
+                      <View className="mb-1">{renderItem?.(item)}</View>
+                    )}
                   />
-                }
-                renderItem={({ item }) => (
-                  <View className="mb-1">{renderItem(item)}</View>
-                )}
-              />
-              <ScrollToTopButton visible={visible} onPress={scrollToTop} />
+                  <ScrollToTopButton visible={visible} onPress={scrollToTop} />
+                </>
+              )}
             </View>
           )}
         </View>

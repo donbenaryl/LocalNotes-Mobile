@@ -639,6 +639,7 @@ const en = {
   },
   search: {
     tabs: {
+      picks: 'Picks',
       lists: 'Lists',
       places: 'Places',
       people: 'People',
@@ -650,12 +651,14 @@ const en = {
     error: 'Could not load search results',
     retry: 'Try again',
     resultsMeta: {
+      picks: '{{count}} picks',
       lists: '{{count}} lists',
       places: '{{count}} places',
       people: '{{count}} people',
       inLocation: '{{count}} in {{location}}',
     },
     empty: {
+      picks: 'No picks found',
       lists: 'No lists found',
       places: 'No places found',
       people: 'No people found',

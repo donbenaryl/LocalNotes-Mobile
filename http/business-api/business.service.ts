@@ -30,10 +30,19 @@ class BusinessService extends AppHttpService{
        })
     }
     async searchBusiness(dto: searchBusinessDTO){
-       return await this.SendRequest<BusinessItemDAO[], Record<string, unknown>, searchBusinessDTO>({
+       const query: Record<string, unknown> = {};
+       if (dto.query) query.query = dto.query;
+       if (dto.city) query.city = dto.city;
+       if (dto.region) query.region = dto.region;
+       if (dto.latitude !== undefined && dto.longitude !== undefined) {
+         query.latitude = dto.latitude;
+         query.longitude = dto.longitude;
+         if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
+       }
+       return await this.SendRequest<BusinessItemDAO[]>({
         method:"get",
         path:"/",
-        query:dto,
+        query,
        })
     }
     async getBusinessInfo(){

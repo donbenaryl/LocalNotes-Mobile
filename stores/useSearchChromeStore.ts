@@ -3,6 +3,8 @@ import { create } from "zustand";
 interface SearchChromeStore {
   filterHeaderBottom: number | null;
   setFilterHeaderBottom: (bottom: number | null) => void;
+  activeResultCount: number;
+  setActiveResultCount: (count: number) => void;
   reset: () => void;
 }
 
@@ -14,5 +16,10 @@ export const useSearchChromeStore = create<SearchChromeStore>((set) => ({
         ? state
         : { filterHeaderBottom },
     ),
-  reset: () => set({ filterHeaderBottom: null }),
+  activeResultCount: 0,
+  setActiveResultCount: (activeResultCount) =>
+    set((state) =>
+      state.activeResultCount === activeResultCount ? state : { activeResultCount },
+    ),
+  reset: () => set({ filterHeaderBottom: null, activeResultCount: 0 }),
 }));

@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from "react-native";
 import { Slot, usePathname, useRouter, type Href } from "expo-router";
-import { List, MapPin, Users } from "lucide-react-native";
+import { List, MapPin, Sparkles, Users } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -8,7 +8,6 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { SearchFilterHeader } from "@/components/PageComponents/Search/SearchFilterHeader";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
-import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 
@@ -19,7 +18,8 @@ interface SearchTabItem extends TabItem {
 function getActiveTab(pathname: string): string {
   if (pathname.includes("/businesses")) return "places";
   if (pathname.includes("/people")) return "people";
-  return "lists";
+  if (pathname.includes("/lists")) return "lists";
+  return "picks";
 }
 
 function formatCityLabel(location: GeoLocation): string {
@@ -48,11 +48,17 @@ export default function MainSearch() {
   const setFilterHeaderBottom = useSearchChromeStore(
     (s) => s.setFilterHeaderBottom,
   );
+  const activeResultCount = useSearchChromeStore((s) => s.activeResultCount);
 
-  const { counts } = useUnifiedSearch();
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
 
   const tabs: SearchTabItem[] = [
+    {
+      id: "picks",
+      label: t("search.tabs.picks"),
+      icon: Sparkles,
+      href: "/(app)/(stack)/search/picks",
+    },
     {
       id: "lists",
       label: t("search.tabs.lists"),
@@ -132,12 +138,12 @@ export default function MainSearch() {
           onAllSelected={handleAllSelected}
           matchThreshold={matchThreshold}
           onMatchThresholdChange={setMatchThreshold}
-          matchingCount={counts.lists}
+          matchingCount={activeResultCount}
           selectedVibes={selectedVibes}
           onVibesChange={setSelectedVibes}
-          vibeMatchCount={counts.lists}
+          vibeMatchCount={activeResultCount}
           showMatchFilter={activeTab !== "places"}
-          showVibeFilter={activeTab === "lists"}
+          showVibeFilter={activeTab === "lists" || activeTab === "picks"}
         />
 
       </View>

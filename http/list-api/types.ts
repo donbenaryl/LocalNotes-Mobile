@@ -168,7 +168,16 @@ export type ListDAO ={
 }
 
 export interface serchDTO{
-  query:string;
+  query?:string;
+  matchMin?: number;
+  matchMax?: number;
+  vibe?: string[];
+  city?: string;
+  region?: string;
+  latitude?: number;
+  longitude?: number;
+  radiusKm?: number;
+  limit?: number;
 }
 export interface listDTO{
   category:string;

@@ -1,5 +1,5 @@
 import { Redirect } from "expo-router";
 
 export default function SearchIndex() {
-  return <Redirect href="/(app)/(stack)/search/lists" />;
+  return <Redirect href="/(app)/(stack)/search/picks" />;
 }

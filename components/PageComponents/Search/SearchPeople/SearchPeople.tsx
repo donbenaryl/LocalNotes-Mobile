@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { PeopleCard } from "@/components/PageComponents/People/PeopleCard";
 import { SearchResultsLayout } from "@/components/PageComponents/Search/SearchResultsLayout";
-import { useUnifiedSearch } from "@/hooks/useUnifiedSearch";
+import { usePeopleSearch } from "@/hooks/usePeopleSearch";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
@@ -15,14 +15,9 @@ function formatCityLabel(location: {
     : location.city;
 }
 
-/**
- * People tab still pins list locations on the map (same as web MapPanel),
- * because people results don't always carry home-city coordinates.
- */
 export function SearchPeople() {
   const { t } = useTranslation();
-  const { people, lists, isLoading, isPending, error, refetch } =
-    useUnifiedSearch();
+  const { people, isLoading, isPending, error, refetch } = usePeopleSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
@@ -38,7 +33,6 @@ export function SearchPeople() {
     <SearchResultsLayout<UnifiedSearchPersonDAO>
       mode="lists"
       resultsKind="people"
-      listsForMap={lists}
       areaLabel={areaLabel}
       data={people}
       keyExtractor={(item) => item.id}
