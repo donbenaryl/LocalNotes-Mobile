@@ -25,6 +25,7 @@ export interface PrivacyPrefs {
   allowMentionsFromAnyone: boolean;
   usePreciseLocation: boolean;
   showSavedList: boolean;
+  showLikesAndComments: boolean;
 }
 
 export interface ConnectedProvider {
@@ -63,6 +64,7 @@ export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
   allowMentionsFromAnyone: false,
   usePreciseLocation: true,
   showSavedList: false,
+  showLikesAndComments: false,
 };
 
 export const DEFAULT_CONNECTED_PROVIDERS: ConnectedProvider[] = [

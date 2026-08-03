@@ -374,6 +374,9 @@ const en = {
       allowMentionsSub: 'Off means only people you follow can mention you',
       showSavedList: 'Show saved list',
       showSavedListSub: 'Off hides your saved list from other users',
+      showLikesAndComments: "Show likes and comments on others' lists",
+      showLikesAndCommentsSub:
+        'Off hides that you liked or commented from other people',
       usePreciseLocation: 'Use precise location',
       usePreciseLocationSub: 'Off uses approximate location instead',
       blockedUsers: 'Blocked users',

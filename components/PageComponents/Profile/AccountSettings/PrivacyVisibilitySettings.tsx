@@ -126,6 +126,12 @@ export default function PrivacyVisibilitySettings() {
             subtitle={t('accountSettings.privacy.showSavedListSub')}
             value={privacy.showSavedList}
             onValueChange={toggle('showSavedList')}
+          />
+          <SettingsSwitchRow
+            title={t('accountSettings.privacy.showLikesAndComments')}
+            subtitle={t('accountSettings.privacy.showLikesAndCommentsSub')}
+            value={privacy.showLikesAndComments}
+            onValueChange={toggle('showLikesAndComments')}
             isLast
           />
         </SettingsSection>

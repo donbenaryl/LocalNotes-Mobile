@@ -255,6 +255,7 @@ export interface PrivacySettingsDAO {
   allow_mentions_from_anyone: boolean;
   use_precise_location: boolean;
   show_saved_list: boolean;
+  show_likes_and_comments: boolean;
 }
 
 export type UpdatePrivacySettingsDTO = Partial<PrivacySettingsDAO>;
@@ -268,6 +269,7 @@ export function mapPrivacySettingsDAOToPrefs(dao: PrivacySettingsDAO): PrivacyPr
     allowMentionsFromAnyone: dao.allow_mentions_from_anyone,
     usePreciseLocation: dao.use_precise_location,
     showSavedList: dao.show_saved_list,
+    showLikesAndComments: dao.show_likes_and_comments,
   };
 }
 
@@ -286,5 +288,8 @@ export function mapPrivacyPrefsToDAO(
   }
   if (prefs.usePreciseLocation !== undefined) dto.use_precise_location = prefs.usePreciseLocation;
   if (prefs.showSavedList !== undefined) dto.show_saved_list = prefs.showSavedList;
+  if (prefs.showLikesAndComments !== undefined) {
+    dto.show_likes_and_comments = prefs.showLikesAndComments;
+  }
   return dto;
 }
