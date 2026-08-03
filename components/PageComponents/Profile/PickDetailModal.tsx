@@ -158,10 +158,9 @@ export function PickDetailModal({
   const title = data.business_name?.trim() || t("profile.picks.untitled");
   const locationLabel = formatLocationLabel(data.location);
   const categoryLabel = formatCategoryLabel(data);
-  // Server-computed against the pick's owner; null on your own picks.
-  const personalityMatch = data.is_owner
-    ? null
-    : getEmbeddedMatchPercent(data.owner);
+  // Server-computed against the pick's owner; hidden on your own picks.
+  const showMatch = !data.is_owner;
+  const personalityMatch = getEmbeddedMatchPercent(data.owner) ?? 0;
   const hasCoords =
     data.location?.latitude != null &&
     data.location?.longitude != null &&
@@ -367,7 +366,7 @@ export function PickDetailModal({
                 </Pressable>
               </View>
 
-              {locationLabel || personalityMatch != null ? (
+              {locationLabel || showMatch ? (
                 <View className="mt-3 flex-row items-center gap-1.5 px-1.5">
                   {locationLabel ? (
                     <>
@@ -382,10 +381,12 @@ export function PickDetailModal({
                   ) : (
                     <View className="flex-1" />
                   )}
-                  <PersonalityMatchPill
-                    percent={personalityMatch}
-                    personalityColor={data.owner?.personality_color}
-                  />
+                  {showMatch ? (
+                    <PersonalityMatchPill
+                      percent={personalityMatch}
+                      personalityColor={data.owner?.personality_color}
+                    />
+                  ) : null}
                 </View>
               ) : null}
             </View>
@@ -422,7 +423,7 @@ export function PickDetailModal({
                 </View>
               ) : null}
 
-              {categoryLabel || personalityMatch != null ? (
+              {categoryLabel || showMatch ? (
                 <View className="mt-1 flex-row items-center gap-1.5">
                   {categoryLabel ? (
                     <Text
@@ -432,10 +433,12 @@ export function PickDetailModal({
                       {categoryLabel}
                     </Text>
                   ) : null}
-                  <PersonalityMatchPill
-                    percent={personalityMatch}
-                    personalityColor={data.owner?.personality_color}
-                  />
+                  {showMatch ? (
+                    <PersonalityMatchPill
+                      percent={personalityMatch}
+                      personalityColor={data.owner?.personality_color}
+                    />
+                  ) : null}
                 </View>
               ) : null}
             </View>

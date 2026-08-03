@@ -22,7 +22,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const role = data.personality_name ?? "";
-  const matchValue = getPeopleMatchPercent(data);
+  const matchValue = getPeopleMatchPercent(data) ?? 0;
   const roleColor = getPersonalityRoleColor(role);
   const matchPill = getPersonalityMatchPillStyle(data.personality_color);
   const gradientColors = getPersonalityGradientColors(data.personality_color);
@@ -76,19 +76,17 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
                 ) : null}
               </View>
 
-              {matchValue != null ? (
-                <View
-                  className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-                  style={{ backgroundColor: matchPill.backgroundColor }}
+              <View
+                className="shrink-0 rounded-[5px] px-1.5 py-0.5"
+                style={{ backgroundColor: matchPill.backgroundColor }}
+              >
+                <Text
+                  className="font-geist-bold text-[9.5px] leading-3"
+                  style={{ color: matchPill.color }}
                 >
-                  <Text
-                    className="font-geist-bold text-[9.5px] leading-3"
-                    style={{ color: matchPill.color }}
-                  >
-                    {matchValue}%
-                  </Text>
-                </View>
-              ) : null}
+                  {matchValue}%
+                </Text>
+              </View>
             </View>
 
             {blurb ? (

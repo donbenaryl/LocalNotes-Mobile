@@ -6,7 +6,8 @@ interface MatchFields {
   overall_match?: number | null;
 }
 
-function clampPercent(value: number): number {
+/** Normalize any raw score into a displayable 0-100 integer. */
+export function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
@@ -68,6 +69,5 @@ export function getPeopleMatchPercent(
   person: { match?: number | null } | null | undefined,
 ): number | null {
   if (person?.match == null) return null;
-  const value = clampPercent(person.match);
-  return value > 0 ? value : null;
+  return clampPercent(person.match);
 }

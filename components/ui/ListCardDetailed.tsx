@@ -595,11 +595,7 @@ export function ListCardDetailed({
 
               <View
                 className={
-                  !heroImageUrl &&
-                  ((!isOwnList &&
-                    personalityMatch != null &&
-                    personalityMatch > 0) ||
-                    showNewBadge)
+                  !heroImageUrl && (!isOwnList || showNewBadge)
                     ? "px-4 pt-10"
                     : "px-4 pt-2.5"
                 }

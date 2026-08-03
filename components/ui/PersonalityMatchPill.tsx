@@ -1,12 +1,13 @@
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { getPersonalityMatchPillStyle } from "@/utils/personalityRing";
+import { clampPercent } from "@/utils/matchScore";
 
 /** Fixed green used by card overlay badges (matches design refs). */
 const OVERLAY_GREEN = "#0F6E56";
 
 interface PersonalityMatchPillProps {
-  /** Server-computed personality match, 0-100. Renders nothing when null or ≤ 0. */
+  /** Server-computed personality match, 0-100. Always renders; null shows as 0%. */
   percent?: number | null;
   personalityColor?: Record<string, number> | null;
   size?: "sm" | "md";
@@ -21,6 +22,7 @@ interface PersonalityMatchPillProps {
 /**
  * Presentational only — pass a precomputed 0-100 percent (never fetches).
  * Which metric that percent represents is chosen by MATCH_SCORE_MODE helpers.
+ * Always renders — callers gate on ownership, not on the percent being absent.
  */
 export function PersonalityMatchPill({
   percent,
@@ -30,9 +32,7 @@ export function PersonalityMatchPill({
 }: PersonalityMatchPillProps) {
   const { t } = useTranslation();
 
-  if (percent == null || percent <= 0) return null;
-
-  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+  const clamped = clampPercent(percent ?? 0);
 
   if (variant === "overlay" || variant === "overlayCompact") {
     return (

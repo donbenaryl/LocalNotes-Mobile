@@ -15,6 +15,7 @@ import {
   getPersonalityMatchPillStyle,
 } from "@/utils/personalityRing";
 import { formatRelativeTime } from "@/utils/time";
+import { clampPercent } from "@/utils/matchScore";
 
 interface FollowingListCardProps {
   item: ActivityItemDAO & { entity: "list" };
@@ -152,19 +153,17 @@ export function FollowingListCard({ item }: FollowingListCardProps) {
             </View>
           </View>
 
-          {list.similarity != null ? (
-            <View
-              className="shrink-0 rounded-full px-2.5 py-1"
-              style={{ backgroundColor: similarityPillStyle.backgroundColor }}
+          <View
+            className="shrink-0 rounded-full px-2.5 py-1"
+            style={{ backgroundColor: similarityPillStyle.backgroundColor }}
+          >
+            <Text
+              className="font-geist-semibold text-xs"
+              style={{ color: similarityPillStyle.color }}
             >
-              <Text
-                className="font-geist-semibold text-xs"
-                style={{ color: similarityPillStyle.color }}
-              >
-                {list.similarity}%
-              </Text>
-            </View>
-          ) : null}
+              {clampPercent(list.similarity ?? 0)}%
+            </Text>
+          </View>
         </View>
       </Pressable>
 

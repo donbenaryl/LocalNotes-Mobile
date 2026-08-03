@@ -77,12 +77,12 @@ export function ProfileInfo({
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const avatarImageUri = resolveImageUrl(profile.profile_image_url);
-  const { matchPercent } = useSimilarScores(
+  const { matchPercent, isLoading: isMatchLoading } = useSimilarScores(
     profile.id ?? '',
     !isOwnProfile && Boolean(profile.id),
   );
-  const showTasteMatch =
-    !isOwnProfile && matchPercent != null && matchPercent > 0;
+  // Held back only while fetching — a resolved-but-absent score shows as 0%.
+  const showTasteMatch = !isOwnProfile && !isMatchLoading;
 
   const locationLabel = formatLocationLabel(profile.location);
   const joinedYear = formatJoinedYear(profile.created_at);
@@ -246,7 +246,7 @@ export function ProfileInfo({
                 className="font-geist-bold"
                 style={{ color: accentColor }}
               >
-                {t('home.forYou.tasteMatch', { percent: matchPercent })}
+                {t('home.forYou.tasteMatch', { percent: matchPercent ?? 0 })}
               </Text>
               <Text className="text-gray-600 dark:text-gray-400">
                 {' — '}

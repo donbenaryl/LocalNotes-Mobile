@@ -18,15 +18,16 @@ export function MatchBadge({
   personalityColor,
   enabled = true,
 }: MatchBadgeProps) {
-  const { matchPercent } = useSimilarScores(userId, enabled);
+  const { matchPercent, isLoading } = useSimilarScores(userId, enabled);
 
-  if (!enabled || matchPercent == null) {
+  // Held back only while fetching — a resolved-but-absent score shows as 0%.
+  if (!enabled || isLoading) {
     return null;
   }
 
   return (
     <PersonalityMatchPill
-      percent={matchPercent}
+      percent={matchPercent ?? 0}
       personalityColor={personalityColor}
       size="md"
     />

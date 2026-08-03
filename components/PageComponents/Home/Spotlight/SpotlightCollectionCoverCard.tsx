@@ -93,9 +93,11 @@ function CollectionMemberRow({ member, isLast }: CollectionMemberRowProps) {
 export function SpotlightCollectionCoverCard({ collection }: SpotlightCollectionCoverCardProps) {
   const { t } = useTranslation();
   const impressionRef = useSpotlightImpressionTracking(collection.spotlight_item_id);
-  const coverUrl = resolveImageUrl(collection.cover_image);
-  const { showFallback, onError } = useSpotlightImageFallback(coverUrl);
   const members = collection.lists ?? [];
+  const coverUrl =
+    resolveImageUrl(collection.cover_image) ??
+    resolveImageUrl(members[0]?.image);
+  const { showFallback, onError } = useSpotlightImageFallback(coverUrl);
 
   const handleExploreCta = () => {
     if (collection.spotlight_item_id) {

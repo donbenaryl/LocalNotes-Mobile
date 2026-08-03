@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Sparkles } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,22 @@ interface SpotlightCuratorOfWeekCardProps {
   curator: SpotlightCuratorEntityDAO;
 }
 
-const GLOW_SIZE = 160;
+/** Spotlight card corner glow — larger than v4's 120px for a stronger wash. */
+const GLOW_SIZE = 200;
+
+/** Matches `.curator .badge` → `box-shadow: 0 0 14px rgba(232,89,12,0.45)`. */
+const badgeGlowShadow = Platform.select({
+  ios: {
+    shadowColor: "#E8590C",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+  },
+  android: {
+    elevation: 0,
+  },
+  default: {},
+});
 
 export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCardProps) {
   const { t } = useTranslation();
@@ -42,7 +57,7 @@ export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCa
   return (
     <Pressable ref={impressionRef} onPress={handleOpen} className="mt-2.5">
       <WhiteBox className="relative overflow-hidden border-ink bg-ink p-4 dark:border-ink dark:bg-ink">
-        <View pointerEvents="none" className="absolute -right-[48px] -top-[55px] h-[160px] w-[160px]">
+        <View pointerEvents="none" className="absolute -right-[80px] -top-[80px] h-[200px] w-[200px]">
           <Svg width={GLOW_SIZE} height={GLOW_SIZE}>
             <Defs>
               <RadialGradient id="cotwGlow" cx="50%" cy="50%" r="50%">
@@ -54,13 +69,32 @@ export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCa
           </Svg>
         </View>
 
-        <Badge
-          label={t("spotlight.curatorOfWeek.badge")}
-          variant="primary"
-          leftIcon={<Sparkles size={10} color="#F7C59F" />}
-          className="absolute right-3 top-3 bg-[rgba(232,89,12,0.3)]"
-          textClassname="!text-[#F7C59F] font-geist-bold"
-        />
+        {Platform.OS === "android" ? (
+          <View pointerEvents="none" className="absolute right-0 top-0 h-[72px] w-[130px]">
+            <Svg width={130} height={72}>
+              <Defs>
+                <RadialGradient id="cotwBadgeGlow" cx="72%" cy="40%" r="45%">
+                  <Stop offset="0%" stopColor="rgb(232,89,12)" stopOpacity={0.45} />
+                  <Stop offset="100%" stopColor="rgb(232,89,12)" stopOpacity={0} />
+                </RadialGradient>
+              </Defs>
+              <Circle cx={94} cy={28} r={40} fill="url(#cotwBadgeGlow)" />
+            </Svg>
+          </View>
+        ) : null}
+
+        <View
+          className="absolute right-3 top-3 rounded-[9px] bg-[rgba(232,89,12,0.3)]"
+          style={badgeGlowShadow}
+        >
+          <Badge
+            label={t("spotlight.curatorOfWeek.badge")}
+            variant="secondary"
+            leftIcon={<Sparkles size={9} color="#F7C59F" strokeWidth={2} />}
+            className="!rounded-[9px] !bg-transparent px-[9px] py-1"
+            textClassname="!text-[9px] !text-[#F7C59F] font-geist-semibold tracking-[0.5px]"
+          />
+        </View>
 
         <View className="mt-3.5 flex-row items-center gap-2.5">
           <Avatar name={curator.name} src={curator.image ?? undefined} userId={curator.id} size="md2" />

@@ -7,6 +7,7 @@ import {
   getPersonalityMatchPillStyle,
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
+import { clampPercent } from "@/utils/matchScore";
 
 interface UserCardProps {
   name: string;
@@ -31,7 +32,7 @@ export function UserCard({
   isSelected,
   onPress,
 }: UserCardProps) {
-  const matchValue = Math.max(0, Math.min(100, Math.round(match)));
+  const matchValue = clampPercent(match ?? 0);
   const roleColor = getPersonalityRoleColor(role);
   const matchPill = getPersonalityMatchPillStyle(personalityColor);
   const gradientColors = getPersonalityGradientColors(personalityColor);
@@ -76,19 +77,17 @@ export function UserCard({
               {role}
             </Text>
           </View>
-          {matchValue > 0 && (
-            <View
-                className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-                style={{ backgroundColor: matchPill.backgroundColor }}
+          <View
+            className="shrink-0 rounded-[5px] px-1.5 py-0.5"
+            style={{ backgroundColor: matchPill.backgroundColor }}
+          >
+            <Text
+              className="font-geist-bold text-[9.5px] leading-3"
+              style={{ color: matchPill.color }}
             >
-                <Text
-                className="font-geist-bold text-[9.5px] leading-3"
-                style={{ color: matchPill.color }}
-                >
-                {matchValue}%
-                </Text>
-            </View>
-          )}
+              {matchValue}%
+            </Text>
+          </View>
         </View>
 
         <Text

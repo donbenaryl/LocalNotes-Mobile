@@ -182,9 +182,9 @@ export function PickCard({
   const canManage = !readOnly && data.is_owner;
   const thumbnails = data.images ?? [];
   const locationLabel = formatLocationLabel(data.location);
-  const personalityMatch = data.is_owner
-    ? null
-    : getEmbeddedMatchPercent(data.owner);
+  // Hidden on your own picks; otherwise always shown, with a missing score as 0%.
+  const showMatch = !data.is_owner;
+  const personalityMatch = getEmbeddedMatchPercent(data.owner) ?? 0;
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -245,18 +245,18 @@ export function PickCard({
             data={data}
             thumbnails={thumbnails}
             locationLabel={locationLabel}
-            padForMatchOverlay={
-              personalityMatch != null && personalityMatch > 0
-            }
+            padForMatchOverlay={showMatch}
           />
         </Pressable>
 
-        <View className="absolute left-2 top-2 z-10" pointerEvents="none">
-          <PersonalityMatchPill
-            variant="overlayCompact"
-            percent={personalityMatch}
-          />
-        </View>
+        {showMatch ? (
+          <View className="absolute left-2 top-2 z-10" pointerEvents="none">
+            <PersonalityMatchPill
+              variant="overlayCompact"
+              percent={personalityMatch}
+            />
+          </View>
+        ) : null}
 
         <View className="absolute right-2 top-2 flex-row items-center gap-1">
           {!canManage && (
