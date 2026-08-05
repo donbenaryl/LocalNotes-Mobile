@@ -4,12 +4,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Bookmark } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import listService from "@/http/list-api/list.service";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import type { ListItemPublic } from "@/http/list-api/types";
 import type { SpotlightPickEntityDAO } from "@/http/spotlight-api/type";
 import { SpotlightFallbackGradient } from "./SpotlightFallbackGradient";
@@ -36,6 +38,8 @@ function mapSpotlightPickToListItemPublic(
       id: pick.curator_id,
       name: pick.curator_name,
       profile_image: null,
+      personality_match: pick.personality_match ?? null,
+      overall_match: pick.overall_match ?? null,
     },
     description: pick.quote ?? "",
     tags: [],
@@ -51,6 +55,7 @@ export function SpotlightPickPosterCard({ pick }: SpotlightPickPosterCardProps) 
   const imageUrl = resolveImageUrl(pick.image);
   const { showFallback, onError } = useSpotlightImageFallback(imageUrl);
   const impressionRef = useSpotlightImpressionTracking(pick.spotlight_item_id);
+  const personalityMatch = getEmbeddedMatchPercent(pick);
 
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -145,6 +150,10 @@ export function SpotlightPickPosterCard({ pick }: SpotlightPickPosterCardProps) 
             />
           </View>
         </Pressable>
+
+        <View className="absolute left-2 top-2">
+          <PersonalityMatchPill variant="overlayCompact" percent={personalityMatch} />
+        </View>
 
         <View className="absolute bottom-2.5 left-[11px] right-[11px]">
           <Text className="font-geist-semibold text-xl text-white capitalize" numberOfLines={1}>

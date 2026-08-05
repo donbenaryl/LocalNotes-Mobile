@@ -2,11 +2,13 @@ import { Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { ArrowUp, Bookmark } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import { useSpotlightListSave } from "@/hooks/useSpotlightListSave";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { getListMatchPercent } from "@/utils/matchScore";
 import type { SpotlightListEntityDAO } from "@/http/spotlight-api/type";
 import { SpotlightFallbackGradient } from "./SpotlightFallbackGradient";
 
@@ -31,6 +33,7 @@ export function SpotlightListsHeroCard({
     list.spotlight_item_id,
   );
   const impressionRef = useSpotlightImpressionTracking(list.spotlight_item_id);
+  const personalityMatch = getListMatchPercent(list);
 
   const handleOpen = () => {
     if (list.spotlight_item_id) {
@@ -79,6 +82,10 @@ export function SpotlightListsHeroCard({
           />
         </View>
       </Pressable>
+
+      <View className="absolute left-2 top-2">
+        <PersonalityMatchPill variant="overlay" percent={personalityMatch} />
+      </View>
 
       <View className="absolute bottom-[11px] left-3.5 right-[52px]">
         <Text className="font-geist-semibold text-xl text-white capitalize" numberOfLines={3}>

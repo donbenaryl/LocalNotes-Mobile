@@ -28,6 +28,8 @@ export type SpotlightPickEntityDAO = {
   curator_name: string;
   save_count: number;
   featured_in_lists_count: number;
+  personality_match?: number | null;
+  overall_match?: number | null;
 };
 
 export type SpotlightListEntityDAO = {
@@ -40,6 +42,8 @@ export type SpotlightListEntityDAO = {
   curator_id: string;
   curator_name: string;
   save_count: number;
+  personality_match?: number | null;
+  overall_match?: number | null;
 };
 
 export type SpotlightCuratorEntityDAO = {
