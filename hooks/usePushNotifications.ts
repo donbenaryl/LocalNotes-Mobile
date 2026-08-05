@@ -4,6 +4,11 @@ import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import accountService from '@/http/account-api/account.services';
 import { useAuthStore } from '@/stores/useAuthStore';
+import {
+  ensurePushCategoriesRegistered,
+  startPushResponseListener,
+  consumeInitialNotificationResponse,
+} from '@/services/pushNotifications';
 
 type PushRegistrationStatus = 'idle' | 'registering' | 'registered' | 'denied' | 'error';
 
@@ -15,11 +20,8 @@ interface UsePushNotificationsResult {
 
 /**
  * Requests notification permission and registers the device's Expo push token with the
- * backend (`POST /accounts/notification-token`, which writes to the same
- * `Account.device_notification_tokens` field `send_push_notification_w_celery` reads from —
- * see backend plan.md §1.10). Mounted once in the authenticated app shell
- * (`app/(app)/_layout.tsx`) so it re-registers on every cold start / foreground, covering
- * token rotation without needing a dedicated re-registration trigger.
+ * backend (`POST /accounts/notification-token`). Also registers LIST_ACTIVITY / DEFAULT
+ * categories and listens for Dismiss / React / tap responses.
  */
 export function usePushNotifications(): UsePushNotificationsResult {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -27,6 +29,12 @@ export function usePushNotifications(): UsePushNotificationsResult {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const hasAttempted = useRef(false);
+
+  useEffect(() => {
+    const stopListening = startPushResponseListener();
+    void consumeInitialNotificationResponse();
+    return stopListening;
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || hasAttempted.current) return;
@@ -39,10 +47,15 @@ export function usePushNotifications(): UsePushNotificationsResult {
       setError(null);
 
       try {
+        await ensurePushCategoriesRegistered();
+
         if (Platform.OS === 'android') {
           await Notifications.setNotificationChannelAsync('default', {
-            name: 'Default',
-            importance: Notifications.AndroidImportance.DEFAULT,
+            name: 'LocalNotes',
+            importance: Notifications.AndroidImportance.HIGH,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF6B2C',
+            showBadge: true,
           });
         }
 

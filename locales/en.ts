@@ -1000,6 +1000,34 @@ const en = {
     collectionFooterCta: 'Explore this collection',
     collectionListMeta: '{{name}} · {{count}} picks',
   },
+  notifications: {
+    title: 'Notifications',
+    markAllAsRead: 'Mark all as read',
+    empty: "Quiet today. We'll let you know when something happens.",
+    emptyFiltered: 'No notifications in this category yet.',
+    loadingError: "Couldn't load notifications. Pull to try again.",
+    sections: {
+      new: 'NEW',
+      earlier: 'EARLIER',
+    },
+    chips: {
+      all: 'All',
+      mentions: '@ Mentions',
+      saves: 'Saves',
+      newLists: 'New lists',
+      offers: 'Offers',
+    },
+    actions: {
+      savedYourList: 'saved your list',
+      likedYourList: 'liked your list',
+      startedFollowing: 'started following you',
+      spotlightFeatured: 'your list was featured in Spotlight',
+      businessViewed: 'viewed a business you follow',
+      fallback: 'sent you a notification',
+      someone: 'Someone',
+      aList: 'a list',
+    },
+  },
 } as const;
 
 export default en;

@@ -15,7 +15,7 @@ import type {
   MentionSearchDTO,
   MentionSearchDAO,
   notificationDTO,
-  notificationDAO,
+  notificationItemDAO,
   updateAccountDTO,
   completeOnboardingDTO,
   PrivacySettingsDAO,
@@ -92,7 +92,7 @@ class AccountService extends AppHttpService {
     });
   }
   async getNotification(dto:notificationDTO) {
-    return await this.SendRequest<notificationDAO>({
+    return await this.SendRequest<notificationItemDAO[]>({
       method: "get",
       path: "/notifications",
       query:dto,

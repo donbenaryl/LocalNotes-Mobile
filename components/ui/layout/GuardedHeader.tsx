@@ -11,12 +11,10 @@ import { LocalNotesText } from "../LocalNotesText";
 export function GuardedHeader() {
   const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
-  const clearAuth = useAuthStore((s) => s.clearAuth);
   const queryClient = useQueryClient();
 
-  const handleLogout = async () => {
-    await clearAuth();
-    router.replace("/sign-in");
+  const handleOpenNotifications = () => {
+    router.push("/(app)/(stack)/notifications" as never);
   };
 
   const handleRouteToProfile = () => {
@@ -30,7 +28,10 @@ export function GuardedHeader() {
     >
       <LocalNotesText size="sm" />
       <View className="flex-row items-center gap-3">
-        <TouchableOpacity onPress={handleLogout} className="w-10 h-10 rounded-full bg-soft dark:bg-gray-800 items-center justify-center cursor-pointer">
+        <TouchableOpacity
+          onPress={handleOpenNotifications}
+          className="w-10 h-10 rounded-full bg-soft dark:bg-gray-800 items-center justify-center cursor-pointer"
+        >
           <Bell size={18} color={colorScheme === "dark" ? "#F3F4F6" : "#141413"} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRouteToProfile} className="cursor-pointer">

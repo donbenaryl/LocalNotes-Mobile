@@ -216,15 +216,15 @@ type RelatedList = {
 };
 
 
-export interface notificationItemDAO{
-    notification_type: string; 
-  related_account: RelatedAccount;
-  related_list: RelatedList;
-  text: string | null;            
-    created_at: string;        
-    id: string;
-    read?: boolean;
- }
+export interface notificationItemDAO {
+  notification_type: string;
+  related_account: RelatedAccount | null;
+  related_list: RelatedList | null;
+  text: string | null;
+  created_at: string;
+  id: string;
+  is_read: boolean;
+}
 
 export type notificationDAO = {
   success: boolean;

@@ -41,7 +41,14 @@ const plugins: ExpoConfig['plugins'] = [
         'LocalNotes needs access to your camera to take a profile photo.',
     },
   ],
-  'expo-notifications',
+  [
+    'expo-notifications',
+    {
+      icon: './assets/icon.png',
+      color: '#FF6B2C',
+      defaultChannel: 'default',
+    },
+  ],
   'expo-apple-authentication',
   [
     'expo-local-authentication',
@@ -50,6 +57,7 @@ const plugins: ExpoConfig['plugins'] = [
         'LocalNotes uses Face ID to unlock your account on this device.',
     },
   ],
+  '@bacons/apple-targets',
 ];
 
 if (googleIosUrlScheme) {
