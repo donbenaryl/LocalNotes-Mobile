@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "expo-router";
 import {
   Image,
   NativeScrollEvent,
@@ -22,6 +21,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
+import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
@@ -136,7 +136,6 @@ export function PickDetailModal({
   data,
 }: PickDetailModalProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const { colorScheme } = useColorScheme();
   const { height, width } = useWindowDimensions();
   const isDark = colorScheme === "dark";
@@ -150,10 +149,19 @@ export function PickDetailModal({
   const [relatedLists, setRelatedLists] = useState<ListItemDAO[]>([]);
   const [isRelatedListsLoading, setIsRelatedListsLoading] = useState(false);
   const [isRelatedListsError, setIsRelatedListsError] = useState(false);
+  const [isListDetailOpen, setIsListDetailOpen] = useState(false);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
   useEffect(() => {
     setPhotoIndex(0);
   }, [data.id]);
+
+  useEffect(() => {
+    if (!visible) {
+      setIsListDetailOpen(false);
+      setSelectedListId(null);
+    }
+  }, [visible]);
 
   const title = data.business_name?.trim() || t("profile.picks.untitled");
   const locationLabel = formatLocationLabel(data.location);
@@ -242,6 +250,7 @@ export function PickDetailModal({
 
   const isImageViewerOpen =
     isImageFullScreenVisible && photos.length > 0;
+  const isPickSheetVisible = visible && !isImageViewerOpen && !isListDetailOpen;
 
   const sheetMaxHeight = height * 0.7;
   const appearsInCount =
@@ -255,7 +264,7 @@ export function PickDetailModal({
   return (
     <>
       <Modal
-        visible={visible && !isImageViewerOpen}
+        visible={isPickSheetVisible}
         onClose={onClose}
         position="bottom"
         withCloseIcon={false}
@@ -504,8 +513,8 @@ export function PickDetailModal({
                     key={list.id}
                     list={list}
                     onPress={() => {
-                      onClose();
-                      router.push(`/lists/${list.id}` as never);
+                      setSelectedListId(list.id);
+                      setIsListDetailOpen(true);
                     }}
                   />
                 ))}
@@ -532,6 +541,15 @@ export function PickDetailModal({
           ) : null}
         </ScrollView>
       </Modal>
+
+      <ListDetailModal
+        visible={isListDetailOpen}
+        listId={selectedListId}
+        onClose={() => {
+          setIsListDetailOpen(false);
+          setSelectedListId(null);
+        }}
+      />
 
       <ImageFullScreen
         uris={photos}
