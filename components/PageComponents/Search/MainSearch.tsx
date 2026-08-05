@@ -109,7 +109,7 @@ export default function MainSearch() {
         borderless
         rightChild={
           <Pressable
-            onPress={() => commitQuery()}
+            onPress={() => commitQuery(query)}
             accessibilityRole="button"
             accessibilityLabel={t("common.search")}
             className="cursor-pointer py-2"
