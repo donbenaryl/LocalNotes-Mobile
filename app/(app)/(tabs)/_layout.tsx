@@ -18,7 +18,7 @@ export default function TabsLayout() {
           detachInactiveScreens={false}
           screenOptions={{
             headerShown: false,
-            lazy: true,
+            lazy: false,
             animation: 'none',
             freezeOnBlur: false,
             sceneStyle: { backgroundColor: 'transparent' },

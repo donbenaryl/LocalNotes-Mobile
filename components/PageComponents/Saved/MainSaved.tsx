@@ -16,13 +16,11 @@ import { GuardedHeader } from "@/components/ui/layout/GuardedHeader";
 import { DraftsTab } from "@/components/PageComponents/Saved/Drafts/DraftsTab";
 import { SavedTab } from "@/components/PageComponents/Saved/Saved/SavedTab";
 import { SharedWithMeTab } from "@/components/PageComponents/Saved/SharedWithMe/SharedWithMeTab";
-import { SEARCH_PICKS } from "@/constants/swipeNavigation";
+import { getAdjacentSection } from "@/constants/swipeNavigation";
 
 interface SavedTabItem extends TabItem {
   href: Href;
 }
-
-const SMART_PICK_HREF = "/(app)/(tabs)/smart-pick" as const;
 
 function getActiveTab(pathname: string): string {
   const segment = pathname.split("/").filter(Boolean).pop();
@@ -62,28 +60,26 @@ function MainSavedContent({
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <View className="px-4">
-        <GuardedHeader />
-        <View className="pt-2 mb-2">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={onTabChange}
-            className="border-b-0"
-          />
-        </View>
-      </View>
-
-      <View className="flex-1">
-        <SectionPager
-          pages={pages}
-          activeId={activeTab}
-          onActiveIdChange={onTabChange}
-          edgeLeftHref={SEARCH_PICKS}
-          edgeRightHref={SMART_PICK_HREF}
-          edgeRightFromLastHref={SMART_PICK_HREF}
-        />
-      </View>
+      <SectionPager
+        chrome={
+          <View className="px-4">
+            <GuardedHeader />
+            <View className="pt-2 mb-2">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                className="border-b-0"
+              />
+            </View>
+          </View>
+        }
+        pages={pages}
+        activeId={activeTab}
+        onActiveIdChange={onTabChange}
+        edgeLeftSection={getAdjacentSection("saved", "left")}
+        edgeRightSection={getAdjacentSection("saved", "right")}
+      />
     </View>
   );
 }

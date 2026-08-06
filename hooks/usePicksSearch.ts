@@ -5,6 +5,7 @@ import type { ListItemPublic } from "@/http/list-api/types";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const DEFAULT_RADIUS_KM = 10;
 const SEARCH_LIMIT = 30;
@@ -62,6 +63,7 @@ export function usePicksSearch() {
   const picksQuery = useQuery({
     queryKey,
     queryFn: () => fetchPicksSearch(params),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const picks = picksQuery.data ?? [];
@@ -72,8 +74,8 @@ export function usePicksSearch() {
 
   return {
     picks,
-    isLoading: picksQuery.isPending || picksQuery.isFetching,
-    isPending: picksQuery.isPending,
+    isLoading: picksQuery.isFetching && picks.length > 0,
+    isPending: picksQuery.isPending && picksQuery.data === undefined,
     error: picksQuery.error?.message ?? null,
     refetch: picksQuery.refetch,
   };

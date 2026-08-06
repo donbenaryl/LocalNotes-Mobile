@@ -5,6 +5,7 @@ import type { ListItemDAO, serchDTO } from "@/http/list-api/types";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const DEFAULT_RADIUS_KM = 10;
 const SEARCH_LIMIT = 25;
@@ -59,6 +60,7 @@ export function useListSearch() {
   const listQuery = useQuery({
     queryKey,
     queryFn: () => fetchListSearch(params),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const lists = listQuery.data ?? [];
@@ -69,8 +71,8 @@ export function useListSearch() {
 
   return {
     lists,
-    isLoading: listQuery.isPending || listQuery.isFetching,
-    isPending: listQuery.isPending,
+    isLoading: listQuery.isFetching && lists.length > 0,
+    isPending: listQuery.isPending && listQuery.data === undefined,
     error: listQuery.error?.message ?? null,
     refetch: listQuery.refetch,
   };

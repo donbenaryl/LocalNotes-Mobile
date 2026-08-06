@@ -5,6 +5,7 @@ import homeService from "@/http/home-api/home.service";
 import recommendationsService from "@/http/recommendations-api/recommendations.service";
 import type { ListItemDAO, listedDTO } from "@/http/list-api/types";
 import { resolveUsedCategories } from "@/utils/listCategories";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 export type ProfileTabCategory =
   | "my-lists"
@@ -48,6 +49,7 @@ export function useProfile({
       enabled &&
       category !== "picks" &&
       (isOwnProfile || Boolean(viewedUserId)),
+    staleTime: FEED_STALE_TIME_MS,
     queryFn: async (): Promise<ListItemDAO[]> => {
       if (!isOwnProfile && viewedUserId) {
         if (isDraftsOrMyLists) {
@@ -89,7 +91,7 @@ export function useProfile({
 
   return {
     list: data ?? [],
-    isPending,
+    isPending: isPending && data === undefined,
     isError,
     refetch,
   };
@@ -110,6 +112,7 @@ export function useProfilePicks(
       ? ["profile-picks", viewedUserId, favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false]
       : ["profile-picks", favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false],
     enabled: enabled && (viewedUserId ? Boolean(viewedUserId) : true),
+    staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
       const params = {
         ...(favoriteFilter === "Favorites only" ? { is_favorite: true as const } : {}),
@@ -126,7 +129,7 @@ export function useProfilePicks(
 
   return {
     picks: data ?? [],
-    isPending,
+    isPending: isPending && data === undefined,
     isError,
     refetch,
   };
@@ -136,6 +139,7 @@ export function useActivityFeed(enabled = true) {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["activity-feed"],
     enabled,
+    staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
       const response = await homeService.fetchActivities();
       return response.data?.data ?? [];
@@ -144,7 +148,7 @@ export function useActivityFeed(enabled = true) {
 
   return {
     activityFeed: data ?? [],
-    isPending,
+    isPending: isPending && data === undefined,
     isError,
     refetch,
   };
@@ -154,6 +158,7 @@ export function useFollowingLists(enabled = true) {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["following-lists"],
     enabled,
+    staleTime: FEED_STALE_TIME_MS,
     queryFn: async (): Promise<ListItemDAO[]> => {
       const response = await listService.fethFollowingList();
       return response.data?.data ?? [];
@@ -162,7 +167,7 @@ export function useFollowingLists(enabled = true) {
 
   return {
     followingList: data ?? [],
-    isPending,
+    isPending: isPending && data === undefined,
     isError,
     refetch,
   };

@@ -18,14 +18,12 @@ import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/Se
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
-import { HOME_HREF } from "@/constants/swipeNavigation";
+import { getAdjacentSection, HOME_HREF } from "@/constants/swipeNavigation";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 
 interface SearchTabItem extends TabItem {
   href: Href;
 }
-
-const SAVED_SHARED = "/(app)/(tabs)/saved/shared-with-me" as const;
 
 function getActiveTab(pathname: string): string {
   if (pathname.includes("/businesses")) return "places";
@@ -142,58 +140,63 @@ export default function MainSearch() {
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <PageHeader
-        borderless
-        onBack={handleBack}
-        rightChild={
-          <Pressable
-            onPress={() => commitQuery(query)}
-            accessibilityRole="button"
-            accessibilityLabel={t("common.search")}
-            className="cursor-pointer py-2"
-          >
-            <Text className="font-geist-semibold text-sm text-brand">
-              {t("common.search")}
-            </Text>
-          </Pressable>
+      <SectionPager
+        chrome={
+          <>
+            <PageHeader
+              borderless
+              onBack={handleBack}
+              rightChild={
+                <Pressable
+                  onPress={() => commitQuery(query)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("common.search")}
+                  className="cursor-pointer py-2"
+                >
+                  <Text className="font-geist-semibold text-sm text-brand">
+                    {t("common.search")}
+                  </Text>
+                </Pressable>
+              }
+            >
+              <SearchBar
+                value={query}
+                onChangeText={setQuery}
+                onCommit={commitQuery}
+              />
+            </PageHeader>
+
+            <View className="gap-3 px-4">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+              />
+              <SearchFilterHeader
+                className="-mt-2 mb-3 absolute top-10 z-20"
+                onMeasuredBottomChange={setFilterHeaderBottom}
+                cityLabel={cityLabel}
+                isAllLocations={locationMode === "all"}
+                onCitySelected={handleCitySelected}
+                onAllSelected={handleAllSelected}
+                matchThreshold={matchThreshold}
+                onMatchThresholdChange={setMatchThreshold}
+                matchingCount={activeResultCount}
+                selectedVibes={selectedVibes}
+                onVibesChange={setSelectedVibes}
+                vibeMatchCount={activeResultCount}
+                showMatchFilter={activeTab !== "places"}
+                showVibeFilter={activeTab === "lists" || activeTab === "picks"}
+              />
+            </View>
+          </>
         }
-      >
-        <SearchBar
-          value={query}
-          onChangeText={setQuery}
-          onCommit={commitQuery}
-        />
-      </PageHeader>
-
-      <View className="gap-3 px-4">
-        <Tabs tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
-        <SearchFilterHeader
-          className="-mt-2 mb-3 absolute top-10 z-20"
-          onMeasuredBottomChange={setFilterHeaderBottom}
-          cityLabel={cityLabel}
-          isAllLocations={locationMode === "all"}
-          onCitySelected={handleCitySelected}
-          onAllSelected={handleAllSelected}
-          matchThreshold={matchThreshold}
-          onMatchThresholdChange={setMatchThreshold}
-          matchingCount={activeResultCount}
-          selectedVibes={selectedVibes}
-          onVibesChange={setSelectedVibes}
-          vibeMatchCount={activeResultCount}
-          showMatchFilter={activeTab !== "places"}
-          showVibeFilter={activeTab === "lists" || activeTab === "picks"}
-        />
-      </View>
-
-      <View className="flex-1">
-        <SectionPager
-          pages={pages}
-          activeId={activeTab}
-          onActiveIdChange={handleTabChange}
-          edgeLeftHref={HOME_HREF}
-          edgeRightHref={SAVED_SHARED}
-        />
-      </View>
+        pages={pages}
+        activeId={activeTab}
+        onActiveIdChange={handleTabChange}
+        edgeLeftSection={getAdjacentSection("search", "left")}
+        edgeRightSection={getAdjacentSection("search", "right")}
+      />
     </View>
   );
 }

@@ -7,14 +7,12 @@ import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
-import { useSearchChromeStore } from '@/stores/useSearchChromeStore';
-import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
 import {
   getSectionId,
-  pathnameToAppHref,
   SECTION_ENTRY_HREF,
   type SectionId,
 } from '@/constants/swipeNavigation';
+import { navigateToSection } from '@/utils/navigateToSection';
 import { DropDown, type DropDownOption } from '@/components/ui/DropDown';
 
 const BRAND = '#FF6B1A';
@@ -30,7 +28,7 @@ interface FooterTab {
 /**
  * Sections in SECTION_ORDER sequence, so left-to-right in the bar matches the
  * forward direction of the swipe ring. Destinations come from
- * SECTION_ENTRY_HREF — never hardcode a route here.
+ * SECTION_ENTRY_HREF / lastHrefBySection — never hardcode a route here.
  */
 const TABS: readonly (FooterTab | null)[] = [
   { id: 'home', label: 'Home', Icon: LayoutGrid },
@@ -75,7 +73,6 @@ export function GuardedFooter() {
   const inactiveColor = colorScheme === 'dark' ? INACTIVE_DARK : INACTIVE_LIGHT;
   const openPickModal = usePickModalStore((s) => s.open);
   const resetListForm = useListFormStore((s) => s.reset);
-  const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
 
   const activeSection = getSectionId(pathname);
@@ -91,39 +88,20 @@ export function GuardedFooter() {
     }
   };
 
-  /**
-   * The pagers keep their tab in local state, so the pathname only names the
-   * section. Prefer the page SectionPager published — but only while it still
-   * belongs to the section we are leaving, since it is never cleared and Smart
-   * Pick has no pager of its own.
-   */
-  const currentSectionHref = useCallback(
-    (from: SectionId) => {
-      const { activeHref } = useSectionRouteStore.getState();
-      if (activeHref && getSectionId(String(activeHref)) === from) {
-        return activeHref;
-      }
-      return pathnameToAppHref(pathname);
-    },
-    [pathname],
-  );
-
   // Keep-alive Tabs: navigate (never replace) so section shells stay mounted.
   const handleTabPress = useCallback(
     (to: SectionId) => {
       const from = getSectionId(pathname);
-      if (from === to) return;
 
-      if (to === 'search' && from !== 'search') {
-        setReturnTo(from ? currentSectionHref(from) : pathnameToAppHref(pathname));
-      }
-      if (from === 'search' && to !== 'search') {
-        setReturnTo(null);
+      // Re-tap active section → section root (Facebook "tap again to root").
+      if (from === to) {
+        router.navigate(SECTION_ENTRY_HREF[to]);
+        return;
       }
 
-      router.navigate(SECTION_ENTRY_HREF[to]);
+      navigateToSection(router, to);
     },
-    [currentSectionHref, pathname, router, setReturnTo],
+    [pathname, router],
   );
 
   return (

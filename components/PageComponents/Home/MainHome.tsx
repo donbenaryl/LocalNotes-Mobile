@@ -16,9 +16,7 @@ import { HomeTab } from "@/components/PageComponents/Home/Home/HomeTab";
 import { FollowingTab } from "@/components/PageComponents/Home/Following/FollowingTab";
 import { SpotlightTab } from "@/components/PageComponents/Home/Spotlight/SpotlightTab";
 import { OffersTab } from "@/components/PageComponents/Home/Offers/OffersTab";
-import {
-  SEARCH_PICKS,
-} from "@/constants/swipeNavigation";
+import { getAdjacentSection } from "@/constants/swipeNavigation";
 
 interface HomeTabItem extends TabItem {
   href: Href;
@@ -45,8 +43,6 @@ const TABS: HomeTabItem[] = [
     href: "/(app)/(tabs)/home/offers",
   },
 ];
-
-const SMART_PICK_HREF = "/(app)/(tabs)/smart-pick" as const;
 
 function getActiveTab(pathname: string): string {
   if (pathname.includes("/following")) return "following";
@@ -81,27 +77,26 @@ function MainHomeContent({
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <View className="px-4">
-        <GuardedHeader />
-        <View className="pt-2 mb-4">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={onTabChange}
-            className="border-b-0"
-          />
-        </View>
-      </View>
-
-      <View className="flex-1">
-        <SectionPager
-          pages={pages}
-          activeId={activeTab}
-          onActiveIdChange={onTabChange}
-          edgeLeftHref={SMART_PICK_HREF}
-          edgeRightHref={SEARCH_PICKS}
-        />
-      </View>
+      <SectionPager
+        chrome={
+          <View className="px-4">
+            <GuardedHeader />
+            <View className="pt-2 mb-4">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                className="border-b-0"
+              />
+            </View>
+          </View>
+        }
+        pages={pages}
+        activeId={activeTab}
+        onActiveIdChange={onTabChange}
+        edgeLeftSection={getAdjacentSection("home", "left")}
+        edgeRightSection={getAdjacentSection("home", "right")}
+      />
     </View>
   );
 }

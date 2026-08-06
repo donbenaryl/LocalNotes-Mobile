@@ -14,6 +14,7 @@ import {
   type HomeContentType,
 } from "@/utils/homePicks";
 import { getListMatchPercent } from "@/utils/matchScore";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 10;
@@ -180,6 +181,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
   const discoverQuery = useQuery({
     queryKey: ["home-lists-discover", ...filterQueryKey],
     queryFn: () => fetchLists(searchParams),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const nearYouSearchParams = useMemo((): UnifiedSearchParams => {
@@ -200,6 +202,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
       return lists.filter((list) => isCreatedToday(list.created_at));
     },
     enabled: effectiveCoordinates !== null,
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const nearYouLists = nearYouQuery.data ?? [];
@@ -329,11 +332,8 @@ export function useHomeLists(options: UseHomeListsOptions) {
     [contentType, unfilteredDiscoverLists],
   );
 
-  const isLoading =
-    discoverQuery.isPending ||
-    discoverQuery.isFetching ||
-    (effectiveCoordinates !== null &&
-      (nearYouQuery.isPending || nearYouQuery.isFetching));
+  // Skeleton only when discover has never resolved — not during background refetch.
+  const isLoading = discoverQuery.isPending && discoverQuery.data === undefined;
 
   const error =
     discoverQuery.error?.message ??

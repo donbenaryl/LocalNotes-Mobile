@@ -3,7 +3,6 @@ import { useWindowDimensions, View } from "react-native";
 import {
   Gesture,
   GestureDetector,
-  GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
@@ -149,9 +148,7 @@ export function SearchResultsSheet({
   const headerGesture = Gesture.Race(panGesture, tapGesture);
 
   return (
-    <GestureHandlerRootView
-      style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
-    >
+    <View style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
       <Animated.View
         className="overflow-hidden rounded-t-2xl border-t border-gray-200 bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
         style={[
@@ -172,6 +169,6 @@ export function SearchResultsSheet({
 
         <View className="flex-1">{children}</View>
       </Animated.View>
-    </GestureHandlerRootView>
+    </View>
   );
 }

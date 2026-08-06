@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import notesService from "@/http/notes-api/notes.service";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { mapNoteDaoToOfferItem, type OfferCardItem } from "@/types/offer";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
@@ -68,6 +69,7 @@ export function useOffersFeed() {
     ],
     queryFn: () =>
       fetchOffersFeed(coordinates?.latitude, coordinates?.longitude),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const offers = feedQuery.data ?? [];
@@ -77,7 +79,7 @@ export function useOffersFeed() {
   return {
     sections,
     totalCount: offers.length,
-    isLoading: feedQuery.isPending,
+    isLoading: feedQuery.isPending && feedQuery.data === undefined,
     error: feedQuery.error?.message ?? null,
     refetch: async () => {
       await feedQuery.refetch();

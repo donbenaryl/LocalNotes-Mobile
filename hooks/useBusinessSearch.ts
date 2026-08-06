@@ -5,6 +5,7 @@ import type { BusinessItemDAO, searchBusinessDTO } from "@/http/business-api/typ
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const DEFAULT_RADIUS_KM = 10;
 
@@ -52,6 +53,7 @@ export function useBusinessSearch() {
   const businessQuery = useQuery({
     queryKey,
     queryFn: () => fetchBusinessSearch(params),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const businesses = businessQuery.data ?? [];
@@ -62,8 +64,8 @@ export function useBusinessSearch() {
 
   return {
     businesses,
-    isLoading: businessQuery.isPending || businessQuery.isFetching,
-    isPending: businessQuery.isPending,
+    isLoading: businessQuery.isFetching && businesses.length > 0,
+    isPending: businessQuery.isPending && businessQuery.data === undefined,
     error: businessQuery.error?.message ?? null,
     refetch: businessQuery.refetch,
   };

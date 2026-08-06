@@ -5,20 +5,27 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import PagerView, {
   type PagerViewOnPageScrollEvent,
   type PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
-import { usePathname, useRouter, type Href } from "expo-router";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { useIsFocused } from "@react-navigation/native";
+import { useRouter, type Href } from "expo-router";
 import {
-  isSearchHref,
-  isSearchPathname,
-  pathnameToAppHref,
+  type SectionId,
   type SwipeEnterDirection,
 } from "@/constants/swipeNavigation";
-import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
+import { navigateToSection } from "@/utils/navigateToSection";
 
 export interface SectionPagerPage {
   id: string;
@@ -30,96 +37,176 @@ interface SectionPagerProps {
   pages: SectionPagerPage[];
   activeId: string;
   onActiveIdChange: (id: string) => void;
-  /** Cross-section: swipe left on the last page. */
-  edgeLeftHref?: Href;
-  /** Cross-section: swipe right on the first page. */
-  edgeRightHref?: Href;
-  /** Cross-section: swipe right on the last page (e.g. Saved/Shared → Smart Pick). */
-  edgeRightFromLastHref?: Href;
+  /** Header / tab bar rendered inside the animated shell so it slides with content. */
+  chrome?: ReactNode;
+  /** Cross-section: swipe left on the last page → this footer section. */
+  edgeLeftSection?: SectionId;
+  /** Cross-section: swipe right on the first page → this footer section. */
+  edgeRightSection?: SectionId;
 }
 
-type OverscrollArm = SwipeEnterDirection | null;
-
-/** Fraction of a page swiped past which the next tab is treated as selected. */
 const PAGE_COMMIT_THRESHOLD = 0.5;
+const SWIPE_DISTANCE_THRESHOLD = 72;
+const SWIPE_VELOCITY_THRESHOLD = 700;
+const FAIL_OFFSET_Y = 16;
+const EDGE_STRIP_WIDTH = 28;
+const EXIT_DURATION_MS = 220;
+const CANCEL_DURATION_MS = 180;
+const SLIDE_EASING = Easing.out(Easing.cubic);
 
 /**
- * Keeps every section tab mounted in a native PagerView so within-section
- * swipes show live neighbors. Outward overscroll on the first/last page
- * triggers cross-section navigation without a blank peek panel.
+ * Inner-section PagerView with exclusive screen-edge hit strips for
+ * cross-section navigation. Strips own the edge gesture and drive a
+ * follow-the-finger slide; mid-screen paging stays with PagerView.
  */
 export function SectionPager({
   pages,
   activeId,
   onActiveIdChange,
-  edgeLeftHref,
-  edgeRightHref,
-  edgeRightFromLastHref,
+  chrome,
+  edgeLeftSection,
+  edgeRightSection,
 }: SectionPagerProps) {
   const pagerRef = useRef<PagerView>(null);
-  const overscrollArm = useRef<OverscrollArm>(null);
   const navigatingRef = useRef(false);
-  const pathname = usePathname();
-  const pathnameRef = useRef(pathname);
   const router = useRouter();
-  const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
+  const isFocused = useIsFocused();
+  const { width } = useWindowDimensions();
   const setActiveHref = useSectionRouteStore((s) => s.setActiveHref);
+  const rememberSectionHref = useSectionRouteStore(
+    (s) => s.rememberSectionHref,
+  );
+
+  const translateX = useSharedValue(0);
+  const screenWidth = useSharedValue(width);
+  const isAnimating = useSharedValue(0);
 
   const activeIndex = Math.max(
     0,
     pages.findIndex((page) => page.id === activeId),
   );
   const lastIndex = pages.length - 1;
-
-  /** Where the native pager actually sits, so we never replay its own move. */
   const nativePageRef = useRef(activeIndex);
 
-  useEffect(() => {
-    pathnameRef.current = pathname;
-  }, [pathname]);
+  const showLeftStrip =
+    isFocused && activeIndex === 0 && Boolean(edgeRightSection);
+  const showRightStrip =
+    isFocused && activeIndex === lastIndex && Boolean(edgeLeftSection);
 
-  // Only tap-driven changes reach here — a swipe updates nativePageRef in
-  // onPageSelected first, so its own animation is never replayed. Taps jump
-  // without animation because PagerView's animated duration is fixed natively
-  // and too slow for a tab bar; swipes keep their follow-the-finger motion.
+  useEffect(() => {
+    screenWidth.value = width;
+  }, [screenWidth, width]);
+
   useEffect(() => {
     if (nativePageRef.current === activeIndex) return;
     nativePageRef.current = activeIndex;
     pagerRef.current?.setPageWithoutAnimation(activeIndex);
   }, [activeIndex]);
 
-  // Publish the visible page so outside chrome (the footer) can read the tab
-  // the user is actually on — the URL only names the section. Never cleared on
-  // unmount: the next section mounts before this one tears down, and a clear
-  // would race it. Readers guard against a stale section instead.
   useEffect(() => {
     const href = pages[activeIndex]?.href;
-    if (href) setActiveHref(href);
-  }, [activeIndex, pages, setActiveHref]);
+    if (!href) return;
+    rememberSectionHref(href);
+    if (isFocused) setActiveHref(href);
+  }, [activeIndex, isFocused, pages, rememberSectionHref, setActiveHref]);
 
-  const navigateCrossSection = useCallback(
-    (_direction: SwipeEnterDirection, href: Href) => {
-      if (navigatingRef.current) return;
-      navigatingRef.current = true;
+  useEffect(() => {
+    if (isFocused) return;
+    translateX.value = 0;
+    isAnimating.value = 0;
+    navigatingRef.current = false;
+  }, [isAnimating, isFocused, translateX]);
 
-      // The URL only names the section, so the active page's own href is the
-      // accurate return target — not the pathname.
+  const finishNavigate = useCallback(
+    (direction: SwipeEnterDirection) => {
+      const to =
+        direction === "left" ? edgeLeftSection : edgeRightSection;
+      if (!to) {
+        navigatingRef.current = false;
+        isAnimating.value = 0;
+        translateX.value = 0;
+        return;
+      }
+
       const currentHref = pages[activeIndex]?.href;
-      const fromSearch = currentHref
-        ? isSearchHref(currentHref)
-        : isSearchPathname(pathnameRef.current);
-      const toSearch = isSearchHref(href);
-      if (toSearch && !fromSearch) {
-        setReturnTo(currentHref ?? pathnameToAppHref(pathnameRef.current));
-      }
-      if (fromSearch && !toSearch) {
-        setReturnTo(null);
-      }
-
-      // Keep-alive Tabs: navigate so sibling section shells stay mounted.
-      router.navigate(href);
+      navigateToSection(router, to, { fromHref: currentHref });
     },
-    [activeIndex, pages, router, setReturnTo],
+    [
+      activeIndex,
+      edgeLeftSection,
+      edgeRightSection,
+      isAnimating,
+      pages,
+      router,
+      translateX,
+    ],
+  );
+
+  const animateExitThenNavigate = useCallback(
+    (direction: SwipeEnterDirection) => {
+      const to =
+        direction === "left" ? edgeLeftSection : edgeRightSection;
+      if (!to || navigatingRef.current || isAnimating.value === 1) return;
+
+      navigatingRef.current = true;
+      isAnimating.value = 1;
+      const target =
+        direction === "left" ? -screenWidth.value : screenWidth.value;
+
+      translateX.value = withTiming(
+        target,
+        { duration: EXIT_DURATION_MS, easing: SLIDE_EASING },
+        (finished) => {
+          if (finished) {
+            runOnJS(finishNavigate)(direction);
+          }
+        },
+      );
+    },
+    [
+      edgeLeftSection,
+      edgeRightSection,
+      finishNavigate,
+      isAnimating,
+      screenWidth,
+      translateX,
+    ],
+  );
+
+  const cancelEdgeSlide = useCallback(() => {
+    if (isAnimating.value === 1 || navigatingRef.current) return;
+    isAnimating.value = 1;
+    translateX.value = withTiming(
+      0,
+      { duration: CANCEL_DURATION_MS, easing: SLIDE_EASING },
+      (finished) => {
+        if (finished) {
+          isAnimating.value = 0;
+        }
+      },
+    );
+  }, [isAnimating, translateX]);
+
+  const handleEdgePanEnd = useCallback(
+    (direction: SwipeEnterDirection, translationX: number, velocityX: number) => {
+      if (navigatingRef.current || isAnimating.value === 1) return;
+
+      const committedLeft =
+        direction === "left" &&
+        (translationX < -SWIPE_DISTANCE_THRESHOLD ||
+          velocityX < -SWIPE_VELOCITY_THRESHOLD);
+      const committedRight =
+        direction === "right" &&
+        (translationX > SWIPE_DISTANCE_THRESHOLD ||
+          velocityX > SWIPE_VELOCITY_THRESHOLD);
+
+      if (committedLeft || committedRight) {
+        animateExitThenNavigate(direction);
+        return;
+      }
+      cancelEdgeSlide();
+    },
+    [animateExitThenNavigate, cancelEdgeSlide, isAnimating],
   );
 
   const handlePageSelected = useCallback(
@@ -137,81 +224,17 @@ export function SectionPager({
   const handlePageScroll = useCallback(
     (event: PagerViewOnPageScrollEvent) => {
       const { position, offset } = event.nativeEvent;
-
-      // Flip the tab as soon as the swipe passes the midpoint. Waiting for
-      // onPageSelected leaves the tab bar trailing the gesture, because iOS
-      // only fires it once the settle animation has finished.
       const settledIndex =
         offset > PAGE_COMMIT_THRESHOLD ? position + 1 : position;
       const settledPage = pages[settledIndex];
       if (settledPage && settledPage.id !== activeId) {
-        // Claim the destination so the setPage effect reads this as the pager's
-        // own move and doesn't yank it back mid-gesture. Dragging back below the
-        // midpoint reverts both this and the tab through the same branch.
         nativePageRef.current = settledIndex;
         onActiveIdChange(settledPage.id);
       }
-
-      // Pulling past the first page (right / previous section).
-      if (position === 0 && offset < -0.08 && edgeRightHref) {
-        overscrollArm.current = "right";
-        return;
-      }
-      // Pulling past the last page (left / next section).
-      if (position === lastIndex && offset > 0.08 && edgeLeftHref) {
-        overscrollArm.current = "left";
-        return;
-      }
-      // Last page pulled backward (right) — e.g. Shared → Smart Pick.
-      if (
-        position === lastIndex &&
-        offset < -0.08 &&
-        edgeRightFromLastHref
-      ) {
-        overscrollArm.current = "right";
-        return;
-      }
-
-      if (offset > -0.03 && offset < 0.03) {
-        overscrollArm.current = null;
-      }
     },
-    [
-      activeId,
-      edgeLeftHref,
-      edgeRightFromLastHref,
-      edgeRightHref,
-      lastIndex,
-      onActiveIdChange,
-      pages,
-    ],
+    [activeId, onActiveIdChange, pages],
   );
 
-  const flushOverscroll = useCallback(() => {
-    const arm = overscrollArm.current;
-    overscrollArm.current = null;
-    if (!arm) return;
-
-    if (arm === "left" && edgeLeftHref) {
-      navigateCrossSection("left", edgeLeftHref);
-      return;
-    }
-    if (arm === "right") {
-      const href = activeIndex <= 0 ? edgeRightHref : edgeRightFromLastHref;
-      if (href) navigateCrossSection("right", href);
-    }
-  }, [
-    activeIndex,
-    edgeLeftHref,
-    edgeRightFromLastHref,
-    edgeRightHref,
-    navigateCrossSection,
-  ]);
-
-  // Built once per `pages` identity, never per `activeId`. Stable element
-  // references let React bail out of every page subtree on a tab tap, so the
-  // tab highlight paints immediately instead of waiting on a commit that
-  // re-renders all the feeds.
   const renderedPages = useMemo(
     () =>
       pages.map((page) => (
@@ -222,34 +245,161 @@ export function SectionPager({
     [pages],
   );
 
-  const handleScrollStateChange = useCallback(
-    (event: { nativeEvent: { pageScrollState: string } }) => {
-      const state = event.nativeEvent.pageScrollState;
-
-      if (state === "idle") {
-        flushOverscroll();
-        navigatingRef.current = false;
-      }
-    },
-    [flushOverscroll],
+  // Left strip: first page — swipe right → previous section (edgeRightSection).
+  const leftStripPan = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(showLeftStrip)
+        .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
+        .onUpdate((event) => {
+          "worklet";
+          if (isAnimating.value === 1) return;
+          const max = screenWidth.value;
+          translateX.value = Math.max(0, Math.min(max, event.translationX));
+        })
+        .onEnd((event) => {
+          "worklet";
+          if (isAnimating.value === 1) return;
+          runOnJS(handleEdgePanEnd)(
+            "right",
+            event.translationX,
+            event.velocityX,
+          );
+        })
+        .onFinalize((_event, success) => {
+          "worklet";
+          if (!success && isAnimating.value === 0) {
+            runOnJS(cancelEdgeSlide)();
+          }
+        }),
+    [
+      cancelEdgeSlide,
+      handleEdgePanEnd,
+      isAnimating,
+      screenWidth,
+      showLeftStrip,
+      translateX,
+    ],
   );
 
+  // Right strip: last page — swipe left → next section (edgeLeftSection).
+  const rightStripPan = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(showRightStrip)
+        .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
+        .onUpdate((event) => {
+          "worklet";
+          if (isAnimating.value === 1) return;
+          const max = screenWidth.value;
+          translateX.value = Math.max(-max, Math.min(0, event.translationX));
+        })
+        .onEnd((event) => {
+          "worklet";
+          if (isAnimating.value === 1) return;
+          runOnJS(handleEdgePanEnd)(
+            "left",
+            event.translationX,
+            event.velocityX,
+          );
+        })
+        .onFinalize((_event, success) => {
+          "worklet";
+          if (!success && isAnimating.value === 0) {
+            runOnJS(cancelEdgeSlide)();
+          }
+        }),
+    [
+      cancelEdgeSlide,
+      handleEdgePanEnd,
+      isAnimating,
+      screenWidth,
+      showRightStrip,
+      translateX,
+    ],
+  );
+
+  const currentStyle = useAnimatedStyle(() => ({
+    flex: 1,
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const peekStyle = useAnimatedStyle(() => {
+    const w = screenWidth.value;
+    const x = translateX.value;
+    const peekX = x <= 0 ? x + w : x - w;
+    return {
+      transform: [{ translateX: peekX }],
+    };
+  });
+
   return (
-    <PagerView
-      ref={pagerRef}
-      style={styles.fill}
-      initialPage={activeIndex}
-      overdrag
-      offscreenPageLimit={Math.max(pages.length - 1, 1)}
-      onPageScroll={handlePageScroll}
-      onPageScrollStateChanged={handleScrollStateChange}
-      onPageSelected={handlePageSelected}
-    >
-      {renderedPages}
-    </PagerView>
+    <View className="flex-1 overflow-hidden">
+      <Animated.View
+        pointerEvents="none"
+        className="absolute inset-0 bg-page dark:bg-gray-900"
+        style={peekStyle}
+      />
+      <Animated.View
+        className="flex-1 bg-page dark:bg-gray-900"
+        style={currentStyle}
+        collapsable={false}
+      >
+        {chrome}
+        <PagerView
+          ref={pagerRef}
+          style={styles.fill}
+          initialPage={activeIndex}
+          overdrag={false}
+          offscreenPageLimit={Math.max(pages.length - 1, 1)}
+          onPageScroll={handlePageScroll}
+          onPageSelected={handlePageSelected}
+        >
+          {renderedPages}
+        </PagerView>
+      </Animated.View>
+
+      {showLeftStrip ? (
+        <GestureDetector gesture={leftStripPan}>
+          <View
+            style={styles.leftStrip}
+            collapsable={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          />
+        </GestureDetector>
+      ) : null}
+
+      {showRightStrip ? (
+        <GestureDetector gesture={rightStripPan}>
+          <View
+            style={styles.rightStrip}
+            collapsable={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          />
+        </GestureDetector>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  leftStrip: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    width: EDGE_STRIP_WIDTH,
+    zIndex: 20,
+  },
+  rightStrip: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: EDGE_STRIP_WIDTH,
+    zIndex: 20,
+  },
 });

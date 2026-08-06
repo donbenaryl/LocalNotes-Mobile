@@ -2,13 +2,6 @@ import type { Href } from "expo-router";
 
 export type SwipeEnterDirection = "left" | "right";
 
-export interface SwipeTargets {
-  /** Destination when the user swipes left (next page). */
-  left?: Href;
-  /** Destination when the user swipes right (previous page). */
-  right?: Href;
-}
-
 export const HOME_HREF = "/(app)/(tabs)/home" as const;
 const HOME_FOLLOWING = "/(app)/(tabs)/home/following" as const;
 const HOME_SPOTLIGHT = "/(app)/(tabs)/home/spotlight" as const;
@@ -56,55 +49,6 @@ export function pathnameToAppHref(pathname: string): Href {
   return HOME_HREF;
 }
 
-/**
- * Resolves left/right swipe destinations for main feed/search shells.
- * Returns empty targets for routes outside the swipe graph.
- */
-export function getSwipeTargets(pathname: string): SwipeTargets {
-  if (pathname.includes("/search/people")) {
-    return { left: HOME_HREF, right: SEARCH_PLACES };
-  }
-  if (pathname.includes("/search/businesses")) {
-    return { left: SEARCH_PEOPLE, right: SEARCH_LISTS };
-  }
-  if (pathname.includes("/search/lists")) {
-    return { left: SEARCH_PLACES, right: SEARCH_PICKS };
-  }
-  if (pathname.includes("/search/picks") || pathname.includes("/search")) {
-    return { left: SEARCH_LISTS, right: SAVED_SHARED };
-  }
-
-  if (pathname.includes("/saved/shared-with-me")) {
-    return { left: SEARCH_PICKS, right: SMART_PICK };
-  }
-  if (pathname.includes("/saved/saved")) {
-    return { left: SAVED_SHARED, right: SAVED_DRAFT };
-  }
-  if (pathname.includes("/saved/draft") || pathname.includes("/saved")) {
-    return { left: SAVED_SAVED, right: SMART_PICK };
-  }
-
-  // Only the Smart Pick form tab — not stack history/detail routes.
-  if (/\/smart-pick\/?$/.test(pathname)) {
-    return { left: SAVED_DRAFT, right: HOME_HREF };
-  }
-
-  if (pathname.includes("/home/offers")) {
-    return { left: SMART_PICK, right: HOME_SPOTLIGHT };
-  }
-  if (pathname.includes("/home/spotlight")) {
-    return { left: HOME_OFFERS, right: HOME_FOLLOWING };
-  }
-  if (pathname.includes("/home/following")) {
-    return { left: HOME_SPOTLIGHT, right: HOME_HREF };
-  }
-  if (pathname.includes("/home")) {
-    return { left: HOME_FOLLOWING, right: SEARCH_PICKS };
-  }
-
-  return {};
-}
-
 export type SectionId = "home" | "smart-pick" | "saved" | "search";
 
 /** Canonical forward (swipe-left) order of the section ring. */
@@ -116,8 +60,8 @@ export const SECTION_ORDER: readonly SectionId[] = [
 ] as const;
 
 /**
- * First page of each section. Footer taps and cross-section jumps land here;
- * keep-alive Tabs restore each shell's local inner-tab state on return.
+ * First page of each section. Re-tapping the active footer tab lands here;
+ * cross-section taps/swipes prefer lastHrefBySection when available.
  */
 export const SECTION_ENTRY_HREF: Record<SectionId, Href> = {
   home: HOME_HREF,
@@ -156,4 +100,21 @@ export function getSectionDirection(
 
   if (forward !== backward) return forward < backward ? "left" : "right";
   return toIndex > fromIndex ? "left" : "right";
+}
+
+/**
+ * Neighbor on the section ring. "left" = forward (swipe left / next section),
+ * "right" = backward (swipe right / previous section).
+ */
+export function getAdjacentSection(
+  from: SectionId,
+  direction: SwipeEnterDirection,
+): SectionId {
+  const index = SECTION_ORDER.indexOf(from);
+  const count = SECTION_ORDER.length;
+  const nextIndex =
+    direction === "left"
+      ? (index + 1) % count
+      : (index - 1 + count) % count;
+  return SECTION_ORDER[nextIndex];
 }

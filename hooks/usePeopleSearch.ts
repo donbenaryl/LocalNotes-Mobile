@@ -5,6 +5,7 @@ import type { peopleDiscoverySearchDTO } from "@/http/account-api/types";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const SEARCH_LIMIT = 25;
 
@@ -42,6 +43,7 @@ export function usePeopleSearch() {
   const peopleQuery = useQuery({
     queryKey,
     queryFn: () => fetchPeopleSearch(params),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   const people = peopleQuery.data ?? [];
@@ -52,8 +54,8 @@ export function usePeopleSearch() {
 
   return {
     people,
-    isLoading: peopleQuery.isPending || peopleQuery.isFetching,
-    isPending: peopleQuery.isPending,
+    isLoading: peopleQuery.isFetching && people.length > 0,
+    isPending: peopleQuery.isPending && peopleQuery.data === undefined,
     error: peopleQuery.error?.message ?? null,
     refetch: peopleQuery.refetch,
   };
