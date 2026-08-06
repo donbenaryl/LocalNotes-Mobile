@@ -9,10 +9,7 @@ import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
 import { useSearchChromeStore } from '@/stores/useSearchChromeStore';
 import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
-import { useSwipeTransitionStore } from '@/stores/useSwipeTransitionStore';
 import {
-  CROSS_SECTION_ENTER_OFFSET,
-  getSectionDirection,
   getSectionId,
   pathnameToAppHref,
   SECTION_ENTRY_HREF,
@@ -79,7 +76,6 @@ export function GuardedFooter() {
   const openPickModal = usePickModalStore((s) => s.open);
   const resetListForm = useListFormStore((s) => s.reset);
   const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
-  const setEnterTransition = useSwipeTransitionStore((s) => s.setEnterTransition);
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
 
   const activeSection = getSectionId(pathname);
@@ -112,8 +108,7 @@ export function GuardedFooter() {
     [pathname],
   );
 
-  // Mirrors SectionPager's cross-section swipe: replace (never push, so tabs
-  // don't stack), keep returnTo symmetric, and arm the same enter transition.
+  // Keep-alive Tabs: navigate (never replace) so section shells stay mounted.
   const handleTabPress = useCallback(
     (to: SectionId) => {
       const from = getSectionId(pathname);
@@ -126,19 +121,9 @@ export function GuardedFooter() {
         setReturnTo(null);
       }
 
-      if (from) {
-        const direction = getSectionDirection(from, to);
-        setEnterTransition(
-          direction,
-          direction === 'left'
-            ? CROSS_SECTION_ENTER_OFFSET
-            : -CROSS_SECTION_ENTER_OFFSET,
-        );
-      }
-
-      router.replace(SECTION_ENTRY_HREF[to]);
+      router.navigate(SECTION_ENTRY_HREF[to]);
     },
-    [currentSectionHref, pathname, router, setEnterTransition, setReturnTo],
+    [currentSectionHref, pathname, router, setReturnTo],
   );
 
   return (

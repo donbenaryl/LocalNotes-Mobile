@@ -1,5 +1,6 @@
 import type { Href } from "expo-router";
-import type { SwipeEnterDirection } from "@/stores/useSwipeTransitionStore";
+
+export type SwipeEnterDirection = "left" | "right";
 
 export interface SwipeTargets {
   /** Destination when the user swipes left (next page). */
@@ -16,13 +17,10 @@ export const SMART_PICK = "/(app)/(tabs)/smart-pick" as const;
 export const SAVED_DRAFT = "/(app)/(tabs)/saved/draft" as const;
 const SAVED_SAVED = "/(app)/(tabs)/saved/saved" as const;
 const SAVED_SHARED = "/(app)/(tabs)/saved/shared-with-me" as const;
-export const SEARCH_PICKS = "/(app)/(stack)/search/picks" as const;
-const SEARCH_LISTS = "/(app)/(stack)/search/lists" as const;
-const SEARCH_PLACES = "/(app)/(stack)/search/businesses" as const;
-const SEARCH_PEOPLE = "/(app)/(stack)/search/people" as const;
-
-/** Pixels an incoming page travels when a cross-section jump animates. */
-export const CROSS_SECTION_ENTER_OFFSET = 280;
+export const SEARCH_PICKS = "/(app)/(tabs)/search/picks" as const;
+const SEARCH_LISTS = "/(app)/(tabs)/search/lists" as const;
+const SEARCH_PLACES = "/(app)/(tabs)/search/businesses" as const;
+const SEARCH_PEOPLE = "/(app)/(tabs)/search/people" as const;
 
 export function isSearchHref(href: Href | string): boolean {
   return String(href).includes("/search");
@@ -118,8 +116,8 @@ export const SECTION_ORDER: readonly SectionId[] = [
 ] as const;
 
 /**
- * First page of each section. Every cross-section jump lands here — the same
- * rule the per-section edge hrefs in getSwipeTargets follow.
+ * First page of each section. Footer taps and cross-section jumps land here;
+ * keep-alive Tabs restore each shell's local inner-tab state on return.
  */
 export const SECTION_ENTRY_HREF: Record<SectionId, Href> = {
   home: HOME_HREF,

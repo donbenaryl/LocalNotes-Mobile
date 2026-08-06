@@ -79,25 +79,25 @@ export default function MainSearch() {
         id: "picks",
         label: t("search.tabs.picks"),
         icon: Sparkles,
-        href: "/(app)/(stack)/search/picks",
+        href: "/(app)/(tabs)/search/picks",
       },
       {
         id: "lists",
         label: t("search.tabs.lists"),
         icon: List,
-        href: "/(app)/(stack)/search/lists",
+        href: "/(app)/(tabs)/search/lists",
       },
       {
         id: "places",
         label: t("search.tabs.places"),
         icon: MapPin,
-        href: "/(app)/(stack)/search/businesses",
+        href: "/(app)/(tabs)/search/businesses",
       },
       {
         id: "people",
         label: t("search.tabs.people"),
         icon: Users,
-        href: "/(app)/(stack)/search/people",
+        href: "/(app)/(tabs)/search/people",
       },
     ],
     [t],
@@ -137,7 +137,7 @@ export default function MainSearch() {
   const handleBack = useCallback(() => {
     const destination = returnTo ?? HOME_HREF;
     setReturnTo(null);
-    router.replace(destination);
+    router.navigate(destination);
   }, [returnTo, router, setReturnTo]);
 
   return (

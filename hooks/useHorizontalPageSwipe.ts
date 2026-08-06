@@ -14,12 +14,9 @@ import {
   isSearchHref,
   isSearchPathname,
   pathnameToAppHref,
+  type SwipeEnterDirection,
 } from "@/constants/swipeNavigation";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
-import {
-  useSwipeTransitionStore,
-  type SwipeEnterDirection,
-} from "@/stores/useSwipeTransitionStore";
 
 /** Horizontal travel required to commit a page change. */
 const SWIPE_DISTANCE_THRESHOLD = 72;
@@ -33,31 +30,15 @@ const ACTIVE_OFFSET_X = 48;
 /** Fail the page-swipe gesture once vertical scroll clearly wins. */
 const FAIL_OFFSET_Y = 16;
 
-const SLIDE_DURATION_MS = 260;
 const SLIDE_EASING = Easing.out(Easing.cubic);
-
-function initialTranslateForEnter(width: number): number {
-  const { enterDirection, enterFromX } =
-    useSwipeTransitionStore.getState();
-  if (enterFromX != null) return enterFromX;
-  if (enterDirection === "left") return width;
-  if (enterDirection === "right") return -width;
-  return 0;
-}
 
 export function useHorizontalPageSwipe() {
   const pathname = usePathname();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
-  const setEnterTransition = useSwipeTransitionStore(
-    (s) => s.setEnterTransition,
-  );
-  const clearEnterTransition = useSwipeTransitionStore(
-    (s) => s.clearEnterTransition,
-  );
 
-  const translateX = useSharedValue(initialTranslateForEnter(width));
+  const translateX = useSharedValue(0);
   const screenWidth = useSharedValue(width);
   const canGoLeft = useSharedValue(0);
   const canGoRight = useSharedValue(0);
@@ -90,7 +71,8 @@ export function useHorizontalPageSwipe() {
         setReturnTo(null);
       }
 
-      router.replace(href);
+      // Keep-alive Tabs: navigate so sibling section shells stay mounted.
+      router.navigate(href);
     },
     [router, setReturnTo],
   );
@@ -108,81 +90,33 @@ export function useHorizontalPageSwipe() {
     );
   }, [isAnimating, translateX]);
 
-  const runEnterAnimation = useCallback(
-    (fromX: number) => {
-      // Place incoming page where the peek was so real content appears immediately.
-      translateX.value = fromX;
-      isAnimating.value = 1;
-      translateX.value = withTiming(
-        0,
-        { duration: SLIDE_DURATION_MS, easing: SLIDE_EASING },
-        (finished) => {
-          if (finished) {
-            isAnimating.value = 0;
-            runOnJS(clearEnterTransition)();
-          }
-        },
-      );
-    },
-    [clearEnterTransition, isAnimating, translateX],
-  );
-
   useLayoutEffect(() => {
     leftHrefRef.current = targets.left;
     rightHrefRef.current = targets.right;
     canGoLeft.value = targets.left ? 1 : 0;
     canGoRight.value = targets.right ? 1 : 0;
-
-    const { enterDirection, enterFromX } =
-      useSwipeTransitionStore.getState();
-    if (enterDirection) {
-      const w = screenWidth.value;
-      const fromX =
-        enterFromX ?? (enterDirection === "left" ? w : -w);
-      runEnterAnimation(fromX);
-      navigatingRef.current = false;
-      return;
-    }
-
-    if (!navigatingRef.current) {
-      translateX.value = 0;
-      isAnimating.value = 0;
-    }
+    translateX.value = 0;
+    isAnimating.value = 0;
     navigatingRef.current = false;
   }, [
     canGoLeft,
     canGoRight,
     isAnimating,
     pathname,
-    runEnterAnimation,
-    screenWidth,
     targets.left,
     targets.right,
     translateX,
   ]);
 
-  /**
-   * Navigate immediately and slide the real next page in from the peek
-   * offset — no blank full-screen hold between exit and enter.
-   */
   const commitSwipe = useCallback(
-    (
-      direction: SwipeEnterDirection,
-      href: Href,
-      currentX: number,
-    ) => {
+    (_direction: SwipeEnterDirection, href: Href) => {
       if (navigatingRef.current) return;
       navigatingRef.current = true;
-      isAnimating.value = 1;
-
-      const w = screenWidth.value;
-      // Peek sits one screen beside the current page at currentX.
-      const enterFromX = direction === "left" ? currentX + w : currentX - w;
-
-      setEnterTransition(direction, enterFromX);
+      translateX.value = 0;
+      isAnimating.value = 0;
       navigateTo(href);
     },
-    [isAnimating, navigateTo, screenWidth, setEnterTransition],
+    [isAnimating, navigateTo, translateX],
   );
 
   const handleSwipeEnd = useCallback(
@@ -199,11 +133,11 @@ export function useHorizontalPageSwipe() {
         Boolean(rightHrefRef.current);
 
       if (goLeft && leftHrefRef.current) {
-        commitSwipe("left", leftHrefRef.current, translationX);
+        commitSwipe("left", leftHrefRef.current);
         return;
       }
       if (goRight && rightHrefRef.current) {
-        commitSwipe("right", rightHrefRef.current, translationX);
+        commitSwipe("right", rightHrefRef.current);
         return;
       }
       resetTranslate();

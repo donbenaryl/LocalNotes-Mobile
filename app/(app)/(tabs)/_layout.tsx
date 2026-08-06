@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,12 +14,22 @@ export default function TabsLayout() {
   return (
     <View className="flex-1 bg-page dark:bg-gray-900" style={{ paddingTop: insets.top }}>
       <View className="flex-1">
-        <Stack
+        <Tabs
+          detachInactiveScreens={false}
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: 'transparent' },
+            lazy: true,
+            animation: 'none',
+            freezeOnBlur: false,
+            sceneStyle: { backgroundColor: 'transparent' },
+            tabBarStyle: { display: 'none' },
           }}
-        />
+        >
+          <Tabs.Screen name="home" options={{ title: 'Home' }} />
+          <Tabs.Screen name="smart-pick" options={{ title: 'Smart Picks' }} />
+          <Tabs.Screen name="saved" options={{ title: 'Saved' }} />
+          <Tabs.Screen name="search" options={{ title: 'Search' }} />
+        </Tabs>
       </View>
       <GuardedFooter />
       <PickFormModal

@@ -12,17 +12,13 @@ import PagerView, {
 } from "react-native-pager-view";
 import { usePathname, useRouter, type Href } from "expo-router";
 import {
-  CROSS_SECTION_ENTER_OFFSET,
   isSearchHref,
   isSearchPathname,
   pathnameToAppHref,
+  type SwipeEnterDirection,
 } from "@/constants/swipeNavigation";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
-import {
-  useSwipeTransitionStore,
-  type SwipeEnterDirection,
-} from "@/stores/useSwipeTransitionStore";
 
 export interface SectionPagerPage {
   id: string;
@@ -68,9 +64,6 @@ export function SectionPager({
   const router = useRouter();
   const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
   const setActiveHref = useSectionRouteStore((s) => s.setActiveHref);
-  const setEnterTransition = useSwipeTransitionStore(
-    (s) => s.setEnterTransition,
-  );
 
   const activeIndex = Math.max(
     0,
@@ -95,12 +88,6 @@ export function SectionPager({
     pagerRef.current?.setPageWithoutAnimation(activeIndex);
   }, [activeIndex]);
 
-  // Cross-section navigation arms an enter transition that only Smart Pick
-  // consumes; drop any leftover so it can't replay on a later mount.
-  useEffect(() => {
-    useSwipeTransitionStore.getState().clearEnterTransition();
-  }, []);
-
   // Publish the visible page so outside chrome (the footer) can read the tab
   // the user is actually on — the URL only names the section. Never cleared on
   // unmount: the next section mounts before this one tears down, and a clear
@@ -111,7 +98,7 @@ export function SectionPager({
   }, [activeIndex, pages, setActiveHref]);
 
   const navigateCrossSection = useCallback(
-    (direction: SwipeEnterDirection, href: Href) => {
+    (_direction: SwipeEnterDirection, href: Href) => {
       if (navigatingRef.current) return;
       navigatingRef.current = true;
 
@@ -129,15 +116,10 @@ export function SectionPager({
         setReturnTo(null);
       }
 
-      setEnterTransition(
-        direction,
-        direction === "left"
-          ? CROSS_SECTION_ENTER_OFFSET
-          : -CROSS_SECTION_ENTER_OFFSET,
-      );
-      router.replace(href);
+      // Keep-alive Tabs: navigate so sibling section shells stay mounted.
+      router.navigate(href);
     },
-    [activeIndex, pages, router, setEnterTransition, setReturnTo],
+    [activeIndex, pages, router, setReturnTo],
   );
 
   const handlePageSelected = useCallback(
