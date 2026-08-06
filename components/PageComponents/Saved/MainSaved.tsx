@@ -16,7 +16,6 @@ import { GuardedHeader } from "@/components/ui/layout/GuardedHeader";
 import { DraftsTab } from "@/components/PageComponents/Saved/Drafts/DraftsTab";
 import { SavedTab } from "@/components/PageComponents/Saved/Saved/SavedTab";
 import { SharedWithMeTab } from "@/components/PageComponents/Saved/SharedWithMe/SharedWithMeTab";
-import { getAdjacentSection } from "@/constants/swipeNavigation";
 
 interface SavedTabItem extends TabItem {
   href: Href;
@@ -61,6 +60,7 @@ function MainSavedContent({
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <SectionPager
+        sectionId="saved"
         chrome={
           <View className="px-4">
             <GuardedHeader />
@@ -77,8 +77,6 @@ function MainSavedContent({
         pages={pages}
         activeId={activeTab}
         onActiveIdChange={onTabChange}
-        edgeLeftSection={getAdjacentSection("saved", "left")}
-        edgeRightSection={getAdjacentSection("saved", "right")}
       />
     </View>
   );

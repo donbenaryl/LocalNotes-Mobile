@@ -5,26 +5,22 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import PagerView, {
   type PagerViewOnPageScrollEvent,
   type PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, {
-  Easing,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import { runOnJS } from "react-native-reanimated";
 import { useIsFocused } from "@react-navigation/native";
-import { useRouter, type Href } from "expo-router";
+import { usePathname, useRouter, type Href } from "expo-router";
 import {
+  getAdjacentSection,
+  getSectionId,
   type SectionId,
-  type SwipeEnterDirection,
 } from "@/constants/swipeNavigation";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
+import { useSectionSwipeStore } from "@/stores/useSectionSwipeStore";
 import { navigateToSection } from "@/utils/navigateToSection";
 
 export interface SectionPagerPage {
@@ -37,12 +33,14 @@ interface SectionPagerProps {
   pages: SectionPagerPage[];
   activeId: string;
   onActiveIdChange: (id: string) => void;
-  /** Header / tab bar rendered inside the animated shell so it slides with content. */
+  /** Header / tab bar above the pager. */
   chrome?: ReactNode;
-  /** Cross-section: swipe left on the last page → this footer section. */
-  edgeLeftSection?: SectionId;
-  /** Cross-section: swipe right on the first page → this footer section. */
-  edgeRightSection?: SectionId;
+  /**
+   * Footer section this pager belongs to. When set, "active" is derived from
+   * pathname (shells stay mounted in SectionShellPager). Omit for stack
+   * routes like Profile (falls back to useIsFocused).
+   */
+  sectionId?: SectionId;
 }
 
 const PAGE_COMMIT_THRESHOLD = 0.5;
@@ -50,36 +48,34 @@ const SWIPE_DISTANCE_THRESHOLD = 72;
 const SWIPE_VELOCITY_THRESHOLD = 700;
 const FAIL_OFFSET_Y = 16;
 const EDGE_STRIP_WIDTH = 28;
-const EXIT_DURATION_MS = 220;
-const CANCEL_DURATION_MS = 180;
-const SLIDE_EASING = Easing.out(Easing.cubic);
 
 /**
- * Inner-section PagerView with exclusive screen-edge hit strips for
- * cross-section navigation. Strips own the edge gesture and drive a
- * follow-the-finger slide; mid-screen paging stays with PagerView.
+ * Inner-section PagerView for sub-tabs within a footer section.
+ * Parent SectionShellPager swipe is enabled on the last sub-tab only.
+ * On the first sub-tab, a left-edge strip handles swipe-right → previous
+ * section (Drafts → Smart Pick, Picks → Saved) without stealing left-swipes.
  */
 export function SectionPager({
   pages,
   activeId,
   onActiveIdChange,
   chrome,
-  edgeLeftSection,
-  edgeRightSection,
+  sectionId,
 }: SectionPagerProps) {
   const pagerRef = useRef<PagerView>(null);
   const navigatingRef = useRef(false);
   const router = useRouter();
-  const isFocused = useIsFocused();
-  const { width } = useWindowDimensions();
+  const pathname = usePathname();
+  const isNavFocused = useIsFocused();
+  const isSectionActive = sectionId
+    ? getSectionId(pathname) === sectionId
+    : isNavFocused;
+
   const setActiveHref = useSectionRouteStore((s) => s.setActiveHref);
   const rememberSectionHref = useSectionRouteStore(
     (s) => s.rememberSectionHref,
   );
-
-  const translateX = useSharedValue(0);
-  const screenWidth = useSharedValue(width);
-  const isAnimating = useSharedValue(0);
+  const setSwipeEnabled = useSectionSwipeStore((s) => s.setSwipeEnabled);
 
   const activeIndex = Math.max(
     0,
@@ -88,14 +84,8 @@ export function SectionPager({
   const lastIndex = pages.length - 1;
   const nativePageRef = useRef(activeIndex);
 
-  const showLeftStrip =
-    isFocused && activeIndex === 0 && Boolean(edgeRightSection);
-  const showRightStrip =
-    isFocused && activeIndex === lastIndex && Boolean(edgeLeftSection);
-
-  useEffect(() => {
-    screenWidth.value = width;
-  }, [screenWidth, width]);
+  const showPrevSectionStrip =
+    Boolean(sectionId) && isSectionActive && activeIndex === 0;
 
   useEffect(() => {
     if (nativePageRef.current === activeIndex) return;
@@ -107,106 +97,48 @@ export function SectionPager({
     const href = pages[activeIndex]?.href;
     if (!href) return;
     rememberSectionHref(href);
-    if (isFocused) setActiveHref(href);
-  }, [activeIndex, isFocused, pages, rememberSectionHref, setActiveHref]);
+    if (isSectionActive) setActiveHref(href);
+  }, [
+    activeIndex,
+    isSectionActive,
+    pages,
+    rememberSectionHref,
+    setActiveHref,
+  ]);
 
   useEffect(() => {
-    if (isFocused) return;
-    translateX.value = 0;
-    isAnimating.value = 0;
-    navigatingRef.current = false;
-  }, [isAnimating, isFocused, translateX]);
+    if (!isSectionActive) {
+      navigatingRef.current = false;
+      return;
+    }
+    const allowParentSwipe =
+      pages.length <= 1 || activeIndex === lastIndex;
+    setSwipeEnabled(allowParentSwipe);
+  }, [
+    activeIndex,
+    isSectionActive,
+    lastIndex,
+    pages.length,
+    setSwipeEnabled,
+  ]);
 
-  const finishNavigate = useCallback(
-    (direction: SwipeEnterDirection) => {
-      const to =
-        direction === "left" ? edgeLeftSection : edgeRightSection;
-      if (!to) {
-        navigatingRef.current = false;
-        isAnimating.value = 0;
-        translateX.value = 0;
-        return;
-      }
+  const navigateToPreviousSection = useCallback(() => {
+    if (!sectionId || navigatingRef.current) return;
+    navigatingRef.current = true;
+    const previous = getAdjacentSection(sectionId, "right");
+    const currentHref = pages[activeIndex]?.href;
+    navigateToSection(router, previous, { fromHref: currentHref });
+  }, [activeIndex, pages, router, sectionId]);
 
-      const currentHref = pages[activeIndex]?.href;
-      navigateToSection(router, to, { fromHref: currentHref });
+  const handlePrevSectionPanEnd = useCallback(
+    (translationX: number, velocityX: number) => {
+      if (navigatingRef.current) return;
+      const committed =
+        translationX > SWIPE_DISTANCE_THRESHOLD ||
+        velocityX > SWIPE_VELOCITY_THRESHOLD;
+      if (committed) navigateToPreviousSection();
     },
-    [
-      activeIndex,
-      edgeLeftSection,
-      edgeRightSection,
-      isAnimating,
-      pages,
-      router,
-      translateX,
-    ],
-  );
-
-  const animateExitThenNavigate = useCallback(
-    (direction: SwipeEnterDirection) => {
-      const to =
-        direction === "left" ? edgeLeftSection : edgeRightSection;
-      if (!to || navigatingRef.current || isAnimating.value === 1) return;
-
-      navigatingRef.current = true;
-      isAnimating.value = 1;
-      const target =
-        direction === "left" ? -screenWidth.value : screenWidth.value;
-
-      translateX.value = withTiming(
-        target,
-        { duration: EXIT_DURATION_MS, easing: SLIDE_EASING },
-        (finished) => {
-          if (finished) {
-            runOnJS(finishNavigate)(direction);
-          }
-        },
-      );
-    },
-    [
-      edgeLeftSection,
-      edgeRightSection,
-      finishNavigate,
-      isAnimating,
-      screenWidth,
-      translateX,
-    ],
-  );
-
-  const cancelEdgeSlide = useCallback(() => {
-    if (isAnimating.value === 1 || navigatingRef.current) return;
-    isAnimating.value = 1;
-    translateX.value = withTiming(
-      0,
-      { duration: CANCEL_DURATION_MS, easing: SLIDE_EASING },
-      (finished) => {
-        if (finished) {
-          isAnimating.value = 0;
-        }
-      },
-    );
-  }, [isAnimating, translateX]);
-
-  const handleEdgePanEnd = useCallback(
-    (direction: SwipeEnterDirection, translationX: number, velocityX: number) => {
-      if (navigatingRef.current || isAnimating.value === 1) return;
-
-      const committedLeft =
-        direction === "left" &&
-        (translationX < -SWIPE_DISTANCE_THRESHOLD ||
-          velocityX < -SWIPE_VELOCITY_THRESHOLD);
-      const committedRight =
-        direction === "right" &&
-        (translationX > SWIPE_DISTANCE_THRESHOLD ||
-          velocityX > SWIPE_VELOCITY_THRESHOLD);
-
-      if (committedLeft || committedRight) {
-        animateExitThenNavigate(direction);
-        return;
-      }
-      cancelEdgeSlide();
-    },
-    [animateExitThenNavigate, cancelEdgeSlide, isAnimating],
+    [navigateToPreviousSection],
   );
 
   const handlePageSelected = useCallback(
@@ -245,135 +177,40 @@ export function SectionPager({
     [pages],
   );
 
-  // Left strip: first page — swipe right → previous section (edgeRightSection).
-  const leftStripPan = useMemo(
+  const prevSectionPan = useMemo(
     () =>
       Gesture.Pan()
-        .enabled(showLeftStrip)
+        .enabled(showPrevSectionStrip)
         .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
-        .onUpdate((event) => {
-          "worklet";
-          if (isAnimating.value === 1) return;
-          const max = screenWidth.value;
-          translateX.value = Math.max(0, Math.min(max, event.translationX));
-        })
         .onEnd((event) => {
           "worklet";
-          if (isAnimating.value === 1) return;
-          runOnJS(handleEdgePanEnd)(
-            "right",
+          runOnJS(handlePrevSectionPanEnd)(
             event.translationX,
             event.velocityX,
           );
-        })
-        .onFinalize((_event, success) => {
-          "worklet";
-          if (!success && isAnimating.value === 0) {
-            runOnJS(cancelEdgeSlide)();
-          }
         }),
-    [
-      cancelEdgeSlide,
-      handleEdgePanEnd,
-      isAnimating,
-      screenWidth,
-      showLeftStrip,
-      translateX,
-    ],
+    [handlePrevSectionPanEnd, showPrevSectionStrip],
   );
-
-  // Right strip: last page — swipe left → next section (edgeLeftSection).
-  const rightStripPan = useMemo(
-    () =>
-      Gesture.Pan()
-        .enabled(showRightStrip)
-        .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
-        .onUpdate((event) => {
-          "worklet";
-          if (isAnimating.value === 1) return;
-          const max = screenWidth.value;
-          translateX.value = Math.max(-max, Math.min(0, event.translationX));
-        })
-        .onEnd((event) => {
-          "worklet";
-          if (isAnimating.value === 1) return;
-          runOnJS(handleEdgePanEnd)(
-            "left",
-            event.translationX,
-            event.velocityX,
-          );
-        })
-        .onFinalize((_event, success) => {
-          "worklet";
-          if (!success && isAnimating.value === 0) {
-            runOnJS(cancelEdgeSlide)();
-          }
-        }),
-    [
-      cancelEdgeSlide,
-      handleEdgePanEnd,
-      isAnimating,
-      screenWidth,
-      showRightStrip,
-      translateX,
-    ],
-  );
-
-  const currentStyle = useAnimatedStyle(() => ({
-    flex: 1,
-    transform: [{ translateX: translateX.value }],
-  }));
-
-  const peekStyle = useAnimatedStyle(() => {
-    const w = screenWidth.value;
-    const x = translateX.value;
-    const peekX = x <= 0 ? x + w : x - w;
-    return {
-      transform: [{ translateX: peekX }],
-    };
-  });
 
   return (
-    <View className="flex-1 overflow-hidden">
-      <Animated.View
-        pointerEvents="none"
-        className="absolute inset-0 bg-page dark:bg-gray-900"
-        style={peekStyle}
-      />
-      <Animated.View
-        className="flex-1 bg-page dark:bg-gray-900"
-        style={currentStyle}
-        collapsable={false}
+    <View className="flex-1 overflow-hidden bg-page dark:bg-gray-900">
+      {chrome}
+      <PagerView
+        ref={pagerRef}
+        style={styles.fill}
+        initialPage={activeIndex}
+        overdrag={false}
+        offscreenPageLimit={Math.max(pages.length - 1, 1)}
+        onPageScroll={handlePageScroll}
+        onPageSelected={handlePageSelected}
       >
-        {chrome}
-        <PagerView
-          ref={pagerRef}
-          style={styles.fill}
-          initialPage={activeIndex}
-          overdrag={false}
-          offscreenPageLimit={Math.max(pages.length - 1, 1)}
-          onPageScroll={handlePageScroll}
-          onPageSelected={handlePageSelected}
-        >
-          {renderedPages}
-        </PagerView>
-      </Animated.View>
+        {renderedPages}
+      </PagerView>
 
-      {showLeftStrip ? (
-        <GestureDetector gesture={leftStripPan}>
+      {showPrevSectionStrip ? (
+        <GestureDetector gesture={prevSectionPan}>
           <View
             style={styles.leftStrip}
-            collapsable={false}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          />
-        </GestureDetector>
-      ) : null}
-
-      {showRightStrip ? (
-        <GestureDetector gesture={rightStripPan}>
-          <View
-            style={styles.rightStrip}
             collapsable={false}
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
@@ -391,14 +228,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    width: EDGE_STRIP_WIDTH,
-    zIndex: 20,
-  },
-  rightStrip: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    right: 0,
     width: EDGE_STRIP_WIDTH,
     zIndex: 20,
   },

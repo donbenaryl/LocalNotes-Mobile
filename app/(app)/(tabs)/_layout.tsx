@@ -1,11 +1,16 @@
+import { StyleSheet, View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
-import { GuardedFooter } from '../../../components/ui/layout/GuardedFooter';
-import { PickFormModal } from '../../../components/PageComponents/Profile/PickFormModal';
-import { usePickModalStore } from '../../../stores/usePickModalStore';
+import { SectionShellPager } from '@/components/ui/SectionShellPager';
+import { GuardedFooter } from '@/components/ui/layout/GuardedFooter';
+import { PickFormModal } from '@/components/PageComponents/Profile/PickFormModal';
+import { usePickModalStore } from '@/stores/usePickModalStore';
 
+/**
+ * Visible UI is SectionShellPager (SECTION_ORDER). Hidden Tabs exist only so
+ * router.navigate / deep links still resolve to section URLs.
+ */
 export default function TabsLayout() {
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
@@ -14,22 +19,29 @@ export default function TabsLayout() {
   return (
     <View className="flex-1 bg-page dark:bg-gray-900" style={{ paddingTop: insets.top }}>
       <View className="flex-1">
-        <Tabs
-          detachInactiveScreens={false}
-          screenOptions={{
-            headerShown: false,
-            lazy: false,
-            animation: 'none',
-            freezeOnBlur: false,
-            sceneStyle: { backgroundColor: 'transparent' },
-            tabBarStyle: { display: 'none' },
-          }}
+        <View
+          pointerEvents="none"
+          style={styles.urlTabs}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
         >
-          <Tabs.Screen name="home" options={{ title: 'Home' }} />
-          <Tabs.Screen name="smart-pick" options={{ title: 'Smart Picks' }} />
-          <Tabs.Screen name="saved" options={{ title: 'Saved' }} />
-          <Tabs.Screen name="search" options={{ title: 'Search' }} />
-        </Tabs>
+          <Tabs
+            tabBar={() => null}
+            screenOptions={{
+              headerShown: false,
+              lazy: false,
+              freezeOnBlur: false,
+            }}
+          >
+            <Tabs.Screen name="home" />
+            <Tabs.Screen name="smart-pick" />
+            <Tabs.Screen name="saved" />
+            <Tabs.Screen name="search" />
+          </Tabs>
+        </View>
+        <View style={styles.shell}>
+          <SectionShellPager />
+        </View>
       </View>
       <GuardedFooter />
       <PickFormModal
@@ -43,3 +55,13 @@ export default function TabsLayout() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  urlTabs: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0,
+  },
+  shell: {
+    flex: 1,
+  },
+});

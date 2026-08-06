@@ -16,7 +16,6 @@ import { HomeTab } from "@/components/PageComponents/Home/Home/HomeTab";
 import { FollowingTab } from "@/components/PageComponents/Home/Following/FollowingTab";
 import { SpotlightTab } from "@/components/PageComponents/Home/Spotlight/SpotlightTab";
 import { OffersTab } from "@/components/PageComponents/Home/Offers/OffersTab";
-import { getAdjacentSection } from "@/constants/swipeNavigation";
 
 interface HomeTabItem extends TabItem {
   href: Href;
@@ -78,6 +77,7 @@ function MainHomeContent({
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <SectionPager
+        sectionId="home"
         chrome={
           <View className="px-4">
             <GuardedHeader />
@@ -94,8 +94,6 @@ function MainHomeContent({
         pages={pages}
         activeId={activeTab}
         onActiveIdChange={onTabChange}
-        edgeLeftSection={getAdjacentSection("home", "left")}
-        edgeRightSection={getAdjacentSection("home", "right")}
       />
     </View>
   );

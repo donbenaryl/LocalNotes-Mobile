@@ -18,7 +18,7 @@ import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/Se
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
-import { getAdjacentSection, HOME_HREF } from "@/constants/swipeNavigation";
+import { HOME_HREF } from "@/constants/swipeNavigation";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 
 interface SearchTabItem extends TabItem {
@@ -141,6 +141,7 @@ export default function MainSearch() {
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <SectionPager
+        sectionId="search"
         chrome={
           <>
             <PageHeader
@@ -194,8 +195,6 @@ export default function MainSearch() {
         pages={pages}
         activeId={activeTab}
         onActiveIdChange={handleTabChange}
-        edgeLeftSection={getAdjacentSection("search", "left")}
-        edgeRightSection={getAdjacentSection("search", "right")}
       />
     </View>
   );
