@@ -26,13 +26,16 @@ const REVEAL_TIMING = {
   easing: Easing.ease,
 };
 
+/**
+ * Deliberately excludes the active tab: it changes on every tap, and putting it
+ * here would invalidate the context for every mounted page's scroll view,
+ * delaying the tab highlight. Screens pass it down as a prop instead.
+ */
 interface HomeTabsChromeContextValue {
   hideProgress: SharedValue<number>;
   scrollHandler: ReturnType<typeof useAnimatedScrollHandler>;
   resetChrome: () => void;
   tabs: TabItem[];
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
 }
 
 const HomeTabsChromeContext = createContext<HomeTabsChromeContextValue | null>(
@@ -42,8 +45,6 @@ const HomeTabsChromeContext = createContext<HomeTabsChromeContextValue | null>(
 interface HomeTabsChromeProviderProps {
   children: ReactNode;
   tabs: TabItem[];
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
   revealThreshold?: number;
   hideThreshold?: number;
 }
@@ -51,8 +52,6 @@ interface HomeTabsChromeProviderProps {
 export function HomeTabsChromeProvider({
   children,
   tabs,
-  activeTab,
-  onTabChange,
   revealThreshold = DEFAULT_REVEAL_THRESHOLD,
   hideThreshold = DEFAULT_HIDE_THRESHOLD,
 }: HomeTabsChromeProviderProps) {
@@ -88,10 +87,8 @@ export function HomeTabsChromeProvider({
       scrollHandler,
       resetChrome,
       tabs,
-      activeTab,
-      onTabChange,
     }),
-    [hideProgress, scrollHandler, resetChrome, tabs, activeTab, onTabChange],
+    [hideProgress, scrollHandler, resetChrome, tabs],
   );
 
   return (

@@ -644,7 +644,7 @@ const en = {
       places: 'Places',
       people: 'People',
     },
-    placeholder: 'Search lists, places, people…',
+    placeholder: 'Try “cozy date night” or a place name…',
     cancel: 'Cancel',
     clear: 'Clear',
     loading: 'Searching…',
@@ -662,7 +662,7 @@ const en = {
       lists: 'No lists found',
       places: 'No places found',
       people: 'No people found',
-      description: 'Try a different search term or adjust your filters',
+      description: "Try describing what you're looking for, or adjust your filters",
     },
     filters: {
       match: 'Match',

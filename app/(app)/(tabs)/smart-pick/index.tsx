@@ -1,5 +1,10 @@
-import { SmartPickTab } from '@/components/PageComponents/SmartPick/SmartPickTab';
+import { SmartPickTab } from "@/components/PageComponents/SmartPick/SmartPickTab";
+import { HorizontalPageSwipe } from "@/components/ui/HorizontalPageSwipe";
 
 export default function SmartPickIndexScreen() {
-  return <SmartPickTab />;
+  return (
+    <HorizontalPageSwipe>
+      <SmartPickTab />
+    </HorizontalPageSwipe>
+  );
 }

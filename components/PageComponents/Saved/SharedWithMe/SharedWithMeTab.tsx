@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react-native";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
-import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { useProfile } from "@/hooks/useProfileList";
 import { SavedSectionState } from "@/components/PageComponents/Saved/SavedSectionState";
@@ -33,38 +32,34 @@ export function SharedWithMeTab() {
     collaborativeLists.length === 0 &&
     sharedLists.length === 0;
 
-  if (isFullyEmpty) {
-    return (
-      <View className="flex-1 px-4 pt-4">
-        <EmptyScreen
-          icon={<Users size={40} color="#D1D5DB" />}
-          title={t("saved.sharedWithMe.emptyTitle")}
-          description={t("saved.sharedWithMe.emptyDescription")}
-          className="py-16"
-        />
-      </View>
-    );
-  }
-
   return (
     <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
     >
-      <SavedSectionState
-        isPending={sharedPending}
-        isError={sharedError}
-        isEmpty={sharedLists.length === 0}
-        onRetry={() => void refetchShared()}
-        emptyTitle={t("saved.sharedWithMe.emptyTitle")}
-      >
-        <View className="gap-4">
-          {sharedLists.map((item) => (
-            <ListCardDetailed key={item.id} list={item} />
-          ))}
-        </View>
-      </SavedSectionState>
+      {isFullyEmpty ? (
+        <EmptyScreen
+          icon={<Users size={40} color="#D1D5DB" />}
+          title={t("saved.sharedWithMe.emptyTitle")}
+          description={t("saved.sharedWithMe.emptyDescription")}
+          className="py-16"
+        />
+      ) : (
+        <SavedSectionState
+          isPending={sharedPending}
+          isError={sharedError}
+          isEmpty={sharedLists.length === 0}
+          onRetry={() => void refetchShared()}
+          emptyTitle={t("saved.sharedWithMe.emptyTitle")}
+        >
+          <View className="gap-4">
+            {sharedLists.map((item) => (
+              <ListCardDetailed key={item.id} list={item} />
+            ))}
+          </View>
+        </SavedSectionState>
+      )}
     </HomeTabsChromeScrollView>
   );
 }

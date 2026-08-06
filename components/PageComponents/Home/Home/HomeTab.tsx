@@ -13,7 +13,6 @@ import {
   type HomeContentType,
   type HomeListFilter,
 } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
-import { ForYouSection } from "@/components/PageComponents/Home/Home/ForYouSection";
 import { HomeEditorialTitle } from "@/components/PageComponents/Home/Home/HomeEditorialTitle";
 import { HomeTabSkeleton } from "@/components/PageComponents/Home/Home/HomeTabSkeleton";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";

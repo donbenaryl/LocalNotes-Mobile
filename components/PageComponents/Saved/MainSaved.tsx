@@ -1,22 +1,28 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedStyle,
-} from "react-native-reanimated";
-import { Slot, usePathname, useRouter, type Href } from "expo-router";
+import { usePathname, type Href } from "expo-router";
 import { Inbox, Bookmark, Users } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
+  SectionPager,
+  type SectionPagerPage,
+} from "@/components/ui/SectionPager";
+import {
   HomeTabsChromeProvider,
   useHomeTabsChrome,
 } from "@/components/ui/HomeTabsChromeProvider";
+import { GuardedHeader } from "@/components/ui/layout/GuardedHeader";
+import { DraftsTab } from "@/components/PageComponents/Saved/Drafts/DraftsTab";
+import { SavedTab } from "@/components/PageComponents/Saved/Saved/SavedTab";
+import { SharedWithMeTab } from "@/components/PageComponents/Saved/SharedWithMe/SharedWithMeTab";
+import { SEARCH_PICKS } from "@/constants/swipeNavigation";
 
 interface SavedTabItem extends TabItem {
   href: Href;
 }
+
+const SMART_PICK_HREF = "/(app)/(tabs)/smart-pick" as const;
 
 function getActiveTab(pathname: string): string {
   const segment = pathname.split("/").filter(Boolean).pop();
@@ -28,46 +34,37 @@ function getActiveTab(pathname: string): string {
 function MainSavedContent({
   activeTab,
   onTabChange,
+  tabs,
 }: {
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  tabs: SavedTabItem[];
 }) {
-  const { hideProgress, resetChrome, tabs } = useHomeTabsChrome();
+  const { resetChrome } = useHomeTabsChrome();
 
   useEffect(() => {
     resetChrome();
     return () => resetChrome();
   }, [activeTab, resetChrome]);
 
-  const stickyOverlayAnimatedStyle = useAnimatedStyle(() => {
-    const progress = hideProgress.value;
-    return {
-      opacity: progress,
-      transform: [
-        {
-          translateY: interpolate(
-            progress,
-            [0, 1],
-            [-8, 0],
-            Extrapolation.CLAMP,
-          ),
-        },
-      ],
-      pointerEvents: progress > 0.5 ? ("auto" as const) : ("none" as const),
-    };
-  });
+  const pages: SectionPagerPage[] = useMemo(
+    () => [
+      { id: "draft", href: tabs[0].href, render: () => <DraftsTab /> },
+      { id: "saved", href: tabs[1].href, render: () => <SavedTab /> },
+      {
+        id: "shared-with-me",
+        href: tabs[2].href,
+        render: () => <SharedWithMeTab />,
+      },
+    ],
+    [tabs],
+  );
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <View className="flex-1">
-        <Slot />
-      </View>
-
-      <Animated.View
-        className="absolute left-0 right-0 top-0 z-10 bg-white/95 dark:bg-gray-900/95"
-        style={stickyOverlayAnimatedStyle}
-      >
-        <View className="pt-2 px-4 mb-2">
+      <View className="px-4">
+        <GuardedHeader />
+        <View className="pt-2 mb-2">
           <Tabs
             tabs={tabs}
             activeTab={activeTab}
@@ -75,7 +72,18 @@ function MainSavedContent({
             className="border-b-0"
           />
         </View>
-      </Animated.View>
+      </View>
+
+      <View className="flex-1">
+        <SectionPager
+          pages={pages}
+          activeId={activeTab}
+          onActiveIdChange={onTabChange}
+          edgeLeftHref={SEARCH_PICKS}
+          edgeRightHref={SMART_PICK_HREF}
+          edgeRightFromLastHref={SMART_PICK_HREF}
+        />
+      </View>
     </View>
   );
 }
@@ -83,8 +91,14 @@ function MainSavedContent({
 export default function MainSaved() {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const router = useRouter();
-  const activeTab = getActiveTab(pathname);
+  // Local state, not the router — see MainHome for why navigating per tab
+  // produces a second slide-in on top of the pager's own animation.
+  const [activeTab, setActiveTab] = useState(() => getActiveTab(pathname));
+
+  useEffect(() => {
+    if (!pathname.includes("/saved")) return;
+    setActiveTab(getActiveTab(pathname));
+  }, [pathname]);
 
   const tabs: SavedTabItem[] = useMemo(
     () => [
@@ -110,20 +124,17 @@ export default function MainSaved() {
     [t],
   );
 
-  const handleTabChange = (tabId: string) => {
-    const tab = tabs.find((tb) => tb.id === tabId);
-    if (tab && tab.id !== activeTab) {
-      router.replace(tab.href);
-    }
-  };
+  const handleTabChange = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+  }, []);
 
   return (
-    <HomeTabsChromeProvider
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-    >
-      <MainSavedContent activeTab={activeTab} onTabChange={handleTabChange} />
+    <HomeTabsChromeProvider tabs={tabs}>
+      <MainSavedContent
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        tabs={tabs}
+      />
     </HomeTabsChromeProvider>
   );
 }

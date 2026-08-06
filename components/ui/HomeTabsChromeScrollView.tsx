@@ -8,8 +8,6 @@ import Animated, {
 import { useHomeTabsChrome } from '@/components/ui/HomeTabsChromeProvider';
 import { useScrollToTopControl } from '@/hooks/useScrollToTopControl';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton';
-import { Tabs } from '@/components/ui/Tabs';
-import { GuardedHeader } from '@/components/ui/layout/GuardedHeader';
 
 interface HomeTabsChromeScrollViewProps extends ScrollViewProps {
   children: ReactNode;
@@ -21,7 +19,7 @@ export function HomeTabsChromeScrollView({
   ...props
 }: HomeTabsChromeScrollViewProps) {
   const scrollRef = useRef<Animated.ScrollView>(null);
-  const { scrollHandler, tabs, activeTab, onTabChange } = useHomeTabsChrome();
+  const { scrollHandler } = useHomeTabsChrome();
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(scrollRef);
 
   const fabScrollHandler = useAnimatedScrollHandler({
@@ -43,15 +41,6 @@ export function HomeTabsChromeScrollView({
         onScroll={composedScrollHandler}
         scrollEventThrottle={scrollEventThrottle}
       >
-        <GuardedHeader />
-        <View className="pt-2 mb-4">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={onTabChange}
-            className="border-b-0"
-          />
-        </View>
         {children}
       </Animated.ScrollView>
       <ScrollToTopButton visible={visible} onPress={scrollToTop} />

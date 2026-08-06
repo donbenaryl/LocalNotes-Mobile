@@ -1,24 +1,47 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { View, TouchableOpacity, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { useRouter, usePathname } from 'expo-router';
 import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
+import { useSearchChromeStore } from '@/stores/useSearchChromeStore';
+import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
+import { useSwipeTransitionStore } from '@/stores/useSwipeTransitionStore';
+import {
+  CROSS_SECTION_ENTER_OFFSET,
+  getSectionDirection,
+  getSectionId,
+  pathnameToAppHref,
+  SECTION_ENTRY_HREF,
+  type SectionId,
+} from '@/constants/swipeNavigation';
 import { DropDown, type DropDownOption } from '@/components/ui/DropDown';
 
 const BRAND = '#FF6B1A';
 const INACTIVE_LIGHT = '#9CA3AF';
 const INACTIVE_DARK = '#6B7280';
 
-const TABS = [
-  { label: 'Home', Icon: LayoutGrid, route: '/(app)/home', segment: '/home' },
-  { label: 'Smart Picks', Icon: Star, route: '/(app)/(tabs)/smart-pick', segment: '/smart-pick' },
+interface FooterTab {
+  id: SectionId;
+  label: string;
+  Icon: LucideIcon;
+}
+
+/**
+ * Sections in SECTION_ORDER sequence, so left-to-right in the bar matches the
+ * forward direction of the swipe ring. Destinations come from
+ * SECTION_ENTRY_HREF — never hardcode a route here.
+ */
+const TABS: readonly (FooterTab | null)[] = [
+  { id: 'home', label: 'Home', Icon: LayoutGrid },
+  { id: 'smart-pick', label: 'Smart Picks', Icon: Star },
   null,
-  { label: 'Saved', Icon: Bookmark, route: '/(app)/(tabs)/saved/draft', segment: '/saved' },
-  { label: 'Search', Icon: Search, route: '/(app)/(stack)/search/picks', segment: '/search' },
-] as const;
+  { id: 'saved', label: 'Saved', Icon: Bookmark },
+  { id: 'search', label: 'Search', Icon: Search },
+];
 
 const FAB_SHADOW = Platform.select({
   ios: {
@@ -55,7 +78,11 @@ export function GuardedFooter() {
   const inactiveColor = colorScheme === 'dark' ? INACTIVE_DARK : INACTIVE_LIGHT;
   const openPickModal = usePickModalStore((s) => s.open);
   const resetListForm = useListFormStore((s) => s.reset);
+  const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
+  const setEnterTransition = useSwipeTransitionStore((s) => s.setEnterTransition);
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
+
+  const activeSection = getSectionId(pathname);
 
   const bottomInset = Math.max(insets.bottom, 12);
 
@@ -67,6 +94,52 @@ export function GuardedFooter() {
       router.push('/(app)/(stack)/lists/new' as never);
     }
   };
+
+  /**
+   * The pagers keep their tab in local state, so the pathname only names the
+   * section. Prefer the page SectionPager published — but only while it still
+   * belongs to the section we are leaving, since it is never cleared and Smart
+   * Pick has no pager of its own.
+   */
+  const currentSectionHref = useCallback(
+    (from: SectionId) => {
+      const { activeHref } = useSectionRouteStore.getState();
+      if (activeHref && getSectionId(String(activeHref)) === from) {
+        return activeHref;
+      }
+      return pathnameToAppHref(pathname);
+    },
+    [pathname],
+  );
+
+  // Mirrors SectionPager's cross-section swipe: replace (never push, so tabs
+  // don't stack), keep returnTo symmetric, and arm the same enter transition.
+  const handleTabPress = useCallback(
+    (to: SectionId) => {
+      const from = getSectionId(pathname);
+      if (from === to) return;
+
+      if (to === 'search' && from !== 'search') {
+        setReturnTo(from ? currentSectionHref(from) : pathnameToAppHref(pathname));
+      }
+      if (from === 'search' && to !== 'search') {
+        setReturnTo(null);
+      }
+
+      if (from) {
+        const direction = getSectionDirection(from, to);
+        setEnterTransition(
+          direction,
+          direction === 'left'
+            ? CROSS_SECTION_ENTER_OFFSET
+            : -CROSS_SECTION_ENTER_OFFSET,
+        );
+      }
+
+      router.replace(SECTION_ENTRY_HREF[to]);
+    },
+    [currentSectionHref, pathname, router, setEnterTransition, setReturnTo],
+  );
 
   return (
     <View
@@ -97,14 +170,14 @@ export function GuardedFooter() {
               return <View key="fab-spacer" className="flex-1" />;
             }
 
-            const isActive = pathname.includes(tab.segment);
+            const isActive = activeSection === tab.id;
             const iconColor = isActive ? BRAND : inactiveColor;
 
             return (
               <TouchableOpacity
-                key={tab.label}
+                key={tab.id}
                 className="min-w-0 flex-1 items-center justify-center cursor-pointer"
-                onPress={() => router.push(tab.route as never)}
+                onPress={() => handleTabPress(tab.id)}
               >
                 <View
                   className={`items-center justify-center rounded-full px-3 py-1.5`}
