@@ -1,29 +1,26 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedStyle,
-} from "react-native-reanimated";
 import {
   Building2,
   LayoutGrid,
   List,
   ListChecks,
 } from "lucide-react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import {
+  SectionPager,
+  type SectionPagerPage,
+} from "@/components/ui/SectionPager";
 import { ProfileChromeScrollView } from "@/components/ui/ProfileChromeScrollView";
 import { ProfileInfo } from "./ProfileInfo";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileInfoSkeleton } from "./ProfileInfoSkeleton";
 import { ProfileList } from "./ProfileList";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
-import { ProfileStickyInfoBar } from "./ProfileStickyInfoBar";
 import {
   ProfileChromeProvider,
   useProfileChrome,
@@ -41,6 +38,8 @@ const TAB_IDS: ProfileListTabType[] = [
   "shared-with-me",
   "picks",
 ];
+
+const PROFILE_HREF = "/(app)/(stack)/profile" as Href;
 
 function isTabType(value: string | null | undefined): value is ProfileListTabType {
   return value !== null && value !== undefined && TAB_IDS.includes(value as ProfileListTabType);
@@ -71,39 +70,26 @@ function MainProfileContent({
   const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{ tab?: string }>();
-  const insets = useSafeAreaInsets();
-  const { hideProgress, resetChrome } = useProfileChrome();
-
-  const stickyOverlayAnimatedStyle = useAnimatedStyle(() => {
-    const progress = hideProgress.value;
-    return {
-      opacity: progress,
-      paddingTop: insets.top,
-      transform: [
-        {
-          translateY: interpolate(
-            progress,
-            [0, 1],
-            [-8, 0],
-            Extrapolation.CLAMP,
-          ),
-        },
-      ],
-      pointerEvents: progress > 0.5 ? ("auto" as const) : ("none" as const),
-    };
-  });
+  const { resetChrome } = useProfileChrome();
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
     return isTabType(params.tab) ? params.tab : "picks";
   });
 
-  const ownProfileTabs: TabItem[] = [
-    { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
-    { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
-    { id: "saved", label: t("profile.tabs.saved"), icon: List },
-    // { id: "shared-with-me", label: t("profile.tabs.sharedWithMe"), icon: Share2 },
-    { id: "contributed", label: t("profile.tabs.contributed"), icon: ListChecks },
-  ];
+  const ownProfileTabs: TabItem[] = useMemo(
+    () => [
+      { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
+      { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
+      { id: "saved", label: t("profile.tabs.saved"), icon: List },
+      // { id: "shared-with-me", label: t("profile.tabs.sharedWithMe"), icon: Share2 },
+      {
+        id: "contributed",
+        label: t("profile.tabs.contributed"),
+        icon: ListChecks,
+      },
+    ],
+    [t],
+  );
 
   const tabs = useMemo(() => {
     if (isOwnProfile) {
@@ -118,18 +104,21 @@ function MainProfileContent({
     });
   }, [
     isOwnProfile,
+    ownProfileTabs,
     profile?.show_saved_list,
     profile?.show_contributed_lists,
     profile?.show_shared_with_me,
-    t,
   ]);
 
-  const visibleTabIds = useMemo(() => new Set(tabs.map((tab) => tab.id)), [tabs]);
+  const visibleTabIds = useMemo(
+    () => new Set(tabs.map((tab) => tab.id)),
+    [tabs],
+  );
 
   useEffect(() => {
     resetChrome();
     return () => resetChrome();
-  }, [resetChrome]);
+  }, [activeTab, resetChrome]);
 
   useEffect(() => {
     if (isTabType(params.tab) && visibleTabIds.has(params.tab)) {
@@ -149,13 +138,34 @@ function MainProfileContent({
     router.setParams({ tab: activeTab });
   }, [activeTab, params.tab, router]);
 
-  const handleTabChange = (tabId: string) => {
-    if (!visibleTabIds.has(tabId)) return;
-    setActiveTab(tabId as ProfileListTabType);
-  };
+  const handleTabChange = useCallback(
+    (tabId: string) => {
+      if (!visibleTabIds.has(tabId)) return;
+      setActiveTab(tabId as ProfileListTabType);
+    },
+    [visibleTabIds],
+  );
 
-  const listHeader = (
-    <View>
+  const profileUserId = profile?.id ?? userId ?? "";
+
+  const pages: SectionPagerPage[] = useMemo(
+    () =>
+      tabs.map((tab) => ({
+        id: tab.id,
+        href: PROFILE_HREF,
+        render: () => (
+          <ProfileList
+            userId={profileUserId}
+            isOwnProfile={isOwnProfile}
+            tab={tab.id as ProfileListTabType}
+          />
+        ),
+      })),
+    [isOwnProfile, profileUserId, tabs],
+  );
+
+  return (
+    <View className="flex-1 bg-page dark:bg-gray-900">
       <PageHeader
         onBack={() => router.back()}
         borderless
@@ -171,28 +181,13 @@ function MainProfileContent({
           onSharePress={() => {}}
         />
       ) : null}
-      {!isPending && 
-        <View className="pt-4 px-4">
-          <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            className="border-b-0"
-          />
-        </View>
-      }
-    </View>
-  );
 
-  return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
       {isPending ? (
         <ProfileChromeScrollView
           className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerClassName="p-4"
         >
-          {listHeader}
           <ProfilePicksTabSkeleton />
         </ProfileChromeScrollView>
       ) : isError || !profile ? (
@@ -202,33 +197,23 @@ function MainProfileContent({
           </Text>
         </View>
       ) : (
-        <View className="flex-1">
-          <ProfileList
-            userId={profile.id ?? userId ?? ""}
-            isOwnProfile={isOwnProfile}
-            activeTab={activeTab}
-            listHeader={listHeader}
-          />
-          <Animated.View
-            className="absolute left-0 right-0 top-0 z-10 border-b-0 bg-white/95 dark:bg-gray-900/95"
-            style={stickyOverlayAnimatedStyle}
-          >
-            <View className="h-12 justify-end">
-              <ProfileStickyInfoBar
-                profile={profile}
-                isOwnProfile={isOwnProfile}
-              />
-            </View>
-            <View className="pt-4 px-4">
-              <Tabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-                className="border-b-0"
-              />
-            </View>
-          </Animated.View>
-        </View>
+        <>
+          <View className="pt-4 px-4">
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              className="border-b-0"
+            />
+          </View>
+          <View className="flex-1">
+            <SectionPager
+              pages={pages}
+              activeId={activeTab}
+              onActiveIdChange={handleTabChange}
+            />
+          </View>
+        </>
       )}
     </View>
   );
