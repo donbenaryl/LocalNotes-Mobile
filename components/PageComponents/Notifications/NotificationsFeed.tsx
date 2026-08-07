@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -9,9 +10,10 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppScrollView } from '@/components/ui/AppScrollView';
-import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { CategoryChip } from '@/components/ui/CategoryChip';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { ListDetailModal } from '@/components/ui/ListDetailModal';
+import { PickDetailModal } from '@/components/PageComponents/Profile/PickDetailModal';
 import { NotificationRow } from '@/components/PageComponents/Notifications/NotificationRow';
 import {
   filterNotifications,
@@ -19,7 +21,9 @@ import {
   useNotifications,
   type NotificationFilter,
 } from '@/hooks/useNotifications';
+import listService from '@/http/list-api/list.service';
 import type { notificationItemDAO } from '@/http/account-api/types';
+import type { ListItemPublic } from '@/http/list-api/types';
 
 const FILTERS: { id: NotificationFilter; labelKey: string }[] = [
   { id: 'all', labelKey: 'notifications.chips.all' },
@@ -29,16 +33,25 @@ const FILTERS: { id: NotificationFilter; labelKey: string }[] = [
   { id: 'offers', labelKey: 'notifications.chips.offers' },
 ];
 
+const PICK_NOTIFICATION_TYPES = new Set([
+  'FOLLOWED_USER_NEW_LIST_ITEM',
+  'FOLLOWED_USER_LIST_ITEM_UPDATED',
+]);
+
 export default function NotificationsFeed() {
   const { t } = useTranslation();
   const router = useRouter();
   const [filter, setFilter] = useState<NotificationFilter>('all');
+  const [listModalId, setListModalId] = useState<string | null>(null);
+  const [pickDetail, setPickDetail] = useState<ListItemPublic | null>(null);
+  const [isOpeningPick, setIsOpeningPick] = useState(false);
   const {
     notifications,
     isPending,
     isError,
     refetch,
     isRefetching,
+    markAsRead,
     markAllAsRead,
     isMarkingAllRead,
   } = useNotifications();
@@ -55,11 +68,41 @@ export default function NotificationsFeed() {
   const hasUnread = notifications.some((item) => !item.is_read);
   const isEmpty = !isPending && filtered.length === 0;
 
-  const handlePress = (item: notificationItemDAO) => {
+  const handlePress = async (item: notificationItemDAO) => {
+    if (!item.is_read) {
+      markAsRead(item.id);
+    }
+
     if (item.related_list?.id) {
-      router.push(`/(app)/(stack)/lists/${item.related_list.id}` as never);
+      setListModalId(item.related_list.id);
       return;
     }
+
+    if (
+      PICK_NOTIFICATION_TYPES.has(item.notification_type) &&
+      item.related_list_item?.id
+    ) {
+      if (isOpeningPick) return;
+      setIsOpeningPick(true);
+      try {
+        const response = await listService.fetchListItem(
+          item.related_list_item.id,
+        );
+        if (response.error || !response.data?.data) {
+          throw new Error(response.error?.message ?? 'Pick not found');
+        }
+        setPickDetail(response.data.data);
+      } catch (error) {
+        console.error('Failed to load pick from notification:', error);
+        if (item.related_account?.id) {
+          router.push(`/profile/${item.related_account.id}` as never);
+        }
+      } finally {
+        setIsOpeningPick(false);
+      }
+      return;
+    }
+
     if (item.related_account?.id) {
       router.push(`/profile/${item.related_account.id}` as never);
     }
@@ -117,11 +160,12 @@ export default function NotificationsFeed() {
           showsVerticalScrollIndicator={false}
           contentContainerClassName="pb-10"
           refreshControl={
-            <AppRefreshControl
+            <RefreshControl
               refreshing={isRefetching}
               onRefresh={() => {
                 void refetch();
               }}
+              tintColor="#FF6B1A"
             />
           }
         >
@@ -151,7 +195,9 @@ export default function NotificationsFeed() {
                 <NotificationRow
                   key={item.id}
                   item={item}
-                  onPress={handlePress}
+                  onPress={(pressed) => {
+                    void handlePress(pressed);
+                  }}
                 />
               ))}
             </View>
@@ -168,13 +214,29 @@ export default function NotificationsFeed() {
                 <NotificationRow
                   key={item.id}
                   item={item}
-                  onPress={handlePress}
+                  onPress={(pressed) => {
+                    void handlePress(pressed);
+                  }}
                 />
               ))}
             </View>
           ) : null}
         </AppScrollView>
       )}
+
+      <ListDetailModal
+        visible={Boolean(listModalId)}
+        onClose={() => setListModalId(null)}
+        listId={listModalId}
+      />
+
+      {pickDetail ? (
+        <PickDetailModal
+          visible={Boolean(pickDetail)}
+          onClose={() => setPickDetail(null)}
+          data={pickDetail}
+        />
+      ) : null}
     </View>
   );
 }

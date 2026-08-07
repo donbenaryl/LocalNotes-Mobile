@@ -215,11 +215,16 @@ type RelatedList = {
   name: string;
 };
 
+type RelatedListItem = {
+  id: string;
+};
+
 
 export interface notificationItemDAO {
   notification_type: string;
   related_account: RelatedAccount | null;
   related_list: RelatedList | null;
+  related_list_item: RelatedListItem | null;
   text: string | null;
   created_at: string;
   id: string;

@@ -110,6 +110,12 @@ class AccountService extends AppHttpService {
       path: "/notifications",
     });
   }
+  async markNotificationAsRead(id: string) {
+    return await this.SendRequest<notificationItemDAO>({
+      method: "patch",
+      path: `/notifications/${id}`,
+    });
+  }
     async updateAccount(dto: updateAccountDTO) {
     return await this.SendRequest<profileItemDAO>({
       method: "patch",
