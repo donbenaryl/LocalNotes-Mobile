@@ -1,4 +1,5 @@
 import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
+import type { ListFormCategory } from "@/types/listForm";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getListMatchPercent } from "@/utils/matchScore";
 
@@ -15,6 +16,51 @@ export function pickMatchesVibes(item: Item, vibes: string[]): boolean {
   const normalizedVibes = vibes.map((v) => v.toLowerCase());
   return (item.tags ?? []).some((tag) =>
     normalizedVibes.some((vibe) => tag.name.toLowerCase().includes(vibe)),
+  );
+}
+
+/**
+ * List/item `categories` arrays hold category *names* (API returns names, not ids —
+ * see `resolveUsedCategories`), while selected filter values are catalog ids. Resolve
+ * the selected ids to their catalog names (keeping the id too, in case an item ever
+ * carries a raw id) so matching works the same way `resolveUsedCategories` does.
+ */
+export function buildCategoryMatchTokens(
+  catalog: ListFormCategory[],
+  categoryIds: string[],
+): Set<string> {
+  const tokens = new Set<string>();
+  const catalogById = new Map(catalog.map((c) => [c.id.toLowerCase(), c]));
+
+  for (const id of categoryIds) {
+    const normalizedId = id.toLowerCase();
+    tokens.add(normalizedId);
+    const category = catalogById.get(normalizedId);
+    if (category) tokens.add(category.name.trim().toLowerCase());
+  }
+
+  return tokens;
+}
+
+export function listMatchesCategories(
+  list: ListItemDAO,
+  categoryTokens: Set<string>,
+): boolean {
+  if (categoryTokens.size === 0) return true;
+
+  return (list.categories ?? []).some((category) =>
+    categoryTokens.has(category.trim().toLowerCase()),
+  );
+}
+
+export function pickMatchesCategories(
+  item: Item,
+  categoryTokens: Set<string>,
+): boolean {
+  if (categoryTokens.size === 0) return true;
+
+  return (item.categories ?? []).some((category) =>
+    categoryTokens.has(category.trim().toLowerCase()),
   );
 }
 
@@ -119,4 +165,40 @@ export function countVibeMatchingPicks(
   }
 
   return flattenListsToPicks(lists, vibes).length;
+}
+
+export function countCategoryMatchingLists(
+  lists: ListItemDAO[],
+  catalog: ListFormCategory[],
+  categoryIds: string[],
+): number {
+  const tokens = buildCategoryMatchTokens(catalog, categoryIds);
+  if (tokens.size === 0) return lists.length;
+
+  return lists.filter((list) => listMatchesCategories(list, tokens)).length;
+}
+
+export function countCategoryMatchingPicks(
+  lists: ListItemDAO[],
+  catalog: ListFormCategory[],
+  categoryIds: string[],
+): number {
+  const tokens = buildCategoryMatchTokens(catalog, categoryIds);
+  if (tokens.size === 0) {
+    return flattenListsToPicks(lists, []).length;
+  }
+
+  let count = 0;
+  const seen = new Set<string>();
+
+  for (const list of lists) {
+    for (const item of list.items ?? []) {
+      if (!item.id || seen.has(item.id)) continue;
+      if (!pickMatchesCategories(item, tokens)) continue;
+      seen.add(item.id);
+      count += 1;
+    }
+  }
+
+  return count;
 }

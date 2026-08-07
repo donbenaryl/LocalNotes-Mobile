@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/utils/cn";
 import { LocationInputModalTrigger } from "@/components/ui/LocationInputModal";
 import type { Location as GeoLocation } from "@/http/list-api/types";
+import { CategoryFilterModal } from "@/components/ui/CategoryFilterModal";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { MatchThreshhold } from "@/components/ui/MatchThreshhold";
 import { Toggle } from "@/components/ui/Toggle";
@@ -14,7 +15,12 @@ import type { HomeContentType } from "@/utils/homePicks";
 
 export type { HomeContentType };
 
-export type HomeListFilter = "personality_match" | "vibe" | "distance" | "newest";
+export type HomeListFilter =
+  | "category"
+  | "personality_match"
+  | "vibe"
+  | "distance"
+  | "newest";
 
 interface HomeFilterHeaderProps {
   cityLabel: string;
@@ -31,6 +37,9 @@ interface HomeFilterHeaderProps {
   selectedVibes?: string[];
   onVibesChange?: (vibes: string[]) => void;
   vibeMatchCount?: number;
+  selectedCategories?: string[];
+  onCategoriesChange?: (categories: string[]) => void;
+  categoryMatchCount?: number;
   contentType: HomeContentType;
   onContentTypeChange: (type: HomeContentType) => void;
 }
@@ -38,6 +47,7 @@ interface HomeFilterHeaderProps {
 const FILTER_OPTIONS: HomeListFilter[] = [
   "personality_match",
   "vibe",
+  "category",
   "distance",
   "newest",
 ];
@@ -45,6 +55,7 @@ const FILTER_OPTIONS: HomeListFilter[] = [
 const FILTER_LABEL_KEYS: Record<HomeListFilter, string> = {
   personality_match: "home.filters.personalityMatch",
   vibe: "home.filters.vibe",
+  category: "home.filters.category",
   distance: "home.filters.distance",
   newest: "home.filters.newest",
 };
@@ -70,12 +81,16 @@ export function HomeFilterHeader({
   selectedVibes = [],
   onVibesChange,
   vibeMatchCount,
+  selectedCategories = [],
+  onCategoriesChange,
+  categoryMatchCount,
   contentType,
   onContentTypeChange,
 }: HomeFilterHeaderProps) {
   const { t } = useTranslation();
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   return (
     <View className="mb-4">
@@ -122,7 +137,9 @@ export function HomeFilterHeader({
             key={filter}
             label={t(FILTER_LABEL_KEYS[filter])}
             onPress={() => {
-              if (filter === "personality_match") {
+              if (filter === "category") {
+                setIsCategoryModalOpen(true);
+              } else if (filter === "personality_match") {
                 setIsMatchModalOpen(true);
               } else if (filter === "vibe") {
                 setIsVibeModalOpen(true);
@@ -157,6 +174,16 @@ export function HomeFilterHeader({
           onVibesChange?.(vibes);
         }}
         matchCount={vibeMatchCount}
+      />
+
+      <CategoryFilterModal
+        isVisible={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        selectedCategories={selectedCategories}
+        onCategoriesChange={(categories) => {
+          onCategoriesChange?.(categories);
+        }}
+        matchCount={categoryMatchCount}
       />
     </View>
   );

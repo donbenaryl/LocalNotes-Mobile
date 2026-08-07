@@ -4,12 +4,15 @@ import searchService from "@/http/search-api/search.service";
 import type { UnifiedSearchParams } from "@/http/search-api/type";
 import type { ListItemDAO, Location as GeoLocation } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
+import { useCategories } from "@/hooks/useProfileList";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { isCreatedToday } from "@/utils/time";
 import {
   countMatchingPicks,
   getListPersonalityMatch,
   countVibeMatchingPicks,
+  countCategoryMatchingLists,
+  countCategoryMatchingPicks,
   flattenListsToPicks,
   type HomeContentType,
 } from "@/utils/homePicks";
@@ -27,6 +30,7 @@ export interface UseHomeListsOptions {
   locationOverride: GeoLocation | null;
   skipLocationFilter?: boolean;
   selectedVibes: string[];
+  selectedCategories: string[];
   contentType?: HomeContentType;
 }
 
@@ -42,7 +46,7 @@ function buildSearchParams(
   coordinates: EffectiveCoordinates | null,
   includeCityFilter: boolean,
 ): UnifiedSearchParams {
-  const { activeFilters, matchThreshold, selectedVibes } = options;
+  const { activeFilters, matchThreshold, selectedVibes, selectedCategories } = options;
 
   const params: UnifiedSearchParams = {
     query: "",
@@ -71,6 +75,10 @@ function buildSearchParams(
 
   if (selectedVibes.length > 0) {
     params.vibes = selectedVibes;
+  }
+
+  if (selectedCategories.length > 0) {
+    params.categoryIds = selectedCategories;
   }
 
   if (activeFilters.includes("newest")) {
@@ -123,6 +131,7 @@ function countVibeMatchingLists(
 export function useHomeLists(options: UseHomeListsOptions) {
   const queryClient = useQueryClient();
   const { coordinates: userCoordinates } = useUserCoordinates();
+  const { categories: categoryCatalog } = useCategories();
 
   const effectiveCoordinates = useMemo((): EffectiveCoordinates | null => {
     if (options.skipLocationFilter) {
@@ -170,6 +179,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
       options.locationOverride?.city,
       options.locationOverride?.region,
       options.selectedVibes,
+      options.selectedCategories,
       effectiveCoordinates?.latitude,
       effectiveCoordinates?.longitude,
       effectiveCoordinates?.city,
@@ -332,6 +342,31 @@ export function useHomeLists(options: UseHomeListsOptions) {
     [contentType, unfilteredDiscoverLists],
   );
 
+  const categoryMatchCount = useMemo(() => {
+    if (contentType === "picks") {
+      return countCategoryMatchingPicks(
+        unfilteredDiscoverLists,
+        categoryCatalog,
+        options.selectedCategories,
+      );
+    }
+    return countCategoryMatchingLists(
+      unfilteredDiscoverLists,
+      categoryCatalog,
+      options.selectedCategories,
+    );
+  }, [contentType, unfilteredDiscoverLists, categoryCatalog, options.selectedCategories]);
+
+  const getCategoryMatchCount = useCallback(
+    (categoryIds: string[]) => {
+      if (contentType === "picks") {
+        return countCategoryMatchingPicks(unfilteredDiscoverLists, categoryCatalog, categoryIds);
+      }
+      return countCategoryMatchingLists(unfilteredDiscoverLists, categoryCatalog, categoryIds);
+    },
+    [contentType, unfilteredDiscoverLists, categoryCatalog],
+  );
+
   // Skeleton only when discover has never resolved — not during background refetch.
   const isLoading = discoverQuery.isPending && discoverQuery.data === undefined;
 
@@ -367,7 +402,9 @@ export function useHomeLists(options: UseHomeListsOptions) {
     showNearYouSection,
     matchingCount,
     vibeMatchCount,
+    categoryMatchCount,
     getMatchingCount,
     getVibeMatchCount,
+    getCategoryMatchCount,
   };
 }

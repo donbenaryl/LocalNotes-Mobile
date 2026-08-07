@@ -130,6 +130,7 @@ export function HomeTab() {
   const [activeFilters, setActiveFilters] = useState<HomeListFilter[]>([]);
   const [matchThreshold, setMatchThreshold] = useState<number | null>(null);
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [locationMode, setLocationMode] = useState<HomeLocationMode>("all");
   const [manualLocation, setManualLocation] = useState<GeoLocation | null>(null);
 
@@ -153,6 +154,14 @@ export function HomeTab() {
     setActiveFilters((prev) => {
       const withoutVibe = prev.filter((f) => f !== "vibe");
       return vibes.length > 0 ? [...withoutVibe, "vibe"] : withoutVibe;
+    });
+  };
+
+  const handleCategoriesChange = (categories: string[]) => {
+    setSelectedCategories(categories);
+    setActiveFilters((prev) => {
+      const withoutCategory = prev.filter((f) => f !== "category");
+      return categories.length > 0 ? [...withoutCategory, "category"] : withoutCategory;
     });
   };
 
@@ -188,12 +197,14 @@ export function HomeTab() {
     showNearYouSection,
     matchingCount,
     vibeMatchCount,
+    categoryMatchCount,
   } = useHomeLists({
     activeFilters,
     matchThreshold,
     locationOverride: locationMode === "city" ? manualLocation : null,
     skipLocationFilter: locationMode === "all",
     selectedVibes,
+    selectedCategories,
     contentType,
   });
 
@@ -310,6 +321,9 @@ export function HomeTab() {
             selectedVibes={selectedVibes}
             onVibesChange={handleVibesChange}
             vibeMatchCount={vibeMatchCount}
+            selectedCategories={selectedCategories}
+            onCategoriesChange={handleCategoriesChange}
+            categoryMatchCount={categoryMatchCount}
             contentType={contentType}
             onContentTypeChange={setContentType}
           />
