@@ -7,6 +7,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import {
   ensurePushCategoriesRegistered,
   startPushResponseListener,
+  startPushReactLinkingListener,
   consumeInitialNotificationResponse,
 } from '@/services/pushNotifications';
 
@@ -21,7 +22,8 @@ interface UsePushNotificationsResult {
 /**
  * Requests notification permission and registers the device's Expo push token with the
  * backend (`POST /accounts/notification-token`). Also registers LIST_ACTIVITY / DEFAULT
- * categories and listens for Dismiss / React / tap responses.
+ * categories, listens for Dismiss / React / tap responses, and handles iOS
+ * `localnotes://push-react` deep links from the notification content extension.
  */
 export function usePushNotifications(): UsePushNotificationsResult {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -31,9 +33,13 @@ export function usePushNotifications(): UsePushNotificationsResult {
   const hasAttempted = useRef(false);
 
   useEffect(() => {
-    const stopListening = startPushResponseListener();
+    const stopResponse = startPushResponseListener();
+    const stopLinking = startPushReactLinkingListener();
     void consumeInitialNotificationResponse();
-    return stopListening;
+    return () => {
+      stopResponse();
+      stopLinking();
+    };
   }, []);
 
   useEffect(() => {

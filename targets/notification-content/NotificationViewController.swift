@@ -3,7 +3,8 @@ import UserNotifications
 import UserNotificationsUI
 
 /// Rich expanded notification UI for LocalNotes.
-/// Shows LOCALNOTES brand header, optional actor avatar, body text, and entity preview.
+/// Shows LOCALNOTES brand header, optional actor avatar, body text, entity preview,
+/// and (for FOLLOWED_USER_NEW_LIST) in-card Dismiss / React actions.
 @objc(NotificationViewController)
 class NotificationViewController: UIViewController, UNNotificationContentExtension {
   private let card = UIStackView()
@@ -17,6 +18,11 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
   private let previewCard = UIStackView()
   private let previewTitleLabel = UILabel()
   private let previewSubtitleLabel = UILabel()
+  private let actionsRow = UIStackView()
+  private let dismissButton = UIButton(type: .system)
+  private let reactButton = UIButton(type: .system)
+
+  private var listId: String?
 
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -57,6 +63,12 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
     previewTitleLabel.text = previewTitle
     previewSubtitleLabel.text = previewSubtitle
     previewSubtitleLabel.isHidden = (previewSubtitle ?? "").isEmpty
+
+    let notificationType = data["notificationType"] as? String
+    let deepLink = data["deepLink"] as? String
+    listId = Self.extractListId(from: deepLink)
+    let showActions = notificationType == "FOLLOWED_USER_NEW_LIST" && listId != nil
+    actionsRow.isHidden = !showActions
   }
 
   private func flattenExpoData(_ userInfo: [AnyHashable: Any]) -> [String: Any] {
@@ -68,6 +80,14 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
       }
     }
     return result
+  }
+
+  private static func extractListId(from deepLink: String?) -> String? {
+    guard let deepLink, deepLink.hasPrefix("/lists/") else { return nil }
+    let remainder = String(deepLink.dropFirst("/lists/".count))
+    guard let firstSegment = remainder.split(separator: "/").first else { return nil }
+    let listId = String(firstSegment.split(separator: "?").first ?? firstSegment)
+    return listId.isEmpty ? nil : listId
   }
 
   private func configureLayout() {
@@ -133,10 +153,13 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
     previewCard.addArrangedSubview(previewTitleLabel)
     previewCard.addArrangedSubview(previewSubtitleLabel)
 
+    configureActionsRow()
+
     card.addArrangedSubview(brandRow)
     card.addArrangedSubview(actorRow)
     card.addArrangedSubview(bodyLabel)
     card.addArrangedSubview(previewCard)
+    card.addArrangedSubview(actionsRow)
     view.addSubview(card)
 
     NSLayoutConstraint.activate([
@@ -145,6 +168,88 @@ class NotificationViewController: UIViewController, UNNotificationContentExtensi
       card.topAnchor.constraint(equalTo: view.topAnchor, constant: 4),
       card.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -4),
     ])
+  }
+
+  private func configureActionsRow() {
+    actionsRow.axis = .horizontal
+    actionsRow.spacing = 10
+    actionsRow.distribution = .fillEqually
+    actionsRow.isHidden = true
+
+    styleActionButton(
+      dismissButton,
+      title: "Dismiss",
+      titleColor: .white,
+      backgroundColor: UIColor(white: 0.28, alpha: 1),
+      includeHeart: false
+    )
+    styleActionButton(
+      reactButton,
+      title: "React",
+      titleColor: .black,
+      backgroundColor: .white,
+      includeHeart: true
+    )
+
+    dismissButton.addTarget(self, action: #selector(dismissTapped), for: .touchUpInside)
+    reactButton.addTarget(self, action: #selector(reactTapped), for: .touchUpInside)
+
+    actionsRow.addArrangedSubview(dismissButton)
+    actionsRow.addArrangedSubview(reactButton)
+
+    NSLayoutConstraint.activate([
+      dismissButton.heightAnchor.constraint(equalToConstant: 40),
+      reactButton.heightAnchor.constraint(equalToConstant: 40),
+    ])
+  }
+
+  private func styleActionButton(
+    _ button: UIButton,
+    title: String,
+    titleColor: UIColor,
+    backgroundColor: UIColor,
+    includeHeart: Bool
+  ) {
+    var config = UIButton.Configuration.filled()
+    config.baseForegroundColor = titleColor
+    config.baseBackgroundColor = backgroundColor
+    config.cornerStyle = .medium
+    config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12)
+    config.title = title
+    config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+      var outgoing = incoming
+      outgoing.font = UIFont.systemFont(ofSize: 15, weight: .bold)
+      return outgoing
+    }
+    if includeHeart {
+      config.image = UIImage(systemName: "heart.fill")
+      config.imagePadding = 6
+    }
+    button.configuration = config
+    button.layer.cornerRadius = 12
+    button.clipsToBounds = true
+  }
+
+  @objc private func dismissTapped() {
+    extensionContext?.dismissNotificationContentExtension()
+  }
+
+  @objc private func reactTapped() {
+    guard let listId else {
+      extensionContext?.dismissNotificationContentExtension()
+      return
+    }
+    var components = URLComponents()
+    components.scheme = "localnotes"
+    components.host = "push-react"
+    components.queryItems = [URLQueryItem(name: "listId", value: listId)]
+    guard let url = components.url else {
+      extensionContext?.dismissNotificationContentExtension()
+      return
+    }
+    extensionContext?.open(url) { [weak self] _ in
+      self?.extensionContext?.dismissNotificationContentExtension()
+    }
   }
 
   private func loadImage(from url: URL, into imageView: UIImageView) {
