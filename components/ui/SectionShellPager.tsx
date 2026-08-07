@@ -19,11 +19,13 @@ import { navigateToSection } from "@/utils/navigateToSection";
 /**
  * Source of truth for footer-section swipe order (SECTION_ORDER).
  * Expo Tabs underneath only keep URLs / deep links in sync.
+ * Returns null for stack routes (e.g. Profile) so the pager stays put.
  */
-function sectionIndexFromPathname(pathname: string): number {
-  const section = getSectionId(pathname) ?? "home";
+function sectionIndexFromPathname(pathname: string): number | null {
+  const section = getSectionId(pathname);
+  if (!section) return null;
   const index = SECTION_ORDER.indexOf(section);
-  return index === -1 ? 0 : index;
+  return index === -1 ? null : index;
 }
 
 export function SectionShellPager() {
@@ -35,9 +37,13 @@ export function SectionShellPager() {
   const setSwipeEnabled = useSectionSwipeStore((s) => s.setSwipeEnabled);
 
   const pathIndex = sectionIndexFromPathname(pathname);
-  const nativeIndexRef = useRef(pathIndex);
+  const bootIndex = pathIndex ?? 0;
+  const nativeIndexRef = useRef(bootIndex);
 
   useEffect(() => {
+    // Stack routes (Profile, list detail, …) leave the shell on its last section.
+    if (pathIndex === null) return;
+
     // Smart Pick has no inner SectionPager — always allow parent swipe there.
     if (SECTION_ORDER[pathIndex] === "smart-pick") {
       setSwipeEnabled(true);
@@ -73,7 +79,7 @@ export function SectionShellPager() {
     <PagerView
       ref={pagerRef}
       style={styles.fill}
-      initialPage={pathIndex}
+      initialPage={bootIndex}
       scrollEnabled={swipeEnabled}
       offscreenPageLimit={SECTION_ORDER.length - 1}
       onPageSelected={handlePageSelected}

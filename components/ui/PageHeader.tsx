@@ -13,6 +13,8 @@ interface PageHeaderProps {
   leftChild?: ReactNode;
   rightChild?: ReactNode;
   borderless?: boolean;
+  /** When false, skip safe-area top padding (e.g. inside tabs shell that already pads). */
+  includeSafeArea?: boolean;
 }
 
 export function PageHeader({
@@ -23,6 +25,7 @@ export function PageHeader({
   leftChild,
   rightChild,
   borderless = false,
+  includeSafeArea = true,
 }: PageHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -47,7 +50,7 @@ export function PageHeader({
 
   return (
     <View
-      style={{ paddingTop: insets.top }}
+      style={{ paddingTop: includeSafeArea ? insets.top : 0 }}
       className={`px-4 pb-4${borderless ? '' : ' border-b border-gray-100 dark:border-gray-800'}`}
     >
       <View className="min-h-10 justify-center">

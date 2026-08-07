@@ -103,18 +103,17 @@ export function getSectionDirection(
 }
 
 /**
- * Neighbor on the section ring. "left" = forward (swipe left / next section),
- * "right" = backward (swipe right / previous section).
+ * Neighbor on the section order. "left" = forward (swipe left / next section),
+ * "right" = backward (swipe right / previous section). Returns null at the
+ * ends (no wrap): Home has no previous, Search has no next.
  */
 export function getAdjacentSection(
   from: SectionId,
   direction: SwipeEnterDirection,
-): SectionId {
+): SectionId | null {
   const index = SECTION_ORDER.indexOf(from);
   const count = SECTION_ORDER.length;
-  const nextIndex =
-    direction === "left"
-      ? (index + 1) % count
-      : (index - 1 + count) % count;
+  const nextIndex = direction === "left" ? index + 1 : index - 1;
+  if (nextIndex < 0 || nextIndex >= count) return null;
   return SECTION_ORDER[nextIndex];
 }

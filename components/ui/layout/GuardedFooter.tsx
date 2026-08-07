@@ -76,7 +76,6 @@ export function GuardedFooter() {
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
 
   const activeSection = getSectionId(pathname);
-
   const bottomInset = Math.max(insets.bottom, 12);
 
   const handleCreateOptionSelect = (value: string) => {
@@ -103,6 +102,8 @@ export function GuardedFooter() {
     },
     [pathname, router],
   );
+
+  if (activeSection === 'search') return null;
 
   return (
     <View

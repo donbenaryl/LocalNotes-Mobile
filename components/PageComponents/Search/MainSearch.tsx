@@ -146,6 +146,7 @@ export default function MainSearch() {
           <>
             <PageHeader
               borderless
+              includeSafeArea={false}
               onBack={handleBack}
               rightChild={
                 <Pressable

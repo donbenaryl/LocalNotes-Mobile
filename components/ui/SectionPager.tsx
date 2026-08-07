@@ -47,13 +47,18 @@ const PAGE_COMMIT_THRESHOLD = 0.5;
 const SWIPE_DISTANCE_THRESHOLD = 72;
 const SWIPE_VELOCITY_THRESHOLD = 700;
 const FAIL_OFFSET_Y = 16;
+const ACTIVE_OFFSET_X = 12;
 const EDGE_STRIP_WIDTH = 28;
+const PROFILE_HREF = "/profile" as Href;
 
 /**
  * Inner-section PagerView for sub-tabs within a footer section.
- * Parent SectionShellPager swipe is enabled on the last sub-tab only.
+ * Parent SectionShellPager swipe is enabled on the last sub-tab only when a
+ * next section exists (not on Search — Profile uses the right-edge strip).
  * On the first sub-tab, a left-edge strip handles swipe-right → previous
- * section (Drafts → Smart Pick, Picks → Saved) without stealing left-swipes.
+ * section (Drafts → Smart Pick, Picks → Saved); directional offsets keep
+ * swipe-left for the inner pager. On Search/People, a right-edge strip
+ * handles swipe-left → Profile without stealing swipe-right.
  */
 export function SectionPager({
   pages,
@@ -84,8 +89,13 @@ export function SectionPager({
   const lastIndex = pages.length - 1;
   const nativePageRef = useRef(activeIndex);
 
+  const previousSection = sectionId
+    ? getAdjacentSection(sectionId, "right")
+    : null;
   const showPrevSectionStrip =
-    Boolean(sectionId) && isSectionActive && activeIndex === 0;
+    Boolean(previousSection) && isSectionActive && activeIndex === 0;
+  const showProfileStrip =
+    sectionId === "search" && isSectionActive && activeIndex === lastIndex;
 
   useEffect(() => {
     if (nativePageRef.current === activeIndex) return;
@@ -111,24 +121,34 @@ export function SectionPager({
       navigatingRef.current = false;
       return;
     }
+    const hasNextSection =
+      sectionId != null && getAdjacentSection(sectionId, "left") != null;
     const allowParentSwipe =
-      pages.length <= 1 || activeIndex === lastIndex;
+      pages.length <= 1 || (activeIndex === lastIndex && hasNextSection);
     setSwipeEnabled(allowParentSwipe);
   }, [
     activeIndex,
     isSectionActive,
     lastIndex,
     pages.length,
+    sectionId,
     setSwipeEnabled,
   ]);
 
   const navigateToPreviousSection = useCallback(() => {
     if (!sectionId || navigatingRef.current) return;
-    navigatingRef.current = true;
     const previous = getAdjacentSection(sectionId, "right");
+    if (!previous) return;
+    navigatingRef.current = true;
     const currentHref = pages[activeIndex]?.href;
     navigateToSection(router, previous, { fromHref: currentHref });
   }, [activeIndex, pages, router, sectionId]);
+
+  const navigateToProfile = useCallback(() => {
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    router.push(PROFILE_HREF);
+  }, [router]);
 
   const handlePrevSectionPanEnd = useCallback(
     (translationX: number, velocityX: number) => {
@@ -139,6 +159,17 @@ export function SectionPager({
       if (committed) navigateToPreviousSection();
     },
     [navigateToPreviousSection],
+  );
+
+  const handleProfilePanEnd = useCallback(
+    (translationX: number, velocityX: number) => {
+      if (navigatingRef.current) return;
+      const committed =
+        translationX < -SWIPE_DISTANCE_THRESHOLD ||
+        velocityX < -SWIPE_VELOCITY_THRESHOLD;
+      if (committed) navigateToProfile();
+    },
+    [navigateToProfile],
   );
 
   const handlePageSelected = useCallback(
@@ -181,6 +212,8 @@ export function SectionPager({
     () =>
       Gesture.Pan()
         .enabled(showPrevSectionStrip)
+        .activeOffsetX(ACTIVE_OFFSET_X)
+        .failOffsetX(-ACTIVE_OFFSET_X)
         .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
         .onEnd((event) => {
           "worklet";
@@ -190,6 +223,23 @@ export function SectionPager({
           );
         }),
     [handlePrevSectionPanEnd, showPrevSectionStrip],
+  );
+
+  const profilePan = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(showProfileStrip)
+        .activeOffsetX(-ACTIVE_OFFSET_X)
+        .failOffsetX(ACTIVE_OFFSET_X)
+        .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
+        .onEnd((event) => {
+          "worklet";
+          runOnJS(handleProfilePanEnd)(
+            event.translationX,
+            event.velocityX,
+          );
+        }),
+    [handleProfilePanEnd, showProfileStrip],
   );
 
   return (
@@ -217,6 +267,17 @@ export function SectionPager({
           />
         </GestureDetector>
       ) : null}
+
+      {showProfileStrip ? (
+        <GestureDetector gesture={profilePan}>
+          <View
+            style={styles.rightStrip}
+            collapsable={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          />
+        </GestureDetector>
+      ) : null}
     </View>
   );
 }
@@ -228,6 +289,14 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
+    width: EDGE_STRIP_WIDTH,
+    zIndex: 20,
+  },
+  rightStrip: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 0,
     width: EDGE_STRIP_WIDTH,
     zIndex: 20,
   },
