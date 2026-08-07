@@ -21,6 +21,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { NoImage } from "@/components/ui/NoImage";
@@ -149,6 +150,7 @@ export function PickDetailModal({
   const [relatedLists, setRelatedLists] = useState<ListItemDAO[]>([]);
   const [isRelatedListsLoading, setIsRelatedListsLoading] = useState(false);
   const [isRelatedListsError, setIsRelatedListsError] = useState(false);
+  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
   const [isListDetailOpen, setIsListDetailOpen] = useState(false);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
 
@@ -186,8 +188,12 @@ export function PickDetailModal({
     [data.tags],
   );
 
-  const loadRelatedLists = useCallback(async () => {
-    setIsRelatedListsLoading(true);
+  const loadRelatedLists = useCallback(async (opts?: { fromPull?: boolean }) => {
+    if (opts?.fromPull) {
+      setIsPullRefreshing(true);
+    } else {
+      setIsRelatedListsLoading(true);
+    }
     setIsRelatedListsError(false);
 
     try {
@@ -209,6 +215,7 @@ export function PickDetailModal({
       setIsRelatedListsError(true);
     } finally {
       setIsRelatedListsLoading(false);
+      setIsPullRefreshing(false);
     }
   }, [data.id]);
 
@@ -217,6 +224,7 @@ export function PickDetailModal({
       setRelatedLists([]);
       setIsRelatedListsLoading(false);
       setIsRelatedListsError(false);
+      setIsPullRefreshing(false);
       return;
     }
 
@@ -274,6 +282,14 @@ export function PickDetailModal({
           style={{ maxHeight: sheetMaxHeight }}
           className="-mx-8"
           contentContainerClassName="pb-6"
+          refreshControl={
+            <AppRefreshControl
+              refreshing={isPullRefreshing}
+              onRefresh={() => {
+                void loadRelatedLists({ fromPull: true });
+              }}
+            />
+          }
         >
           {hasPhotos ? (
             <View className="mx-3.5 mt-1">

@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Bookmark, Package } from "lucide-react-native";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useProfile, useProfilePicks } from "@/hooks/useProfileList";
@@ -17,6 +18,7 @@ export function SavedTab() {
     list: savedLists,
     isPending: listsPending,
     isError: listsError,
+    isRefetching: listsRefetching,
     refetch: refetchLists,
   } = useProfile({ category: "saved", dto: { status: "" } });
 
@@ -24,6 +26,7 @@ export function SavedTab() {
     picks: savedPicks,
     isPending: picksPending,
     isError: picksError,
+    isRefetching: picksRefetching,
     refetch: refetchPicks,
   } = useProfilePicks("Favorites only", subTab === "picks");
 
@@ -40,11 +43,26 @@ export function SavedTab() {
     ? t("saved.saved.picksLabel")
     : `${t("saved.saved.picksLabel")} ${savedPicks.length}`;
 
+  const isRefetching = subTab === "lists" ? listsRefetching : picksRefetching;
+  const handleRefresh = useCallback(() => {
+    if (subTab === "lists") {
+      void refetchLists();
+    } else {
+      void refetchPicks();
+    }
+  }, [subTab, refetchLists, refetchPicks]);
+
   return (
     <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <AppRefreshControl
+          refreshing={isRefetching}
+          onRefresh={handleRefresh}
+        />
+      }
     >
       <SavedListsPicksToggle
         activeTab={subTab}

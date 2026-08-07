@@ -2,6 +2,7 @@ import { ActivityIndicator, ScrollView, Text, View, useWindowDimensions } from "
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import listService from "@/http/list-api/list.service";
@@ -26,6 +27,7 @@ export function ListDetailModal({
     data: list,
     isPending,
     isError,
+    isRefetching,
     refetch,
   } = useQuery({
     queryKey: ["list-detail", listId],
@@ -49,6 +51,12 @@ export function ListDetailModal({
         style={{ maxHeight: sheetMaxHeight }}
         className="-mx-4"
         contentContainerClassName="pb-2"
+        refreshControl={
+          <AppRefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => void refetch()}
+          />
+        }
       >
         {isPending ? (
           <View className="items-center justify-center gap-3 py-16">

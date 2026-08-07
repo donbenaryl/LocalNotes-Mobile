@@ -66,6 +66,7 @@ export function useBusinessSearch() {
     businesses,
     isLoading: businessQuery.isFetching && businesses.length > 0,
     isPending: businessQuery.isPending && businessQuery.data === undefined,
+    isRefetching: businessQuery.isRefetching,
     error: businessQuery.error?.message ?? null,
     refetch: businessQuery.refetch,
   };

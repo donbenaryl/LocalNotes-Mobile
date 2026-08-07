@@ -80,6 +80,7 @@ export function useOffersFeed() {
     sections,
     totalCount: offers.length,
     isLoading: feedQuery.isPending && feedQuery.data === undefined,
+    isRefetching: feedQuery.isRefetching,
     error: feedQuery.error?.message ?? null,
     refetch: async () => {
       await feedQuery.refetch();

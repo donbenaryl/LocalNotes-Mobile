@@ -76,6 +76,7 @@ export function usePicksSearch() {
     picks,
     isLoading: picksQuery.isFetching && picks.length > 0,
     isPending: picksQuery.isPending && picksQuery.data === undefined,
+    isRefetching: picksQuery.isRefetching,
     error: picksQuery.error?.message ?? null,
     refetch: picksQuery.refetch,
   };

@@ -17,7 +17,8 @@ function formatCityLabel(location: {
 
 export function SearchPeople() {
   const { t } = useTranslation();
-  const { people, isLoading, isPending, error, refetch } = usePeopleSearch();
+  const { people, isLoading, isPending, isRefetching, error, refetch } =
+    usePeopleSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
@@ -39,6 +40,7 @@ export function SearchPeople() {
       renderItem={(item) => <PeopleCard data={item} />}
       isLoading={isLoading}
       isPending={isPending}
+      isRefetching={isRefetching}
       error={error}
       onRetry={() => {
         void refetch();

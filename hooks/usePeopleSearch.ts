@@ -56,6 +56,7 @@ export function usePeopleSearch() {
     people,
     isLoading: peopleQuery.isFetching && people.length > 0,
     isPending: peopleQuery.isPending && peopleQuery.data === undefined,
+    isRefetching: peopleQuery.isRefetching,
     error: peopleQuery.error?.message ?? null,
     refetch: peopleQuery.refetch,
   };

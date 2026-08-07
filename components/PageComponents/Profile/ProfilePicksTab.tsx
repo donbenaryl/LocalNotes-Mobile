@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { Package } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,7 @@ import { useProfilePicks } from "@/hooks/useProfileList";
 import { PickCard } from "./PickCard";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
 import { ProfileTabFilters } from "./ProfileTabFilters";
+import { useRegisterProfilePullToRefresh } from "./ProfilePullToRefreshContext";
 
 interface ProfilePicksTabProps {
   userId: string;
@@ -25,12 +26,18 @@ export function ProfilePicksTab({
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const viewedUserId = isOwnProfile ? undefined : userId;
-  const { picks, isPending, refetch } = useProfilePicks(
+  const { picks, isPending, isRefetching, refetch } = useProfilePicks(
     favoriteFilter,
     true,
     viewedUserId,
     selectedCategory === "All" ? [] : [selectedCategory],
   );
+
+  const handleRefresh = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  useRegisterProfilePullToRefresh(handleRefresh, isRefetching);
 
   const sortedPicks = useMemo(
     () =>

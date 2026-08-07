@@ -21,6 +21,7 @@ export function useSmartPickSession(sessionId: string | undefined) {
     conversation: query.data ?? null,
     isPending: query.isPending,
     isError: query.isError,
+    isRefetching: query.isRefetching,
     error: query.error?.message ?? null,
     refetch: async () => {
       await query.refetch();

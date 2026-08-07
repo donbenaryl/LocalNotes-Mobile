@@ -20,6 +20,7 @@ export function useSmartPickHistory() {
     conversations: query.data ?? [],
     isPending: query.isPending && query.data === undefined,
     isError: query.isError,
+    isRefetching: query.isRefetching,
     error: query.error?.message ?? null,
     refetch: async () => {
       await query.refetch();

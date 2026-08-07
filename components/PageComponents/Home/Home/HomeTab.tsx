@@ -1,10 +1,10 @@
 import { useMemo, useState, type ReactNode } from "react";
 import {
-  RefreshControl,
   Text,
   View,
 } from "react-native";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { useTranslation } from "react-i18next";
 import type { ListItemDAO, ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -192,6 +192,7 @@ export function HomeTab() {
     nearYouPicks,
     discoverPicks,
     isLoading,
+    isRefetching,
     error,
     refetch,
     showNearYouSection,
@@ -295,10 +296,9 @@ export function HomeTab() {
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
       refreshControl={
-        <RefreshControl
-          refreshing={false}
+        <AppRefreshControl
+          refreshing={isRefetching}
           onRefresh={() => void refetch()}
-          tintColor="#FF6B1A"
         />
       }
     >

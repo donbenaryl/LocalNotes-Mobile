@@ -396,6 +396,9 @@ export function useHomeLists(options: UseHomeListsOptions) {
     nearYouPicks,
     discoverPicks,
     isLoading,
+    isRefetching:
+      discoverQuery.isRefetching ||
+      (effectiveCoordinates ? nearYouQuery.isRefetching : false),
     error,
     refetch,
     hasCoordinates: effectiveCoordinates !== null,

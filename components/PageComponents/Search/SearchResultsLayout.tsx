@@ -2,7 +2,6 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  RefreshControl,
   Text,
   useWindowDimensions,
   View,
@@ -12,6 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import {
   SearchMap,
@@ -45,6 +45,7 @@ interface SearchResultsLayoutProps<T> {
   renderBody?: (data: T[]) => ReactNode;
   isLoading: boolean;
   isPending: boolean;
+  isRefetching?: boolean;
   error: string | null;
   onRetry: () => void;
   emptyTitle: string;
@@ -61,8 +62,8 @@ export function SearchResultsLayout<T>({
   keyExtractor,
   renderItem,
   renderBody,
-  isLoading,
   isPending,
+  isRefetching = false,
   error,
   onRetry,
   emptyTitle,
@@ -167,10 +168,9 @@ export function SearchResultsLayout<T>({
                       onScrollY(event.nativeEvent.contentOffset.y);
                     }}
                     refreshControl={
-                      <RefreshControl
-                        refreshing={isLoading && data.length > 0}
+                      <AppRefreshControl
+                        refreshing={isRefetching}
                         onRefresh={onRetry}
-                        tintColor="#FF6B1A"
                       />
                     }
                     ListEmptyComponent={

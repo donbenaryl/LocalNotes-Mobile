@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import {
-  RefreshControl,
   Text,
   View,
 } from "react-native";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { Clock, MapPin, Star, Tag } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/Badge";
@@ -64,7 +64,7 @@ function OffersSection({
 
 export function OffersTab() {
   const { t } = useTranslation();
-  const { sections, totalCount, isLoading, error, refetch } = useOffersFeed();
+  const { sections, totalCount, isLoading, isRefetching, error, refetch } = useOffersFeed();
 
   if (isLoading) {
     return <OffersTabSkeleton />;
@@ -108,10 +108,9 @@ export function OffersTab() {
       contentContainerClassName="px-4 pb-8"
       showsVerticalScrollIndicator={false}
       refreshControl={
-        <RefreshControl
-          refreshing={false}
+        <AppRefreshControl
+          refreshing={isRefetching}
           onRefresh={() => void refetch()}
-          tintColor="#FF6B1A"
         />
       }
     >

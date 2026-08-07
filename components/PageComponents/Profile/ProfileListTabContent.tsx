@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View, Text } from "react-native";
 import { FolderOpen } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { useProfile, type ProfileTabCategory } from "@/hooks/useProfileList";
+import { useRegisterProfilePullToRefresh } from "./ProfilePullToRefreshContext";
 
 interface ProfileListTabContentProps {
   category: ProfileTabCategory;
@@ -24,13 +25,19 @@ export function ProfileListTabContent({
 }: ProfileListTabContentProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
-  const { list, isPending, isError, refetch } = useProfile({
+  const { list, isPending, isError, isRefetching, refetch } = useProfile({
     category,
     dto: { status: selectedStatus },
     selectedCategory,
     viewedUserId: isOwnProfile ? undefined : userId,
     isOwnProfile,
   });
+
+  const handleRefresh = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  useRegisterProfilePullToRefresh(handleRefresh, isRefetching);
 
   const sortedList = useMemo(
     () =>

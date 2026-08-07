@@ -1,7 +1,9 @@
+import { useCallback } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react-native";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { useProfile } from "@/hooks/useProfileList";
@@ -14,6 +16,7 @@ export function SharedWithMeTab() {
     list: collaborativeLists,
     isPending: collabPending,
     isError: collabError,
+    isRefetching: collabRefetching,
     refetch: refetchCollab,
   } = useProfile({ category: "collaborative", dto: { status: "" } });
 
@@ -21,6 +24,7 @@ export function SharedWithMeTab() {
     list: sharedLists,
     isPending: sharedPending,
     isError: sharedError,
+    isRefetching: sharedRefetching,
     refetch: refetchShared,
   } = useProfile({ category: "shared-with-me", dto: { status: "" } });
 
@@ -32,11 +36,22 @@ export function SharedWithMeTab() {
     collaborativeLists.length === 0 &&
     sharedLists.length === 0;
 
+  const isRefetching = sharedRefetching || collabRefetching;
+  const handleRefresh = useCallback(() => {
+    void Promise.all([refetchShared(), refetchCollab()]);
+  }, [refetchShared, refetchCollab]);
+
   return (
     <HomeTabsChromeScrollView
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
       showsVerticalScrollIndicator={false}
+      refreshControl={
+        <AppRefreshControl
+          refreshing={isRefetching}
+          onRefresh={handleRefresh}
+        />
+      }
     >
       {isFullyEmpty ? (
         <EmptyScreen

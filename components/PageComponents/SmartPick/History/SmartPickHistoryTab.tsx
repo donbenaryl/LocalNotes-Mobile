@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { History } from 'lucide-react-native';
 import { AppScrollView } from '@/components/ui/AppScrollView';
+import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { EmptyScreen } from '@/components/ui/EmptyScreen';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -12,13 +13,23 @@ import { SmartPickHistoryRow } from './SmartPickHistoryRow';
 export function SmartPickHistoryTab() {
   const { t } = useTranslation();
   const router = useRouter();
-  const { conversations, isPending, isError, error, refetch } = useSmartPickHistory();
+  const { conversations, isPending, isError, isRefetching, error, refetch } =
+    useSmartPickHistory();
 
   return (
     <View className="flex-1">
       <PageHeader title={t('smartPick.historyTitle')} />
 
-      <AppScrollView contentContainerClassName="gap-2.5 px-4 pb-10 pt-4" showsVerticalScrollIndicator={false}>
+      <AppScrollView
+        contentContainerClassName="gap-2.5 px-4 pb-10 pt-4"
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <AppRefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => void refetch()}
+          />
+        }
+      >
         {isPending ? (
           <View className="items-center justify-center py-16">
             <ActivityIndicator size="large" color="#FF6B1A" />

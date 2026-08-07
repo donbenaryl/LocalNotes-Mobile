@@ -37,7 +37,7 @@ export function useProfile({
   const categoryFilter =
     selectedCategory && selectedCategory !== "All" ? selectedCategory : undefined;
 
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: isOwnProfile
       ? isDraftsOrMyLists
         ? ["profile-lists", category, dto.status, categoryFilter ?? ""]
@@ -93,6 +93,7 @@ export function useProfile({
     list: data ?? [],
     isPending: isPending && data === undefined,
     isError,
+    isRefetching,
     refetch,
   };
 }
@@ -107,7 +108,7 @@ export function useProfilePicks(
 ) {
   const locationKey = location ? `${location.latitude},${location.longitude}` : "";
 
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: viewedUserId
       ? ["profile-picks", viewedUserId, favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false]
       : ["profile-picks", favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false],
@@ -131,12 +132,13 @@ export function useProfilePicks(
     picks: data ?? [],
     isPending: isPending && data === undefined,
     isError,
+    isRefetching,
     refetch,
   };
 }
 
 export function useActivityFeed(enabled = true) {
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: ["activity-feed"],
     enabled,
     staleTime: FEED_STALE_TIME_MS,
@@ -150,12 +152,13 @@ export function useActivityFeed(enabled = true) {
     activityFeed: data ?? [],
     isPending: isPending && data === undefined,
     isError,
+    isRefetching,
     refetch,
   };
 }
 
 export function useFollowingLists(enabled = true) {
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: ["following-lists"],
     enabled,
     staleTime: FEED_STALE_TIME_MS,
@@ -169,12 +172,13 @@ export function useFollowingLists(enabled = true) {
     followingList: data ?? [],
     isPending: isPending && data === undefined,
     isError,
+    isRefetching,
     refetch,
   };
 }
 
 export function useSimilarUsers(userId: string, enabled = true) {
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: ["similar-users", userId],
     enabled: enabled && Boolean(userId),
     queryFn: async () => {
@@ -187,12 +191,13 @@ export function useSimilarUsers(userId: string, enabled = true) {
     similarUsers: data ?? [],
     isPending,
     isError,
+    isRefetching,
     refetch,
   };
 }
 
 export function useSimilarLists(enabled = true) {
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: ["similar-lists"],
     enabled,
     queryFn: async () => {
@@ -205,6 +210,7 @@ export function useSimilarLists(enabled = true) {
     similarList: data ?? [],
     isPending,
     isError,
+    isRefetching,
     refetch,
   };
 }

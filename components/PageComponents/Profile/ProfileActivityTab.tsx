@@ -6,12 +6,7 @@ import { useTranslation } from "react-i18next";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { SimilarListCard } from "@/components/ui/SimilarListCard";
-import {
-  useActivityFeed,
-  useFollowingLists,
-  useSimilarLists,
-  useSimilarUsers,
-} from "@/hooks/useProfileList";
+import { useProfileActivityData } from "@/hooks/useProfileActivityData";
 import { ActivityFeedCard } from "./ActivityFeedCard";
 import { ProfileSimilarUserCard } from "./ProfileSimilarUserCard";
 
@@ -85,20 +80,16 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
 
   const {
     activityFeed,
-    isPending: activityFeedLoading,
-    isError: activityFeedError,
-    refetch: refetchActivity,
-  } = useActivityFeed();
-
-  const {
+    activityFeedLoading,
+    activityFeedError,
+    refetchActivity,
     followingList,
-    isPending: followingListLoading,
-    isError: followingError,
-    refetch: refetchFollowing,
-  } = useFollowingLists();
-
-  const { similarUsers } = useSimilarUsers(userId);
-  const { similarList } = useSimilarLists();
+    followingListLoading,
+    followingError,
+    refetchFollowing,
+    similarUsers,
+    similarList,
+  } = useProfileActivityData(userId);
 
   return (
     <View className="p-4">

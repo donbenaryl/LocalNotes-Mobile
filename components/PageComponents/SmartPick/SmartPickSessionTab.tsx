@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppScrollView } from '@/components/ui/AppScrollView';
+import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { useSmartPickSession } from '@/hooks/useSmartPickSession';
 import { SmartPickResults } from './Result/SmartPickResults';
@@ -21,7 +22,8 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { conversation, isPending, isError, error, refetch } = useSmartPickSession(sessionId);
+  const { conversation, isPending, isError, isRefetching, error, refetch } =
+    useSmartPickSession(sessionId);
 
   return (
     <View className="flex-1" style={{ paddingTop: insets.top }}>
@@ -43,7 +45,16 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
           />
         </View>
       ) : (
-        <AppScrollView contentContainerClassName="pb-10" showsVerticalScrollIndicator={false}>
+        <AppScrollView
+          contentContainerClassName="pb-10"
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <AppRefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => void refetch()}
+            />
+          }
+        >
           <SmartPickResults conversation={conversation} onBack={() => router.back()} />
         </AppScrollView>
       )}

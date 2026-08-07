@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { AlertCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
@@ -23,14 +24,23 @@ export function FollowingTab() {
     followingList,
     isPending: followingLoading,
     isError: followingError,
+    isRefetching: followingRefetching,
+    refetch: refetchFollowing,
   } = useFollowingLists();
 
   const {
     activityFeed,
     isPending: activityLoading,
     isError: activityError,
+    isRefetching: activityRefetching,
     refetch: refetchActivity,
   } = useActivityFeed();
+
+  const isRefetching = followingRefetching || activityRefetching;
+
+  const handleRefresh = useCallback(() => {
+    void Promise.all([refetchFollowing(), refetchActivity()]);
+  }, [refetchFollowing, refetchActivity]);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -53,6 +63,12 @@ export function FollowingTab() {
       showsVerticalScrollIndicator={false}
       className="flex-1"
       contentContainerClassName="px-4 pb-28"
+      refreshControl={
+        <AppRefreshControl
+          refreshing={isRefetching}
+          onRefresh={handleRefresh}
+        />
+      }
     >
       {followingLoading && <FollowingCreatorsRowSkeleton />}
 

@@ -1,6 +1,7 @@
-import { RefreshControl, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { PicksMasonryGrid } from "@/components/ui/PicksMasonryGrid";
 import { SearchResultsLayout } from "@/components/PageComponents/Search/SearchResultsLayout";
 import { usePicksSearch } from "@/hooks/usePicksSearch";
@@ -19,7 +20,8 @@ function formatCityLabel(location: {
 
 export function SearchPicks() {
   const { t } = useTranslation();
-  const { picks, isLoading, isPending, error, refetch } = usePicksSearch();
+  const { picks, isLoading, isPending, isRefetching, error, refetch } =
+    usePicksSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
@@ -49,10 +51,9 @@ export function SearchPicks() {
             contentContainerClassName="px-4 pb-28"
             showsVerticalScrollIndicator={false}
             refreshControl={
-              <RefreshControl
-                refreshing={isLoading && data.length > 0}
+              <AppRefreshControl
+                refreshing={isRefetching}
                 onRefresh={() => void refetch()}
-                tintColor="#FF6B1A"
               />
             }
           >
@@ -62,6 +63,7 @@ export function SearchPicks() {
       }
       isLoading={isLoading}
       isPending={isPending}
+      isRefetching={isRefetching}
       error={error}
       onRetry={() => {
         void refetch();

@@ -73,6 +73,7 @@ export function useListSearch() {
     lists,
     isLoading: listQuery.isFetching && lists.length > 0,
     isPending: listQuery.isPending && listQuery.data === undefined,
+    isRefetching: listQuery.isRefetching,
     error: listQuery.error?.message ?? null,
     refetch: listQuery.refetch,
   };

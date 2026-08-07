@@ -23,6 +23,7 @@ export function useSpotlightEdition(city?: string) {
   return {
     data: editionQuery.data ?? null,
     isLoading: editionQuery.isPending && editionQuery.data === undefined,
+    isRefetching: editionQuery.isRefetching,
     error: editionQuery.error?.message ?? null,
     refetch: async () => {
       await editionQuery.refetch();

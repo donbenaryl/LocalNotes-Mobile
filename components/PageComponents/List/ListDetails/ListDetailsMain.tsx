@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import listService from "@/http/list-api/list.service";
@@ -21,6 +22,7 @@ interface ListDetailsMainProps {
 
 export function ListDetailsMain({ listId }: ListDetailsMainProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const [mapVisible, setMapVisible] = useState(false);
   const [mapInitialIndex, setMapInitialIndex] = useState(0);
   const [savedStateOverride, setSavedStateOverride] = useState<{
@@ -36,6 +38,7 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
     data: list,
     isPending,
     isError,
+    isRefetching,
     refetch,
   } = useQuery({
     queryKey: ["list-detail", listId],
@@ -64,6 +67,15 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
     const mapIndex = picks.findIndex((pick) => pick.index === pickIndex);
     setMapInitialIndex(mapIndex >= 0 ? mapIndex : 0);
     setMapVisible(true);
+  };
+
+  const handleRefresh = () => {
+    void refetch();
+    if (listId) {
+      void queryClient.invalidateQueries({
+        queryKey: ["list-comments", listId],
+      });
+    }
   };
 
   if (!listId) {
@@ -106,6 +118,12 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <AppRefreshControl
+            refreshing={isRefetching}
+            onRefresh={handleRefresh}
+          />
+        }
       >
         <ListDetailsHeader
           list={displayList}

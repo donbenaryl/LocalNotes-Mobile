@@ -1,7 +1,8 @@
-import { RefreshControl, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { useSpotlightEdition } from "@/hooks/useSpotlightEdition";
 import { SpotlightBusinessesSection } from "./SpotlightBusinessesSection";
@@ -15,7 +16,7 @@ import { SpotlightTabSkeleton } from "./SpotlightTabSkeleton";
 
 export function SpotlightTab() {
   const { t } = useTranslation();
-  const { data, isLoading, error, refetch } = useSpotlightEdition();
+  const { data, isLoading, isRefetching, error, refetch } = useSpotlightEdition();
 
   if (isLoading) {
     return <SpotlightTabSkeleton />;
@@ -61,7 +62,10 @@ export function SpotlightTab() {
       contentContainerClassName="pb-40 px-4"
       showsVerticalScrollIndicator={false}
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={() => void refetch()} tintColor="#FF6B1A" />
+        <AppRefreshControl
+          refreshing={isRefetching}
+          onRefresh={() => void refetch()}
+        />
       }
     >
       <SpotlightHero edition={data} />

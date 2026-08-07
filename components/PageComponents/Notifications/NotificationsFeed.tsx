@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -10,6 +9,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { AppScrollView } from '@/components/ui/AppScrollView';
+import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { CategoryChip } from '@/components/ui/CategoryChip';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { NotificationRow } from '@/components/PageComponents/Notifications/NotificationRow';
@@ -117,12 +117,11 @@ export default function NotificationsFeed() {
           showsVerticalScrollIndicator={false}
           contentContainerClassName="pb-10"
           refreshControl={
-            <RefreshControl
+            <AppRefreshControl
               refreshing={isRefetching}
               onRefresh={() => {
                 void refetch();
               }}
-              tintColor="#FF6B1A"
             />
           }
         >

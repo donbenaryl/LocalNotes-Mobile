@@ -17,7 +17,8 @@ function formatCityLabel(location: {
 
 export function SearchLists() {
   const { t } = useTranslation();
-  const { lists, isLoading, isPending, error, refetch } = useListSearch();
+  const { lists, isLoading, isPending, isRefetching, error, refetch } =
+    useListSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
@@ -40,6 +41,7 @@ export function SearchLists() {
       renderItem={(item) => <ListCardDetailed list={item} />}
       isLoading={isLoading}
       isPending={isPending}
+      isRefetching={isRefetching}
       error={error}
       onRetry={() => {
         void refetch();

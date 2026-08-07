@@ -17,7 +17,7 @@ function formatCityLabel(location: {
 
 export function SearchBusinesses() {
   const { t } = useTranslation();
-  const { businesses, isLoading, isPending, error, refetch } =
+  const { businesses, isLoading, isPending, isRefetching, error, refetch } =
     useBusinessSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
@@ -41,6 +41,7 @@ export function SearchBusinesses() {
       renderItem={(item) => <BusinessCard data={item} />}
       isLoading={isLoading}
       isPending={isPending}
+      isRefetching={isRefetching}
       error={error}
       onRetry={() => {
         void refetch();
