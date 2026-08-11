@@ -7,7 +7,7 @@ import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
-const DEFAULT_RADIUS_KM = 10;
+const DEFAULT_RADIUS_KM = 15;
 const SEARCH_LIMIT = 25;
 
 async function fetchListSearch(params: serchDTO): Promise<ListItemDAO[]> {
@@ -34,10 +34,6 @@ export function useListSearch() {
       p.latitude = coordinates.latitude;
       p.longitude = coordinates.longitude;
       p.radiusKm = DEFAULT_RADIUS_KM;
-      if (coordinates.city) {
-        p.city = coordinates.city;
-        if (coordinates.region) p.region = coordinates.region;
-      }
     }
     return p;
   }, [committedQuery, matchThreshold, selectedVibes, coordinates]);
@@ -51,8 +47,6 @@ export function useListSearch() {
       params.latitude ?? null,
       params.longitude ?? null,
       params.radiusKm ?? null,
-      params.city ?? null,
-      params.region ?? null,
     ],
     [params],
   );

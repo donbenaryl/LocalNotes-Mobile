@@ -1,4 +1,5 @@
 import type {
+  NotificationPrefs,
   PrivacyPrefs,
 } from "@/components/PageComponents/Profile/AccountSettings/types";
 
@@ -243,14 +244,23 @@ export type notificationDAO = {
 };
 
 /**
- * The backend's `NotificationSetting` model has other fields
- * (activity_on_self_posts_and_lists / people_and_connections / updates_from_followed_lists /
- * trendings_and_recommendations) that `NotificationsSettings.tsx` doesn't read/write yet — that
- * screen's other toggles remain local-only UI (see `useAccountSettingsStore.ts`). Only the one
- * field this task wires is declared here; extend as more toggles get real backend support.
+ * Mirrors backend `NotificationSetting` / `NotificationSettingSerializer`.
+ * Pref toggles sync via GET/PATCH `/accounts/notification-settings`.
  */
 export interface NotificationSettingsDAO {
+  likes_and_saves: boolean;
+  new_followers: boolean;
+  mentions: boolean;
+  comments_and_replies: boolean;
+  new_lists: boolean;
+  new_picks: boolean;
+  business_offers: boolean;
+  featured_offers: boolean;
   spotlight_digest: boolean;
+  weekly_recap: boolean;
+  reengagement_nudges: boolean;
+  quiet_hours: boolean;
+  timezone: string;
 }
 
 export type UpdateNotificationSettingsDTO = Partial<NotificationSettingsDAO>;
@@ -271,6 +281,50 @@ export interface PrivacySettingsDAO {
 }
 
 export type UpdatePrivacySettingsDTO = Partial<PrivacySettingsDAO>;
+
+export function mapNotificationSettingsDAOToPrefs(
+  dao: NotificationSettingsDAO,
+): NotificationPrefs {
+  return {
+    likesAndSaves: dao.likes_and_saves,
+    newFollowers: dao.new_followers,
+    mentions: dao.mentions,
+    commentsAndReplies: dao.comments_and_replies,
+    newLists: dao.new_lists,
+    newPicks: dao.new_picks,
+    businessOffers: dao.business_offers,
+    featuredOffers: dao.featured_offers,
+    spotlightDigest: dao.spotlight_digest,
+    weeklyRecap: dao.weekly_recap,
+    reengagementNudges: dao.reengagement_nudges,
+    quietHours: dao.quiet_hours,
+  };
+}
+
+export function mapNotificationPrefsToDAO(
+  prefs: Partial<NotificationPrefs>,
+  timezone?: string,
+): UpdateNotificationSettingsDTO {
+  const dto: UpdateNotificationSettingsDTO = {};
+  if (prefs.likesAndSaves !== undefined) dto.likes_and_saves = prefs.likesAndSaves;
+  if (prefs.newFollowers !== undefined) dto.new_followers = prefs.newFollowers;
+  if (prefs.mentions !== undefined) dto.mentions = prefs.mentions;
+  if (prefs.commentsAndReplies !== undefined) {
+    dto.comments_and_replies = prefs.commentsAndReplies;
+  }
+  if (prefs.newLists !== undefined) dto.new_lists = prefs.newLists;
+  if (prefs.newPicks !== undefined) dto.new_picks = prefs.newPicks;
+  if (prefs.businessOffers !== undefined) dto.business_offers = prefs.businessOffers;
+  if (prefs.featuredOffers !== undefined) dto.featured_offers = prefs.featuredOffers;
+  if (prefs.spotlightDigest !== undefined) dto.spotlight_digest = prefs.spotlightDigest;
+  if (prefs.weeklyRecap !== undefined) dto.weekly_recap = prefs.weeklyRecap;
+  if (prefs.reengagementNudges !== undefined) {
+    dto.reengagement_nudges = prefs.reengagementNudges;
+  }
+  if (prefs.quietHours !== undefined) dto.quiet_hours = prefs.quietHours;
+  if (timezone !== undefined) dto.timezone = timezone;
+  return dto;
+}
 
 export function mapPrivacySettingsDAOToPrefs(dao: PrivacySettingsDAO): PrivacyPrefs {
   return {

@@ -7,7 +7,7 @@ import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
-const DEFAULT_RADIUS_KM = 10;
+const DEFAULT_RADIUS_KM = 15;
 
 async function fetchBusinessSearch(params: searchBusinessDTO): Promise<BusinessItemDAO[]> {
   const response = await businessService.searchBusiness(params);
@@ -29,10 +29,6 @@ export function useBusinessSearch() {
       p.latitude = coordinates.latitude;
       p.longitude = coordinates.longitude;
       p.radiusKm = DEFAULT_RADIUS_KM;
-      if (coordinates.city) {
-        p.city = coordinates.city;
-        if (coordinates.region) p.region = coordinates.region;
-      }
     }
     return p;
   }, [committedQuery, coordinates]);
@@ -44,8 +40,6 @@ export function useBusinessSearch() {
       params.latitude ?? null,
       params.longitude ?? null,
       params.radiusKm ?? null,
-      params.city ?? null,
-      params.region ?? null,
     ],
     [params],
   );

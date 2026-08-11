@@ -34,9 +34,13 @@ function getActiveTab(pathname: string): string {
 }
 
 function formatCityLabel(location: GeoLocation): string {
-  return location.region
-    ? `${location.city}, ${location.region}`
-    : location.city;
+  if (location.street_address?.trim()) {
+    return location.street_address.trim();
+  }
+  if (location.region?.trim() && location.city?.trim()) {
+    return `${location.city.trim()}, ${location.region.trim()}`;
+  }
+  return location.city?.trim() || location.region?.trim() || "";
 }
 
 export default function MainSearch() {

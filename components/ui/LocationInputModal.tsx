@@ -21,7 +21,18 @@ import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import type { Location as GeoLocation } from '@/http/list-api/types';
 
 function formatLocationLabel(location: GeoLocation): string {
-  return location.region ? `${location.city}, ${location.region}` : location.city;
+  // street_address holds the complete address when set from Google Places.
+  if (location.street_address?.trim()) {
+    return location.street_address.trim();
+  }
+  if (location.region?.trim() && location.city?.trim()) {
+    return `${location.city.trim()}, ${location.region.trim()}`;
+  }
+  return location.city?.trim() || location.region?.trim() || "";
+}
+
+function truncateChipLabel(label: string): string {
+  return label.length > 15 ? `${label.slice(0, 15)}...` : label;
 }
 
 function getRelativeTime(timestamp: number): string {
@@ -62,13 +73,19 @@ export function LocationInputModalTrigger({
 }: LocationInputModalTriggerProps) {
   const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
+  const [selectedAddressLabel, setSelectedAddressLabel] = useState<string | null>(null);
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#191B1C';
+
+  const fullLabel = isAllSelected
+    ? t('home.location.chooseLocation')
+    : selectedAddressLabel || cityLabel;
+  const label = truncateChipLabel(fullLabel);
 
   return (
     <>
       <LocalNotesButton
-        label={isAllSelected ? t('home.location.chooseLocation') : cityLabel}
+        label={label}
         onPress={() => setVisible(true)}
         variant="light"
         size="xs"
@@ -82,10 +99,12 @@ export function LocationInputModalTrigger({
         isAllSelected={isAllSelected}
         onClose={() => setVisible(false)}
         onLocationSelected={(loc) => {
+          setSelectedAddressLabel(formatLocationLabel(loc));
           onLocationSelected(loc);
           setVisible(false);
         }}
         onAllSelected={() => {
+          setSelectedAddressLabel(null);
           onAllSelected?.();
           setVisible(false);
         }}
@@ -286,6 +305,7 @@ export function LocationInputModal({
                 <View className="px-6">
                     <LocationInput
                     inModal
+                    biasToUserLocation={false}
                     onLocationSelected={handleSelect}
                     onQueryChange={(q) => setIsSearchMode(q.length >= 2)}
                     placeholder="Search any city..."

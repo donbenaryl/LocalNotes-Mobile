@@ -1,11 +1,16 @@
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { PageLoader } from "@/components/ui/PageLoader";
-import { MapPin, Navigation, Search, X } from "lucide-react-native";
+import { MapPin, Search, X } from "lucide-react-native";
 import * as Location from "expo-location";
 import { mapboxToken } from "@/http/environment.config";
 import type { Location as GeoLocation } from "@/http/list-api/types";
+import placesService from "@/http/places-api/places.service";
+import type {
+  PlaceAutocompleteSuggestionDAO,
+  PlaceDetailsDAO,
+} from "@/http/places-api/types";
 import { TextInput } from "@/components/ui/TextInput";
 import { Target } from "lucide-react-native/icons";
 import { useAccountSettingsStore } from "@/stores/useAccountSettingsStore";
@@ -22,9 +27,14 @@ interface LocationInputProps {
   showAddressFields?: boolean;
   /** Prefills the search text and, when showAddressFields is true, the address detail fields */
   initialLocation?: GeoLocation | null;
+  /**
+   * When true (default), autocomplete sends device lat/lng as Google locationBias.
+   * Set false for city/filter pickers so far-away places are not deprioritized.
+   */
+  biasToUserLocation?: boolean;
 }
 
-function extractLocation(place: Record<string, unknown>): GeoLocation {
+function extractMapboxLocation(place: Record<string, unknown>): GeoLocation {
   const [longitude, latitude] = place.center as [number, number];
   const context = (place.context as Record<string, string>[] | undefined) ?? [];
 
@@ -50,27 +60,59 @@ function extractLocation(place: Record<string, unknown>): GeoLocation {
   return { city, region, country, latitude, longitude };
 }
 
+/** DB `street_address` is CharField(max_length=255). */
+const STREET_ADDRESS_MAX_LENGTH = 255;
+
+function truncateStreetAddress(value: string): string {
+  return value.length > STREET_ADDRESS_MAX_LENGTH
+    ? value.slice(0, STREET_ADDRESS_MAX_LENGTH)
+    : value;
+}
+
 function formatLocationLabel(location: GeoLocation): string {
+  // street_address holds the complete address when set from Google Places.
+  if (location.street_address?.trim()) {
+    return location.street_address.trim();
+  }
+
   return location.region
     ? `${location.city}, ${location.region}`
     : location.city;
 }
 
+function formatGooglePlaceLabel(place: PlaceDetailsDAO): string {
+  if (place.formatted_address?.trim()) return place.formatted_address.trim();
+  if (place.name?.trim() && place.city.trim()) {
+    return `${place.name.trim()}, ${place.city.trim()}`;
+  }
+  return formatLocationLabel(place);
+}
+
+function buildSessionToken(): string {
+  // Places API requires a URL/filename-safe token of at most 36 ASCII chars (UUID recommended).
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export function LocationInput({
   onLocationSelected,
   onQueryChange,
-  placeholder = "Search any city or place",
+  placeholder = "Search a place or address",
   defaultValue = "",
   containerClassName = "",
   inModal = false,
   showAddressFields = false,
   initialLocation = null,
+  biasToUserLocation = true,
 }: LocationInputProps) {
   const initialQuery = initialLocation
     ? formatLocationLabel(initialLocation)
     : defaultValue;
   const [query, setQuery] = useState(initialQuery);
-  const [suggestions, setSuggestions] = useState<Record<string, unknown>[]>([]);
+  const [suggestions, setSuggestions] = useState<PlaceAutocompleteSuggestionDAO[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGeolocating, setIsGeolocating] = useState(false);
@@ -78,6 +120,8 @@ export function LocationInput({
   const [streetAddress, setStreetAddress] = useState(initialLocation?.street_address ?? "");
   const [postalCode, setPostalCode] = useState(initialLocation?.postal_code ?? "");
   const fetchGenerationRef = useRef(0);
+  const sessionTokenRef = useRef<string | null>(null);
+  const locationBiasRef = useRef<{ latitude: number; longitude: number } | null>(null);
   // When set, `query` was committed via selection/default — never geocode it until the user edits.
   const committedQueryRef = useRef<string | null>(
     initialQuery.length >= 2 ? initialQuery : null,
@@ -87,6 +131,17 @@ export function LocationInput({
 
   const isCommittedQuery = (value: string) =>
     committedQueryRef.current !== null && value === committedQueryRef.current;
+
+  const resetSessionToken = () => {
+    sessionTokenRef.current = null;
+  };
+
+  const ensureSessionToken = () => {
+    if (!sessionTokenRef.current) {
+      sessionTokenRef.current = buildSessionToken();
+    }
+    return sessionTokenRef.current;
+  };
 
   const applyProgrammaticQuery = (text: string, commit: boolean) => {
     isProgrammaticUpdateRef.current = true;
@@ -132,13 +187,46 @@ export function LocationInput({
 
       void (async () => {
         try {
-          const response = await fetch(
-            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&types=place,locality,region,country&limit=5`,
-          );
-          if (!response.ok) throw new Error("Geocoding request failed");
-          const data = await response.json();
+          let latitude: number | undefined;
+          let longitude: number | undefined;
+
+          if (biasToUserLocation) {
+            const permissions = await Location.getForegroundPermissionsAsync();
+
+            if (permissions.status === "granted") {
+              const lastKnown = await Location.getLastKnownPositionAsync();
+              if (lastKnown?.coords) {
+                latitude = lastKnown.coords.latitude;
+                longitude = lastKnown.coords.longitude;
+              } else if (locationBiasRef.current) {
+                latitude = locationBiasRef.current.latitude;
+                longitude = locationBiasRef.current.longitude;
+              }
+
+              if (latitude === undefined || longitude === undefined) {
+                const current = await Location.getCurrentPositionAsync({
+                  accuracy: usePreciseLocation
+                    ? Location.Accuracy.Balanced
+                    : Location.Accuracy.Low,
+                });
+                latitude = current.coords.latitude;
+                longitude = current.coords.longitude;
+              }
+
+              if (latitude !== undefined && longitude !== undefined) {
+                locationBiasRef.current = { latitude, longitude };
+              }
+            }
+          }
+
+          const response = await placesService.autocomplete({
+            input: query,
+            latitude,
+            longitude,
+            session_token: ensureSessionToken(),
+          });
           if (generation !== fetchGenerationRef.current) return;
-          setSuggestions(data.features ?? []);
+          setSuggestions(response.data?.data ?? []);
         } catch {
           if (generation !== fetchGenerationRef.current) return;
           setSuggestions([]);
@@ -151,35 +239,98 @@ export function LocationInput({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, usePreciseLocation, biasToUserLocation]);
 
   const handleUserQueryChange = (text: string) => {
     if (isProgrammaticUpdateRef.current) return;
     committedQueryRef.current = null;
+    if (text.trim().length >= 2) {
+      ensureSessionToken();
+    } else {
+      resetSessionToken();
+    }
     setQuery(text);
   };
 
-  const handleSelect = (place: Record<string, unknown>) => {
+  const commitLocationSelection = (
+    location: GeoLocation,
+    label: string,
+    nextStreetAddress?: string | null,
+    nextPostalCode?: string | null,
+  ) => {
     fetchGenerationRef.current += 1;
-    const location = extractLocation(place);
-    const label = formatLocationLabel(location);
-    setCoreLocation(location);
-    onLocationSelected(
-      showAddressFields
-        ? {
-            ...location,
-            street_address: streetAddress.trim() || null,
-            postal_code: postalCode.trim() || null,
-          }
-        : location,
-    );
-    applyProgrammaticQuery(label, true);
-    setShowSuggestions(false);
+    const normalizedStreetAddress = nextStreetAddress?.trim() ?? location.street_address ?? null;
+    const normalizedPostalCode = nextPostalCode?.trim() ?? location.postal_code ?? null;
+    const nextLocation: GeoLocation = {
+      ...location,
+      street_address: normalizedStreetAddress || null,
+      postal_code: normalizedPostalCode || null,
+    };
+
+    if (showAddressFields) {
+      setStreetAddress(normalizedStreetAddress ?? "");
+      setPostalCode(normalizedPostalCode ?? "");
+    }
+
+    resetSessionToken();
     setSuggestions([]);
+    setShowSuggestions(false);
     setIsLoading(false);
+    setCoreLocation(nextLocation);
+    onLocationSelected(nextLocation);
+    applyProgrammaticQuery(label, true);
     if (!inModal) {
       setTimeout(() => Keyboard.dismiss(), 0);
     }
+  };
+
+  const handleGooglePlaceSelect = async (place: PlaceAutocompleteSuggestionDAO) => {
+    const generation = ++fetchGenerationRef.current;
+    setIsLoading(true);
+
+    try {
+      const response = await placesService.getDetails({
+        place_id: place.place_id,
+        session_token: sessionTokenRef.current ?? undefined,
+      });
+      if (generation !== fetchGenerationRef.current) return;
+
+      const details = response.data?.data;
+      if (!details) throw new Error("Place details missing");
+
+      const completeAddressRaw =
+        details.formatted_address?.trim() ||
+        details.street_address?.trim() ||
+        "";
+      const completeAddress = completeAddressRaw
+        ? truncateStreetAddress(completeAddressRaw)
+        : null;
+
+      const location: GeoLocation = {
+        street_address: completeAddress,
+        postal_code: details.postal_code ?? null,
+        city: details.city,
+        region: details.region,
+        country: details.country,
+        latitude: details.latitude,
+        longitude: details.longitude,
+      };
+      commitLocationSelection(
+        location,
+        formatGooglePlaceLabel(details),
+        completeAddress,
+        details.postal_code,
+      );
+    } catch {
+      if (generation !== fetchGenerationRef.current) return;
+      setIsLoading(false);
+    }
+  };
+
+  const handleMapboxLocationSelect = (place: Record<string, unknown>) => {
+    const location = extractMapboxLocation(place);
+    setCoreLocation(location);
+    commitLocationSelection(location, formatLocationLabel(location));
   };
 
   const handleStreetAddressChange = (text: string) => {
@@ -217,7 +368,7 @@ export function LocationInput({
       if (!response.ok) throw new Error("Reverse geocoding failed");
       const data = await response.json();
       if (data.features?.length > 0) {
-        handleSelect(data.features[0]);
+        handleMapboxLocationSelect(data.features[0]);
       }
     } catch {
       // silently fail — user can type manually
@@ -236,6 +387,7 @@ export function LocationInput({
     setSuggestions([]);
     setShowSuggestions(false);
     setIsLoading(false);
+    resetSessionToken();
     setCoreLocation(null);
     if (showAddressFields) {
       setStreetAddress("");
@@ -285,13 +437,13 @@ export function LocationInput({
                 <MapPin size={18} color="#FF6B1A" className="mt-0.5 shrink-0" />
                 <View className="flex-1">
                   <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
-                    {place.text as string}
+                    {place.primary_text}
                   </Text>
                   <Text
                     className="font-geist text-sm text-gray-500 dark:text-gray-400"
                     numberOfLines={1}
                   >
-                    {place.place_name as string}
+                    {place.secondary_text}
                   </Text>
                 </View>
               </View>
@@ -300,9 +452,9 @@ export function LocationInput({
             if (inModal) {
               return (
                 <TouchableOpacity
-                  key={(place.id as string) ?? index}
+                  key={place.place_id ?? index}
                   activeOpacity={0.7}
-                  onPress={() => handleSelect(place)}
+                  onPress={() => void handleGooglePlaceSelect(place)}
                 >
                   {rowContent}
                 </TouchableOpacity>
@@ -311,8 +463,8 @@ export function LocationInput({
 
             return (
               <Pressable
-                key={(place.id as string) ?? index}
-                onPress={() => handleSelect(place)}
+                key={place.place_id ?? index}
+                onPress={() => void handleGooglePlaceSelect(place)}
                 className="cursor-pointer active:opacity-70"
               >
                 {rowContent}

@@ -7,7 +7,7 @@ import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
-const DEFAULT_RADIUS_KM = 10;
+const DEFAULT_RADIUS_KM = 15;
 const SEARCH_LIMIT = 30;
 
 type PicksSearchParams = NonNullable<Parameters<typeof listService.fetchListItems>[0]>;
@@ -37,10 +37,6 @@ export function usePicksSearch() {
       p.latitude = coordinates.latitude;
       p.longitude = coordinates.longitude;
       p.radius_km = DEFAULT_RADIUS_KM;
-      if (coordinates.city) {
-        p.city = coordinates.city;
-        if (coordinates.region) p.region = coordinates.region;
-      }
     }
     return p;
   }, [committedQuery, matchThreshold, selectedVibes, coordinates]);
@@ -54,8 +50,6 @@ export function usePicksSearch() {
       params.latitude ?? null,
       params.longitude ?? null,
       params.radius_km ?? null,
-      params.city ?? null,
-      params.region ?? null,
     ],
     [params],
   );

@@ -244,7 +244,8 @@ export function ListItemForm({
   };
 
   const locationDisplayValue = location
-    ? [location.city, location.region, location.country].filter(Boolean).join(", ")
+    ? location.street_address?.trim() ||
+      [location.city, location.region, location.country].filter(Boolean).join(", ")
     : "";
 
   const handleSubmit = () => {

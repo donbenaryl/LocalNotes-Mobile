@@ -20,7 +20,7 @@ import { getListMatchPercent } from "@/utils/matchScore";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const NEAR_YOU_RADIUS_KM = 5;
-const DEFAULT_RADIUS_KM = 10;
+const DEFAULT_RADIUS_KM = 15;
 const LIST_LIMIT = 25;
 const FOR_YOU_LIMIT = 3;
 
@@ -37,14 +37,11 @@ export interface UseHomeListsOptions {
 interface EffectiveCoordinates {
   latitude: number;
   longitude: number;
-  city?: string;
-  region?: string;
 }
 
 function buildSearchParams(
   options: UseHomeListsOptions,
   coordinates: EffectiveCoordinates | null,
-  includeCityFilter: boolean,
 ): UnifiedSearchParams {
   const { activeFilters, matchThreshold, selectedVibes, selectedCategories } = options;
 
@@ -60,13 +57,6 @@ function buildSearchParams(
     params.radiusKm = activeFilters.includes("distance")
       ? NEAR_YOU_RADIUS_KM
       : DEFAULT_RADIUS_KM;
-
-    if (includeCityFilter && coordinates.city) {
-      params.city = coordinates.city;
-      if (coordinates.region) {
-        params.region = coordinates.region;
-      }
-    }
   }
 
   if (matchThreshold !== null) {
@@ -142,8 +132,6 @@ export function useHomeLists(options: UseHomeListsOptions) {
       return {
         latitude: options.locationOverride.latitude,
         longitude: options.locationOverride.longitude,
-        city: options.locationOverride.city || undefined,
-        region: options.locationOverride.region || undefined,
       };
     }
 
@@ -151,13 +139,6 @@ export function useHomeLists(options: UseHomeListsOptions) {
       return {
         latitude: userCoordinates.latitude,
         longitude: userCoordinates.longitude,
-        // Profile home city → city-name filter; device GPS stays radius-only.
-        ...(userCoordinates.source === "profile"
-          ? {
-              city: userCoordinates.city,
-              region: userCoordinates.region,
-            }
-          : {}),
       };
     }
 
@@ -165,7 +146,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
   }, [options.locationOverride, options.skipLocationFilter, userCoordinates]);
 
   const searchParams = useMemo(
-    () => buildSearchParams(options, effectiveCoordinates, true),
+    () => buildSearchParams(options, effectiveCoordinates),
     [options, effectiveCoordinates],
   );
 
@@ -176,14 +157,10 @@ export function useHomeLists(options: UseHomeListsOptions) {
       options.skipLocationFilter,
       options.locationOverride?.latitude,
       options.locationOverride?.longitude,
-      options.locationOverride?.city,
-      options.locationOverride?.region,
       options.selectedVibes,
       options.selectedCategories,
       effectiveCoordinates?.latitude,
       effectiveCoordinates?.longitude,
-      effectiveCoordinates?.city,
-      effectiveCoordinates?.region,
     ],
     [options, effectiveCoordinates],
   );
@@ -195,10 +172,8 @@ export function useHomeLists(options: UseHomeListsOptions) {
   });
 
   const nearYouSearchParams = useMemo((): UnifiedSearchParams => {
-    // Near-you stays geo-radius only (omit city so backend uses distance).
-    const { city: _city, region: _region, ...geoParams } = searchParams;
     return {
-      ...geoParams,
+      ...searchParams,
       radiusKm: NEAR_YOU_RADIUS_KM,
       sortBy: "created_at",
       sortOrder: "desc",
