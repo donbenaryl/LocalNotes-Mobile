@@ -463,9 +463,6 @@ export function ListItemForm({
                       <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
                         {business.name}
                       </Text>
-                      <Text className="text-xs text-gray-500 dark:text-gray-400">
-                        {business.contact_email || t("profile.picks.noContactInfo")}
-                      </Text>
                     </Pressable>
                   ))
                 )}
