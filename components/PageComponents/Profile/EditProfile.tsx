@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { UploadAvatar } from "@/components/ui/UploadAvatar";
 import { TextInput } from "@/components/ui/TextInput";
 import { UsernameField } from "@/components/ui/UsernameField";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { BottomWrapper } from "@/components/ui/BottomWrapper";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { HomeLocationFormModal } from "@/components/PageComponents/Profile/HomeLocationFormModal";
@@ -25,6 +27,7 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const BIO_MAX_LENGTH = 160;
+const EDIT_PROFILE_FOOTER_OFFSET = 120;
 
 // ─── Small inline components ──────────────────────────────────────────────────
 
@@ -324,7 +327,11 @@ export default function EditProfile() {
       <PageHeader title="Edit profile" />
 
       {/* ── Scrollable form body ──────────────────────────────────────────────── */}
-      <KeyboardAwareScrollView className="flex-1">
+      <KeyboardAwareScrollView
+        className="flex-1"
+        bottomOffset={EDIT_PROFILE_FOOTER_OFFSET}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
         {/* Profile photo ──────────────────────────────────────────────────────── */}
         <View className="items-center pt-4 pb-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
           <UploadAvatar
@@ -481,21 +488,21 @@ export default function EditProfile() {
             }
           />
         </View>
-
-        {/* Bottom breathing room so content sits above the sticky save bar. */}
-        <View style={{ height: 32 }} />
       </KeyboardAwareScrollView>
 
       {/* ── Sticky save bar ───────────────────────────────────────────────────── */}
-      {/* Lives outside the scroll view so it stays pinned to the bottom. */}
-      <View className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-page dark:bg-gray-900">
-        <LocalNotesButton
-          label={isSaving ? "Saving…" : "Save changes"}
-          onPress={() => saveProfile()}
-          variant="dark"
-          disabled={isSaveDisabled}
-        />
-      </View>
+      <KeyboardStickyView
+        style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+      >
+        <BottomWrapper style={{ position: "relative" }}>
+          <LocalNotesButton
+            label={isSaving ? "Saving…" : "Save changes"}
+            onPress={() => saveProfile()}
+            variant="dark"
+            disabled={isSaveDisabled}
+          />
+        </BottomWrapper>
+      </KeyboardStickyView>
 
       {/* ── Home city / address picker ────────────────────────────────────────── */}
       <HomeLocationFormModal

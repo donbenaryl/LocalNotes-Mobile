@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { CategoryChip } from "@/components/ui/CategoryChip";
 import { hasOthersCategory } from "@/utils/listCategories";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -41,6 +42,7 @@ import { LinkExistingPicksSection } from "./LinkExistingPicksSection";
 import { UserSearchInput } from "@/components/ui/UserSearchInput";
 
 const INTRO_MAX_LENGTH = 280;
+const LIST_FORM_FOOTER_OFFSET = 120;
 
 interface ListFormProps {
   step: 1 | 2;
@@ -335,6 +337,7 @@ export function ListForm({ step, listId }: ListFormProps) {
 
         <KeyboardAwareScrollView
           className="flex-1"
+          bottomOffset={LIST_FORM_FOOTER_OFFSET}
           contentContainerStyle={{ paddingHorizontal: 24 }}
         >
           <View className="mb-6">
@@ -418,30 +421,34 @@ export function ListForm({ step, listId }: ListFormProps) {
           </View>
         </KeyboardAwareScrollView>
 
-        <BottomWrapper>
-          <View className="flex-row items-center gap-3">
-            <View className="flex-1">
-              <LocalNotesButton
-                label={t("listForm.back")}
-                onPress={() => router.back()}
-                variant="light"
-              />
+        <KeyboardStickyView
+          style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+        >
+          <BottomWrapper style={{ position: "relative" }}>
+            <View className="flex-row items-center gap-3">
+              <View className="flex-1">
+                <LocalNotesButton
+                  label={t("listForm.back")}
+                  onPress={() => router.back()}
+                  variant="light"
+                />
+              </View>
+              <View className="flex-1">
+                <LocalNotesButton
+                  label={
+                    isEditing ? t("listForm.updateList") : t("listForm.publishList")
+                  }
+                  onPress={handlePublish}
+                  variant="dark"
+                  loading={isSaving}
+                  disabled={!isStep2Valid}
+                  rightIcon={<ChevronRight size={18} color="#FFFFFF" />}
+                  className="!bg-brand !border-brand"
+                />
+              </View>
             </View>
-            <View className="flex-1">
-              <LocalNotesButton
-                label={
-                  isEditing ? t("listForm.updateList") : t("listForm.publishList")
-                }
-                onPress={handlePublish}
-                variant="dark"
-                loading={isSaving}
-                disabled={!isStep2Valid}
-                rightIcon={<ChevronRight size={18} color="#FFFFFF" />}
-                className="!bg-brand !border-brand"
-              />
-            </View>
-          </View>
-        </BottomWrapper>
+          </BottomWrapper>
+        </KeyboardStickyView>
       </SafeAreaView>
     );
   }
@@ -486,6 +493,7 @@ export function ListForm({ step, listId }: ListFormProps) {
 
       <KeyboardAwareScrollView
         className="flex-1"
+        bottomOffset={LIST_FORM_FOOTER_OFFSET}
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120 }}
       >
         <View className="mb-6 mt-2">
@@ -615,20 +623,24 @@ export function ListForm({ step, listId }: ListFormProps) {
         </View>
       </KeyboardAwareScrollView>
 
-      <BottomWrapper>
-        <View className="flex-row items-center gap-3">
-          <View className="flex-1" />
-          <View className="flex-1">
-            <LocalNotesButton
-              label={t("listForm.next")}
-              onPress={handleContinueToShare}
-              variant="brand"
-              disabled={!isStep1Valid}
-              rightIcon={<ChevronRight size={18} color="#FFFFFF" />}
-            />
+      <KeyboardStickyView
+        style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+      >
+        <BottomWrapper style={{ position: "relative" }}>
+          <View className="flex-row items-center gap-3">
+            <View className="flex-1" />
+            <View className="flex-1">
+              <LocalNotesButton
+                label={t("listForm.next")}
+                onPress={handleContinueToShare}
+                variant="brand"
+                disabled={!isStep1Valid}
+                rightIcon={<ChevronRight size={18} color="#FFFFFF" />}
+              />
+            </View>
           </View>
-        </View>
-      </BottomWrapper>
+        </BottomWrapper>
+      </KeyboardStickyView>
 
       <ListPickFormModal
         visible={pickModalVisible}
