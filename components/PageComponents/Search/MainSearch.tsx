@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { usePathname, useRouter, type Href } from "expo-router";
 import { List, MapPin, Sparkles, Users } from "lucide-react-native";
@@ -17,6 +17,7 @@ import { SearchBusinesses } from "@/components/PageComponents/Search/SearchBusin
 import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/SearchPeople";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
+import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import type { Location as GeoLocation } from "@/http/list-api/types";
@@ -50,6 +51,19 @@ export default function MainSearch() {
     if (!pathname.includes("/search")) return;
     setActiveTab(getActiveTab(pathname));
   }, [pathname]);
+
+  // Re-tapping the active footer tab resets to the first sub-tab — see MainHome.
+  const resetToken = useSectionRouteStore(
+    (s) => s.sectionResetTokens.search ?? 0,
+  );
+  const didMountRef = useRef(false);
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    setActiveTab("picks");
+  }, [resetToken]);
 
   const query = useSearchStore((s) => s.query);
   const setQuery = useSearchStore((s) => s.setQuery);

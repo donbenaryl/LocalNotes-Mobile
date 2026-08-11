@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { InteractionManager, Text, View } from "react-native";
 import {
   Building2,
   LayoutGrid,
@@ -128,14 +128,20 @@ function MainProfileContent({
     }
   }, [params.tab, visibleTabIds]);
 
+  // Deferred: setParams is a router commit, and running it in the same batch as
+  // the tab state update makes the highlight wait on it. The inbound effect
+  // above stays consistent because this always converges to activeTab.
   useEffect(() => {
-    if (activeTab === "my-lists") {
-      if (params.tab === undefined) return;
-      router.setParams({ tab: undefined });
-      return;
-    }
-    if (params.tab === activeTab) return;
-    router.setParams({ tab: activeTab });
+    const task = InteractionManager.runAfterInteractions(() => {
+      if (activeTab === "my-lists") {
+        if (params.tab === undefined) return;
+        router.setParams({ tab: undefined });
+        return;
+      }
+      if (params.tab === activeTab) return;
+      router.setParams({ tab: activeTab });
+    });
+    return () => task.cancel();
   }, [activeTab, params.tab, router]);
 
   const handleTabChange = useCallback(
@@ -183,13 +189,28 @@ function MainProfileContent({
       ) : null}
 
       {isPending ? (
-        <ProfileChromeScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerClassName="p-4"
-        >
-          <ProfilePicksTabSkeleton />
-        </ProfileChromeScrollView>
+        <>
+          {/* Own-profile tabs are known before the query lands, so show them —
+              a tap registers immediately. Other profiles hide tabs behind
+              privacy flags, so guessing then removing them is worse. */}
+          {isOwnProfile ? (
+            <View className="pt-4 px-4">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                className="border-b-0"
+              />
+            </View>
+          ) : null}
+          <ProfileChromeScrollView
+            className="flex-1"
+            showsVerticalScrollIndicator={false}
+            contentContainerClassName="p-4"
+          >
+            <ProfilePicksTabSkeleton />
+          </ProfileChromeScrollView>
+        </>
       ) : isError || !profile ? (
         <View className="flex-1 items-center justify-center py-20">
           <Text className="font-geist text-base text-gray-500 dark:text-gray-400">

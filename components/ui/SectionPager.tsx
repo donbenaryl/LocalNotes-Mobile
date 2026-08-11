@@ -43,7 +43,13 @@ interface SectionPagerProps {
   sectionId?: SectionId;
 }
 
-const PAGE_COMMIT_THRESHOLD = 0.5;
+/**
+ * Fraction of a page drag after which the tab bar treats the next sub-tab as
+ * active. Small on purpose: the underline follows the finger instead of waiting
+ * for the halfway point. Abandoned drags scroll back through the same threshold
+ * and onPageSelected settles the final value, so it self-corrects.
+ */
+const PAGE_COMMIT_THRESHOLD = 0.15;
 const SWIPE_DISTANCE_THRESHOLD = 72;
 const SWIPE_VELOCITY_THRESHOLD = 700;
 const FAIL_OFFSET_Y = 16;
@@ -72,14 +78,21 @@ export function SectionPager({
   const router = useRouter();
   const pathname = usePathname();
   const isNavFocused = useIsFocused();
+  const storeSection = useSectionRouteStore((s) => s.activeSection);
+  const pathSection = getSectionId(pathname);
+  // storeSection flips on the tap/swipe, so swipeEnabled, activeHref and the
+  // edge strips all switch over instantly. The pathSection !== null clause
+  // keeps this false while a stack route (Profile) sits on top — that is what
+  // re-arms navigatingRef below.
   const isSectionActive = sectionId
-    ? getSectionId(pathname) === sectionId
+    ? pathSection !== null && (storeSection ?? pathSection) === sectionId
     : isNavFocused;
 
   const setActiveHref = useSectionRouteStore((s) => s.setActiveHref);
   const rememberSectionHref = useSectionRouteStore(
     (s) => s.rememberSectionHref,
   );
+  const requestSection = useSectionRouteStore((s) => s.requestSection);
   const setSwipeEnabled = useSectionSwipeStore((s) => s.setSwipeEnabled);
 
   const activeIndex = Math.max(
@@ -141,8 +154,10 @@ export function SectionPager({
     if (!previous) return;
     navigatingRef.current = true;
     const currentHref = pages[activeIndex]?.href;
+    // Highlight and shell slide start on the gesture; the URL follows.
+    requestSection(previous);
     navigateToSection(router, previous, { fromHref: currentHref });
-  }, [activeIndex, pages, router, sectionId]);
+  }, [activeIndex, pages, requestSection, router, sectionId]);
 
   const navigateToProfile = useCallback(() => {
     if (navigatingRef.current) return;

@@ -27,7 +27,7 @@ export function Tabs({ tabs, activeTab, onTabChange, className, textClassName }:
           const Icon = tab.icon;
           return (
             <TouchableOpacity
-              activeOpacity={1}
+              activeOpacity={0.6}
               key={tab.id}
               onPress={() => onTabChange(tab.id)}
               className={`px-2 pr-4 relative flex-row items-center gap-2 pb-3 mr-6 cursor-pointer border-b-2 ${

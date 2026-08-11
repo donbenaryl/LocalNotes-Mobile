@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { usePathname, type Href } from "expo-router";
 import { Home, Users, Star, Tag } from "lucide-react-native";
@@ -16,6 +16,7 @@ import { HomeTab } from "@/components/PageComponents/Home/Home/HomeTab";
 import { FollowingTab } from "@/components/PageComponents/Home/Following/FollowingTab";
 import { SpotlightTab } from "@/components/PageComponents/Home/Spotlight/SpotlightTab";
 import { OffersTab } from "@/components/PageComponents/Home/Offers/OffersTab";
+import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 
 interface HomeTabItem extends TabItem {
   href: Href;
@@ -111,6 +112,18 @@ export default function MainHome() {
     if (!pathname.includes("/home")) return;
     setActiveTab(getActiveTab(pathname));
   }, [pathname]);
+
+  // Re-tapping the active footer tab resets to the first sub-tab. It cannot go
+  // through the URL — sub-tabs are local state, so the pathname never changes.
+  const resetToken = useSectionRouteStore((s) => s.sectionResetTokens.home ?? 0);
+  const didMountRef = useRef(false);
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    setActiveTab(TABS[0].id);
+  }, [resetToken]);
 
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTab(tabId);

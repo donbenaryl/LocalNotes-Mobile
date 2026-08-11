@@ -7,6 +7,7 @@ import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
+import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
 import {
   getSectionId,
   SECTION_ENTRY_HREF,
@@ -74,8 +75,13 @@ export function GuardedFooter() {
   const openPickModal = usePickModalStore((s) => s.open);
   const resetListForm = useListFormStore((s) => s.reset);
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
+  const storeSection = useSectionRouteStore((s) => s.activeSection);
+  const requestSection = useSectionRouteStore((s) => s.requestSection);
+  const resetSectionTab = useSectionRouteStore((s) => s.resetSectionTab);
 
-  const activeSection = getSectionId(pathname);
+  // Optimistic: set on the tap/swipe itself. pathname is only the first-frame
+  // fallback, before any navigation has resolved.
+  const activeSection = storeSection ?? getSectionId(pathname);
   const bottomInset = Math.max(insets.bottom, 12);
 
   const handleCreateOptionSelect = (value: string) => {
@@ -88,19 +94,22 @@ export function GuardedFooter() {
   };
 
   // Keep-alive Tabs: navigate (never replace) so section shells stay mounted.
+  // The store write lands this frame; the router call is deferred a frame so
+  // its commit can't batch with — and so delay — the highlight.
   const handleTabPress = useCallback(
     (to: SectionId) => {
-      const from = getSectionId(pathname);
-
       // Re-tap active section → section root (Facebook "tap again to root").
-      if (from === to) {
-        router.navigate(SECTION_ENTRY_HREF[to]);
+      // Sub-tabs are not in the URL, so the section resets itself off the token.
+      if (activeSection === to) {
+        resetSectionTab(to);
+        requestAnimationFrame(() => router.navigate(SECTION_ENTRY_HREF[to]));
         return;
       }
 
-      navigateToSection(router, to);
+      requestSection(to);
+      requestAnimationFrame(() => navigateToSection(router, to));
     },
-    [pathname, router],
+    [activeSection, requestSection, resetSectionTab, router],
   );
 
   if (activeSection === 'search') return null;

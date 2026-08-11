@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { usePathname, type Href } from "expo-router";
 import { Inbox, Bookmark, Users } from "lucide-react-native";
@@ -16,6 +16,7 @@ import { GuardedHeader } from "@/components/ui/layout/GuardedHeader";
 import { DraftsTab } from "@/components/PageComponents/Saved/Drafts/DraftsTab";
 import { SavedTab } from "@/components/PageComponents/Saved/Saved/SavedTab";
 import { SharedWithMeTab } from "@/components/PageComponents/Saved/SharedWithMe/SharedWithMeTab";
+import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 
 interface SavedTabItem extends TabItem {
   href: Href;
@@ -93,6 +94,19 @@ export default function MainSaved() {
     if (!pathname.includes("/saved")) return;
     setActiveTab(getActiveTab(pathname));
   }, [pathname]);
+
+  // Re-tapping the active footer tab resets to the first sub-tab — see MainHome.
+  const resetToken = useSectionRouteStore(
+    (s) => s.sectionResetTokens.saved ?? 0,
+  );
+  const didMountRef = useRef(false);
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    setActiveTab("draft");
+  }, [resetToken]);
 
   const tabs: SavedTabItem[] = useMemo(
     () => [

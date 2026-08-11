@@ -12,8 +12,7 @@ export interface NotificationPrefs {
   weeklyRecap: boolean;
   reengagementNudges: boolean;
   quietHours: boolean;
-  /** Backed by `NotificationSetting.spotlight_digest` — unlike the other keys above, this
-   * one is synced to the backend (see `useAccountSettingsStore.ts`). */
+  /** Synced to `NotificationSetting.spotlight_digest`. */
   spotlightDigest: boolean;
 }
 
