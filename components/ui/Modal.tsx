@@ -2,7 +2,6 @@ import {
   Animated,
   Easing,
   Keyboard,
-  KeyboardAvoidingView,
   Modal as RNModal,
   PanResponder,
   Platform,
@@ -11,6 +10,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -374,8 +374,8 @@ export function Modal({
 
       {avoidKeyboard ? (
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="z-30 flex-1 justify-end"
+          behavior="padding"
+          style={{ zIndex: 30, flex: 1, justifyContent: 'flex-end' }}
           pointerEvents="box-none"
         >
           {sheetContent}

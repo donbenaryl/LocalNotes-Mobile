@@ -14,6 +14,7 @@ import {
 import { CheckCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "@/components/ui/TextInput";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { Modal } from "@/components/ui/Modal";
 import { LocationInput } from "@/components/ui/LocationInput";
@@ -136,7 +137,7 @@ export function ListItemForm({
   const searchRequestIdRef = useRef(0);
   const nameInputRef = useRef(nameInput);
   nameInputRef.current = nameInput;
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollView | null>(null);
   const scrollYRef = useRef(0);
   const { height: windowHeight } = useWindowDimensions();
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -414,10 +415,10 @@ export function ListItemForm({
       }
     >
       <View style={{ height: scrollMaxHeight }}>
-        <ScrollView
+        <KeyboardAwareScrollView
           ref={scrollRef}
+          className="flex-1"
           keyboardShouldPersistTaps="handled"
-          automaticallyAdjustKeyboardInsets={false}
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
           onScroll={handleScroll}
@@ -597,7 +598,7 @@ export function ListItemForm({
             </View>
           )}
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
 
       <ConfirmDeleteModal
