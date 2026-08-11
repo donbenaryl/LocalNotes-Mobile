@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
@@ -32,7 +32,7 @@ import { resolveImageUrl } from "@/utils/httpHelpers";
 import { useToastStore } from "@/stores/useToastStore";
 import { useCategories } from "@/hooks/useProfileList";
 import { hasOthersCategory } from "@/utils/listCategories";
-import type { BusinessItemDAO } from "@/http/business-api/types";
+import type { BusinessItemDAO, BusinessLocation } from "@/http/business-api/types";
 import type { Location } from "@/http/list-api/types";
 import type { RNFile } from "@/http/types";
 import type { ListFormCategory } from "@/types/listForm";
@@ -73,6 +73,27 @@ interface ListItemFormProps {
   loading?: boolean;
 }
 
+function formatLocationText(location: BusinessLocation | Location): string {
+  const street =
+    "street_address" in location ? location.street_address?.trim() : undefined;
+  if (street) {
+    return [street, location.city].filter(Boolean).join(", ");
+  }
+  return [location.city, location.region, location.country].filter(Boolean).join(", ");
+}
+
+function toListLocation(location: BusinessLocation): Location {
+  return {
+    street_address: location.street_address || null,
+    postal_code: location.postal_code || null,
+    city: location.city,
+    region: location.region,
+    country: location.country,
+    latitude: location.latitude,
+    longitude: location.longitude,
+  };
+}
+
 export function ListItemForm({
   visible,
   title,
@@ -97,6 +118,7 @@ export function ListItemForm({
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessItemDAO | null>(null);
+  const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
   const [newItemPhotos, setNewItemPhotos] = useState<UploadedImageFile[]>([]);
   const [location, setLocation] = useState<Location | null>(initialData?.location ?? null);
   const [localExistingImages, setLocalExistingImages] = useState<{ id: string; url: string }[]>(
@@ -111,6 +133,9 @@ export function ListItemForm({
   const [isDeletingImage, setIsDeletingImage] = useState(false);
 
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchRequestIdRef = useRef(0);
+  const nameInputRef = useRef(nameInput);
+  nameInputRef.current = nameInput;
   const scrollRef = useRef<ScrollView>(null);
   const scrollYRef = useRef(0);
   const { height: windowHeight } = useWindowDimensions();
@@ -123,6 +148,41 @@ export function ListItemForm({
       Math.max(windowHeight - keyboardHeight - FORM_CHROME, 200),
     ),
   );
+
+  const clearBusinessSelection = useCallback(() => {
+    setSelectedBusiness(null);
+    setSelectedBranchId(null);
+  }, []);
+
+  // Re-hydrate from initialData whenever the modal opens so create mode is
+  // empty (and edit/prefill mode is not stuck on a previous draft).
+  useEffect(() => {
+    if (!visible) return;
+
+    setNameInput(initialData?.name ?? "");
+    setInnerTagInput("");
+    setInnerTags(initialData?.tags ?? []);
+    setNotesInput(initialData?.description ?? "");
+    setOthersName(initialData?.othersName ?? "");
+    setSelectedCategoryIds([]);
+    setSearchResults([]);
+    setIsSearching(false);
+    setShowSearchResults(false);
+    setSelectedBusiness(null);
+    setSelectedBranchId(null);
+    setNewItemPhotos([]);
+    setLocation(initialData?.location ?? null);
+    setLocalExistingImages(
+      initialData?.images?.map((im) => ({
+        id: im.id,
+        url: resolveImageUrl(im.url) ?? im.url,
+      })) ?? [],
+    );
+    setShowDeleteImageModal(false);
+    setPendingDeleteImageId(null);
+    categoriesInitialized.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-hydrate on open
+  }, [visible]);
 
   useEffect(() => {
     if (!visible) {
@@ -157,29 +217,45 @@ export function ListItemForm({
     scrollYRef.current = event.nativeEvent.contentOffset.y;
   }, []);
 
-  const searchBusiness = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setShowSearchResults(false);
-      setIsSearching(false);
-      setSelectedBusiness(null);
-      return;
-    }
-    setIsSearching(true);
-    try {
-      const response = await businessService.searchBusiness({ query });
-      const results = response.data?.data ?? [];
-      setSearchResults(results);
-      setShowSearchResults(results.length > 0);
-    } catch {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    } finally {
-      setIsSearching(false);
-    }
-  }, []);
+  const searchBusiness = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setSearchResults([]);
+        setShowSearchResults(false);
+        setIsSearching(false);
+        clearBusinessSelection();
+        return;
+      }
+      const requestId = ++searchRequestIdRef.current;
+      setIsSearching(true);
+      try {
+        const response = await businessService.searchBusiness({ query, match: "name" });
+        if (requestId !== searchRequestIdRef.current) return;
+        if (query.trim() !== nameInputRef.current.trim()) return;
+        const results = response.data?.data ?? [];
+        setSearchResults(results);
+        setShowSearchResults(results.length > 0);
+      } catch {
+        if (requestId !== searchRequestIdRef.current) return;
+        setSearchResults([]);
+        setShowSearchResults(false);
+      } finally {
+        if (requestId === searchRequestIdRef.current) {
+          setIsSearching(false);
+        }
+      }
+    },
+    [clearBusinessSelection],
+  );
 
   useEffect(() => {
+    if (selectedBusiness && nameInput === selectedBusiness.name) {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+      setShowSearchResults(false);
+      setIsSearching(false);
+      return;
+    }
+
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
       void searchBusiness(nameInput);
@@ -187,29 +263,66 @@ export function ListItemForm({
     return () => {
       if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
-  }, [nameInput, searchBusiness]);
+  }, [nameInput, searchBusiness, selectedBusiness]);
 
   // The API/store only give us category names (not ids) — resolve them against the
   // category catalog once it loads so the right chips show as selected.
+  // Re-runs when the modal opens (visible) after the hydrate effect clears
+  // categoriesInitialized.
   useEffect(() => {
-    if (categoriesInitialized.current || categoryCatalog.length === 0) return;
+    if (!visible || categoriesInitialized.current || categoryCatalog.length === 0) return;
     const initialCategoryNames = initialData?.categories ?? [];
     const matchedIds = initialCategoryNames
       .map((name) => categoryCatalog.find((c) => c.name.toLowerCase() === name.toLowerCase())?.id)
       .filter((id): id is string => Boolean(id));
     setSelectedCategoryIds(matchedIds);
     categoriesInitialized.current = true;
-  }, [categoryCatalog]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialData read on open / catalog load only
+  }, [categoryCatalog, visible]);
 
   const selectedCategories = categoryCatalog.filter((c) => selectedCategoryIds.includes(c.id));
   const isOthersSelected = hasOthersCategory(selectedCategories);
 
   const noteWordCount = notesInput.trim() ? notesInput.trim().split(/\s+/).length : 0;
 
+  const branches = selectedBusiness?.branches ?? [];
+  const requiresBranchSelection = branches.length > 1;
+  const hasBusinessLocation =
+    Boolean(selectedBusiness?.location) || branches.length > 0;
+
+  const resolvedBusinessLocation = useMemo((): Location | null => {
+    if (!selectedBusiness) return null;
+
+    if (branches.length > 0) {
+      const branch =
+        branches.find((b) => b.id === selectedBranchId) ??
+        (branches.length === 1 ? branches[0] : undefined);
+      return branch ? toListLocation(branch.location) : null;
+    }
+
+    if (selectedBusiness.location) {
+      return toListLocation(selectedBusiness.location);
+    }
+
+    return null;
+  }, [selectedBusiness, selectedBranchId, branches]);
+
+  const resolvedLocationDisplay = resolvedBusinessLocation
+    ? formatLocationText(resolvedBusinessLocation)
+    : "";
+
   const handleBusinessSelect = (business: BusinessItemDAO) => {
     setSelectedBusiness(business);
     setNameInput(business.name);
     setShowSearchResults(false);
+    setSearchResults([]);
+
+    const businessBranches = business.branches ?? [];
+    if (businessBranches.length === 1) {
+      setSelectedBranchId(businessBranches[0]!.id);
+    } else {
+      setSelectedBranchId(null);
+    }
   };
 
   const handleAddInnerTag = () => {
@@ -248,6 +361,8 @@ export function ListItemForm({
       [location.city, location.region, location.country].filter(Boolean).join(", ")
     : "";
 
+  const branchSelectionMissing = requiresBranchSelection && !selectedBranchId;
+
   const handleSubmit = () => {
     if (!nameInput.trim()) {
       showToast({ type: "error", message: t("profile.picks.businessRequired") });
@@ -261,6 +376,10 @@ export function ListItemForm({
       showToast({ type: "error", message: t("profile.picks.othersNameRequired") });
       return;
     }
+    if (branchSelectionMissing) {
+      showToast({ type: "error", message: t("profile.picks.branchRequired") });
+      return;
+    }
     onSubmit({
       businessId: selectedBusiness ? selectedBusiness.id : "",
       unverifiedBusiness: selectedBusiness ? undefined : nameInput.trim(),
@@ -271,7 +390,7 @@ export function ListItemForm({
       othersName: isOthersSelected ? othersName.trim() : undefined,
       description: notesInput.trim(),
       newFiles: newItemPhotos.map((p) => p.file),
-      location: location ?? undefined,
+      location: resolvedBusinessLocation ?? location ?? undefined,
     });
   };
 
@@ -287,7 +406,9 @@ export function ListItemForm({
           label={isEditing ? t("common.save") : t("profile.picks.savePick")}
           onPress={handleSubmit}
           variant="dark"
-          disabled={!nameInput.trim() || selectedCategoryIds.length === 0}
+          disabled={
+            !nameInput.trim() || selectedCategoryIds.length === 0 || branchSelectionMissing
+          }
           loading={loading}
         />
       }
@@ -312,15 +433,21 @@ export function ListItemForm({
               onChangeText={(value) => {
                 setNameInput(value);
                 if (selectedBusiness && value !== selectedBusiness.name) {
-                  setSelectedBusiness(null);
+                  clearBusinessSelection();
                 }
               }}
               onFocus={() => {
-                if (nameInput.trim() && searchResults.length > 0) setShowSearchResults(true);
+                if (
+                  !selectedBusiness &&
+                  nameInput.trim() &&
+                  searchResults.length > 0
+                ) {
+                  setShowSearchResults(true);
+                }
                 lockScrollPosition();
               }}
             />
-            {showSearchResults && searchResults.length > 0 && (
+            {!selectedBusiness && showSearchResults && searchResults.length > 0 && (
               <View className="mt-1 max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
                 {isSearching ? (
                   <View className="px-4 py-3">
@@ -394,11 +521,47 @@ export function ListItemForm({
             {noteWordCount} / 25 {t("profile.picks.words")}
           </Text>
 
-          <LocationInput
-            placeholder={t("profile.picks.locationOptional")}
-            defaultValue={locationDisplayValue}
-            onLocationSelected={setLocation}
-          />
+          {requiresBranchSelection ? (
+            <View>
+              <FieldLabel label={t("profile.picks.selectBranch")} required />
+              <View className="mt-1 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {branches.map((branch) => {
+                  const isSelected = selectedBranchId === branch.id;
+                  return (
+                    <Pressable
+                      key={branch.id}
+                      onPress={() => setSelectedBranchId(branch.id)}
+                      className={`px-4 py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer ${
+                        isSelected ? "bg-soft dark:bg-gray-700" : "bg-white dark:bg-gray-800"
+                      }`}
+                    >
+                      <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                        {branch.name}
+                      </Text>
+                      <Text className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatLocationText(branch.location)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null}
+
+          {resolvedLocationDisplay ? (
+            <View>
+              <FieldLabel label={t("profile.picks.businessLocationLabel")} />
+              <Text className="mt-1 font-geist text-sm text-ink dark:text-gray-100">
+                {resolvedLocationDisplay}
+              </Text>
+            </View>
+          ) : !hasBusinessLocation ? (
+            <LocationInput
+              placeholder={t("profile.picks.locationOptional")}
+              defaultValue={locationDisplayValue}
+              onLocationSelected={setLocation}
+            />
+          ) : null}
 
           <Tags
             innerTags={innerTags}

@@ -52,6 +52,8 @@ export interface searchBusinessDTO{
   latitude?: number;
   longitude?: number;
   radiusKm?: number;
+  /** Keyword/name-only matching for autocomplete; skips semantic vector hits. */
+  match?: "name";
 }
 
 export interface UpdateBusinessDTO {

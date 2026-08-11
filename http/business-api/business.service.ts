@@ -32,6 +32,7 @@ class BusinessService extends AppHttpService{
     async searchBusiness(dto: searchBusinessDTO){
        const query: Record<string, unknown> = {};
        if (dto.query) query.query = dto.query;
+       if (dto.match) query.match = dto.match;
        if (dto.city) query.city = dto.city;
        if (dto.region) query.region = dto.region;
        if (dto.latitude !== undefined && dto.longitude !== undefined) {
