@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Keyboard,
-  Platform,
   Pressable,
   ScrollView,
   Text,
@@ -11,6 +9,8 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from "react-native";
+import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
+import Reanimated, { useAnimatedStyle } from "react-native-reanimated";
 import { CheckCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "@/components/ui/TextInput";
@@ -37,6 +37,9 @@ import type { BusinessItemDAO, BusinessLocation } from "@/http/business-api/type
 import type { Location } from "@/http/list-api/types";
 import type { RNFile } from "@/http/types";
 import type { ListFormCategory } from "@/types/listForm";
+
+const FORM_CHROME = 160;
+const FOOTER_BOTTOM_OFFSET = 96;
 
 export interface FormSubmitData {
   businessId: string;
@@ -140,15 +143,17 @@ export function ListItemForm({
   const scrollRef = useRef<ScrollView | null>(null);
   const scrollYRef = useRef(0);
   const { height: windowHeight } = useWindowDimensions();
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  // Library `height` is 0 when closed and negative when the keyboard is open.
+  const { height: keyboardHeightSV } = useReanimatedKeyboardAnimation();
 
-  const FORM_CHROME = 160;
-  const scrollMaxHeight = Math.round(
-    Math.min(
+  const scrollHeightStyle = useAnimatedStyle(() => {
+    const keyboardPadding = visible ? -keyboardHeightSV.value : 0;
+    const height = Math.min(
       windowHeight * 0.75 - 100,
-      Math.max(windowHeight - keyboardHeight - FORM_CHROME, 200),
-    ),
-  );
+      Math.max(windowHeight - keyboardPadding - FORM_CHROME, 200),
+    );
+    return { height };
+  });
 
   const clearBusinessSelection = useCallback(() => {
     setSelectedBusiness(null);
@@ -183,28 +188,6 @@ export function ListItemForm({
     setPendingDeleteImageId(null);
     categoriesInitialized.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-hydrate on open
-  }, [visible]);
-
-  useEffect(() => {
-    if (!visible) {
-      setKeyboardHeight(0);
-      return;
-    }
-
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-
-    const showSub = Keyboard.addListener(showEvent, (event) => {
-      setKeyboardHeight(event.endCoordinates.height);
-    });
-    const hideSub = Keyboard.addListener(hideEvent, () => {
-      setKeyboardHeight(0);
-    });
-
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
   }, [visible]);
 
   const lockScrollPosition = useCallback(() => {
@@ -414,7 +397,7 @@ export function ListItemForm({
         />
       }
     >
-      <View style={{ height: scrollMaxHeight }}>
+      <Reanimated.View style={scrollHeightStyle}>
         <KeyboardAwareScrollView
           ref={scrollRef}
           className="flex-1"
@@ -422,6 +405,7 @@ export function ListItemForm({
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}
           onScroll={handleScroll}
+          bottomOffset={FOOTER_BOTTOM_OFFSET}
           contentContainerStyle={{ paddingBottom: 88 }}
         >
           <View className="gap-4 pb-6">
@@ -599,7 +583,7 @@ export function ListItemForm({
           )}
           </View>
         </KeyboardAwareScrollView>
-      </View>
+      </Reanimated.View>
 
       <ConfirmDeleteModal
         visible={showDeleteImageModal}
