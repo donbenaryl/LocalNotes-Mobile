@@ -19,13 +19,37 @@ interface SectionRouteStore {
    * swipes restore from here instead of always jumping to SECTION_ENTRY_HREF.
    */
   lastHrefBySection: Partial<Record<SectionId, Href>>;
+  /**
+   * Footer section the UI treats as active. Set optimistically the instant a
+   * tap or swipe commits, ahead of the router — pathname only lands a frame or
+   * more later. Null until the first navigation resolves; consumers fall back
+   * to getSectionId(pathname) meanwhile.
+   */
+  activeSection: SectionId | null;
+  /**
+   * Section we moved to optimistically, still waiting on the router. While set,
+   * pathname must not overwrite activeSection or the highlight would snap back.
+   */
+  pendingSection: SectionId | null;
+  /**
+   * Bumped by a re-tap of the active footer tab. Sub-tabs never appear in the
+   * URL, so a router.navigate to the section root is a no-op — sections watch
+   * their own token instead and reset to their first sub-tab.
+   */
+  sectionResetTokens: Partial<Record<SectionId, number>>;
   setActiveHref: (href: Href | null) => void;
   rememberSectionHref: (href: Href) => void;
+  requestSection: (to: SectionId) => void;
+  syncSectionFromPathname: (pathSection: SectionId) => void;
+  resetSectionTab: (section: SectionId) => void;
 }
 
 export const useSectionRouteStore = create<SectionRouteStore>((set) => ({
   activeHref: null,
   lastHrefBySection: {},
+  activeSection: null,
+  pendingSection: null,
+  sectionResetTokens: {},
   setActiveHref: (activeHref) =>
     set((state) => {
       if (state.activeHref === activeHref) return state;
@@ -55,4 +79,29 @@ export const useSectionRouteStore = create<SectionRouteStore>((set) => ({
         },
       };
     }),
+  requestSection: (to) =>
+    set((state) =>
+      state.activeSection === to
+        ? state
+        : { ...state, activeSection: to, pendingSection: to },
+    ),
+  syncSectionFromPathname: (pathSection) =>
+    set((state) => {
+      if (state.pendingSection) {
+        // Router still catching up — hold the optimistic value.
+        if (state.pendingSection !== pathSection) return state;
+        return { ...state, pendingSection: null, activeSection: pathSection };
+      }
+      if (state.activeSection === pathSection) return state;
+      // Deep link or hardware back: the router moved without us.
+      return { ...state, activeSection: pathSection };
+    }),
+  resetSectionTab: (section) =>
+    set((state) => ({
+      ...state,
+      sectionResetTokens: {
+        ...state.sectionResetTokens,
+        [section]: (state.sectionResetTokens[section] ?? 0) + 1,
+      },
+    })),
 }));

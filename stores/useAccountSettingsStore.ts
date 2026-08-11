@@ -1,8 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Localization from 'expo-localization';
 import { create } from 'zustand';
 import accountService from '@/http/account-api/account.services';
 import { useAuthStore } from '@/stores/useAuthStore';
 import {
+  mapNotificationPrefsToDAO,
+  mapNotificationSettingsDAOToPrefs,
   mapPrivacyPrefsToDAO,
   mapPrivacySettingsDAOToPrefs,
 } from '@/http/account-api/types';
@@ -31,9 +34,17 @@ interface AccountSettingsStore extends AccountSettingsPrefs {
   toggleConnectedProvider: (id: ConnectedProviderId) => void;
 }
 
+function deviceTimezone(): string {
+  return (
+    Localization.getCalendars()[0]?.timeZone ??
+    Intl.DateTimeFormat().resolvedOptions().timeZone ??
+    'UTC'
+  );
+}
+
 async function persistLocalCache(state: AccountSettingsPrefs) {
-  // Notifications and connected providers aren't backed by an API yet; privacy is
-  // cached here too so the screen has something to show instantly while offline.
+  // Connected providers aren't backed by an API yet; privacy + notifications are
+  // cached here so the screen has something to show instantly while offline.
   const payload: AccountSettingsPrefs = {
     notifications: state.notifications,
     privacy: state.privacy,
@@ -50,9 +61,11 @@ async function syncPrivacyPatch(patch: Partial<PrivacyPrefs>) {
   }
 }
 
-async function syncSpotlightDigestPatch(value: boolean) {
+async function syncNotificationPatch(patch: Partial<NotificationPrefs>) {
   try {
-    await accountService.updateNotificationSettings({ spotlight_digest: value });
+    await accountService.updateNotificationSettings(
+      mapNotificationPrefsToDAO(patch, deviceTimezone()),
+    );
   } catch {
     // Best-effort sync — the optimistic local update already reflects the change.
   }
@@ -106,13 +119,15 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
       const response = await accountService.getNotificationSettings();
       const dao = response.data?.data;
       if (dao) {
-        set((state) => ({
-          notifications: { ...state.notifications, spotlightDigest: dao.spotlight_digest },
-        }));
+        set({ notifications: mapNotificationSettingsDAOToPrefs(dao) });
         void persistLocalCache(get());
+        // Keep server timezone in sync with this device.
+        void accountService.updateNotificationSettings({
+          timezone: deviceTimezone(),
+        });
       }
     } catch {
-      // Offline or request failed — keep the cached/default spotlight digest pref.
+      // Offline or request failed — keep the cached/default notification prefs.
     } finally {
       set({ hydrated: true });
     }
@@ -123,9 +138,7 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
       notifications: { ...state.notifications, [key]: value },
     }));
     void persistLocalCache(get());
-    if (key === 'spotlightDigest') {
-      void syncSpotlightDigestPatch(value as boolean);
-    }
+    void syncNotificationPatch({ [key]: value } as Partial<NotificationPrefs>);
   },
 
   setPrivacy: (key, value) => {
