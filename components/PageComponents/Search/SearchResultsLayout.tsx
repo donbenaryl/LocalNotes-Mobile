@@ -24,7 +24,8 @@ import {
   SearchResultsSheet,
 } from "@/components/PageComponents/Search/SearchResultsSheet";
 import type { BusinessItemDAO } from "@/http/business-api/types";
-import type { ListItemDAO } from "@/http/list-api/types";
+import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
+import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
 import { Badge } from "@/components/ui/Badge";
 import { useScrollToTopControl } from "@/hooks/useScrollToTopControl";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
@@ -37,6 +38,8 @@ interface SearchResultsLayoutProps<T> {
   resultsKind: SearchResultsKind;
   listsForMap?: ListItemDAO[];
   businessesForMap?: BusinessItemDAO[];
+  picksForMap?: ListItemPublic[];
+  peopleForMap?: UnifiedSearchPersonDAO[];
   areaLabel?: string;
   data: T[];
   keyExtractor: (item: T) => string;
@@ -57,6 +60,8 @@ export function SearchResultsLayout<T>({
   resultsKind,
   listsForMap = [],
   businessesForMap = [],
+  picksForMap,
+  peopleForMap,
   areaLabel,
   data,
   keyExtractor,
@@ -109,6 +114,8 @@ export function SearchResultsLayout<T>({
           mode={mode}
           lists={listsForMap}
           businesses={businessesForMap}
+          picks={picksForMap}
+          people={peopleForMap}
           areaLabel={areaLabel}
           heightRatio={1}
           bottomOverlayHeight={sheetOverlayHeight}

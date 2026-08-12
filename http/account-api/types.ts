@@ -152,6 +152,11 @@ export interface peopleDiscoverySearchDTO{
   matchMin?: number;
   matchMax?: number;
   limit?: number;
+  city?: string;
+  region?: string;
+  latitude?: number;
+  longitude?: number;
+  radiusKm?: number;
 }
 export interface searchUserDAO{
   id:string;

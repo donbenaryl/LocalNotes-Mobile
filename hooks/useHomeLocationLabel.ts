@@ -24,11 +24,18 @@ export function useHomeLocationLabel(): UseHomeLocationLabelResult {
     },
   });
 
-  const profileCity = profile?.location?.city?.trim() || null;
-  const hasProfileCity = Boolean(profileCity);
+  const profileLat = profile?.location?.latitude;
+  const profileLng = profile?.location?.longitude;
+  const hasProfileCoords =
+    profileLat !== undefined &&
+    profileLng !== undefined &&
+    profileLat !== null &&
+    profileLng !== null;
+  const profileCity =
+    hasProfileCoords ? profile?.location?.city?.trim() || null : null;
 
   useEffect(() => {
-    if (profileLoading || hasProfileCity || !coordinates) {
+    if (profileLoading || profileCity || !coordinates) {
       return;
     }
 
@@ -42,7 +49,8 @@ export function useHomeLocationLabel(): UseHomeLocationLabelResult {
           latitude,
           longitude,
         });
-        const city = results[0]?.city?.trim() || results[0]?.subregion?.trim() || null;
+        const city =
+          results[0]?.city?.trim() || results[0]?.subregion?.trim() || null;
         if (!cancelled) {
           setGeocodedCity(city);
         }
@@ -62,7 +70,7 @@ export function useHomeLocationLabel(): UseHomeLocationLabelResult {
     return () => {
       cancelled = true;
     };
-  }, [profileLoading, hasProfileCity, coordinates]);
+  }, [profileLoading, profileCity, coordinates]);
 
   if (profileLoading) {
     return { cityLabel: "", isLoading: true };

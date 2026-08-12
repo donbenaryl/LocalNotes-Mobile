@@ -37,6 +37,7 @@ export function SearchPicks() {
     <SearchResultsLayout<ListItemPublic>
       mode="lists"
       resultsKind="picks"
+      picksForMap={picks}
       areaLabel={areaLabel}
       data={picks}
       keyExtractor={(item) => item.id}

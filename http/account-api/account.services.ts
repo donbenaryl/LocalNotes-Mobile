@@ -143,6 +143,13 @@ class AccountService extends AppHttpService {
     if (dto.matchMin !== undefined) query.match_min = dto.matchMin;
     if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
     if (dto.limit !== undefined) query.limit = dto.limit;
+    if (dto.city) query.city = dto.city;
+    if (dto.region) query.region = dto.region;
+    if (dto.latitude !== undefined && dto.longitude !== undefined) {
+      query.latitude = dto.latitude;
+      query.longitude = dto.longitude;
+      if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
+    }
 
     return await this.SendRequest<UnifiedSearchPersonDAO[]>({
       method: "get",

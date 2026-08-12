@@ -1,4 +1,8 @@
 import type { Item, ListItemDAO, Location } from "@/http/list-api/types";
+import {
+  WORLD_OVERVIEW_REGION,
+  type MapFallbackCenter,
+} from "@/utils/searchMapMarkers";
 
 export interface MapPick {
   item: Item;
@@ -142,14 +146,20 @@ export function buildMapPicks(list: ListItemDAO): MapPick[] {
     .filter((pick): pick is MapPick => pick != null);
 }
 
-export function getMapRegion(picks: MapPick[]) {
+export function getMapRegion(
+  picks: MapPick[],
+  fallbackCenter?: MapFallbackCenter,
+) {
   if (picks.length === 0) {
-    return {
-      latitude: 48.8566,
-      longitude: 2.3522,
-      latitudeDelta: 0.08,
-      longitudeDelta: 0.08,
-    };
+    if (fallbackCenter) {
+      return {
+        latitude: fallbackCenter.latitude,
+        longitude: fallbackCenter.longitude,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
+      };
+    }
+    return WORLD_OVERVIEW_REGION;
   }
 
   if (picks.length === 1) {

@@ -32,8 +32,9 @@ export function SearchPeople() {
 
   return (
     <SearchResultsLayout<UnifiedSearchPersonDAO>
-      mode="lists"
+      mode="people"
       resultsKind="people"
+      peopleForMap={people}
       areaLabel={areaLabel}
       data={people}
       keyExtractor={(item) => item.id}

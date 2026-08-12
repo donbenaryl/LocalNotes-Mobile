@@ -22,6 +22,7 @@ import { WazeLogoIcon } from "@/components/ui/icons/WazeLogoIcon";
 import { toast } from "@/components/ui/Toast";
 import { MapPinMarker } from "@/components/ui/MapPinMarker";
 import { buildMapPicks, getMapRegion } from "@/utils/listPickLocation";
+import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import type { ListItemDAO } from "@/http/list-api/types";
 
 interface ListDetailsMapProps {
@@ -29,6 +30,19 @@ interface ListDetailsMapProps {
   list: ListItemDAO;
   initialIndex: number;
   onClose: () => void;
+}
+
+function hasValidCoordinates(
+  location?: { latitude?: number; longitude?: number } | null,
+): location is { latitude: number; longitude: number } {
+  return (
+    location != null &&
+    typeof location.latitude === "number" &&
+    typeof location.longitude === "number" &&
+    !Number.isNaN(location.latitude) &&
+    !Number.isNaN(location.longitude) &&
+    !(location.latitude === 0 && location.longitude === 0)
+  );
 }
 
 export function ListDetailsMap({
@@ -42,8 +56,28 @@ export function ListDetailsMap({
   const mapRef = useRef<MapView>(null);
   const mapPicks = useMemo(() => buildMapPicks(list), [list]);
   const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const { coordinates: userCoordinates } = useUserCoordinates();
 
-  const initialRegion = useMemo(() => getMapRegion(mapPicks), [mapPicks]);
+  const fallbackCenter = useMemo(() => {
+    if (hasValidCoordinates(list.location)) {
+      return {
+        latitude: list.location.latitude,
+        longitude: list.location.longitude,
+      };
+    }
+    if (userCoordinates) {
+      return {
+        latitude: userCoordinates.latitude,
+        longitude: userCoordinates.longitude,
+      };
+    }
+    return null;
+  }, [list.location, userCoordinates]);
+
+  const initialRegion = useMemo(
+    () => getMapRegion(mapPicks, fallbackCenter),
+    [mapPicks, fallbackCenter],
+  );
   const sheetMaxHeight = windowHeight * 0.42;
   const activePick = mapPicks[activeIndex];
 
@@ -57,7 +91,14 @@ export function ListDetailsMap({
   }, [visible, initialIndex, mapPicks.length]);
 
   useEffect(() => {
-    if (!visible || mapPicks.length === 0) return;
+    if (!visible) return;
+
+    if (mapPicks.length === 0) {
+      if (!fallbackCenter) return;
+      mapRef.current?.animateToRegion(initialRegion as Region, 300);
+      return;
+    }
+
     const pick = mapPicks[activeIndex];
     if (!pick) return;
 
@@ -70,7 +111,7 @@ export function ListDetailsMap({
       },
       300,
     );
-  }, [activeIndex, mapPicks, visible]);
+  }, [activeIndex, fallbackCenter, initialRegion, mapPicks, visible]);
 
   const handleSelectPick = (index: number) => {
     setActiveIndex(index);

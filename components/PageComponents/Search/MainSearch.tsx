@@ -19,6 +19,7 @@ import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
+import { useInitializeSearchLocation } from "@/hooks/useInitializeSearchLocation";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 
@@ -47,6 +48,8 @@ export default function MainSearch() {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useTranslation();
+  const { isInitializing: isLocationInitializing } =
+    useInitializeSearchLocation();
   // Local state, not the router — see MainHome for why navigating per tab
   // produces a second slide-in on top of the pager's own animation.
   const [activeTab, setActiveTab] = useState(() => getActiveTab(pathname));
@@ -129,10 +132,14 @@ export default function MainSearch() {
     [tabs],
   );
 
+  // Stay on "all" / choose-location until default resolves so we don't flash "Unknown".
+  const effectiveLocationMode =
+    isLocationInitializing ? "all" : locationMode;
+
   const cityLabel =
-    locationMode === "all"
+    effectiveLocationMode === "all"
       ? t("home.location.all")
-      : locationMode === "city" && manualLocation
+      : effectiveLocationMode === "city" && manualLocation
         ? formatCityLabel(manualLocation)
         : detectedCityLabel || t("home.unknownLocation");
 
@@ -196,7 +203,7 @@ export default function MainSearch() {
                 className="-mt-2 mb-3 absolute top-10 z-20"
                 onMeasuredBottomChange={setFilterHeaderBottom}
                 cityLabel={cityLabel}
-                isAllLocations={locationMode === "all"}
+                isAllLocations={effectiveLocationMode === "all"}
                 onCitySelected={handleCitySelected}
                 onAllSelected={handleAllSelected}
                 matchThreshold={matchThreshold}

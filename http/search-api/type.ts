@@ -41,6 +41,12 @@ export interface UnifiedSearchPersonDAO {
   list_count: number;
   match: number;
   is_followed?: boolean;
+  location?: {
+    city: string;
+    region?: string;
+    latitude?: number;
+    longitude?: number;
+  } | null;
 }
 
 export interface UnifiedSearchPeopleResultDAO {

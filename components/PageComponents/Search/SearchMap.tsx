@@ -4,15 +4,19 @@ import MapView, { Marker, type Region } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 import { MapPinMarker } from "@/components/ui/MapPinMarker";
 import type { BusinessItemDAO } from "@/http/business-api/types";
-import type { ListItemDAO } from "@/http/list-api/types";
+import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
+import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
+import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import {
   buildBusinessMapMarkers,
   buildListMapMarkers,
+  buildPeopleMapMarkers,
+  buildPickMapMarkers,
   getSearchMapRegion,
   type SearchMapMarker,
 } from "@/utils/searchMapMarkers";
 
-export type SearchMapMode = "lists" | "places";
+export type SearchMapMode = "lists" | "places" | "people";
 
 /** Extra map height clipped by overflow-hidden to cover Apple Maps  Maps label. */
 const LEGAL_LABEL_CLIP = 28;
@@ -21,6 +25,8 @@ interface SearchMapProps {
   mode: SearchMapMode;
   lists?: ListItemDAO[];
   businesses?: BusinessItemDAO[];
+  picks?: ListItemPublic[];
+  people?: UnifiedSearchPersonDAO[];
   /** Fraction of screen height for the embedded map (handoff ~30%). */
   heightRatio?: number;
   areaLabel?: string;
@@ -35,6 +41,8 @@ export function SearchMap({
   mode,
   lists = [],
   businesses = [],
+  picks,
+  people,
   heightRatio = 0.3,
   areaLabel,
   bottomOverlayHeight = 0,
@@ -44,14 +52,28 @@ export function SearchMap({
   const mapRef = useRef<MapView>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  const fallbackCenter = useEffectiveSearchLocation();
+
   const markers = useMemo((): SearchMapMarker[] => {
     if (mode === "places") {
       return buildBusinessMapMarkers(businesses);
     }
+    if (mode === "people") {
+      return buildPeopleMapMarkers(people ?? []);
+    }
+    if (picks !== undefined) {
+      return buildPickMapMarkers(picks);
+    }
+    if (people !== undefined) {
+      return buildPeopleMapMarkers(people);
+    }
     return buildListMapMarkers(lists);
-  }, [mode, lists, businesses]);
+  }, [mode, lists, businesses, picks, people]);
 
-  const region = useMemo(() => getSearchMapRegion(markers), [markers]);
+  const region = useMemo(
+    () => getSearchMapRegion(markers, fallbackCenter),
+    [markers, fallbackCenter],
+  );
   const mapHeight = Math.max(windowHeight * heightRatio, 160);
   const markerCoordinates = useMemo(
     () =>
@@ -71,7 +93,11 @@ export function SearchMap({
   );
 
   useEffect(() => {
-    if (markers.length === 0) return;
+    if (markers.length === 0) {
+      if (!fallbackCenter) return;
+      mapRef.current?.animateToRegion(region as Region, 350);
+      return;
+    }
 
     if (markers.length === 1) {
       const marker = markers[0];
@@ -94,6 +120,11 @@ export function SearchMap({
       return;
     }
 
+    if (areaLabel && fallbackCenter) {
+      mapRef.current?.animateToRegion(region as Region, 350);
+      return;
+    }
+
     mapRef.current?.fitToCoordinates(markerCoordinates, {
       animated: true,
       edgePadding: {
@@ -103,7 +134,15 @@ export function SearchMap({
         left: MAP_EDGE_PADDING,
       },
     });
-  }, [bottomPadding, markerCoordinates, markers.length]);
+  }, [
+    areaLabel,
+    bottomPadding,
+    fallbackCenter,
+    mapHeight,
+    markerCoordinates,
+    markers,
+    region,
+  ]);
 
   return (
     <View

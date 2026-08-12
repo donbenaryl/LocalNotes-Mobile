@@ -11,12 +11,15 @@ interface SearchStore {
   selectedVibes: string[];
   locationMode: SearchLocationMode;
   manualLocation: GeoLocation | null;
+  /** True after the one-time home/device/"all" default has been applied. */
+  hasAppliedDefaultLocation: boolean;
   setQuery: (query: string) => void;
   commitQuery: (query?: string) => void;
   setMatchThreshold: (threshold: number | null) => void;
   setSelectedVibes: (vibes: string[]) => void;
   setLocationMode: (mode: SearchLocationMode) => void;
   setManualLocation: (location: GeoLocation | null) => void;
+  setHasAppliedDefaultLocation: (value: boolean) => void;
   clearFilters: () => void;
   reset: () => void;
 }
@@ -28,6 +31,7 @@ const INITIAL_STATE = {
   selectedVibes: [] as string[],
   locationMode: "all" as SearchLocationMode,
   manualLocation: null as GeoLocation | null,
+  hasAppliedDefaultLocation: false,
 };
 
 export const useSearchStore = create<SearchStore>((set, get) => ({
@@ -41,6 +45,8 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
   setSelectedVibes: (selectedVibes) => set({ selectedVibes }),
   setLocationMode: (locationMode) => set({ locationMode }),
   setManualLocation: (manualLocation) => set({ manualLocation }),
+  setHasAppliedDefaultLocation: (hasAppliedDefaultLocation) =>
+    set({ hasAppliedDefaultLocation }),
   clearFilters: () =>
     set({
       matchThreshold: null,
