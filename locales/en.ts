@@ -599,10 +599,9 @@ const en = {
     },
     forYou: {
       eyebrow: 'For you',
-      match: '{{percent}}% match',
-      personalityMatchLabel: 'Personality Match',
-      tasteMatch: '{{percent}}% taste match',
-      authorMeta: '{{location}} · {{count}} picks · {{percent}}% taste match',
+      match: '{{percent}}%',
+      tasteMatch: '{{percent}}%',
+      authorMeta: '{{location}} · {{count}} picks',
       savedBy: 'Saved by {{count}} people like you',
       moreTags: '+{{count}} more',
     },

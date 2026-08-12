@@ -71,9 +71,11 @@ interface ListItemFormProps {
   visible: boolean;
   title: string;
   onCancel: () => void;
-  onSubmit: (data: FormSubmitData) => void;
+  onSubmit: (data: FormSubmitData) => void | Promise<void>;
   initialData?: ListItemFormInitialData;
   isEditing?: boolean;
+  /** Stable id for the pick being edited — triggers re-hydrate when switching picks. */
+  editTargetId?: string | number;
   loading?: boolean;
 }
 
@@ -105,6 +107,7 @@ export function ListItemForm({
   onSubmit,
   initialData,
   isEditing = false,
+  editTargetId,
   loading = false,
 }: ListItemFormProps) {
   const { t } = useTranslation();
@@ -118,6 +121,7 @@ export function ListItemForm({
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [othersName, setOthersName] = useState(initialData?.othersName ?? "");
   const categoriesInitialized = useRef(false);
+  const wasEditingRef = useRef(false);
   const [searchResults, setSearchResults] = useState<BusinessItemDAO[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -160,16 +164,12 @@ export function ListItemForm({
     setSelectedBranchId(null);
   }, []);
 
-  // Re-hydrate from initialData whenever the modal opens so create mode is
-  // empty (and edit/prefill mode is not stuck on a previous draft).
-  useEffect(() => {
-    if (!visible) return;
-
-    setNameInput(initialData?.name ?? "");
+  const applyFormFields = useCallback((data?: ListItemFormInitialData) => {
+    setNameInput(data?.name ?? "");
     setInnerTagInput("");
-    setInnerTags(initialData?.tags ?? []);
-    setNotesInput(initialData?.description ?? "");
-    setOthersName(initialData?.othersName ?? "");
+    setInnerTags(data?.tags ?? []);
+    setNotesInput(data?.description ?? "");
+    setOthersName(data?.othersName ?? "");
     setSelectedCategoryIds([]);
     setSearchResults([]);
     setIsSearching(false);
@@ -177,9 +177,9 @@ export function ListItemForm({
     setSelectedBusiness(null);
     setSelectedBranchId(null);
     setNewItemPhotos([]);
-    setLocation(initialData?.location ?? null);
+    setLocation(data?.location ?? null);
     setLocalExistingImages(
-      initialData?.images?.map((im) => ({
+      data?.images?.map((im) => ({
         id: im.id,
         url: resolveImageUrl(im.url) ?? im.url,
       })) ?? [],
@@ -187,8 +187,37 @@ export function ListItemForm({
     setShowDeleteImageModal(false);
     setPendingDeleteImageId(null);
     categoriesInitialized.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-hydrate on open
-  }, [visible]);
+  }, []);
+
+  const resetToEmpty = useCallback(() => {
+    applyFormFields(undefined);
+  }, [applyFormFields]);
+
+  const hydrateFromInitialData = useCallback(
+    (data?: ListItemFormInitialData) => {
+      applyFormFields(data);
+    },
+    [applyFormFields],
+  );
+
+  // Edit: always re-hydrate on open / when switching picks.
+  // Create: preserve in-progress draft on reopen; clear only when leaving edit
+  // mode for a fresh create (so edit leftovers don't leak into create).
+  useEffect(() => {
+    if (!visible) return;
+
+    if (isEditing) {
+      hydrateFromInitialData(initialData);
+      wasEditingRef.current = true;
+      return;
+    }
+
+    if (wasEditingRef.current) {
+      resetToEmpty();
+      wasEditingRef.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- hydrate only on open / edit target change
+  }, [visible, isEditing, editTargetId]);
 
   const lockScrollPosition = useCallback(() => {
     const y = scrollYRef.current;
@@ -347,7 +376,7 @@ export function ListItemForm({
 
   const branchSelectionMissing = requiresBranchSelection && !selectedBranchId;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!nameInput.trim()) {
       showToast({ type: "error", message: t("profile.picks.businessRequired") });
       return;
@@ -364,18 +393,27 @@ export function ListItemForm({
       showToast({ type: "error", message: t("profile.picks.branchRequired") });
       return;
     }
-    onSubmit({
-      businessId: selectedBusiness ? selectedBusiness.id : "",
-      unverifiedBusiness: selectedBusiness ? undefined : nameInput.trim(),
-      displayName: nameInput.trim(),
-      tags: innerTags,
-      categories: selectedCategoryIds,
-      categoryObjects: selectedCategories.map((c) => ({ id: c.id, name: c.name })),
-      othersName: isOthersSelected ? othersName.trim() : undefined,
-      description: notesInput.trim(),
-      newFiles: newItemPhotos.map((p) => p.file),
-      location: resolvedBusinessLocation ?? location ?? undefined,
-    });
+    try {
+      await Promise.resolve(
+        onSubmit({
+          businessId: selectedBusiness ? selectedBusiness.id : "",
+          unverifiedBusiness: selectedBusiness ? undefined : nameInput.trim(),
+          displayName: nameInput.trim(),
+          tags: innerTags,
+          categories: selectedCategoryIds,
+          categoryObjects: selectedCategories.map((c) => ({ id: c.id, name: c.name })),
+          othersName: isOthersSelected ? othersName.trim() : undefined,
+          description: notesInput.trim(),
+          newFiles: newItemPhotos.map((p) => p.file),
+          location: resolvedBusinessLocation ?? location ?? undefined,
+        }),
+      );
+      if (!isEditing) {
+        resetToEmpty();
+      }
+    } catch {
+      // Caller already surfaced the error; keep create draft intact.
+    }
   };
 
   return (
@@ -388,7 +426,7 @@ export function ListItemForm({
       footer={
         <LocalNotesButton
           label={isEditing ? t("common.save") : t("profile.picks.savePick")}
-          onPress={handleSubmit}
+          onPress={() => void handleSubmit()}
           variant="dark"
           disabled={
             !nameInput.trim() || selectedCategoryIds.length === 0 || branchSelectionMissing

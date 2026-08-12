@@ -21,9 +21,9 @@ export function DraftsSmartSuggestion() {
   const thumbnails = picks.slice(0, 4);
 
   const handleMakeList = () => {
-    const { reset, setItems } = useListFormStore.getState();
-    reset();
-    setItems(picks.map(mapListItemPublicToPickTag));
+    const { resetCreate, setItems } = useListFormStore.getState();
+    resetCreate();
+    setItems("create", picks.map(mapListItemPublicToPickTag));
     router.push("/(app)/(stack)/lists/new" as never);
   };
 

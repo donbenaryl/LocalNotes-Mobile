@@ -16,14 +16,16 @@ import listService from '@/http/list-api/list.service';
 import type { ListItemPublic } from '@/http/list-api/types';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import { mapListItemPublicToPickTag } from '@/utils/listPickMappers';
-import { useListFormStore } from '@/stores/useListFormStore';
+import { useListFormStore, type ListFormMode } from '@/stores/useListFormStore';
 import { ListPickCreatorRow } from '@/components/PageComponents/List/ListPickCreatorRow';
 
 interface LinkExistingPicksSectionProps {
+  mode: ListFormMode;
   selectedServerIds: string[];
 }
 
 export function LinkExistingPicksSection({
+  mode,
   selectedServerIds,
 }: LinkExistingPicksSectionProps) {
   const { t } = useTranslation();
@@ -33,7 +35,9 @@ export function LinkExistingPicksSection({
   const [libraryPicks, setLibraryPicks] = useState<ListItemPublic[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const items = useListFormStore((s) => s.items);
+  const items = useListFormStore((s) =>
+    mode === 'edit' ? s.edit.items : s.create.items,
+  );
   const addItem = useListFormStore((s) => s.addItem);
 
   useEffect(() => {
@@ -85,9 +89,9 @@ export function LinkExistingPicksSection({
   const handleLink = useCallback(
     (pick: ListItemPublic) => {
       if (items.some((item) => item.serverItemId === pick.id)) return;
-      addItem(mapListItemPublicToPickTag(pick));
+      addItem(mode, mapListItemPublicToPickTag(pick));
     },
-    [addItem, items],
+    [addItem, items, mode],
   );
 
   return (

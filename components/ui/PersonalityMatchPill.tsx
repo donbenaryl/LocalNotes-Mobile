@@ -1,5 +1,4 @@
 import { Text, View } from "react-native";
-import { useTranslation } from "react-i18next";
 import { getPersonalityMatchPillStyle } from "@/utils/personalityRing";
 import { clampPercent } from "@/utils/matchScore";
 
@@ -13,7 +12,7 @@ interface PersonalityMatchPillProps {
   size?: "sm" | "md";
   /**
    * `inline` — tinted chip used in author rows / modals.
-   * `overlay` — white pill with green dot + % + “Personality Match” (list cards).
+   * `overlay` — white pill with green dot + % (list cards).
    * `overlayCompact` — white pill with green % only (pick cards).
    */
   variant?: "inline" | "overlay" | "overlayCompact";
@@ -30,8 +29,6 @@ export function PersonalityMatchPill({
   size = "sm",
   variant = "inline",
 }: PersonalityMatchPillProps) {
-  const { t } = useTranslation();
-
   const clamped = clampPercent(percent ?? 0);
 
   if (variant === "overlay" || variant === "overlayCompact") {
@@ -53,14 +50,6 @@ export function PersonalityMatchPill({
         >
           {`${clamped}%`}
         </Text>
-        {variant === "overlay" ? (
-          <Text
-            className="font-geist-bold text-[12px] text-ink"
-            numberOfLines={1}
-          >
-            {t("home.forYou.personalityMatchLabel")}
-          </Text>
-        ) : null}
       </View>
     );
   }
@@ -86,7 +75,7 @@ export function PersonalityMatchPill({
         style={{ color: pillStyle.color }}
         numberOfLines={1}
       >
-        {t("home.forYou.match", { percent: clamped })}
+        {`${clamped}%`}
       </Text>
     </View>
   );

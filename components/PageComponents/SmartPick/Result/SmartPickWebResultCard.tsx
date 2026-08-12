@@ -19,9 +19,9 @@ export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProp
   const photoUrl = resolveImageUrl(webResult.image_url);
 
   const handleSave = () => {
-    const { reset, setItems } = useListFormStore.getState();
-    reset();
-    setItems([mapWebResultToPickDraft(webResult)]);
+    const { resetCreate, setItems } = useListFormStore.getState();
+    resetCreate();
+    setItems('create', [mapWebResultToPickDraft(webResult)]);
     router.push('/(app)/(stack)/lists/new' as never);
   };
 

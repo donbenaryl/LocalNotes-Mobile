@@ -36,8 +36,8 @@ async function resolveSharedUsers(userIds: string[]): Promise<searchUserDAO[]> {
 export function useListEditHydration(
   listId?: string,
 ): UseListEditHydrationResult {
-  const sourceListId = useListFormStore((s) => s.sourceListId);
-  const hydratedListUpdatedAt = useListFormStore((s) => s.hydratedListUpdatedAt);
+  const sourceListId = useListFormStore((s) => s.edit.sourceListId);
+  const hydratedListUpdatedAt = useListFormStore((s) => s.edit.hydratedListUpdatedAt);
   const hydrateFromList = useListFormStore((s) => s.hydrateFromList);
   const { categories, isPending: categoriesLoading } = useCategories();
   const [selectedUserDetails, setSelectedUserDetails] = useState<

@@ -50,7 +50,7 @@ export function PickFormModal({
 
         if (error) {
           showToast({ type: "error", message: error.message ?? t("profile.picks.updateError") });
-          return;
+          throw new Error(error.message ?? t("profile.picks.updateError"));
         }
 
         if (data.newFiles.length) {
@@ -76,7 +76,7 @@ export function PickFormModal({
 
       if (error) {
         showToast({ type: "error", message: error.message ?? t("profile.picks.createError") });
-        return;
+        throw new Error(error.message ?? t("profile.picks.createError"));
       }
 
       const itemId = response?.data?.id;
@@ -98,7 +98,7 @@ export function PickFormModal({
       visible={visible}
       title={isEditing ? t("profile.picks.editPick") : t("profile.picks.addPick")}
       onCancel={onClose}
-      onSubmit={(data) => void handleSubmit(data)}
+      onSubmit={handleSubmit}
       initialData={
         isEditing
           ? {
@@ -113,6 +113,7 @@ export function PickFormModal({
           : createInitialData
       }
       isEditing={isEditing}
+      editTargetId={editingItem?.id}
       loading={isSubmitting}
     />
   );

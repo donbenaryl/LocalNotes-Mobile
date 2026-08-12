@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import listService from '@/http/list-api/list.service';
 import type { CreateListDTO } from '@/http/list-api/types';
-import { useListFormStore } from '@/stores/useListFormStore';
+import { useListFormStore, type ListFormMode } from '@/stores/useListFormStore';
 import { useToastStore } from '@/stores/useToastStore';
 import { itemsPayloadForApi } from '@/utils/listPickMappers';
 import { flushListPickImages } from '@/utils/flushListPickImages';
@@ -21,8 +21,8 @@ function hasOthersCategory(
   );
 }
 
-function buildPayload(status: 'Draft' | 'Published'): CreateListDTO {
-  const state = useListFormStore.getState();
+function buildPayload(mode: ListFormMode, status: 'Draft' | 'Published'): CreateListDTO {
+  const state = useListFormStore.getState().getDraft(mode);
   const loc = state.location;
   const hasMeaningfulLocation = Boolean(
     loc && (loc.city?.trim() || loc.country?.trim()),
@@ -55,12 +55,14 @@ export function useListCreate(listId?: string) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const showToast = useToastStore((s) => s.show);
-  const reset = useListFormStore((s) => s.reset);
+  const resetCreate = useListFormStore((s) => s.resetCreate);
+  const resetEdit = useListFormStore((s) => s.resetEdit);
   const isEditing = Boolean(listId);
+  const mode: ListFormMode = isEditing ? 'edit' : 'create';
 
   const mutation = useMutation({
     mutationFn: async ({ status, itemsSnapshot }: SaveListOptions) => {
-      const payload = buildPayload(status);
+      const payload = buildPayload(mode, status);
       const response = isEditing
         ? await listService.updateList(listId!, payload)
         : await listService.createList(payload);
@@ -81,7 +83,11 @@ export function useListCreate(listId?: string) {
         void queryClient.invalidateQueries({ queryKey: ['list-detail', listId] });
         queryClient.removeQueries({ queryKey: ['list-edit', listId] });
       }
-      reset();
+      if (isEditing) {
+        resetEdit();
+      } else {
+        resetCreate();
+      }
       showToast({
         type: 'success',
         message:

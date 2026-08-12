@@ -27,7 +27,7 @@ import { RadioButton } from "@/components/ui/RadioButton";
 import { useCategories } from "@/hooks/useProfileList";
 import { useListCreate } from "@/hooks/useListCreate";
 import { useListEditHydration } from "@/hooks/useListEditHydration";
-import { useListFormStore } from "@/stores/useListFormStore";
+import { useListFormStore, type ListFormMode } from "@/stores/useListFormStore";
 import { useToastStore } from "@/stores/useToastStore";
 import { VISIBILITY_OPTIONS } from "@/constants/visibility";
 import { formSubmitToPickDraft } from "@/utils/listPickMappers";
@@ -54,6 +54,7 @@ export function ListForm({ step, listId }: ListFormProps) {
   const router = useRouter();
   const showToast = useToastStore((s) => s.show);
   const isEditing = Boolean(listId);
+  const mode: ListFormMode = isEditing ? "edit" : "create";
   const { categories, isPending: categoriesLoading } = useCategories();
   const { saveList, isSaving } = useListCreate(listId);
   const {
@@ -63,30 +64,76 @@ export function ListForm({ step, listId }: ListFormProps) {
     setSelectedUserDetails,
   } = useListEditHydration(listId);
 
-  const name = useListFormStore((s) => s.name);
-  const location = useListFormStore((s) => s.location);
-  const selectedCategories = useListFormStore((s) => s.categories);
-  const notes = useListFormStore((s) => s.notes);
-  const others_name = useListFormStore((s) => s.others_name);
-  const items = useListFormStore((s) => s.items);
-  const shareOption = useListFormStore((s) => s.shareOption);
-  const allowComments = useListFormStore((s) => s.allowComments);
-  const allowShare = useListFormStore((s) => s.allowShare);
-  const specificUsers = useListFormStore((s) => s.specificUsers);
+  const draft = useListFormStore((s) => (mode === "edit" ? s.edit : s.create));
+  const name = draft.name;
+  const location = draft.location;
+  const selectedCategories = draft.categories;
+  const notes = draft.notes;
+  const others_name = draft.others_name;
+  const items = draft.items;
+  const shareOption = draft.shareOption;
+  const allowComments = draft.allowComments;
+  const allowShare = draft.allowShare;
+  const specificUsers = draft.specificUsers;
 
-  const setName = useListFormStore((s) => s.setName);
-  const setLocation = useListFormStore((s) => s.setLocation);
-  const setCategories = useListFormStore((s) => s.setCategories);
-  const setNotes = useListFormStore((s) => s.setNotes);
-  const setOthersName = useListFormStore((s) => s.setOthersName);
-  const setShareOption = useListFormStore((s) => s.setShareOption);
-  const setAllowComments = useListFormStore((s) => s.setAllowComments);
-  const setAllowShare = useListFormStore((s) => s.setAllowShare);
-  const setSpecificUsers = useListFormStore((s) => s.setSpecificUsers);
-  const addItem = useListFormStore((s) => s.addItem);
-  const updateItem = useListFormStore((s) => s.updateItem);
-  const removeItem = useListFormStore((s) => s.removeItem);
-  const isDirty = useListFormStore((s) => s.isDirty);
+  const setName = useCallback(
+    (value: string) => useListFormStore.getState().setName(mode, value),
+    [mode],
+  );
+  const setLocation = useCallback(
+    (value?: typeof location) =>
+      useListFormStore.getState().setLocation(mode, value),
+    [mode],
+  );
+  const setCategories = useCallback(
+    (value: ListFormCategory[]) =>
+      useListFormStore.getState().setCategories(mode, value),
+    [mode],
+  );
+  const setNotes = useCallback(
+    (value: string) => useListFormStore.getState().setNotes(mode, value),
+    [mode],
+  );
+  const setOthersName = useCallback(
+    (value: string) => useListFormStore.getState().setOthersName(mode, value),
+    [mode],
+  );
+  const setShareOption = useCallback(
+    (value: typeof shareOption) =>
+      useListFormStore.getState().setShareOption(mode, value),
+    [mode],
+  );
+  const setAllowComments = useCallback(
+    (value: boolean) =>
+      useListFormStore.getState().setAllowComments(mode, value),
+    [mode],
+  );
+  const setAllowShare = useCallback(
+    (value: boolean) => useListFormStore.getState().setAllowShare(mode, value),
+    [mode],
+  );
+  const setSpecificUsers = useCallback(
+    (value: string[]) =>
+      useListFormStore.getState().setSpecificUsers(mode, value),
+    [mode],
+  );
+  const addItem = useCallback(
+    (item: ListPickDraft) => useListFormStore.getState().addItem(mode, item),
+    [mode],
+  );
+  const updateItem = useCallback(
+    (id: number, item: ListPickDraft) =>
+      useListFormStore.getState().updateItem(mode, id, item),
+    [mode],
+  );
+  const removeItem = useCallback(
+    (id: number) => useListFormStore.getState().removeItem(mode, id),
+    [mode],
+  );
+  const checkDirty = useCallback(
+    () => useListFormStore.getState().isDirty(mode),
+    [mode],
+  );
 
   const [pickModalVisible, setPickModalVisible] = useState(false);
   const [editingPick, setEditingPick] = useState<ListPickDraft | null>(null);
@@ -118,7 +165,7 @@ export function ListForm({ step, listId }: ListFormProps) {
   );
 
   const handleCancel = useCallback(() => {
-    if (isDirty()) {
+    if (checkDirty()) {
       Alert.alert(t("listForm.discardTitle"), t("listForm.discardMessage"), [
         { text: t("common.cancel"), style: "cancel" },
         {
@@ -130,7 +177,7 @@ export function ListForm({ step, listId }: ListFormProps) {
       return;
     }
     router.back();
-  }, [isDirty, router, t]);
+  }, [checkDirty, router, t]);
 
   const isStep1Valid = useMemo(
     () =>
@@ -618,7 +665,10 @@ export function ListForm({ step, listId }: ListFormProps) {
               label={t("listForm.fields.addFromPicks")}
               hint={t("listForm.fields.addFromPicksHint")}
             />
-            <LinkExistingPicksSection selectedServerIds={selectedServerIds} />
+            <LinkExistingPicksSection
+              mode={mode}
+              selectedServerIds={selectedServerIds}
+            />
           </View>
         </View>
       </KeyboardAwareScrollView>
@@ -651,6 +701,7 @@ export function ListForm({ step, listId }: ListFormProps) {
         onSubmit={handlePickSubmit}
         initialData={pickInitialData}
         isEditing={editingPick !== null}
+        editTargetId={editingPick?.id}
       />
     </SafeAreaView>
   );

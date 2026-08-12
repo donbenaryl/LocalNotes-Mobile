@@ -73,7 +73,6 @@ export function GuardedFooter() {
   const pathname = usePathname();
   const inactiveColor = colorScheme === 'dark' ? INACTIVE_DARK : INACTIVE_LIGHT;
   const openPickModal = usePickModalStore((s) => s.open);
-  const resetListForm = useListFormStore((s) => s.reset);
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
   const storeSection = useSectionRouteStore((s) => s.activeSection);
   const requestSection = useSectionRouteStore((s) => s.requestSection);
@@ -88,7 +87,10 @@ export function GuardedFooter() {
     if (value === 'pick') {
       openPickModal();
     } else {
-      resetListForm();
+      const { resetCreate, isDirty } = useListFormStore.getState();
+      if (!isDirty('create')) {
+        resetCreate();
+      }
       router.push('/(app)/(stack)/lists/new' as never);
     }
   };

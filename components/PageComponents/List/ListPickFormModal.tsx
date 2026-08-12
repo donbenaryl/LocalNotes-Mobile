@@ -11,6 +11,7 @@ interface ListPickFormModalProps {
   onSubmit: (data: FormSubmitData) => void;
   initialData?: ListItemFormInitialData;
   isEditing?: boolean;
+  editTargetId?: string | number;
 }
 
 export function ListPickFormModal({
@@ -19,6 +20,7 @@ export function ListPickFormModal({
   onSubmit,
   initialData,
   isEditing = false,
+  editTargetId,
 }: ListPickFormModalProps) {
   const { t } = useTranslation();
 
@@ -30,6 +32,7 @@ export function ListPickFormModal({
       onSubmit={onSubmit}
       initialData={initialData}
       isEditing={isEditing}
+      editTargetId={editTargetId}
     />
   );
 }

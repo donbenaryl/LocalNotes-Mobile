@@ -9,6 +9,7 @@ import { SmartPickForm } from './Form/SmartPickForm';
 import { SmartPickResults } from './Result/SmartPickResults';
 import type { searchUserDAO } from '@/http/account-api/types';
 import { EMPTY_SMART_PICK_FORM, type SmartPickFormState } from './types';
+import { View } from 'react-native';
 
 export function SmartPickTab() {
   const [step, setStep] = useState<'form' | 'result'>('form');
@@ -71,7 +72,7 @@ export function SmartPickTab() {
   if (step === 'result' && conversation) {
     return (
       <AppScrollView contentContainerClassName="pb-28" showsVerticalScrollIndicator={false}>
-        <GuardedHeader />
+        <View className="px-4"><GuardedHeader /></View>
         <SmartPickResults conversation={conversation} onBack={handleBackToForm} />
       </AppScrollView>
     );

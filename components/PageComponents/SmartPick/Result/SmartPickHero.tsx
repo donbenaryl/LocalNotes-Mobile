@@ -48,9 +48,9 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
   };
 
   const handleSaveToList = () => {
-    const { reset, setItems } = useListFormStore.getState();
-    reset();
-    setItems([mapSmartPickResultToPickDraft(result)]);
+    const { resetCreate, setItems } = useListFormStore.getState();
+    resetCreate();
+    setItems('create', [mapSmartPickResultToPickDraft(result)]);
     router.push('/(app)/(stack)/lists/new' as never);
   };
 
