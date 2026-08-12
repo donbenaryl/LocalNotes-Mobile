@@ -15,6 +15,12 @@ interface SectionRouteStore {
    */
   activeHref: Href | null;
   /**
+   * Href of the section we just left when requestSection flips sections.
+   * Used when entering Search after activeHref has already been overwritten
+   * by the incoming section's pager (returnTo race).
+   */
+  exitHref: Href | null;
+  /**
    * Last visited page within each footer section. Footer taps and cross-section
    * swipes restore from here instead of always jumping to SECTION_ENTRY_HREF.
    */
@@ -46,6 +52,7 @@ interface SectionRouteStore {
 
 export const useSectionRouteStore = create<SectionRouteStore>((set) => ({
   activeHref: null,
+  exitHref: null,
   lastHrefBySection: {},
   activeSection: null,
   pendingSection: null,
@@ -83,7 +90,12 @@ export const useSectionRouteStore = create<SectionRouteStore>((set) => ({
     set((state) =>
       state.activeSection === to
         ? state
-        : { ...state, activeSection: to, pendingSection: to },
+        : {
+            ...state,
+            activeSection: to,
+            pendingSection: to,
+            exitHref: state.activeHref,
+          },
     ),
   syncSectionFromPathname: (pathSection) =>
     set((state) => {

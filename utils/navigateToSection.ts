@@ -39,10 +39,23 @@ export function navigateToSection(
   },
 ): void {
   const href = resolveSectionHref(to, options?.forceEntry ?? false);
-  const fromHref =
-    options?.fromHref ?? useSectionRouteStore.getState().activeHref;
-  const fromSearch = fromHref ? isSearchHref(fromHref) : false;
+  const { activeHref, exitHref } = useSectionRouteStore.getState();
   const toSearch = to === "search";
+
+  // Prefer an explicit fromHref. If activeHref already flipped to Search
+  // (requestSection → SectionPager race), fall back to exitHref.
+  let fromHref: Href | string | null | undefined = options?.fromHref;
+  if (fromHref == null) {
+    if (activeHref && !(toSearch && isSearchHref(activeHref))) {
+      fromHref = activeHref;
+    } else if (exitHref && !isSearchHref(exitHref)) {
+      fromHref = exitHref;
+    } else {
+      fromHref = activeHref;
+    }
+  }
+
+  const fromSearch = fromHref ? isSearchHref(fromHref) : false;
 
   if (toSearch && !fromSearch && fromHref) {
     useSearchChromeStore.getState().setReturnTo(fromHref as Href);

@@ -54,9 +54,13 @@ export default function MainSearch() {
   // produces a second slide-in on top of the pager's own animation.
   const [activeTab, setActiveTab] = useState(() => getActiveTab(pathname));
 
+  // Explicit sub-routes only — /search/picks (section entry) must not clobber
+  // local pager state when returning from a stack screen.
   useEffect(() => {
     if (!pathname.includes("/search")) return;
-    setActiveTab(getActiveTab(pathname));
+    const tab = getActiveTab(pathname);
+    if (tab === "picks") return;
+    setActiveTab(tab);
   }, [pathname]);
 
   // Re-tapping the active footer tab resets to the first sub-tab — see MainHome.

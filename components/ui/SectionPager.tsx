@@ -117,10 +117,11 @@ export function SectionPager({
   }, [activeIndex]);
 
   useEffect(() => {
+    if (!isSectionActive) return;
     const href = pages[activeIndex]?.href;
     if (!href) return;
     rememberSectionHref(href);
-    if (isSectionActive) setActiveHref(href);
+    setActiveHref(href);
   }, [
     activeIndex,
     isSectionActive,
@@ -189,6 +190,7 @@ export function SectionPager({
 
   const handlePageSelected = useCallback(
     (event: PagerViewOnPageSelectedEvent) => {
+      if (!isSectionActive) return;
       const index = event.nativeEvent.position;
       nativePageRef.current = index;
       const page = pages[index];
@@ -196,11 +198,12 @@ export function SectionPager({
         onActiveIdChange(page.id);
       }
     },
-    [activeId, onActiveIdChange, pages],
+    [activeId, isSectionActive, onActiveIdChange, pages],
   );
 
   const handlePageScroll = useCallback(
     (event: PagerViewOnPageScrollEvent) => {
+      if (!isSectionActive) return;
       const { position, offset } = event.nativeEvent;
       const settledIndex =
         offset > PAGE_COMMIT_THRESHOLD ? position + 1 : position;
@@ -210,7 +213,7 @@ export function SectionPager({
         onActiveIdChange(settledPage.id);
       }
     },
-    [activeId, onActiveIdChange, pages],
+    [activeId, isSectionActive, onActiveIdChange, pages],
   );
 
   const renderedPages = useMemo(
@@ -264,6 +267,7 @@ export function SectionPager({
         ref={pagerRef}
         style={styles.fill}
         initialPage={activeIndex}
+        scrollEnabled={isSectionActive}
         overdrag={false}
         offscreenPageLimit={Math.max(pages.length - 1, 1)}
         onPageScroll={handlePageScroll}

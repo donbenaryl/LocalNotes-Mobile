@@ -27,6 +27,7 @@ import {
 } from "./ProfileChromeProvider";
 import type { ProfileListTabType } from "./ProfileTabPanel";
 import accountService from "@/http/account-api/account.services";
+import { HOME_HREF } from "@/constants/swipeNavigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { profileItemDAO } from "@/http/account-api/types";
 
@@ -152,6 +153,16 @@ function MainProfileContent({
     [visibleTabIds],
   );
 
+  const handleBack = useCallback(() => {
+    if (router.canDismiss()) {
+      router.dismiss();
+    } else if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.navigate(HOME_HREF);
+    }
+  }, [router]);
+
   const profileUserId = profile?.id ?? userId ?? "";
 
   const pages: SectionPagerPage[] = useMemo(
@@ -173,7 +184,7 @@ function MainProfileContent({
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <PageHeader
-        onBack={() => router.back()}
+        onBack={handleBack}
         borderless
         rightChild={isOwnProfile ? <ProfileHeader /> : undefined}
       />

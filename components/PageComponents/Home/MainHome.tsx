@@ -107,10 +107,13 @@ export default function MainHome() {
   // unwanted slide-in on top of the pager's own animation.
   const [activeTab, setActiveTab] = useState(() => getActiveTab(pathname));
 
-  // Inbound only: deep links (e.g. a push to /home/spotlight) still select a tab.
+  // Inbound only: explicit sub-routes (e.g. /home/spotlight). Bare /home must not
+  // clobber local pager state when returning from Profile or other stack screens.
   useEffect(() => {
     if (!pathname.includes("/home")) return;
-    setActiveTab(getActiveTab(pathname));
+    const tab = getActiveTab(pathname);
+    if (tab === "home") return;
+    setActiveTab(tab);
   }, [pathname]);
 
   // Re-tapping the active footer tab resets to the first sub-tab. It cannot go

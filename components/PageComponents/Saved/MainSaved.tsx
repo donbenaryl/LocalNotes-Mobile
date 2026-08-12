@@ -90,9 +90,13 @@ export default function MainSaved() {
   // produces a second slide-in on top of the pager's own animation.
   const [activeTab, setActiveTab] = useState(() => getActiveTab(pathname));
 
+  // Explicit sub-routes only — bare draft entry must not reset local pager state
+  // when returning from a stack screen.
   useEffect(() => {
     if (!pathname.includes("/saved")) return;
-    setActiveTab(getActiveTab(pathname));
+    const tab = getActiveTab(pathname);
+    if (tab === "draft") return;
+    setActiveTab(tab);
   }, [pathname]);
 
   // Re-tapping the active footer tab resets to the first sub-tab — see MainHome.
