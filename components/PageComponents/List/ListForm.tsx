@@ -27,10 +27,10 @@ import { RadioButton } from "@/components/ui/RadioButton";
 import { useCategories } from "@/hooks/useProfileList";
 import { useListCreate } from "@/hooks/useListCreate";
 import { useListEditHydration } from "@/hooks/useListEditHydration";
+import { useListPickActions } from "@/hooks/useListPickActions";
 import { useListFormStore, type ListFormMode } from "@/stores/useListFormStore";
 import { useToastStore } from "@/stores/useToastStore";
 import { VISIBILITY_OPTIONS } from "@/constants/visibility";
-import { formSubmitToPickDraft } from "@/utils/listPickMappers";
 import type { ListPickDraft } from "@/types/listForm";
 import type { ListFormCategory } from "@/types/listForm";
 import type { searchUserDAO } from "@/http/account-api/types";
@@ -63,6 +63,7 @@ export function ListForm({ step, listId }: ListFormProps) {
     selectedUserDetails,
     setSelectedUserDetails,
   } = useListEditHydration(listId);
+  const { submitPick, isSubmittingPick } = useListPickActions(mode);
 
   const draft = useListFormStore((s) => (mode === "edit" ? s.edit : s.create));
   const name = draft.name;
@@ -115,15 +116,6 @@ export function ListForm({ step, listId }: ListFormProps) {
   const setSpecificUsers = useCallback(
     (value: string[]) =>
       useListFormStore.getState().setSpecificUsers(mode, value),
-    [mode],
-  );
-  const addItem = useCallback(
-    (item: ListPickDraft) => useListFormStore.getState().addItem(mode, item),
-    [mode],
-  );
-  const updateItem = useCallback(
-    (id: number, item: ListPickDraft) =>
-      useListFormStore.getState().updateItem(mode, id, item),
     [mode],
   );
   const removeItem = useCallback(
@@ -292,15 +284,14 @@ export function ListForm({ step, listId }: ListFormProps) {
     setPickModalVisible(true);
   };
 
-  const handlePickSubmit = (data: FormSubmitData) => {
-    const draft = formSubmitToPickDraft(data, editingPick ?? undefined);
-    if (editingPick) {
-      updateItem(editingPick.id, draft);
-    } else {
-      addItem(draft);
+  const handlePickSubmit = async (data: FormSubmitData) => {
+    try {
+      await submitPick(data, editingPick);
+      setPickModalVisible(false);
+      setEditingPick(null);
+    } catch {
+      // Errors are toasted inside submitPick; keep modal open for retry.
     }
-    setPickModalVisible(false);
-    setEditingPick(null);
   };
 
   const pickInitialData: ListItemFormInitialData | undefined = editingPick
@@ -702,6 +693,7 @@ export function ListForm({ step, listId }: ListFormProps) {
         initialData={pickInitialData}
         isEditing={editingPick !== null}
         editTargetId={editingPick?.id}
+        loading={isSubmittingPick}
       />
     </SafeAreaView>
   );

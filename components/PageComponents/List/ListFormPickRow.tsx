@@ -23,7 +23,8 @@ export function ListFormPickRow({ pick, onEdit, onDelete }: ListFormPickRowProps
       ? resolveImageUrl(pick.existingImages[0].url) ?? pick.existingImages[0].url
       : pick.newFiles?.[0]?.uri;
 
-  const canEdit = !pick.linkedFromLibrary;
+  const canEdit =
+    !pick.owner || (user != null && pick.owner.id === user.id);
   const creator =
     pick.owner ??
     (user

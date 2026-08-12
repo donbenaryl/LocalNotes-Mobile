@@ -8,10 +8,11 @@ import { useTranslation } from 'react-i18next';
 interface ListPickFormModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (data: FormSubmitData) => void;
+  onSubmit: (data: FormSubmitData) => void | Promise<void>;
   initialData?: ListItemFormInitialData;
   isEditing?: boolean;
   editTargetId?: string | number;
+  loading?: boolean;
 }
 
 export function ListPickFormModal({
@@ -21,6 +22,7 @@ export function ListPickFormModal({
   initialData,
   isEditing = false,
   editTargetId,
+  loading = false,
 }: ListPickFormModalProps) {
   const { t } = useTranslation();
 
@@ -33,6 +35,7 @@ export function ListPickFormModal({
       initialData={initialData}
       isEditing={isEditing}
       editTargetId={editTargetId}
+      loading={loading}
     />
   );
 }

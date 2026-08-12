@@ -140,7 +140,9 @@ export function mapApiItemToPickDraft(
   return {
     id: stableNumericIdFromUuid(String(item.id)),
     serverItemId: item.id,
-    linkedFromLibrary: true,
+    // Items already on a list (or just created) are editable; only picks
+    // linked via the library picker set linkedFromLibrary: true.
+    linkedFromLibrary: false,
     existingImages: item.images ?? [],
     business: item.business?.id,
     businessDisplayName:
