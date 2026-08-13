@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { usePathname, useRouter, type Href } from "expo-router";
-import { List, MapPin, Sparkles, Users } from "lucide-react-native";
+import { List, Sparkles, Users } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
@@ -13,7 +13,6 @@ import { SearchBar } from "@/components/ui/SearchBar";
 import { SearchFilterHeader } from "@/components/PageComponents/Search/SearchFilterHeader";
 import { SearchPicks } from "@/components/PageComponents/Search/SearchPicks/SearchPicks";
 import { SearchLists } from "@/components/PageComponents/Search/SearchLists/SearchLists";
-import { SearchBusinesses } from "@/components/PageComponents/Search/SearchBusinesses/SearchBusinesses";
 import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/SearchPeople";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
@@ -28,7 +27,6 @@ interface SearchTabItem extends TabItem {
 }
 
 function getActiveTab(pathname: string): string {
-  if (pathname.includes("/businesses")) return "places";
   if (pathname.includes("/people")) return "people";
   if (pathname.includes("/lists")) return "lists";
   return "picks";
@@ -111,12 +109,6 @@ export default function MainSearch() {
         href: "/(app)/(tabs)/search/lists",
       },
       {
-        id: "places",
-        label: t("search.tabs.places"),
-        icon: MapPin,
-        href: "/(app)/(tabs)/search/businesses",
-      },
-      {
         id: "people",
         label: t("search.tabs.people"),
         icon: Users,
@@ -130,8 +122,7 @@ export default function MainSearch() {
     () => [
       { id: "picks", href: tabs[0].href, render: () => <SearchPicks /> },
       { id: "lists", href: tabs[1].href, render: () => <SearchLists /> },
-      { id: "places", href: tabs[2].href, render: () => <SearchBusinesses /> },
-      { id: "people", href: tabs[3].href, render: () => <SearchPeople /> },
+      { id: "people", href: tabs[2].href, render: () => <SearchPeople /> },
     ],
     [tabs],
   );
@@ -216,7 +207,6 @@ export default function MainSearch() {
                 selectedVibes={selectedVibes}
                 onVibesChange={setSelectedVibes}
                 vibeMatchCount={activeResultCount}
-                showMatchFilter={activeTab !== "places"}
                 showVibeFilter={activeTab === "lists" || activeTab === "picks"}
               />
             </View>
