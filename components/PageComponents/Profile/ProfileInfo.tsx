@@ -12,6 +12,7 @@ import {
   getDominantPersonalityColor,
   getPersonalityGradientColors,
 } from '@/utils/personalityRing';
+import { getMatchPercentColor } from '@/utils/matchScore';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
 
@@ -83,6 +84,7 @@ export function ProfileInfo({
   );
   // Held back only while fetching — a resolved-but-absent score shows as 0%.
   const showTasteMatch = !isOwnProfile && !isMatchLoading;
+  const matchColor = getMatchPercentColor(matchPercent ?? 0);
 
   const locationLabel = formatLocationLabel(profile.location);
   const joinedYear = formatJoinedYear(profile.created_at);
@@ -234,17 +236,17 @@ export function ProfileInfo({
           <View className="mt-3 flex-row items-start gap-2.5 rounded-2xl border border-gray-200 bg-white px-3.5 py-3 dark:border-gray-700 dark:bg-gray-800">
             <View
               className="mt-0.5 h-4 w-4 items-center justify-center rounded-full"
-              style={{ backgroundColor: hexToRgba(accentColor, 0.2) }}
+              style={{ backgroundColor: hexToRgba(matchColor, 0.2) }}
             >
               <View
                 className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: accentColor }}
+                style={{ backgroundColor: matchColor }}
               />
             </View>
             <Text className="min-w-0 flex-1 font-geist text-[13px] leading-[1.4]">
               <Text
                 className="font-geist-bold"
-                style={{ color: accentColor }}
+                style={{ color: matchColor }}
               >
                 {t('home.forYou.tasteMatch', { percent: matchPercent ?? 0 })}
               </Text>

@@ -62,7 +62,7 @@ export function SmartPickBackupCard({
         ) : null}
       </View>
 
-      <SmartPickMatchPill percent={result.match_percentage} isStretch={isStretch} compact />
+      <SmartPickMatchPill percent={result.match_percentage} compact />
     </Pressable>
   );
 }

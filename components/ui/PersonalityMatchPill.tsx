@@ -1,9 +1,6 @@
 import { Text, View } from "react-native";
 import { getPersonalityMatchPillStyle } from "@/utils/personalityRing";
-import { clampPercent } from "@/utils/matchScore";
-
-/** Fixed green used by card overlay badges (matches design refs). */
-const OVERLAY_GREEN = "#0F6E56";
+import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 
 interface PersonalityMatchPillProps {
   /** Server-computed personality match, 0-100. Always renders; null shows as 0%. */
@@ -12,8 +9,8 @@ interface PersonalityMatchPillProps {
   size?: "sm" | "md";
   /**
    * `inline` — tinted chip used in author rows / modals.
-   * `overlay` — white pill with green dot + % (list cards).
-   * `overlayCompact` — white pill with green % only (pick cards).
+   * `overlay` — white pill with score-band dot + % (list cards).
+   * `overlayCompact` — white pill with score-band % only (pick cards).
    */
   variant?: "inline" | "overlay" | "overlayCompact";
 }
@@ -32,6 +29,7 @@ export function PersonalityMatchPill({
   const clamped = clampPercent(percent ?? 0);
 
   if (variant === "overlay" || variant === "overlayCompact") {
+    const color = getMatchPercentColor(clamped);
     return (
       <View
         accessibilityRole="text"
@@ -40,12 +38,12 @@ export function PersonalityMatchPill({
         {variant === "overlay" ? (
           <View
             className="h-1.5 w-1.5 rounded-full"
-            style={{ backgroundColor: OVERLAY_GREEN }}
+            style={{ backgroundColor: color }}
           />
         ) : null}
         <Text
           className="font-geist-bold text-[12px]"
-          style={{ color: OVERLAY_GREEN }}
+          style={{ color }}
           numberOfLines={1}
         >
           {`${clamped}%`}

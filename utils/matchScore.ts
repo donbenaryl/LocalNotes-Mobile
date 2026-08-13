@@ -11,6 +11,14 @@ export function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
+/** Red / yellow / green for match % badges (0–40 / 41–69 / 70–100). */
+export function getMatchPercentColor(percent: number): string {
+  const p = clampPercent(percent);
+  if (p <= 40) return "#EF4444";
+  if (p <= 69) return "#BA7517";
+  return "#0F6E56";
+}
+
 /**
  * Resolve the display match % from a similarity API payload.
  * Both personality and overall branches stay live — switch via MATCH_SCORE_MODE.

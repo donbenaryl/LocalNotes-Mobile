@@ -70,7 +70,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
         <View className="relative h-[180px] w-full bg-soft dark:bg-gray-800">
           <Image source={{ uri: photoUrl }} className="h-full w-full" resizeMode="cover" />
           <View className="absolute right-3 top-3">
-            <SmartPickMatchPill percent={result.match_percentage} isStretch={isStretch} />
+            <SmartPickMatchPill percent={result.match_percentage} />
           </View>
         </View>
       ) : null}
@@ -81,7 +81,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             {eyebrow ?? t('smartPick.yourPick')}
           </Text>
           {!photoUrl ? (
-            <SmartPickMatchPill percent={result.match_percentage} isStretch={isStretch} />
+            <SmartPickMatchPill percent={result.match_percentage} />
           ) : null}
         </View>
 
