@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Image, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { twMerge } from "tailwind-merge";
 import { toRgba, useImageGradientColor } from "@/hooks/useImageGradientColor";
@@ -8,6 +8,8 @@ interface CardHeroProps {
   imageUrl: string;
   title: string;
   subtitle?: string;
+  /** Replaces string subtitle + subtitleExtra when provided */
+  subtitleNode?: ReactNode;
   /** Overflow count shown in peach after the subtitle, e.g. "+1" */
   subtitleExtra?: string;
   /** Size classes — e.g. `aspect-[16/12]` or `h-44` */
@@ -18,6 +20,8 @@ interface CardHeroProps {
   subtitleSize?: string;
   topLeft?: ReactNode;
   topRight?: ReactNode;
+  /** Opens card detail when the hero image/title is tapped (subtitle stays interactive). */
+  onPress?: () => void;
   className?: string;
 }
 
@@ -33,12 +37,14 @@ export function CardHero({
   imageUrl,
   title,
   subtitle,
+  subtitleNode,
   subtitleExtra,
   aspectClassName = "aspect-[16/12]",
   titleSize = "text-4xl",
   subtitleSize = "text-md",
   topLeft,
   topRight,
+  onPress,
   className,
 }: CardHeroProps) {
   const gradientRgb = useImageGradientColor(imageUrl);
@@ -55,7 +61,16 @@ export function CardHero({
         source={{ uri: imageUrl }}
         className="absolute inset-0 h-full w-full"
         resizeMode="cover"
+        pointerEvents={onPress ? "none" : "auto"}
       />
+
+      {onPress ? (
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          className="absolute inset-0 z-[1] cursor-pointer"
+        />
+      ) : null}
 
       <LinearGradient
         colors={[
@@ -68,6 +83,7 @@ export function CardHero({
         start={{ x: 0, y: 1 }}
         end={{ x: 0, y: 0 }}
         style={GRADIENT_FILL}
+        pointerEvents="none"
       />
 
       {topLeft ? (
@@ -78,26 +94,41 @@ export function CardHero({
         <View className="absolute right-3 top-3 z-10">{topRight}</View>
       ) : null}
 
-      <View className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3.5 pt-8">
+      <View className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3.5 pt-8" pointerEvents="box-none">
         {title ? (
-          <Text
-            className={twMerge(
-              "font-geist-bold capitalize text-white",
-              titleSize,
-            )}
-            numberOfLines={2}
-          >
-            {title}
-          </Text>
+          onPress ? (
+            <Pressable onPress={onPress} accessibilityRole="button" className="cursor-pointer">
+              <Text
+                className={twMerge(
+                  "font-geist-bold capitalize text-white",
+                  titleSize,
+                )}
+                numberOfLines={2}
+              >
+                {title}
+              </Text>
+            </Pressable>
+          ) : (
+            <Text
+              className={twMerge(
+                "font-geist-bold capitalize text-white",
+                titleSize,
+              )}
+              numberOfLines={2}
+            >
+              {title}
+            </Text>
+          )
         ) : null}
 
-        {subtitle || subtitleExtra ? (
+        {subtitleNode ? (
+          <View className={title ? "mt-0.5" : undefined} pointerEvents="auto">
+            {subtitleNode}
+          </View>
+        ) : subtitle || subtitleExtra ? (
           <View className={twMerge("flex-row flex-wrap items-center", title ? "mt-0.5" : undefined)}>
             {subtitle ? (
-              <Text
-                className={twMerge("text-white", subtitleSize)}
-                numberOfLines={1}
-              >
+              <Text className={twMerge("text-white", subtitleSize)}>
                 {subtitle}
               </Text>
             ) : null}

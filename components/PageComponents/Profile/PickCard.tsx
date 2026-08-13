@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { BadgeCheck, Bookmark, List } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
@@ -19,12 +20,45 @@ import type { ListItemImage, ListItemPublic } from "@/http/list-api/types";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { isOthersCategoryName } from "@/utils/listCategories";
 
-const PICK_HERO_VISIBLE_TAGS = 3;
+function formatCategoryName(
+  category: string,
+  othersName: ListItemPublic["others_name"],
+): string {
+  return isOthersCategoryName(category) ? (othersName ?? category) : category;
+}
 
 interface PickCardProps {
   data: ListItemPublic;
   onRefresh?: () => void;
   readOnly?: boolean;
+}
+
+function PickCardCategoriesScroll({
+  categories,
+  othersName,
+  textClassName,
+}: {
+  categories: string[];
+  othersName: ListItemPublic["others_name"];
+  textClassName: string;
+}) {
+  if (categories.length === 0) return null;
+
+  const label = categories
+    .map((category) => formatCategoryName(category, othersName))
+    .join(" · ");
+
+  return (
+    <ScrollView
+      horizontal
+      nestedScrollEnabled
+      showsHorizontalScrollIndicator={false}
+      hitSlop={{ top: 12, bottom: 12 }}
+      style={{ width: "100%" }}
+    >
+      <Text className={textClassName}>{label}</Text>
+    </ScrollView>
+  );
 }
 
 function formatLocationLabel(location: ListItemPublic["location"]): string | null {
@@ -76,6 +110,7 @@ interface PickCardBodyProps {
   thumbnails: ListItemImage[];
   locationLabel: string | null;
   padForMatchOverlay?: boolean;
+  onOpenDetail: () => void;
 }
 
 function PickCardBody({
@@ -83,20 +118,18 @@ function PickCardBody({
   thumbnails,
   locationLabel,
   padForMatchOverlay = false,
+  onOpenDetail,
 }: PickCardBodyProps) {
   const primaryImage = thumbnails[0];
   const heroImageUrl = primaryImage
     ? (resolveImageUrl(primaryImage.url) ?? primaryImage.url)
     : null;
 
-  const visibleTags = data.tags.slice(0, PICK_HERO_VISIBLE_TAGS);
-  const extraTagCount = data.tags.length - visibleTags.length;
-  const tagsSubtitle =
-    visibleTags.length > 0
-      ? visibleTags.map((tag) => tag.name).join(" · ")
-      : undefined;
   const showTitleInBody = !heroImageUrl && Boolean(data.business_name);
-  const showTagsInBody = !heroImageUrl && data.tags.length > 0;
+  const showCategoriesInBody = !heroImageUrl && data.categories.length > 0;
+
+  const bodyPaddingClass =
+    !heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1";
 
   return (
     <View className="w-full">
@@ -104,68 +137,73 @@ function PickCardBody({
         <CardHero
           imageUrl={heroImageUrl}
           title={data.business_name ?? ""}
-          subtitle={tagsSubtitle}
-          subtitleExtra={extraTagCount > 0 ? `+${extraTagCount}` : undefined}
+          onPress={onOpenDetail}
+          subtitleNode={
+            data.categories.length > 0 ? (
+              <PickCardCategoriesScroll
+                categories={data.categories}
+                othersName={data.others_name}
+                textClassName="text-sm text-white"
+              />
+            ) : undefined
+          }
           aspectClassName="aspect-[16/12] rounded-t-2xl"
           titleSize="text-2xl"
           subtitleSize="text-sm"
         />
       ) : null}
 
-      <View className={!heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1"}>
+      <View className={bodyPaddingClass}>
         {showTitleInBody ? (
-          <View className="flex-row items-center gap-1.5">
-            <Text
-              className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
-              numberOfLines={1}
-            >
-              {data.business_name}
-            </Text>
-            {data.is_verified && <BadgeCheck size={14} color="#FF6B1A" />}
-          </View>
+          <Pressable onPress={onOpenDetail} className="cursor-pointer">
+            <View className="flex-row items-center gap-1.5">
+              <Text
+                className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
+                numberOfLines={1}
+              >
+                {data.business_name}
+              </Text>
+              {data.is_verified && <BadgeCheck size={14} color="#FF6B1A" />}
+            </View>
+          </Pressable>
         ) : null}
 
-        {locationLabel && (
-          <Text className="text-xs text-gray-400 dark:text-gray-500" numberOfLines={1}>
-            {locationLabel}
-          </Text>
-        )}
-
-        {data.description ? (
-          <Text
-            className="font-geist text-xs italic leading-4 text-gray-500 dark:text-gray-400"
-            numberOfLines={1}
-          >
-            {data.description}
-          </Text>
+        {showCategoriesInBody ? (
+          <PickCardCategoriesScroll
+            categories={data.categories}
+            othersName={data.others_name}
+            textClassName="text-xs text-gray-400 dark:text-gray-500"
+          />
         ) : null}
 
-        {data.categories.length > 0 && (
-          <View className="flex-row flex-wrap items-center gap-1 mt-1">
-            {data.categories.map((category) => (
-              <Badge
-                key={category}
-                label={isOthersCategoryName(category) ? (data.others_name ?? category) : category}
-                variant="secondary"
-              />
-            ))}
-          </View>
-        )}
-
-        {showTagsInBody ? (
-          <View className="flex-row flex-wrap items-center gap-1 mt-1">
-            {data.tags.slice(0, 2).map((tag) => (
-              <Badge key={tag.id} label={tag.name} variant="primary" />
-            ))}
-            {data.tags.length > 2 && (
-              <Text className="text-xs text-blue-600 dark:text-blue-400 font-geist-medium">
-                +{data.tags.length - 2}
+        <Pressable onPress={onOpenDetail} className="cursor-pointer">
+          <View className="gap-1">
+            {locationLabel && (
+              <Text className="text-xs text-gray-400 dark:text-gray-500" numberOfLines={1}>
+                {locationLabel}
               </Text>
             )}
-          </View>
-        ) : null}
 
-        <PickCardOwnerRow data={data} />
+            {data.description ? (
+              <Text
+                className="font-geist text-xs italic leading-4 text-gray-500 dark:text-gray-400"
+                numberOfLines={1}
+              >
+                {data.description}
+              </Text>
+            ) : null}
+
+            {data.tags.length > 0 && (
+              <View className="flex-row flex-wrap items-center gap-1 mt-1">
+                {data.tags.map((tag) => (
+                  <Badge key={tag.id} label={tag.name} variant="primary" />
+                ))}
+              </View>
+            )}
+
+            <PickCardOwnerRow data={data} />
+          </View>
+        </Pressable>
       </View>
     </View>
   );
@@ -240,14 +278,13 @@ export function PickCard({
   return (
     <>
       <WhiteBox className="p-0">
-        <Pressable onPress={() => setIsDetailOpen(true)} className="cursor-pointer">
-          <PickCardBody
-            data={data}
-            thumbnails={thumbnails}
-            locationLabel={locationLabel}
-            padForMatchOverlay={showMatch}
-          />
-        </Pressable>
+        <PickCardBody
+          data={data}
+          thumbnails={thumbnails}
+          locationLabel={locationLabel}
+          padForMatchOverlay={showMatch}
+          onOpenDetail={() => setIsDetailOpen(true)}
+        />
 
         {showMatch ? (
           <View className="absolute left-2 top-2 z-10" pointerEvents="none">

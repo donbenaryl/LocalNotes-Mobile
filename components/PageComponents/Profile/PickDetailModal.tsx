@@ -358,10 +358,7 @@ export function PickDetailModal({
                     {title}
                   </Text>
                   {categoryLabel ? (
-                    <Text
-                      className="mt-1 font-geist-semibold text-lg text-white/90"
-                      numberOfLines={1}
-                    >
+                    <Text className="mt-1 font-geist-semibold text-lg text-white/90">
                       {categoryLabel}
                     </Text>
                   ) : null}
@@ -451,10 +448,7 @@ export function PickDetailModal({
               {categoryLabel || showMatch ? (
                 <View className="mt-1 flex-row items-center gap-1.5">
                   {categoryLabel ? (
-                    <Text
-                      className="shrink font-geist-semibold text-[13px] text-gray-400"
-                      numberOfLines={1}
-                    >
+                    <Text className="shrink font-geist-semibold text-[13px] text-gray-400">
                       {categoryLabel}
                     </Text>
                   ) : null}
