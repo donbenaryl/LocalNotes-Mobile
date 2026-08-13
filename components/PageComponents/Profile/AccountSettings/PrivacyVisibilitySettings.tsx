@@ -49,6 +49,14 @@ export default function PrivacyVisibilitySettings() {
       })
     : t('accountSettings.privacy.showPersonalityNameSubFallback');
 
+  const { data: blockedUsers } = useQuery({
+    queryKey: ["blocked-users"],
+    queryFn: async () => {
+      const response = await accountService.fetchBlockedUsers();
+      return response.data?.data ?? [];
+    },
+  });
+
   const handleComingSoon = () => {
     Alert.alert(t('accountSettings.menu.comingSoon'));
   };
@@ -150,8 +158,12 @@ export default function PrivacyVisibilitySettings() {
           <SettingsNavRow
             title={t('accountSettings.privacy.blockedUsers')}
             subtitle={t('accountSettings.privacy.blockedUsersSub')}
-            value="0"
-            onPress={handleComingSoon}
+            value={String(blockedUsers?.length ?? 0)}
+            onPress={() =>
+              router.push(
+                '/(app)/(stack)/profile/account-settings/blocked-users',
+              )
+            }
           />
           <SettingsNavRow
             title={t('accountSettings.privacy.hiddenLists')}

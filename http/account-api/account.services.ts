@@ -23,6 +23,8 @@ import type {
   NotificationSettingsDAO,
   UpdateNotificationSettingsDTO,
   RegisterNotificationTokenDTO,
+  ReportUserDTO,
+  BlockedAccountDAO,
 } from "./types";
 import type { UnifiedSearchPersonDAO } from "../search-api/type";
 
@@ -182,6 +184,49 @@ class AccountService extends AppHttpService {
     return await this.SendRequest({
       method: "delete",
       path: `/${userId}/follow`,
+    });
+  }
+  async blockUser(userId: string) {
+    return await this.SendRequest({
+      method: "post",
+      path: `/${userId}/block`,
+    });
+  }
+  async unblockUser(userId: string) {
+    return await this.SendRequest({
+      method: "delete",
+      path: `/${userId}/block`,
+    });
+  }
+  async fetchBlockedUsers() {
+    return await this.SendRequest<BlockedAccountDAO[]>({
+      method: "get",
+      path: "/blocks",
+    });
+  }
+  async muteUser(userId: string) {
+    return await this.SendRequest({
+      method: "post",
+      path: `/${userId}/mute`,
+    });
+  }
+  async unmuteUser(userId: string) {
+    return await this.SendRequest({
+      method: "delete",
+      path: `/${userId}/mute`,
+    });
+  }
+  async fetchMutedUsers() {
+    return await this.SendRequest<BlockedAccountDAO[]>({
+      method: "get",
+      path: "/mutes",
+    });
+  }
+  async reportUser(userId: string, dto: ReportUserDTO) {
+    return await this.SendRequest({
+      method: "post",
+      path: `/${userId}/report`,
+      body: dto,
     });
   }
   async getPrivacySettings() {

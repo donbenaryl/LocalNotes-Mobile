@@ -35,6 +35,8 @@ export interface profileItemDAO {
   date_of_birth?: string | null;
   /** Whether the current session follows this account (when applicable). */
   is_followed?: boolean;
+  is_blocked?: boolean;
+  is_muted?: boolean;
   is_superuser?: boolean;
   url_linkedin?: string | null;
   url_facebook?: string | null;
@@ -286,6 +288,28 @@ export interface PrivacySettingsDAO {
 }
 
 export type UpdatePrivacySettingsDTO = Partial<PrivacySettingsDAO>;
+
+export type AccountReportReason =
+  | "spam"
+  | "harassment"
+  | "hate_speech"
+  | "sexual_content"
+  | "dangerous"
+  | "minor_sexual_content"
+  | "impersonation"
+  | "other";
+
+export interface ReportUserDTO {
+  reason: AccountReportReason;
+  details?: string;
+}
+
+export interface BlockedAccountDAO {
+  id: string;
+  name: string;
+  username?: string | null;
+  profile_image_url?: string | null;
+}
 
 export function mapNotificationSettingsDAOToPrefs(
   dao: NotificationSettingsDAO,

@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { InteractionManager, Text, View } from "react-native";
+import { InteractionManager, Pressable, Share, Text, View } from "react-native";
 import {
   Building2,
   LayoutGrid,
   List,
   ListChecks,
+  MoreHorizontal,
 } from "lucide-react-native";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useColorScheme } from "nativewind";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
@@ -25,10 +27,17 @@ import {
   ProfileChromeProvider,
   useProfileChrome,
 } from "./ProfileChromeProvider";
+import {
+  ProfileActionsSheet,
+  type ProfileActionKey,
+} from "./ProfileActionsSheet";
+import { BlockUserModal } from "./BlockUserModal";
 import type { ProfileListTabType } from "./ProfileTabPanel";
 import accountService from "@/http/account-api/account.services";
 import { HOME_HREF } from "@/constants/swipeNavigation";
+import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from "@/constants/colors";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useToastStore } from "@/stores/useToastStore";
 import type { profileItemDAO } from "@/http/account-api/types";
 
 const TAB_IDS: ProfileListTabType[] = [
@@ -70,19 +79,26 @@ function MainProfileContent({
 }: MainProfileContentProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const showToast = useToastStore((s) => s.show);
+  const { colorScheme } = useColorScheme();
   const params = useLocalSearchParams<{ tab?: string }>();
   const { resetChrome } = useProfileChrome();
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
     return isTabType(params.tab) ? params.tab : "picks";
   });
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [blockOpen, setBlockOpen] = useState(false);
+
+  const displayName = profile?.name?.trim() || t("common.user");
+  const profileUserId = profile?.id ?? userId ?? "";
 
   const ownProfileTabs: TabItem[] = useMemo(
     () => [
       { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
       { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
       { id: "saved", label: t("profile.tabs.saved"), icon: List },
-      // { id: "shared-with-me", label: t("profile.tabs.sharedWithMe"), icon: Share2 },
       {
         id: "contributed",
         label: t("profile.tabs.contributed"),
@@ -129,9 +145,6 @@ function MainProfileContent({
     }
   }, [params.tab, visibleTabIds]);
 
-  // Deferred: setParams is a router commit, and running it in the same batch as
-  // the tab state update makes the highlight wait on it. The inbound effect
-  // above stays consistent because this always converges to activeTab.
   useEffect(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       if (activeTab === "my-lists") {
@@ -163,7 +176,46 @@ function MainProfileContent({
     }
   }, [router]);
 
-  const profileUserId = profile?.id ?? userId ?? "";
+  const handleShare = useCallback(async () => {
+    if (!profileUserId) return;
+    const username = profile?.username ? `@${profile.username}` : displayName;
+    try {
+      await Share.share({
+        message: `${username} on LocalNotes\n/profile/${profileUserId}`,
+      });
+    } catch {
+      // User dismissed share sheet.
+    }
+  }, [displayName, profile?.username, profileUserId]);
+
+  const blockMutation = useMutation({
+    mutationFn: () => accountService.blockUser(profileUserId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["profile", userId] });
+      await queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
+      showToast({ type: "success", message: t("profile.safety.blockSuccess") });
+      setBlockOpen(false);
+      handleBack();
+    },
+    onError: () => {
+      showToast({ type: "error", message: t("profile.safety.blockError") });
+    },
+  });
+
+  const handleAction = useCallback(
+    (action: ProfileActionKey) => {
+      if (action === "share") {
+        setActionsOpen(false);
+        void handleShare();
+        return;
+      }
+      if (action === "block") {
+        setActionsOpen(false);
+        setBlockOpen(true);
+      }
+    },
+    [handleShare],
+  );
 
   const pages: SectionPagerPage[] = useMemo(
     () =>
@@ -181,12 +233,27 @@ function MainProfileContent({
     [isOwnProfile, profileUserId, tabs],
   );
 
+  const moreIconColor =
+    colorScheme === "dark" ? ICON_COLOR_DARK : ICON_COLOR_LIGHT;
+
+  const otherProfileMenu = !isOwnProfile ? (
+    <Pressable
+      onPress={() => setActionsOpen(true)}
+      accessibilityRole="button"
+      accessibilityLabel={t("common.more")}
+      className="rounded-full p-1 active:opacity-70"
+      hitSlop={8}
+    >
+      <MoreHorizontal size={22} color={moreIconColor} strokeWidth={2} />
+    </Pressable>
+  ) : null;
+
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <PageHeader
         onBack={handleBack}
         borderless
-        rightChild={isOwnProfile ? <ProfileHeader /> : undefined}
+        rightChild={isOwnProfile ? <ProfileHeader /> : otherProfileMenu}
       />
       {isPending ? (
         <ProfileInfoSkeleton />
@@ -195,15 +262,14 @@ function MainProfileContent({
           profile={profile}
           isOwnProfile={isOwnProfile}
           onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
-          onSharePress={() => {}}
+          onSharePress={() => {
+            void handleShare();
+          }}
         />
       ) : null}
 
       {isPending ? (
         <>
-          {/* Own-profile tabs are known before the query lands, so show them —
-              a tap registers immediately. Other profiles hide tabs behind
-              privacy flags, so guessing then removing them is worse. */}
           {isOwnProfile ? (
             <View className="pt-4 px-4">
               <Tabs
@@ -247,6 +313,24 @@ function MainProfileContent({
           </View>
         </>
       )}
+
+      {!isOwnProfile && profileUserId ? (
+        <>
+          <ProfileActionsSheet
+            visible={actionsOpen}
+            onClose={() => setActionsOpen(false)}
+            displayName={displayName}
+            onAction={handleAction}
+          />
+          <BlockUserModal
+            visible={blockOpen}
+            onClose={() => setBlockOpen(false)}
+            displayName={displayName}
+            onConfirm={() => blockMutation.mutate()}
+            isLoading={blockMutation.isPending}
+          />
+        </>
+      ) : null}
     </View>
   );
 }
