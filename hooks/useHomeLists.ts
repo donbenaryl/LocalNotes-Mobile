@@ -8,13 +8,8 @@ import { useCategories } from "@/hooks/useProfileList";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { isCreatedToday } from "@/utils/time";
 import {
-  countMatchingPicks,
   getListPersonalityMatch,
-  countVibeMatchingPicks,
   countCategoryMatchingLists,
-  countCategoryMatchingPicks,
-  flattenListsToPicks,
-  type HomeContentType,
 } from "@/utils/homePicks";
 import { getListMatchPercent } from "@/utils/matchScore";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
@@ -31,7 +26,8 @@ export interface UseHomeListsOptions {
   skipLocationFilter?: boolean;
   selectedVibes: string[];
   selectedCategories: string[];
-  contentType?: HomeContentType;
+  /** When false, queries stay idle (Home picks mode). */
+  enabled?: boolean;
 }
 
 interface EffectiveCoordinates {
@@ -122,6 +118,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
   const queryClient = useQueryClient();
   const { coordinates: userCoordinates } = useUserCoordinates();
   const { categories: categoryCatalog } = useCategories();
+  const enabled = options.enabled !== false;
 
   const effectiveCoordinates = useMemo((): EffectiveCoordinates | null => {
     if (options.skipLocationFilter) {
@@ -168,6 +165,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
   const discoverQuery = useQuery({
     queryKey: ["home-lists-discover", ...filterQueryKey],
     queryFn: () => fetchLists(searchParams),
+    enabled,
     staleTime: FEED_STALE_TIME_MS,
   });
 
@@ -186,7 +184,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
       const lists = await fetchLists(nearYouSearchParams);
       return lists.filter((list) => isCreatedToday(list.created_at));
     },
-    enabled: effectiveCoordinates !== null,
+    enabled: enabled && effectiveCoordinates !== null,
     staleTime: FEED_STALE_TIME_MS,
   });
 
@@ -201,7 +199,6 @@ export function useHomeLists(options: UseHomeListsOptions) {
     return lists.filter((list) => !nearYouIds.has(list.id));
   }, [discoverQuery.data, nearYouIds]);
 
-  // The match now ships inside each list payload, so there is no per-owner fan-out here.
   const { forYouLists, topMatchPercent } = useMemo(() => {
     const scored = discoverListsRaw
       .map((list) => ({
@@ -229,126 +226,54 @@ export function useHomeLists(options: UseHomeListsOptions) {
     [discoverListsRaw, forYouIds],
   );
 
-  const { forYouPicks, nearYouPicks, discoverPicks } = useMemo(() => {
-    const forYou = flattenListsToPicks(
-      forYouLists,
-      options.selectedVibes,
-    );
-    const forYouPickIds = new Set(forYou.map((pick) => pick.id));
-
-    const nearYou = flattenListsToPicks(
-      nearYouLists,
-      options.selectedVibes,
-      forYouPickIds,
-    );
-    const nearYouPickIds = new Set([
-      ...forYouPickIds,
-      ...nearYou.map((pick) => pick.id),
-    ]);
-
-    const discover = flattenListsToPicks(
-      discoverLists,
-      options.selectedVibes,
-      nearYouPickIds,
-    );
-
-    return {
-      forYouPicks: forYou,
-      nearYouPicks: nearYou,
-      discoverPicks: discover,
-    };
-  }, [
-    forYouLists,
-    nearYouLists,
-    discoverLists,
-    options.selectedVibes,
-  ]);
-
   const unfilteredDiscoverLists = discoverQuery.data ?? [];
-  const contentType = options.contentType ?? "lists";
 
-  const matchingCount = useMemo(() => {
-    if (contentType === "picks") {
-      return countMatchingPicks(
-        unfilteredDiscoverLists,
-        options.matchThreshold,
-        options.selectedVibes,
-      );
-    }
-    return countMatchingLists(unfilteredDiscoverLists, options.matchThreshold);
-  }, [
-    contentType,
-    unfilteredDiscoverLists,
-    options.matchThreshold,
-    options.selectedVibes,
-  ]);
+  const matchingCount = useMemo(
+    () => countMatchingLists(unfilteredDiscoverLists, options.matchThreshold),
+    [unfilteredDiscoverLists, options.matchThreshold],
+  );
 
-  const vibeMatchCount = useMemo(() => {
-    if (contentType === "picks") {
-      return countVibeMatchingPicks(
-        unfilteredDiscoverLists,
-        options.selectedVibes,
-      );
-    }
-    return countVibeMatchingLists(unfilteredDiscoverLists, options.selectedVibes);
-  }, [contentType, unfilteredDiscoverLists, options.selectedVibes]);
+  const vibeMatchCount = useMemo(
+    () => countVibeMatchingLists(unfilteredDiscoverLists, options.selectedVibes),
+    [unfilteredDiscoverLists, options.selectedVibes],
+  );
 
   const getMatchingCount = useCallback(
-    (threshold: number | null) => {
-      if (contentType === "picks") {
-        return countMatchingPicks(
-          unfilteredDiscoverLists,
-          threshold,
-          options.selectedVibes,
-        );
-      }
-      return countMatchingLists(unfilteredDiscoverLists, threshold);
-    },
-    [contentType, unfilteredDiscoverLists, options.selectedVibes],
+    (threshold: number | null) =>
+      countMatchingLists(unfilteredDiscoverLists, threshold),
+    [unfilteredDiscoverLists],
   );
 
   const getVibeMatchCount = useCallback(
-    (vibes: string[]) => {
-      if (contentType === "picks") {
-        return countVibeMatchingPicks(unfilteredDiscoverLists, vibes);
-      }
-      return countVibeMatchingLists(unfilteredDiscoverLists, vibes);
-    },
-    [contentType, unfilteredDiscoverLists],
+    (vibes: string[]) => countVibeMatchingLists(unfilteredDiscoverLists, vibes),
+    [unfilteredDiscoverLists],
   );
 
-  const categoryMatchCount = useMemo(() => {
-    if (contentType === "picks") {
-      return countCategoryMatchingPicks(
+  const categoryMatchCount = useMemo(
+    () =>
+      countCategoryMatchingLists(
         unfilteredDiscoverLists,
         categoryCatalog,
         options.selectedCategories,
-      );
-    }
-    return countCategoryMatchingLists(
-      unfilteredDiscoverLists,
-      categoryCatalog,
-      options.selectedCategories,
-    );
-  }, [contentType, unfilteredDiscoverLists, categoryCatalog, options.selectedCategories]);
-
-  const getCategoryMatchCount = useCallback(
-    (categoryIds: string[]) => {
-      if (contentType === "picks") {
-        return countCategoryMatchingPicks(unfilteredDiscoverLists, categoryCatalog, categoryIds);
-      }
-      return countCategoryMatchingLists(unfilteredDiscoverLists, categoryCatalog, categoryIds);
-    },
-    [contentType, unfilteredDiscoverLists, categoryCatalog],
+      ),
+    [unfilteredDiscoverLists, categoryCatalog, options.selectedCategories],
   );
 
-  // Skeleton only when discover has never resolved — not during background refetch.
-  const isLoading = discoverQuery.isPending && discoverQuery.data === undefined;
+  const getCategoryMatchCount = useCallback(
+    (categoryIds: string[]) =>
+      countCategoryMatchingLists(
+        unfilteredDiscoverLists,
+        categoryCatalog,
+        categoryIds,
+      ),
+    [unfilteredDiscoverLists, categoryCatalog],
+  );
+
+  const isLoading =
+    enabled && discoverQuery.isPending && discoverQuery.data === undefined;
 
   const error =
-    discoverQuery.error?.message ??
-    nearYouQuery.error?.message ??
-    null;
+    discoverQuery.error?.message ?? nearYouQuery.error?.message ?? null;
 
   const refetch = async () => {
     await Promise.all([
@@ -359,17 +284,13 @@ export function useHomeLists(options: UseHomeListsOptions) {
   };
 
   const showNearYouSection =
-    effectiveCoordinates !== null &&
-    (contentType === "picks" ? nearYouPicks.length > 0 : nearYouLists.length > 0);
+    effectiveCoordinates !== null && nearYouLists.length > 0;
 
   return {
     nearYouLists,
     forYouLists,
     topMatchPercent,
     discoverLists,
-    forYouPicks,
-    nearYouPicks,
-    discoverPicks,
     isLoading,
     isRefetching:
       discoverQuery.isRefetching ||

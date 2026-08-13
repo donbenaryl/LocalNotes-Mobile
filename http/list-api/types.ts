@@ -252,6 +252,7 @@ export interface ListItemPublic {
   images: ListItemImage[];
   list_usage_count: number;
   location?: Location | null;
+  created_at?: string;
 }
 
 /** Payload for creating a standalone list item (POST /lists/items) */

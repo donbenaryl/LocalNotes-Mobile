@@ -21,6 +21,7 @@ import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useHomeLists } from "@/hooks/useHomeLists";
+import { useHomePicks } from "@/hooks/useHomePicks";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { sortPicksWithImagesFirst } from "@/utils/homePicks";
@@ -214,19 +215,15 @@ export function HomeTab() {
   const {
     nearYouLists,
     forYouLists,
-    topMatchPercent,
     discoverLists,
-    forYouPicks,
-    nearYouPicks,
-    discoverPicks,
-    isLoading,
-    isRefetching,
-    error,
-    refetch,
-    showNearYouSection,
-    matchingCount,
-    vibeMatchCount,
-    categoryMatchCount,
+    isLoading: isListsLoading,
+    isRefetching: isListsRefetching,
+    error: listsError,
+    refetch: refetchLists,
+    showNearYouSection: showNearYouListsSection,
+    matchingCount: listsMatchingCount,
+    vibeMatchCount: listsVibeMatchCount,
+    categoryMatchCount: listsCategoryMatchCount,
   } = useHomeLists({
     activeFilters,
     matchThreshold,
@@ -234,8 +231,45 @@ export function HomeTab() {
     skipLocationFilter: locationMode === "all",
     selectedVibes,
     selectedCategories,
-    contentType,
+    enabled: contentType === "lists",
   });
+
+  const {
+    forYouPicks,
+    topMatchPercent,
+    nearYouPicks,
+    discoverPicks,
+    isLoading: isPicksLoading,
+    isRefetching: isPicksRefetching,
+    error: picksError,
+    refetch: refetchPicks,
+    showNearYouSection: showNearYouPicksSection,
+    matchingCount: picksMatchingCount,
+    vibeMatchCount: picksVibeMatchCount,
+    categoryMatchCount: picksCategoryMatchCount,
+  } = useHomePicks({
+    activeFilters,
+    matchThreshold,
+    locationOverride: locationMode === "city" ? manualLocation : null,
+    skipLocationFilter: locationMode === "all",
+    selectedVibes,
+    selectedCategories,
+    enabled: contentType === "picks",
+  });
+
+  const isLoading = contentType === "picks" ? isPicksLoading : isListsLoading;
+  const isRefetching =
+    contentType === "picks" ? isPicksRefetching : isListsRefetching;
+  const error = contentType === "picks" ? picksError : listsError;
+  const refetch = contentType === "picks" ? refetchPicks : refetchLists;
+  const showNearYouSection =
+    contentType === "picks" ? showNearYouPicksSection : showNearYouListsSection;
+  const matchingCount =
+    contentType === "picks" ? picksMatchingCount : listsMatchingCount;
+  const vibeMatchCount =
+    contentType === "picks" ? picksVibeMatchCount : listsVibeMatchCount;
+  const categoryMatchCount =
+    contentType === "picks" ? picksCategoryMatchCount : listsCategoryMatchCount;
 
   const timeLabel = useMemo(
     () =>

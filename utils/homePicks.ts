@@ -1,7 +1,10 @@
-import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
+import type { Item, ListItemDAO, ListItemPublic, TagDAO } from "@/http/list-api/types";
 import type { ListFormCategory } from "@/types/listForm";
 import { resolveImageUrl } from "@/utils/httpHelpers";
-import { getListMatchPercent } from "@/utils/matchScore";
+import {
+  getEmbeddedMatchPercent,
+  getListMatchPercent,
+} from "@/utils/matchScore";
 
 export type HomeContentType = "lists" | "picks";
 
@@ -10,13 +13,24 @@ function pickHasImage(pick: ListItemPublic): boolean {
   return Boolean(resolveImageUrl(primary));
 }
 
-export function pickMatchesVibes(item: Item, vibes: string[]): boolean {
+function tagsMatchVibes(tags: TagDAO[] | undefined, vibes: string[]): boolean {
   if (vibes.length === 0) return true;
 
   const normalizedVibes = vibes.map((v) => v.toLowerCase());
-  return (item.tags ?? []).some((tag) =>
+  return (tags ?? []).some((tag) =>
     normalizedVibes.some((vibe) => tag.name.toLowerCase().includes(vibe)),
   );
+}
+
+export function pickMatchesVibes(item: Item, vibes: string[]): boolean {
+  return tagsMatchVibes(item.tags, vibes);
+}
+
+export function publicPickMatchesVibes(
+  pick: ListItemPublic,
+  vibes: string[],
+): boolean {
+  return tagsMatchVibes(pick.tags, vibes);
 }
 
 /**
@@ -60,6 +74,17 @@ export function pickMatchesCategories(
   if (categoryTokens.size === 0) return true;
 
   return (item.categories ?? []).some((category) =>
+    categoryTokens.has(category.trim().toLowerCase()),
+  );
+}
+
+export function publicPickMatchesCategories(
+  pick: ListItemPublic,
+  categoryTokens: Set<string>,
+): boolean {
+  if (categoryTokens.size === 0) return true;
+
+  return (pick.categories ?? []).some((category) =>
     categoryTokens.has(category.trim().toLowerCase()),
   );
 }
@@ -130,6 +155,15 @@ export function getListPersonalityMatch(list: ListItemDAO): number {
   return getListMatchPercent(list) ?? 0;
 }
 
+/** Owner match for a public pick payload from GET /lists/list-items. */
+export function getPickMatchPercent(pick: ListItemPublic): number | null {
+  return getEmbeddedMatchPercent(pick.owner);
+}
+
+export function getPickPersonalityMatch(pick: ListItemPublic): number {
+  return getPickMatchPercent(pick) ?? 0;
+}
+
 export function countMatchingPicks(
   lists: ListItemDAO[],
   threshold: number | null,
@@ -156,6 +190,18 @@ export function countMatchingPicks(
   return count;
 }
 
+export function countMatchingPublicPicks(
+  picks: ListItemPublic[],
+  threshold: number | null,
+  selectedVibes: string[],
+): number {
+  return picks.filter((pick) => {
+    if (!publicPickMatchesVibes(pick, selectedVibes)) return false;
+    if (threshold === null) return true;
+    return getPickPersonalityMatch(pick) >= threshold;
+  }).length;
+}
+
 export function countVibeMatchingPicks(
   lists: ListItemDAO[],
   vibes: string[],
@@ -165,6 +211,14 @@ export function countVibeMatchingPicks(
   }
 
   return flattenListsToPicks(lists, vibes).length;
+}
+
+export function countVibeMatchingPublicPicks(
+  picks: ListItemPublic[],
+  vibes: string[],
+): number {
+  if (vibes.length === 0) return picks.length;
+  return picks.filter((pick) => publicPickMatchesVibes(pick, vibes)).length;
 }
 
 export function countCategoryMatchingLists(
@@ -201,4 +255,15 @@ export function countCategoryMatchingPicks(
   }
 
   return count;
+}
+
+export function countCategoryMatchingPublicPicks(
+  picks: ListItemPublic[],
+  catalog: ListFormCategory[],
+  categoryIds: string[],
+): number {
+  const tokens = buildCategoryMatchTokens(catalog, categoryIds);
+  if (tokens.size === 0) return picks.length;
+
+  return picks.filter((pick) => publicPickMatchesCategories(pick, tokens)).length;
 }

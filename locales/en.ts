@@ -596,7 +596,7 @@ const en = {
     emptyPicksDiscoverDescription: 'Check back soon for new picks from curators near you',
     filters: {
       category: 'Category',
-      personalityMatch: 'Personality match',
+      personalityMatch: 'Match',
       vibe: 'Vibe',
       distance: 'Distance',
       newest: 'Newest',

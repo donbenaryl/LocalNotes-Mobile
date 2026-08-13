@@ -252,6 +252,10 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       city?: string;
       region?: string;
       with_image?: boolean;
+      /** YYYY-MM-DD inclusive lower bound on pick created_at */
+      date_from?: string;
+      /** YYYY-MM-DD inclusive upper bound on pick created_at */
+      date_to?: string;
     }) {
       const query: {
         keyword?: string;
@@ -269,6 +273,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         city?: string;
         region?: string;
         with_image?: string;
+        date_from?: string;
+        date_to?: string;
       } = {};
       if (params?.keyword) query.keyword = params.keyword;
       if (params?.user_id) query.user_id = params.user_id;
@@ -287,6 +293,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (params?.city) query.city = params.city;
       if (params?.region) query.region = params.region;
       if (params?.with_image) query.with_image = "true";
+      if (params?.date_from) query.date_from = params.date_from;
+      if (params?.date_to) query.date_to = params.date_to;
       return await this.SendRequest<ListItemPublic[]>({
         method: "get",
         path: "/list-items",
