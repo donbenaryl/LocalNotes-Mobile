@@ -207,6 +207,13 @@ export default function MainSearch() {
                 selectedVibes={selectedVibes}
                 onVibesChange={setSelectedVibes}
                 vibeMatchCount={activeResultCount}
+                histogramSurface={
+                  activeTab === "people"
+                    ? "people"
+                    : activeTab === "picks"
+                      ? "picks"
+                      : "lists"
+                }
                 showVibeFilter={activeTab === "lists" || activeTab === "picks"}
               />
             </View>

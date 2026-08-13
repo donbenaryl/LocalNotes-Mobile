@@ -1,6 +1,6 @@
 import { AppHttpService } from "..";
 import type { RNFile } from "../types";
-import type { CreateListDTO, serchDTO, ListItemDAO, listDTO, Category, userListDTO, listedDTO, Comment, ListItemPublic, CreateListItemDTO, UpdateListItemDTO, Item } from "./types";
+import type { CreateListDTO, serchDTO, ListItemDAO, listDTO, Category, userListDTO, listedDTO, Comment, ListItemPublic, CreateListItemDTO, UpdateListItemDTO, Item, MatchHistogramDAO } from "./types";
 
 class ListService extends AppHttpService{
     constructor() {
@@ -159,6 +159,57 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         query,
       })
     }
+
+    async fetchListsMatchHistogram(dto: Omit<serchDTO, "matchMin" | "matchMax" | "limit">) {
+      const query: Record<string, unknown> = {};
+      if (dto.query) query.query = dto.query;
+      if (dto.vibe?.length) query.vibe = dto.vibe.join(",");
+      if (dto.city) query.city = dto.city;
+      if (dto.region) query.region = dto.region;
+      if (dto.latitude !== undefined && dto.longitude !== undefined) {
+        query.latitude = dto.latitude;
+        query.longitude = dto.longitude;
+        if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
+      }
+      return await this.SendRequest<MatchHistogramDAO>({
+        method: "get",
+        path: "/search/match-histogram",
+        query,
+      });
+    }
+
+    async fetchPicksMatchHistogram(params?: {
+      keyword?: string;
+      vibes?: string[];
+      category_ids?: string[];
+      latitude?: number;
+      longitude?: number;
+      radius_km?: number;
+      city?: string;
+      region?: string;
+      with_image?: boolean;
+    }) {
+      const query: Record<string, unknown> = {};
+      if (params?.keyword) query.keyword = params.keyword;
+      if (params?.vibes?.length) query.vibe = params.vibes.join(",");
+      if (params?.category_ids?.length) {
+        query.category_ids = params.category_ids.join(",");
+      }
+      if (params?.latitude !== undefined && params?.longitude !== undefined) {
+        query.latitude = params.latitude;
+        query.longitude = params.longitude;
+        if (params?.radius_km !== undefined) query.radius_km = params.radius_km;
+      }
+      if (params?.city) query.city = params.city;
+      if (params?.region) query.region = params.region;
+      if (params?.with_image) query.with_image = "true";
+      return await this.SendRequest<MatchHistogramDAO>({
+        method: "get",
+        path: "/list-items/match-histogram",
+        query: Object.keys(query).length > 0 ? query : undefined,
+      });
+    }
+
     async createList(dto: CreateListDTO){
       return await this.SendRequest<ListItemDAO>({
         method:"post",

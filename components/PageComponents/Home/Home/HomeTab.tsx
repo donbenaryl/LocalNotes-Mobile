@@ -22,6 +22,7 @@ import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useHomeLists } from "@/hooks/useHomeLists";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
+import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { sortPicksWithImagesFirst } from "@/utils/homePicks";
 import {
   getEditorialTimePhrase,
@@ -170,12 +171,35 @@ export function HomeTab() {
   };
 
   const { cityLabel: detectedCityLabel, isLoading: isLocationLoading } = useHomeLocationLabel();
+  const { coordinates: userCoordinates } = useUserCoordinates();
   const cityLabel =
     locationMode === "all"
       ? t("home.location.all")
       : locationMode === "city" && manualLocation
         ? formatCityLabel(manualLocation)
         : detectedCityLabel;
+
+  const histogramLocation = useMemo(() => {
+    if (locationMode === "all") return null;
+    const radiusKm = activeFilters.includes("distance") ? 5 : 15;
+    if (locationMode === "city" && manualLocation) {
+      return {
+        latitude: manualLocation.latitude,
+        longitude: manualLocation.longitude,
+        city: manualLocation.city || undefined,
+        region: manualLocation.region || undefined,
+        radiusKm,
+      };
+    }
+    if (userCoordinates) {
+      return {
+        latitude: userCoordinates.latitude,
+        longitude: userCoordinates.longitude,
+        radiusKm,
+      };
+    }
+    return null;
+  }, [locationMode, manualLocation, userCoordinates, activeFilters]);
 
   const handleCitySelected = (location: GeoLocation) => {
     setLocationMode("city");
@@ -330,6 +354,7 @@ export function HomeTab() {
             categoryMatchCount={categoryMatchCount}
             contentType={contentType}
             onContentTypeChange={setContentType}
+            histogramLocation={histogramLocation}
           />
 
           <HomeEditorialTitle

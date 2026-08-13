@@ -8,6 +8,7 @@ import type {
   searchUserDTO,
   searchUserDAO,
   peopleDiscoverySearchDTO,
+  MatchHistogramDAO,
   usernameSearchDTO,
   usernameSearchDAO,
   usernameAvailableDTO,
@@ -135,7 +136,7 @@ class AccountService extends AppHttpService {
   async searchUser(dto: searchUserDTO) {
     return await this.SendRequest<searchUserDAO[]>({
       method: "get",
-      path: "/search-friends",
+      path: "/search",
       query: dto,
     });
   }
@@ -155,10 +156,30 @@ class AccountService extends AppHttpService {
 
     return await this.SendRequest<UnifiedSearchPersonDAO[]>({
       method: "get",
-      path: "/search-friends",
+      path: "/search",
       query,
     });
   }
+
+  async fetchPeopleMatchHistogram(
+    dto: Omit<peopleDiscoverySearchDTO, "matchMin" | "matchMax" | "limit">,
+  ) {
+    const query: Record<string, unknown> = {};
+    if (dto.query) query.query = dto.query;
+    if (dto.city) query.city = dto.city;
+    if (dto.region) query.region = dto.region;
+    if (dto.latitude !== undefined && dto.longitude !== undefined) {
+      query.latitude = dto.latitude;
+      query.longitude = dto.longitude;
+      if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
+    }
+    return await this.SendRequest<MatchHistogramDAO>({
+      method: "get",
+      path: "/search/match-histogram",
+      query: Object.keys(query).length > 0 ? query : undefined,
+    });
+  }
+
   async searchByUsername(dto: usernameSearchDTO) {
     return await this.SendRequest<usernameSearchDAO>({
       method: "get",

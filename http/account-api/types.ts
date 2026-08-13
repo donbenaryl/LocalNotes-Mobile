@@ -160,6 +160,12 @@ export interface peopleDiscoverySearchDTO{
   longitude?: number;
   radiusKm?: number;
 }
+
+/** Response from GET /accounts/search/match-histogram. */
+export interface MatchHistogramDAO {
+  bins: number[];
+  total: number;
+}
 export interface searchUserDAO{
   id:string;
   name:string;

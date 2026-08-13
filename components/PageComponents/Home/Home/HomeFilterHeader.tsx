@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { ChevronDown, MapPin } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,10 @@ import { MatchThreshhold } from "@/components/ui/MatchThreshhold";
 import { Toggle } from "@/components/ui/Toggle";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
 import type { HomeContentType } from "@/utils/homePicks";
+import {
+  useMatchHistogram,
+  type MatchHistogramFilters,
+} from "@/hooks/useMatchHistogram";
 
 export type { HomeContentType };
 
@@ -42,6 +46,11 @@ interface HomeFilterHeaderProps {
   categoryMatchCount?: number;
   contentType: HomeContentType;
   onContentTypeChange: (type: HomeContentType) => void;
+  /** Location / radius for the match histogram (omit when browsing all locations). */
+  histogramLocation?: Pick<
+    MatchHistogramFilters,
+    "latitude" | "longitude" | "city" | "region" | "radiusKm"
+  > | null;
 }
 
 const FILTER_OPTIONS: HomeListFilter[] = [
@@ -86,11 +95,27 @@ export function HomeFilterHeader({
   categoryMatchCount,
   contentType,
   onContentTypeChange,
+  histogramLocation = null,
 }: HomeFilterHeaderProps) {
   const { t } = useTranslation();
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+
+  const histogramSurface = contentType === "picks" ? "picks" : "lists";
+  const histogramFilters = useMemo(
+    (): MatchHistogramFilters => ({
+      vibes: selectedVibes,
+      categoryIds: selectedCategories,
+      ...(histogramLocation ?? {}),
+    }),
+    [selectedVibes, selectedCategories, histogramLocation],
+  );
+  const { bins: histogramBins } = useMatchHistogram(
+    histogramSurface,
+    histogramFilters,
+    isMatchModalOpen,
+  );
 
   return (
     <View className="mb-4">
@@ -159,6 +184,7 @@ export function HomeFilterHeader({
         isVisible={isMatchModalOpen}
         onClose={() => setIsMatchModalOpen(false)}
         initialThreshold={matchThreshold}
+        histogramBins={histogramBins}
         matchingCount={matchingCount}
         onApply={(threshold) => {
           onMatchThresholdChange?.(threshold);

@@ -179,6 +179,12 @@ export interface serchDTO{
   radiusKm?: number;
   limit?: number;
 }
+
+/** Response from GET /lists/search/match-histogram and list-items/match-histogram. */
+export interface MatchHistogramDAO {
+  bins: number[];
+  total: number;
+}
 export interface listDTO{
   category:string;
   category_id?:string;  // List category

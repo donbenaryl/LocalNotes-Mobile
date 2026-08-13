@@ -21,7 +21,7 @@ async function fetchPeopleSearch(
   return response.data?.data ?? [];
 }
 
-/** Backs the People search tab via GET /accounts/search-friends?scope=all. */
+/** Backs the People search tab via GET /accounts/search?scope=all. */
 export function usePeopleSearch() {
   const committedQuery = useSearchStore((s) => s.committedQuery);
   const matchThreshold = useSearchStore((s) => s.matchThreshold);

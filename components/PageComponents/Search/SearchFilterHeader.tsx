@@ -1,4 +1,4 @@
-import { type ComponentRef, useCallback, useRef, useState } from "react";
+import { type ComponentRef, useCallback, useMemo, useRef, useState } from "react";
 import {
   type LayoutChangeEvent,
   ScrollView,
@@ -10,6 +10,14 @@ import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { MatchThreshhold } from "@/components/ui/MatchThreshhold";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
 import type { Location as GeoLocation } from "@/http/list-api/types";
+import {
+  useMatchHistogram,
+  type MatchHistogramSurface,
+} from "@/hooks/useMatchHistogram";
+import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
+import { useSearchStore } from "@/stores/useSearchStore";
+
+const DEFAULT_RADIUS_KM = 15;
 
 interface SearchFilterHeaderProps {
   cityLabel: string;
@@ -22,6 +30,8 @@ interface SearchFilterHeaderProps {
   selectedVibes: string[];
   onVibesChange: (vibes: string[]) => void;
   vibeMatchCount?: number;
+  /** Active search tab that owns the match sheet histogram. */
+  histogramSurface?: MatchHistogramSurface;
   /** Hide match/vibe chips on Places tab (handoff uses Open now there). */
   showMatchFilter?: boolean;
   showVibeFilter?: boolean;
@@ -40,6 +50,7 @@ export function SearchFilterHeader({
   selectedVibes,
   onVibesChange,
   vibeMatchCount,
+  histogramSurface = "lists",
   showMatchFilter = true,
   showVibeFilter = true,
   className = "",
@@ -49,6 +60,31 @@ export function SearchFilterHeader({
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
   const [isVibeModalOpen, setIsVibeModalOpen] = useState(false);
   const containerRef = useRef<ComponentRef<typeof View>>(null);
+  const committedQuery = useSearchStore((s) => s.committedQuery);
+  const coordinates = useEffectiveSearchLocation();
+
+  const histogramFilters = useMemo(
+    () => ({
+      query: committedQuery || undefined,
+      vibes: selectedVibes,
+      ...(coordinates
+        ? {
+            latitude: coordinates.latitude,
+            longitude: coordinates.longitude,
+            city: coordinates.city,
+            region: coordinates.region,
+            radiusKm: DEFAULT_RADIUS_KM,
+          }
+        : {}),
+    }),
+    [committedQuery, selectedVibes, coordinates],
+  );
+
+  const { bins: histogramBins } = useMatchHistogram(
+    histogramSurface,
+    histogramFilters,
+    isMatchModalOpen && showMatchFilter,
+  );
 
   const handleLayout = useCallback(
     (_event: LayoutChangeEvent) => {
@@ -118,6 +154,7 @@ export function SearchFilterHeader({
         isVisible={isMatchModalOpen}
         onClose={() => setIsMatchModalOpen(false)}
         initialThreshold={matchThreshold}
+        histogramBins={histogramBins}
         matchingCount={matchingCount}
         onApply={(threshold) => {
           onMatchThresholdChange(threshold);
