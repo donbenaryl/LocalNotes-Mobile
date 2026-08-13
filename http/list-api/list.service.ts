@@ -144,6 +144,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (dto.matchMin !== undefined) query.match_min = dto.matchMin;
       if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
       if (dto.vibe?.length) query.vibe = dto.vibe.join(",");
+      if (dto.categoryIds?.length) query.category_ids = dto.categoryIds.join(",");
+      if (dto.listItemId) query.list_item_id = dto.listItemId;
       if (dto.city) query.city = dto.city;
       if (dto.region) query.region = dto.region;
       if (dto.latitude !== undefined && dto.longitude !== undefined) {
@@ -152,6 +154,8 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
       }
       if (dto.limit !== undefined) query.limit = dto.limit;
+      if (dto.sortBy) query.sort_by = dto.sortBy;
+      if (dto.sortOrder) query.sort_order = dto.sortOrder;
 
       return await this.SendRequest<ListItemDAO[]>({
         method:"get",
@@ -160,10 +164,11 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       })
     }
 
-    async fetchListsMatchHistogram(dto: Omit<serchDTO, "matchMin" | "matchMax" | "limit">) {
+    async fetchListsMatchHistogram(dto: Omit<serchDTO, "matchMin" | "matchMax" | "limit" | "sortBy" | "sortOrder">) {
       const query: Record<string, unknown> = {};
       if (dto.query) query.query = dto.query;
       if (dto.vibe?.length) query.vibe = dto.vibe.join(",");
+      if (dto.categoryIds?.length) query.category_ids = dto.categoryIds.join(",");
       if (dto.city) query.city = dto.city;
       if (dto.region) query.region = dto.region;
       if (dto.latitude !== undefined && dto.longitude !== undefined) {

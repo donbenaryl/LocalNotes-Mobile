@@ -1,8 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import searchService from "@/http/search-api/search.service";
-import type { UnifiedSearchParams } from "@/http/search-api/type";
-import type { ListItemDAO, Location as GeoLocation } from "@/http/list-api/types";
+import listService from "@/http/list-api/list.service";
+import type { ListItemDAO, Location as GeoLocation, serchDTO } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
 import { useCategories } from "@/hooks/useProfileList";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
@@ -38,12 +37,10 @@ interface EffectiveCoordinates {
 function buildSearchParams(
   options: UseHomeListsOptions,
   coordinates: EffectiveCoordinates | null,
-): UnifiedSearchParams {
+): serchDTO {
   const { activeFilters, matchThreshold, selectedVibes, selectedCategories } = options;
 
-  const params: UnifiedSearchParams = {
-    query: "",
-    type: "individual_lists",
+  const params: serchDTO = {
     limit: LIST_LIMIT,
   };
 
@@ -60,7 +57,7 @@ function buildSearchParams(
   }
 
   if (selectedVibes.length > 0) {
-    params.vibes = selectedVibes;
+    params.vibe = selectedVibes;
   }
 
   if (selectedCategories.length > 0) {
@@ -75,14 +72,14 @@ function buildSearchParams(
   return params;
 }
 
-async function fetchLists(params: UnifiedSearchParams): Promise<ListItemDAO[]> {
-  const response = await searchService.unifiedSearch(params);
+async function fetchLists(params: serchDTO): Promise<ListItemDAO[]> {
+  const response = await listService.searchLists(params);
 
   if (response.error) {
     throw new Error(response.error.message);
   }
 
-  return response.data?.data?.lists ?? [];
+  return response.data?.data ?? [];
 }
 
 function listMatchesVibes(list: ListItemDAO, vibes: string[]): boolean {
@@ -169,7 +166,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
     staleTime: FEED_STALE_TIME_MS,
   });
 
-  const nearYouSearchParams = useMemo((): UnifiedSearchParams => {
+  const nearYouSearchParams = useMemo((): serchDTO => {
     return {
       ...searchParams,
       radiusKm: NEAR_YOU_RADIUS_KM,

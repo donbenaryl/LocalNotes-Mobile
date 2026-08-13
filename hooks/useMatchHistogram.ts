@@ -28,6 +28,7 @@ async function fetchMatchHistogram(
     const response = await listService.fetchListsMatchHistogram({
       query: filters.query,
       vibe: filters.vibes,
+      categoryIds: filters.categoryIds,
       city: filters.city,
       region: filters.region,
       latitude: filters.latitude,

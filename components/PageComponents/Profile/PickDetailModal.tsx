@@ -30,7 +30,7 @@ import { resolveImageUrl } from "@/utils/httpHelpers";
 import { openInMaps } from "@/utils/smartPick";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { getEmbeddedMatchPercent } from "@/utils/matchScore";
-import searchService from "@/http/search-api/search.service";
+import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
 
@@ -197,9 +197,7 @@ export function PickDetailModal({
     setIsRelatedListsError(false);
 
     try {
-      const response = await searchService.unifiedSearch({
-        query: "",
-        scope: "list",
+      const response = await listService.searchLists({
         listItemId: data.id,
         limit: 50,
       });
@@ -208,7 +206,7 @@ export function PickDetailModal({
         throw new Error(response.error.message);
       }
 
-      setRelatedLists(response.data?.data?.lists ?? []);
+      setRelatedLists(response.data?.data ?? []);
     } catch (error) {
       console.error("Failed to load related lists:", error);
       setRelatedLists([]);

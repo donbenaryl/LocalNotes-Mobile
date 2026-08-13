@@ -172,12 +172,16 @@ export interface serchDTO{
   matchMin?: number;
   matchMax?: number;
   vibe?: string[];
+  categoryIds?: string[];
+  listItemId?: string;
   city?: string;
   region?: string;
   latitude?: number;
   longitude?: number;
   radiusKm?: number;
   limit?: number;
+  sortBy?: "created_at" | "match";
+  sortOrder?: "asc" | "desc";
 }
 
 /** Response from GET /lists/search/match-histogram and list-items/match-histogram. */
