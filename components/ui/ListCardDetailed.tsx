@@ -295,6 +295,7 @@ export function ListCardDetailed({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [picksExpanded, setPicksExpanded] = useState(false);
   const [selectedPick, setSelectedPick] = useState<ListItemPublic | null>(null);
+  const [isPickDetailOpen, setIsPickDetailOpen] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentsCount, setCommentsCount] = useState(list.comments ?? 0);
   const [commentsOriginRect, setCommentsOriginRect] = useState<ScreenRect | null>(
@@ -461,6 +462,7 @@ export function ListCardDetailed({
   const handlePickPress = useCallback(
     (item: Item) => {
       setSelectedPick(mapItemToListItemPublic(item, list, isOwnList));
+      setIsPickDetailOpen(true);
     },
     [list, isOwnList],
   );
@@ -845,8 +847,8 @@ export function ListCardDetailed({
 
       {selectedPick ? (
         <PickDetailModal
-          visible
-          onClose={() => setSelectedPick(null)}
+          visible={isPickDetailOpen}
+          onClose={() => setIsPickDetailOpen(false)}
           data={selectedPick}
         />
       ) : null}

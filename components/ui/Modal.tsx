@@ -65,6 +65,7 @@ export function Modal({
   const translateY = useRef(new Animated.Value(height)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const topProgress = useRef(new Animated.Value(0)).current;
+  const wasVisibleRef = useRef(false);
 
   // Library `height` is 0 when closed and negative when the keyboard is open.
   const { height: keyboardHeightSV } = useReanimatedKeyboardAnimation();
@@ -107,7 +108,14 @@ export function Modal({
   };
 
   useEffect(() => {
-    if (visible) {
+    const wasVisible = wasVisibleRef.current;
+    wasVisibleRef.current = visible;
+
+    if (visible && !wasVisible) {
+      translateY.stopAnimation();
+      backdropOpacity.stopAnimation();
+      topProgress.stopAnimation();
+
       if (!isFullscreen) {
         translateY.setValue(height);
       }
@@ -135,6 +143,18 @@ export function Modal({
           useNativeDriver: true,
         }),
       ]).start();
+      return;
+    }
+
+    if (!visible && wasVisible) {
+      translateY.stopAnimation();
+      backdropOpacity.stopAnimation();
+      topProgress.stopAnimation();
+      if (!isFullscreen) {
+        translateY.setValue(height);
+      }
+      backdropOpacity.setValue(0);
+      topProgress.setValue(0);
     }
   }, [visible, height, translateY, backdropOpacity, topProgress, isFullscreen]);
 

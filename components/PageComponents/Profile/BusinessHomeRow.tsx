@@ -17,7 +17,7 @@ export function BusinessHomeRow() {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={t('profile.info.businessHome.title')}
-      className="mt-3.5 flex-row items-center gap-3 rounded-2xl bg-ink px-3.5 py-3.5 active:opacity-90 dark:bg-gray-900"
+      className="mt-3.5 flex-row items-center gap-3 rounded-2xl bg-ink px-3.5 py-3.5 active:opacity-90 dark:bg-gray-900 dark:border dark:border-gray-700"
     >
       <View
         className="h-9 w-9 items-center justify-center rounded-xl"

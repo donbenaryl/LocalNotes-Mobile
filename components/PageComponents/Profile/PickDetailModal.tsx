@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Image,
+  InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Pressable,
@@ -188,34 +189,38 @@ export function PickDetailModal({
     [data.tags],
   );
 
-  const loadRelatedLists = useCallback(async (opts?: { fromPull?: boolean }) => {
-    if (opts?.fromPull) {
-      setIsPullRefreshing(true);
-    } else {
-      setIsRelatedListsLoading(true);
-    }
-    setIsRelatedListsError(false);
+  const loadRelatedLists = useCallback(
+    async (opts?: { fromPull?: boolean; pickId?: string }) => {
+      const pickId = opts?.pickId ?? data.id;
 
-    try {
-      const response = await listService.searchLists({
-        listItemId: data.id,
-        limit: 50,
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
+      if (opts?.fromPull) {
+        setIsPullRefreshing(true);
+      } else {
+        setIsRelatedListsLoading(true);
       }
+      setIsRelatedListsError(false);
 
-      setRelatedLists(response.data?.data ?? []);
-    } catch (error) {
-      console.error("Failed to load related lists:", error);
-      setRelatedLists([]);
-      setIsRelatedListsError(true);
-    } finally {
-      setIsRelatedListsLoading(false);
-      setIsPullRefreshing(false);
-    }
-  }, [data.id]);
+      try {
+        const response = await listService.searchLists({
+          listItemId: pickId,
+          limit: 50,
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        return response.data?.data ?? [];
+      } catch (error) {
+        console.error("Failed to load related lists:", error);
+        throw error;
+      } finally {
+        setIsRelatedListsLoading(false);
+        setIsPullRefreshing(false);
+      }
+    },
+    [data.id],
+  );
 
   useEffect(() => {
     if (!visible) {
@@ -226,8 +231,44 @@ export function PickDetailModal({
       return;
     }
 
-    void loadRelatedLists();
-  }, [loadRelatedLists, visible]);
+    const pickId = data.id;
+    let cancelled = false;
+
+    setIsRelatedListsLoading(true);
+    setIsRelatedListsError(false);
+
+    const interactionHandle = InteractionManager.runAfterInteractions(() => {
+      void loadRelatedLists({ pickId })
+        .then((lists) => {
+          if (cancelled) return;
+          setRelatedLists(lists ?? []);
+        })
+        .catch(() => {
+          if (cancelled) return;
+          setRelatedLists([]);
+          setIsRelatedListsError(true);
+        });
+    });
+
+    return () => {
+      cancelled = true;
+      interactionHandle.cancel();
+    };
+  }, [data.id, loadRelatedLists, visible]);
+
+  const refreshRelatedLists = useCallback(
+    async (opts?: { fromPull?: boolean }) => {
+      try {
+        const lists = await loadRelatedLists(opts);
+        setRelatedLists(lists ?? []);
+        setIsRelatedListsError(false);
+      } catch {
+        setRelatedLists([]);
+        setIsRelatedListsError(true);
+      }
+    },
+    [loadRelatedLists],
+  );
 
   const handleDirections = useCallback(() => {
     if (!hasCoords || !data.location) return;
@@ -284,7 +325,7 @@ export function PickDetailModal({
             <AppRefreshControl
               refreshing={isPullRefreshing}
               onRefresh={() => {
-                void loadRelatedLists({ fromPull: true });
+                void refreshRelatedLists({ fromPull: true });
               }}
             />
           }
@@ -535,7 +576,7 @@ export function PickDetailModal({
 
                 {isRelatedListsError ? (
                   <Pressable
-                    onPress={() => void loadRelatedLists()}
+                    onPress={() => void refreshRelatedLists()}
                     accessibilityRole="button"
                     className="cursor-pointer self-start px-1"
                   >
