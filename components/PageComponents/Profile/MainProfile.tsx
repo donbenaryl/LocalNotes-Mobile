@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { InteractionManager, Pressable, Share, Text, View } from "react-native";
 import {
   Building2,
+  Info,
   LayoutGrid,
   List,
   ListChecks,
@@ -43,7 +44,9 @@ import accountService from "@/http/account-api/account.services";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from "@/constants/colors";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useBusinessStore } from "@/stores/useBusinessStore";
 import { useToastStore } from "@/stores/useToastStore";
+import { isBusinessAccountType } from "@/utils/businessAccount";
 import type { profileItemDAO } from "@/http/account-api/types";
 
 const TAB_IDS: ProfileListTabType[] = [
@@ -53,6 +56,7 @@ const TAB_IDS: ProfileListTabType[] = [
   "contributed",
   "shared-with-me",
   "picks",
+  "about",
 ];
 
 const PROFILE_HREF = "/(app)/(stack)/profile" as Href;
@@ -79,6 +83,7 @@ interface MainProfileContentProps {
 
 interface ProfileScrollBodyProps {
   isOwnProfile: boolean;
+  isBusinessOwner: boolean;
   profile: profileItemDAO | null | undefined;
   isPending: boolean;
   profileUserId: string;
@@ -93,6 +98,7 @@ interface ProfileScrollBodyProps {
 
 function ProfileScrollBody({
   isOwnProfile,
+  isBusinessOwner,
   profile,
   isPending,
   profileUserId,
@@ -106,13 +112,24 @@ function ProfileScrollBody({
 }: ProfileScrollBodyProps) {
   const queryClient = useQueryClient();
   const { handler } = useProfilePullToRefresh();
+  const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
 
   const handleRefresh = useCallback(() => {
     handler?.onRefresh();
     void queryClient.invalidateQueries({
       queryKey: isOwnProfile ? ["profile"] : ["profile", profileUserId],
     });
-  }, [handler, queryClient, isOwnProfile, profileUserId]);
+    if (isBusinessOwner) {
+      void refreshBusinessInfo();
+    }
+  }, [
+    handler,
+    queryClient,
+    isOwnProfile,
+    profileUserId,
+    isBusinessOwner,
+    refreshBusinessInfo,
+  ]);
 
   return (
     <ProfileChromeScrollView
@@ -196,6 +213,7 @@ function MainProfileContent({
   const isFocusedRef = useRef(isFocused);
   isFocusedRef.current = isFocused;
   const { resetChrome } = useProfileChrome();
+  const authAccountType = useAuthStore((s) => s.accountType);
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
     return isTabType(params.tab) ? params.tab : "picks";
@@ -205,20 +223,29 @@ function MainProfileContent({
 
   const displayName = profile?.name?.trim() || t("common.user");
   const profileUserId = profile?.id ?? userId ?? "";
+  const accountType = profile?.account_type ?? authAccountType ?? undefined;
+  const isBusinessOwner =
+    isOwnProfile && isBusinessAccountType(accountType ?? undefined);
 
-  const ownProfileTabs: TabItem[] = useMemo(
-    () => [
+  const ownProfileTabs: TabItem[] = useMemo(() => {
+    const base: TabItem[] = [
       { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
       { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
       { id: "saved", label: t("profile.tabs.saved"), icon: List },
-      {
-        id: "contributed",
-        label: t("profile.tabs.contributed"),
-        icon: ListChecks,
-      },
-    ],
-    [t],
-  );
+    ];
+
+    if (isBusinessOwner) {
+      base.push({ id: "about", label: t("profile.tabs.about"), icon: Info });
+    }
+
+    base.push({
+      id: "contributed",
+      label: t("profile.tabs.contributed"),
+      icon: ListChecks,
+    });
+
+    return base;
+  }, [isBusinessOwner, t]);
 
   const tabs = useMemo(() => {
     if (isOwnProfile) {
@@ -381,6 +408,7 @@ function MainProfileContent({
         <ProfilePullToRefreshProvider>
           <ProfileScrollBody
             isOwnProfile={isOwnProfile}
+            isBusinessOwner={isBusinessOwner}
             profile={profile}
             isPending={isPending}
             profileUserId={profileUserId}

@@ -8,6 +8,7 @@ interface BusinessState {
   isFetching: boolean;
   hasFetched: boolean;
   loadBusinessInfo: () => Promise<void>;
+  refreshBusinessInfo: () => Promise<void>;
   reset: () => void;
 }
 
@@ -56,6 +57,12 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
       });
 
     return inflightRequest;
+  },
+
+  refreshBusinessInfo: () => {
+    inflightRequest = null;
+    set({ hasFetched: false });
+    return get().loadBusinessInfo();
   },
 
   reset: () => {

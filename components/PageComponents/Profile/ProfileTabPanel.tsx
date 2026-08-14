@@ -1,5 +1,6 @@
 import { ProfileListTabPanel } from "./ProfileListTabPanel";
 import { ProfilePicksTab } from "./ProfilePicksTab";
+import { ProfileAboutTab } from "./ProfileAboutTab";
 import { ComingSoon } from "@/components/ui/ComingSoon";
 import type { ProfileTabCategory } from "@/hooks/useProfileList";
 
@@ -9,7 +10,8 @@ export type ProfileListTabType =
   | "collaborative"
   | "contributed"
   | "shared-with-me"
-  | "picks";
+  | "picks"
+  | "about";
 
 interface ProfileTabPanelProps {
   tab: ProfileListTabType;
@@ -58,6 +60,10 @@ export function ProfileTabPanel({
 
   if (tab === "contributed") {
     return <ComingSoon />;
+  }
+
+  if (tab === "about") {
+    return <ProfileAboutTab />;
   }
 
   return (

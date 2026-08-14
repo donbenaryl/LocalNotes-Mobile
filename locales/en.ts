@@ -452,6 +452,17 @@ const en = {
       saved: 'Saved Lists',
       contributed: 'Contributed Lists',
       sharedWithMe: 'Shared With Me',
+      about: 'About',
+    },
+    about: {
+      loading: 'Loading business details…',
+      empty: 'Business details are not available yet.',
+      contact: 'Contact',
+      locations: 'Locations',
+      email: 'Email',
+      phone: 'Phone',
+      website: 'Website',
+      shares: 'Shares',
     },
     filters: {
       filterBy: 'Filter by:',
