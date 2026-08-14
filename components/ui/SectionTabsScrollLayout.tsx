@@ -20,6 +20,7 @@ import {
 import { GuardedHeader } from '@/components/ui/layout/GuardedHeader';
 import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { useSectionPullToRefresh } from '@/components/ui/SectionPullToRefreshContext';
+import { useContentBottomInset } from '@/hooks/useContentBottomInset';
 import type { SectionId } from '@/constants/swipeNavigation';
 
 const STICKY_TIMING = {
@@ -43,6 +44,7 @@ export function SectionTabsScrollLayout({
   pages,
 }: SectionTabsScrollLayoutProps) {
   const scrollRef = useRef<ScrollView>(null);
+  const contentBottomInset = useContentBottomInset();
   const { handler } = useSectionPullToRefresh();
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
@@ -131,7 +133,7 @@ export function SectionTabsScrollLayout({
         onScroll={handleScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pb-28"
+        contentContainerStyle={{ paddingBottom: contentBottomInset }}
         refreshControl={
           <AppRefreshControl
             refreshing={handler?.refreshing ?? false}

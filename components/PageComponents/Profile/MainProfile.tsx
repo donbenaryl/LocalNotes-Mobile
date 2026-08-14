@@ -40,6 +40,7 @@ import {
   useProfilePullToRefresh,
 } from "./ProfilePullToRefreshContext";
 import type { ProfileListTabType } from "./ProfileTabPanel";
+import { useContentBottomInset } from "@/hooks/useContentBottomInset";
 import accountService from "@/http/account-api/account.services";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from "@/constants/colors";
@@ -111,6 +112,8 @@ function ProfileScrollBody({
   onProfileInfoLayout,
 }: ProfileScrollBodyProps) {
   const queryClient = useQueryClient();
+  // Profile is a (stack) route — GuardedFooter is only mounted over (tabs).
+  const contentBottomInset = useContentBottomInset(false);
   const { handler } = useProfilePullToRefresh();
   const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
 
@@ -136,7 +139,7 @@ function ProfileScrollBody({
       className="flex-1"
       nestedScrollEnabled
       showsVerticalScrollIndicator={false}
-      contentContainerClassName="pb-10"
+      contentContainerStyle={{ paddingBottom: contentBottomInset }}
       refreshControl={
         <AppRefreshControl
           refreshing={handler?.refreshing ?? false}

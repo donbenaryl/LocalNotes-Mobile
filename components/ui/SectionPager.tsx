@@ -8,6 +8,7 @@ import {
 } from "react";
 import { StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from "react-native";
 import PagerView, {
+  type PageScrollStateChangedNativeEvent,
   type PagerViewOnPageScrollEvent,
   type PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
@@ -86,6 +87,9 @@ export function SectionPager({
   const pagerRef = useRef<PagerView>(null);
   const navigatingRef = useRef(false);
   const [pageHeights, setPageHeights] = useState<Record<string, number>>({});
+  /** Page the embedded height follows. Only updated while the pager is idle. */
+  const [heightPageId, setHeightPageId] = useState<string | null>(activeId);
+  const isPagerIdleRef = useRef(true);
   const router = useRouter();
   const pathname = usePathname();
   const isNavFocused = useIsFocused();
@@ -115,8 +119,6 @@ export function SectionPager({
   const activeIndexRef = useRef(activeIndex);
   activeIndexRef.current = activeIndex;
   const wasSectionActiveRef = useRef(isSectionActive);
-  const isLayoutSettlingRef = useRef(false);
-  const layoutSettleFrameRef = useRef<number | null>(null);
   const lastSyncedHrefRef = useRef<string | null>(null);
   const pageHeightsRef = useRef(pageHeights);
   pageHeightsRef.current = pageHeights;
@@ -233,7 +235,7 @@ export function SectionPager({
 
   const handlePageSelected = useCallback(
     (event: PagerViewOnPageSelectedEvent) => {
-      if (!isSectionActive || isLayoutSettlingRef.current) return;
+      if (!isSectionActive) return;
       const index = event.nativeEvent.position;
       nativePageRef.current = index;
       const page = pages[index];
@@ -246,7 +248,7 @@ export function SectionPager({
 
   const handlePageScroll = useCallback(
     (event: PagerViewOnPageScrollEvent) => {
-      if (!isSectionActive || isLayoutSettlingRef.current) return;
+      if (!isSectionActive) return;
       const { position, offset } = event.nativeEvent;
       const settledIndex =
         offset > PAGE_COMMIT_THRESHOLD ? position + 1 : position;
@@ -264,31 +266,40 @@ export function SectionPager({
       const height = event.nativeEvent.layout.height;
       if (height <= 0) return;
       if (pageHeightsRef.current[pageId] === height) return;
-
-      isLayoutSettlingRef.current = true;
       setPageHeights((prev) => ({ ...prev, [pageId]: height }));
-
-      if (layoutSettleFrameRef.current != null) {
-        cancelAnimationFrame(layoutSettleFrameRef.current);
-      }
-      layoutSettleFrameRef.current = requestAnimationFrame(() => {
-        layoutSettleFrameRef.current = null;
-        syncNativePage(activeIndexRef.current);
-        isLayoutSettlingRef.current = false;
-      });
     },
-    [syncNativePage],
+    [],
   );
 
-  const measuredMaxHeight = Math.max(
-    EMBEDDED_MIN_HEIGHT,
-    ...pages.map((page) => pageHeights[page.id] ?? 0),
+  // Resizing a PagerView mid-gesture cancels the in-flight transition — the
+  // native pager snaps back to the page the drag started from. activeId commits
+  // at PAGE_COMMIT_THRESHOLD, well before the drag ends, so the height follows
+  // it only once the pager has come to rest.
+  const handlePageScrollStateChanged = useCallback(
+    (event: PageScrollStateChangedNativeEvent) => {
+      const isIdle = event.nativeEvent.pageScrollState === "idle";
+      isPagerIdleRef.current = isIdle;
+      if (isIdle) {
+        setHeightPageId(pages[activeIndexRef.current]?.id ?? null);
+      }
+    },
+    [pages],
   );
-  const hasMeasuredHeights = pages.some((page) => pageHeights[page.id] != null);
+
+  // Tab-bar taps jump without a gesture, so the height can follow immediately.
+  useEffect(() => {
+    if (isPagerIdleRef.current) setHeightPageId(activeId);
+  }, [activeId]);
+
+  // Sizing to the tallest page would give every short tab the tallest tab's
+  // trailing dead space. screenHeight is a one-frame placeholder until the first
+  // measurement lands.
   const embeddedPagerHeight = embedded
-    ? hasMeasuredHeights
-      ? measuredMaxHeight
-      : screenHeight * 2
+    ? Math.max(
+        EMBEDDED_MIN_HEIGHT,
+        (heightPageId != null ? pageHeights[heightPageId] : undefined) ??
+          screenHeight,
+      )
     : EMBEDDED_MIN_HEIGHT;
 
   const renderedPages = useMemo(
@@ -298,13 +309,19 @@ export function SectionPager({
           key={page.id}
           style={embedded ? undefined : styles.fill}
           collapsable={false}
-          onLayout={
-            embedded
-              ? (event) => handleEmbeddedPageLayout(page.id, event)
-              : undefined
-          }
         >
-          {page.render()}
+          {embedded ? (
+            // PagerView absoluteFills its direct children, so this wrapper always
+            // measures the pager itself. The inner view is the real content height.
+            <View
+              collapsable={false}
+              onLayout={(event) => handleEmbeddedPageLayout(page.id, event)}
+            >
+              {page.render()}
+            </View>
+          ) : (
+            page.render()
+          )}
         </View>
       )),
     [embedded, handleEmbeddedPageLayout, pages],
@@ -362,6 +379,7 @@ export function SectionPager({
         offscreenPageLimit={Math.max(pages.length - 1, 1)}
         onPageScroll={handlePageScroll}
         onPageSelected={handlePageSelected}
+        onPageScrollStateChanged={handlePageScrollStateChanged}
       >
         {renderedPages}
       </PagerView>

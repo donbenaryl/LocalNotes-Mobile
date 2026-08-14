@@ -63,7 +63,7 @@ export function SpotlightTab() {
   const businessesSection = data.sections.find((section) => section.section_key === "businesses");
 
   return (
-    <View className="px-4 pb-8">
+    <View className="px-4">
       <SpotlightHero edition={data} />
       {picksSection ? <SpotlightPicksSection section={picksSection} /> : null}
       {listsSection ? <SpotlightListsSection section={listsSection} /> : null}

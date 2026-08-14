@@ -109,54 +109,52 @@ export function OffersTab() {
   );
 
   return (
-    <View className="px-4 pb-8">
-      <View className="mb-16">
-        <View className="mb-6">
-          <Text className="font-geist-bold text-lg text-ink dark:text-gray-100">
-            {t("offers.title")} ({totalCount})
-          </Text>
-          <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
-            {t("offers.description")}
-          </Text>
-        </View>
-
-        {totalCount === 0 ? (
-          <EmptyScreen
-            title={t("offers.empty")}
-            description={t("offers.emptyDescription")}
-            className="justify-center py-20"
-          />
-        ) : (
-          <>
-            <OffersSection
-              icon={<Clock size={20} color="#FF6B1A" />}
-              title={t("offers.sections.expiringSoon.title")}
-              subtitle={t("offers.sections.expiringSoon.subtitle")}
-              offers={sections.expiringSoon}
-            />
-            <OffersSection
-              icon={<Star size={20} color="#FB923C" />}
-              title={t("offers.sections.followed.title")}
-              subtitle={t("offers.sections.followed.subtitle")}
-              offers={sections.followed}
-              badge={followedBadge}
-            />
-            <OffersSection
-              icon={<MapPin size={20} color="#3B82F6" />}
-              title={t("offers.sections.nearYou.title")}
-              subtitle={t("offers.sections.nearYou.subtitle")}
-              offers={sections.nearYou}
-              badge={nearYouBadge}
-            />
-            <OffersSection
-              icon={<Tag size={20} color="#9CA3AF" />}
-              title={t("offers.sections.moreOffers.title")}
-              subtitle={t("offers.sections.moreOffers.subtitle")}
-              offers={sections.other}
-            />
-          </>
-        )}
+    <View className="px-4">
+      <View className="mb-6">
+        <Text className="font-geist-bold text-lg text-ink dark:text-gray-100">
+          {t("offers.title")} ({totalCount})
+        </Text>
+        <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
+          {t("offers.description")}
+        </Text>
       </View>
+
+      {totalCount === 0 ? (
+        <EmptyScreen
+          title={t("offers.empty")}
+          description={t("offers.emptyDescription")}
+          className="justify-center py-20"
+        />
+      ) : (
+        <>
+          <OffersSection
+            icon={<Clock size={20} color="#FF6B1A" />}
+            title={t("offers.sections.expiringSoon.title")}
+            subtitle={t("offers.sections.expiringSoon.subtitle")}
+            offers={sections.expiringSoon}
+          />
+          <OffersSection
+            icon={<Star size={20} color="#FB923C" />}
+            title={t("offers.sections.followed.title")}
+            subtitle={t("offers.sections.followed.subtitle")}
+            offers={sections.followed}
+            badge={followedBadge}
+          />
+          <OffersSection
+            icon={<MapPin size={20} color="#3B82F6" />}
+            title={t("offers.sections.nearYou.title")}
+            subtitle={t("offers.sections.nearYou.subtitle")}
+            offers={sections.nearYou}
+            badge={nearYouBadge}
+          />
+          <OffersSection
+            icon={<Tag size={20} color="#9CA3AF" />}
+            title={t("offers.sections.moreOffers.title")}
+            subtitle={t("offers.sections.moreOffers.subtitle")}
+            offers={sections.other}
+          />
+        </>
+      )}
     </View>
   );
 }

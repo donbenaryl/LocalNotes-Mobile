@@ -23,7 +23,7 @@ export function ProfileList({
   const favoriteOptions = ["All", "Favorites only"];
 
   return (
-    <View className="pb-10 pt-4">
+    <View className="pt-4">
       <ProfileTabPanel
         tab={tab}
         userId={userId}

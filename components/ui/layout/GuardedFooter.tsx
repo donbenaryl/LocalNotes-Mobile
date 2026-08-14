@@ -5,6 +5,7 @@ import { useColorScheme } from 'nativewind';
 import { useRouter, usePathname } from 'expo-router';
 import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { FOOTER_BAR_HEIGHT, FOOTER_MIN_INSET } from '@/constants/layout';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
 import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
@@ -81,7 +82,7 @@ export function GuardedFooter() {
   // Optimistic: set on the tap/swipe itself. pathname is only the first-frame
   // fallback, before any navigation has resolved.
   const activeSection = storeSection ?? getSectionId(pathname);
-  const bottomInset = Math.max(insets.bottom, 12);
+  const bottomInset = Math.max(insets.bottom, FOOTER_MIN_INSET);
 
   const handleCreateOptionSelect = (value: string) => {
     if (value === 'pick') {
@@ -138,7 +139,7 @@ export function GuardedFooter() {
 
         <View
           className="w-full flex-row items-center rounded-full border border-gray-200/70 bg-page/90 dark:border-gray-700/70 dark:bg-gray-900/90"
-          style={[{ height: 64 }, BAR_SHADOW]}
+          style={[{ height: FOOTER_BAR_HEIGHT }, BAR_SHADOW]}
         >
           {TABS.map((tab) => {
             if (tab === null) {
