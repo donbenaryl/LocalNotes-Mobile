@@ -7,6 +7,7 @@ import type { signInDAO } from '../http/auth-api/types';
 import { useAuthStore } from '../stores/useAuthStore';
 import { mapSignInDaoToUser } from '../utils/mapProfileToUser';
 import { getPostAuthRoute } from '../utils/personality';
+import { hydrateBusinessInfo } from '../services/authBootstrap';
 import { toast } from '../components/ui/Toast';
 import { getAppleIdToken, getGoogleIdToken } from '../services/socialAuth';
 
@@ -36,6 +37,7 @@ export function useSocialAuth() {
     },
     onSuccess: async (dao) => {
       await setAuth(mapSignInDaoToUser(dao), dao.token, dao.refresh_token);
+      await hydrateBusinessInfo(dao.account_type);
       unlockSession();
       router.replace(getPostAuthRoute(dao.personality_name) as Href);
     },

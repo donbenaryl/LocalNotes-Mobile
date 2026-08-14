@@ -1,9 +1,18 @@
 import accountService from '../http/account-api/account.services';
 import { useAuthStore } from '../stores/useAuthStore';
+import { useBusinessStore } from '../stores/useBusinessStore';
 import { useBiometricStore } from '../stores/useBiometricStore';
 import { authenticateWithBiometrics } from './biometricAuth';
 import { mapProfileToUser } from '../utils/mapProfileToUser';
+import { isBusinessAccountType } from '../utils/businessAccount';
 import { getPostAuthRoute } from '../utils/personality';
+
+export async function hydrateBusinessInfo(
+  accountType: string | undefined,
+): Promise<void> {
+  if (!isBusinessAccountType(accountType)) return;
+  await useBusinessStore.getState().loadBusinessInfo();
+}
 
 export async function hydrateUserProfile(): Promise<boolean> {
   const response = await accountService.fetchUser();
@@ -11,11 +20,13 @@ export async function hydrateUserProfile(): Promise<boolean> {
     return false;
   }
 
-  const user = mapProfileToUser(response.data.data);
+  const profile = response.data.data;
+  const user = mapProfileToUser(profile);
   useAuthStore.setState({
     user,
     accountType: user.accountType,
   });
+  await hydrateBusinessInfo(profile.account_type);
   return true;
 }
 

@@ -426,6 +426,22 @@ const en = {
         followers: 'Followers',
         saves: 'Saves',
       },
+      businessHome: {
+        title: 'Business Home',
+        subtitle: 'Insights · Campaigns · Alerts',
+        comingSoonTitle: 'Business Home',
+        comingSoonMessage: 'Business Home is coming soon.',
+      },
+      featuredIn: {
+        eyebrow: 'Featured in',
+        lists: 'lists',
+        monthDelta: '+{{count}} this month.',
+        typesPrefix: 'Most curators saving you are ',
+        typesAnd: ' and ',
+        typesSuffix: ' types.',
+        typePrefix: 'Most curators saving you are ',
+        typeSuffix: ' types.',
+      },
     },
     tabs: {
       myLists: 'My Lists',

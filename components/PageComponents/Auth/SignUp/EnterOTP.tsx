@@ -9,6 +9,7 @@ import type { signInDAO } from '../../../../http/auth-api/types';
 import { toast } from '../../../ui/Toast';
 import { useAuthStore } from '../../../../stores/useAuthStore';
 import { mapSignInDaoToUser } from '../../../../utils/mapProfileToUser';
+import { hydrateBusinessInfo } from '../../../../services/authBootstrap';
 
 interface EnterOTPProps {
   email: string;
@@ -53,6 +54,7 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
 
     const dao = response.data.data;
     await setAuth(mapDaoToUser(dao), dao.token, dao.refresh_token);
+    await hydrateBusinessInfo(dao.account_type);
     toast.success(t('auth.signUp.emailVerified'));
     await onVerified();
     setIsVerifying(false);

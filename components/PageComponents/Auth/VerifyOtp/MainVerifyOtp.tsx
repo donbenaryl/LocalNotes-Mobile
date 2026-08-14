@@ -11,6 +11,7 @@ import { PageTitleHeading } from '@/components/ui/PageTitleHeading';
 import { LocalNotesButton } from '../../../ui/LocalNotesButton';
 import { verifyOtp, sendOtp } from '../../../../services/authService';
 import { useAuthStore } from '../../../../stores/useAuthStore';
+import { hydrateBusinessInfo } from '../../../../services/authBootstrap';
 
 export function MainVerifyOtp() {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export function MainVerifyOtp() {
     mutationFn: () => verifyOtp(email ?? '', code),
     onSuccess: async (data) => {
       await setAuth(data.user, data.token);
+      await hydrateBusinessInfo(data.user.accountType);
       if (flow === 'sign-up-business') {
         router.replace('/(tabs)' as Href);
       } else {

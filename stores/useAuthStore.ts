@@ -57,6 +57,8 @@ export const useAuthStore = create<AuthStoreState & AuthActions>((set) => ({
   clearAuth: async () => {
     await SecureStore.deleteItemAsync(TOKEN_KEY);
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+    const { useBusinessStore } = await import('./useBusinessStore');
+    useBusinessStore.getState().reset();
     set({
       user: null,
       token: null,

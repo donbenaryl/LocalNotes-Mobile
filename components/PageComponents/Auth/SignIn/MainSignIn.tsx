@@ -19,6 +19,7 @@ import { useAuthStore } from '../../../../stores/useAuthStore';
 import { FaceSignIn } from './FaceSignIn';
 import { mapSignInDaoToUser } from '../../../../utils/mapProfileToUser';
 import { getPostAuthRoute } from '../../../../utils/personality';
+import { hydrateBusinessInfo } from '../../../../services/authBootstrap';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { useBiometricStore } from '@/stores/useBiometricStore';
 
@@ -87,6 +88,7 @@ export function MainSignIn() {
     },
     onSuccess: async (dao) => {
       await setAuth(mapSignInDaoToUser(dao), dao.token, dao.refresh_token);
+      await hydrateBusinessInfo(dao.account_type);
       unlockSession();
       router.replace(getPostAuthRoute(dao.personality_name) as Href);
     },

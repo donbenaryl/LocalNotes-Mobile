@@ -7,6 +7,9 @@ import { Avatar } from '@/components/ui/Avatar';
 import { FollowButton } from '@/components/ui/FollowButton';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
+import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
+import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfileInsights';
 import { useSimilarScores } from '@/hooks/useSimilarScores';
 import {
   getDominantPersonalityColor,
@@ -82,6 +85,12 @@ export function ProfileInfo({
     profile.id ?? '',
     !isOwnProfile && Boolean(profile.id),
   );
+  const {
+    showBusinessSections,
+    listCount: featuredListCount,
+    monthDelta,
+    topTypes,
+  } = useBusinessOwnerProfileInsights(isOwnProfile, profile.account_type);
   // Held back only while fetching — a resolved-but-absent score shows as 0%.
   const showTasteMatch = !isOwnProfile && !isMatchLoading;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);
@@ -231,6 +240,17 @@ export function ProfileInfo({
             leftIcon={<Upload size={17} color={shareIconColor} strokeWidth={2.2} />}
           />
         </View>
+
+        {showBusinessSections ? (
+          <>
+            <BusinessHomeRow />
+            <FeaturedInCard
+              listCount={featuredListCount}
+              monthDelta={monthDelta}
+              topTypes={topTypes}
+            />
+          </>
+        ) : null}
 
         {showTasteMatch ? (
           <View className="mt-3 flex-row items-start gap-2.5 rounded-2xl border border-gray-200 bg-white px-3.5 py-3 dark:border-gray-700 dark:bg-gray-800">
