@@ -3,9 +3,10 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type ReactNode,
 } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from "react-native";
 import PagerView, {
   type PagerViewOnPageScrollEvent,
   type PagerViewOnPageSelectedEvent,
@@ -41,6 +42,11 @@ interface SectionPagerProps {
    * routes like Profile (falls back to useIsFocused).
    */
   sectionId?: SectionId;
+  /**
+   * When true, sizes to measured page content for use inside a parent
+   * ScrollView instead of filling the remaining viewport height.
+   */
+  embedded?: boolean;
 }
 
 /**
@@ -55,6 +61,7 @@ const SWIPE_VELOCITY_THRESHOLD = 700;
 const FAIL_OFFSET_Y = 16;
 const ACTIVE_OFFSET_X = 12;
 const EDGE_STRIP_WIDTH = 28;
+const EMBEDDED_MIN_HEIGHT = 200;
 const PROFILE_HREF = "/profile" as Href;
 
 /**
@@ -72,9 +79,12 @@ export function SectionPager({
   onActiveIdChange,
   chrome,
   sectionId,
+  embedded = false,
 }: SectionPagerProps) {
+  const { height: screenHeight } = useWindowDimensions();
   const pagerRef = useRef<PagerView>(null);
   const navigatingRef = useRef(false);
+  const [pageHeights, setPageHeights] = useState<Record<string, number>>({});
   const router = useRouter();
   const pathname = usePathname();
   const isNavFocused = useIsFocused();
@@ -216,14 +226,46 @@ export function SectionPager({
     [activeId, isSectionActive, onActiveIdChange, pages],
   );
 
+  const handleEmbeddedPageLayout = useCallback(
+    (pageId: string, event: LayoutChangeEvent) => {
+      const height = event.nativeEvent.layout.height;
+      if (height <= 0) return;
+      setPageHeights((prev) => {
+        if (prev[pageId] === height) return prev;
+        return { ...prev, [pageId]: height };
+      });
+    },
+    [],
+  );
+
+  const measuredMaxHeight = Math.max(
+    EMBEDDED_MIN_HEIGHT,
+    ...pages.map((page) => pageHeights[page.id] ?? 0),
+  );
+  const hasMeasuredHeights = pages.some((page) => pageHeights[page.id] != null);
+  const embeddedPagerHeight = embedded
+    ? hasMeasuredHeights
+      ? measuredMaxHeight
+      : screenHeight * 2
+    : EMBEDDED_MIN_HEIGHT;
+
   const renderedPages = useMemo(
     () =>
       pages.map((page) => (
-        <View key={page.id} style={styles.fill} collapsable={false}>
+        <View
+          key={page.id}
+          style={embedded ? undefined : styles.fill}
+          collapsable={false}
+          onLayout={
+            embedded
+              ? (event) => handleEmbeddedPageLayout(page.id, event)
+              : undefined
+          }
+        >
           {page.render()}
         </View>
       )),
-    [pages],
+    [embedded, handleEmbeddedPageLayout, pages],
   );
 
   const prevSectionPan = useMemo(
@@ -261,11 +303,17 @@ export function SectionPager({
   );
 
   return (
-    <View className="flex-1 overflow-hidden bg-page dark:bg-gray-900">
+    <View
+      className={
+        embedded
+          ? "bg-page dark:bg-gray-900"
+          : "flex-1 overflow-hidden bg-page dark:bg-gray-900"
+      }
+    >
       {chrome}
       <PagerView
         ref={pagerRef}
-        style={styles.fill}
+        style={embedded ? { height: embeddedPagerHeight } : styles.fill}
         initialPage={activeIndex}
         scrollEnabled={isSectionActive}
         overdrag={false}

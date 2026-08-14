@@ -443,6 +443,9 @@ const en = {
         typeSuffix: ' types.',
       },
     },
+    vitalBar: {
+      match: '{{percent}}% match',
+    },
     tabs: {
       myLists: 'My Lists',
       picks: 'Picks',

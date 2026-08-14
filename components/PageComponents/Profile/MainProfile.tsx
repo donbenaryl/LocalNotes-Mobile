@@ -11,18 +11,19 @@ import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useColorScheme } from "nativewind";
-import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
   SectionPager,
   type SectionPagerPage,
 } from "@/components/ui/SectionPager";
 import { ProfileChromeScrollView } from "@/components/ui/ProfileChromeScrollView";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ProfileInfo } from "./ProfileInfo";
 import { ProfileHeader } from "./ProfileHeader";
 import { ProfileInfoSkeleton } from "./ProfileInfoSkeleton";
 import { ProfileList } from "./ProfileList";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
+import { ProfileChromeHeader } from "./ProfileChromeHeader";
 import {
   ProfileChromeProvider,
   useProfileChrome,
@@ -32,6 +33,10 @@ import {
   type ProfileActionKey,
 } from "./ProfileActionsSheet";
 import { BlockUserModal } from "./BlockUserModal";
+import {
+  ProfilePullToRefreshProvider,
+  useProfilePullToRefresh,
+} from "./ProfilePullToRefreshContext";
 import type { ProfileListTabType } from "./ProfileTabPanel";
 import accountService from "@/http/account-api/account.services";
 import { HOME_HREF } from "@/constants/swipeNavigation";
@@ -68,6 +73,108 @@ interface MainProfileContentProps {
   profile: profileItemDAO | null | undefined;
   isPending: boolean;
   isError: boolean;
+  onProfileInfoLayout: (height: number) => void;
+}
+
+interface ProfileScrollBodyProps {
+  isOwnProfile: boolean;
+  profile: profileItemDAO | null | undefined;
+  isPending: boolean;
+  profileUserId: string;
+  tabs: TabItem[];
+  activeTab: ProfileListTabType;
+  pages: SectionPagerPage[];
+  onTabChange: (tabId: string) => void;
+  onEditPress: () => void;
+  onSharePress: () => void;
+  onProfileInfoLayout: (height: number) => void;
+}
+
+function ProfileScrollBody({
+  isOwnProfile,
+  profile,
+  isPending,
+  profileUserId,
+  tabs,
+  activeTab,
+  pages,
+  onTabChange,
+  onEditPress,
+  onSharePress,
+  onProfileInfoLayout,
+}: ProfileScrollBodyProps) {
+  const queryClient = useQueryClient();
+  const { handler } = useProfilePullToRefresh();
+
+  const handleRefresh = useCallback(() => {
+    handler?.onRefresh();
+    void queryClient.invalidateQueries({
+      queryKey: isOwnProfile ? ["profile"] : ["profile", profileUserId],
+    });
+  }, [handler, queryClient, isOwnProfile, profileUserId]);
+
+  return (
+    <ProfileChromeScrollView
+      className="flex-1"
+      nestedScrollEnabled
+      showsVerticalScrollIndicator={false}
+      contentContainerClassName="pb-10"
+      refreshControl={
+        <AppRefreshControl
+          refreshing={handler?.refreshing ?? false}
+          onRefresh={handleRefresh}
+        />
+      }
+    >
+      {isPending ? (
+        <>
+          <ProfileInfoSkeleton />
+          {isOwnProfile ? (
+            <View className="px-4 pt-4">
+              <Tabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+                className="border-b-0"
+              />
+            </View>
+          ) : null}
+          <View className="p-4">
+            <ProfilePicksTabSkeleton />
+          </View>
+        </>
+      ) : profile ? (
+        <>
+          <View
+            onLayout={(event) => {
+              onProfileInfoLayout(event.nativeEvent.layout.height);
+            }}
+          >
+            <ProfileInfo
+              profile={profile}
+              isOwnProfile={isOwnProfile}
+              onEditPress={onEditPress}
+              onSharePress={onSharePress}
+            />
+          </View>
+          <View className="px-4 pt-4">
+            <Tabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabChange={onTabChange}
+              className="border-b-0"
+            />
+          </View>
+          <SectionPager
+            embedded
+            pages={pages}
+            activeId={activeTab}
+            onActiveIdChange={onTabChange}
+          />
+        </>
+      ) : null}
+    </ProfileChromeScrollView>
+  );
 }
 
 function MainProfileContent({
@@ -76,6 +183,7 @@ function MainProfileContent({
   profile,
   isPending,
   isError,
+  onProfileInfoLayout,
 }: MainProfileContentProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -250,68 +358,37 @@ function MainProfileContent({
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
-      <PageHeader
+      <ProfileChromeHeader
         onBack={handleBack}
-        borderless
         rightChild={isOwnProfile ? <ProfileHeader /> : otherProfileMenu}
+        profile={profile}
+        isOwnProfile={isOwnProfile}
+        isPending={isPending}
       />
-      {isPending ? (
-        <ProfileInfoSkeleton />
-      ) : profile ? (
-        <ProfileInfo
-          profile={profile}
-          isOwnProfile={isOwnProfile}
-          onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
-          onSharePress={() => {
-            void handleShare();
-          }}
-        />
-      ) : null}
-
-      {isPending ? (
-        <>
-          {isOwnProfile ? (
-            <View className="pt-4 px-4">
-              <Tabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onTabChange={handleTabChange}
-                className="border-b-0"
-              />
-            </View>
-          ) : null}
-          <ProfileChromeScrollView
-            className="flex-1"
-            showsVerticalScrollIndicator={false}
-            contentContainerClassName="p-4"
-          >
-            <ProfilePicksTabSkeleton />
-          </ProfileChromeScrollView>
-        </>
-      ) : isError || !profile ? (
+      {isError || (!isPending && !profile) ? (
         <View className="flex-1 items-center justify-center py-20">
           <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
             Failed to load profile.
           </Text>
         </View>
       ) : (
-        <>
-          <View className="pt-4 px-4">
-            <Tabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              className="border-b-0"
-            />
-          </View>
-          <View className="flex-1">
-            <SectionPager
-              pages={pages}
-              activeId={activeTab}
-              onActiveIdChange={handleTabChange}
-            />
-          </View>
-        </>
+        <ProfilePullToRefreshProvider>
+          <ProfileScrollBody
+            isOwnProfile={isOwnProfile}
+            profile={profile}
+            isPending={isPending}
+            profileUserId={profileUserId}
+            tabs={tabs}
+            activeTab={activeTab}
+            pages={pages}
+            onTabChange={handleTabChange}
+            onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
+            onSharePress={() => {
+              void handleShare();
+            }}
+            onProfileInfoLayout={onProfileInfoLayout}
+          />
+        </ProfilePullToRefreshProvider>
       )}
 
       {!isOwnProfile && profileUserId ? (
@@ -339,6 +416,15 @@ export default function MainProfile({ userId }: MainProfileProps) {
   const router = useRouter();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const isOwnProfile = !userId || userId === currentUserId;
+  const [profileInfoHeight, setProfileInfoHeight] = useState(
+    PROFILE_CHROME_REVEAL_THRESHOLD,
+  );
+
+  const handleProfileInfoLayout = useCallback((height: number) => {
+    if (height > 0) {
+      setProfileInfoHeight(height);
+    }
+  }, []);
 
   useEffect(() => {
     if (userId && currentUserId && userId === currentUserId) {
@@ -365,14 +451,21 @@ export default function MainProfile({ userId }: MainProfileProps) {
     return null;
   }
 
+  const revealThreshold = profileInfoHeight * 0.5;
+  const hideThreshold = Math.max(0, revealThreshold - 40);
+
   return (
-    <ProfileChromeProvider revealThreshold={PROFILE_CHROME_REVEAL_THRESHOLD}>
+    <ProfileChromeProvider
+      revealThreshold={revealThreshold}
+      hideThreshold={hideThreshold}
+    >
       <MainProfileContent
         userId={userId}
         isOwnProfile={isOwnProfile}
         profile={profile}
         isPending={isPending}
         isError={isError}
+        onProfileInfoLayout={handleProfileInfoLayout}
       />
     </ProfileChromeProvider>
   );

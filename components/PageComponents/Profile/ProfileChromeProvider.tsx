@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   type ReactNode,
 } from 'react';
@@ -48,15 +49,22 @@ export function ProfileChromeProvider({
 }: ProfileChromeProviderProps) {
   const hideProgress = useSharedValue(0);
   const hideProgressTarget = useSharedValue(0);
+  const revealThresholdSv = useSharedValue(revealThreshold);
+  const hideThresholdSv = useSharedValue(hideThreshold);
+
+  useEffect(() => {
+    revealThresholdSv.value = revealThreshold;
+    hideThresholdSv.value = hideThreshold;
+  }, [hideThreshold, hideThresholdSv, revealThreshold, revealThresholdSv]);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       const y = event.contentOffset.y;
       let nextTarget = hideProgressTarget.value;
 
-      if (y > revealThreshold) {
+      if (y > revealThresholdSv.value) {
         nextTarget = 1;
-      } else if (y < hideThreshold) {
+      } else if (y < hideThresholdSv.value) {
         nextTarget = 0;
       }
 
