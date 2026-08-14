@@ -23,6 +23,7 @@ import {
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 import { useSectionSwipeStore } from "@/stores/useSectionSwipeStore";
 import { navigateToSection } from "@/utils/navigateToSection";
+import { pathnameMatchesTabId } from "@/utils/sectionTabSync";
 
 export interface SectionPagerPage {
   id: string;
@@ -111,6 +112,19 @@ export function SectionPager({
   );
   const lastIndex = pages.length - 1;
   const nativePageRef = useRef(activeIndex);
+  const activeIndexRef = useRef(activeIndex);
+  activeIndexRef.current = activeIndex;
+  const wasSectionActiveRef = useRef(isSectionActive);
+  const isLayoutSettlingRef = useRef(false);
+  const layoutSettleFrameRef = useRef<number | null>(null);
+  const lastSyncedHrefRef = useRef<string | null>(null);
+  const pageHeightsRef = useRef(pageHeights);
+  pageHeightsRef.current = pageHeights;
+
+  const syncNativePage = useCallback((index: number) => {
+    nativePageRef.current = index;
+    pagerRef.current?.setPageWithoutAnimation(index);
+  }, []);
 
   const previousSection = sectionId
     ? getAdjacentSection(sectionId, "right")
@@ -122,23 +136,42 @@ export function SectionPager({
 
   useEffect(() => {
     if (nativePageRef.current === activeIndex) return;
-    nativePageRef.current = activeIndex;
-    pagerRef.current?.setPageWithoutAnimation(activeIndex);
-  }, [activeIndex]);
+    syncNativePage(activeIndex);
+  }, [activeIndex, syncNativePage]);
+
+  // Re-sync native page when section reactivates (e.g. back from Profile stack).
+  useEffect(() => {
+    const wasActive = wasSectionActiveRef.current;
+    wasSectionActiveRef.current = isSectionActive;
+    if (!isSectionActive || wasActive) return;
+    syncNativePage(activeIndex);
+  }, [isSectionActive, activeIndex, syncNativePage]);
 
   useEffect(() => {
     if (!isSectionActive) return;
-    const href = pages[activeIndex]?.href;
-    if (!href) return;
-    rememberSectionHref(href);
-    setActiveHref(href);
-  }, [
-    activeIndex,
-    isSectionActive,
-    pages,
-    rememberSectionHref,
-    setActiveHref,
-  ]);
+    const page = pages[activeIndex];
+    if (!page) return;
+    rememberSectionHref(page.href);
+    setActiveHref(page.href);
+  }, [activeIndex, isSectionActive, pages, rememberSectionHref, setActiveHref]);
+
+  // Silent URL sync — pathname intentionally omitted from deps to avoid replace loops.
+  useEffect(() => {
+    if (!isSectionActive || !sectionId) return;
+    const page = pages[activeIndex];
+    if (!page) return;
+
+    if (pathnameMatchesTabId(pathname, page.id)) {
+      lastSyncedHrefRef.current = String(page.href);
+      return;
+    }
+
+    const hrefKey = String(page.href);
+    if (lastSyncedHrefRef.current !== hrefKey) {
+      lastSyncedHrefRef.current = hrefKey;
+      router.replace(page.href);
+    }
+  }, [activeIndex, isSectionActive, pages, router, sectionId]);
 
   useEffect(() => {
     if (!isSectionActive) {
@@ -200,7 +233,7 @@ export function SectionPager({
 
   const handlePageSelected = useCallback(
     (event: PagerViewOnPageSelectedEvent) => {
-      if (!isSectionActive) return;
+      if (!isSectionActive || isLayoutSettlingRef.current) return;
       const index = event.nativeEvent.position;
       nativePageRef.current = index;
       const page = pages[index];
@@ -213,7 +246,7 @@ export function SectionPager({
 
   const handlePageScroll = useCallback(
     (event: PagerViewOnPageScrollEvent) => {
-      if (!isSectionActive) return;
+      if (!isSectionActive || isLayoutSettlingRef.current) return;
       const { position, offset } = event.nativeEvent;
       const settledIndex =
         offset > PAGE_COMMIT_THRESHOLD ? position + 1 : position;
@@ -230,12 +263,21 @@ export function SectionPager({
     (pageId: string, event: LayoutChangeEvent) => {
       const height = event.nativeEvent.layout.height;
       if (height <= 0) return;
-      setPageHeights((prev) => {
-        if (prev[pageId] === height) return prev;
-        return { ...prev, [pageId]: height };
+      if (pageHeightsRef.current[pageId] === height) return;
+
+      isLayoutSettlingRef.current = true;
+      setPageHeights((prev) => ({ ...prev, [pageId]: height }));
+
+      if (layoutSettleFrameRef.current != null) {
+        cancelAnimationFrame(layoutSettleFrameRef.current);
+      }
+      layoutSettleFrameRef.current = requestAnimationFrame(() => {
+        layoutSettleFrameRef.current = null;
+        syncNativePage(activeIndexRef.current);
+        isLayoutSettlingRef.current = false;
       });
     },
-    [],
+    [syncNativePage],
   );
 
   const measuredMaxHeight = Math.max(

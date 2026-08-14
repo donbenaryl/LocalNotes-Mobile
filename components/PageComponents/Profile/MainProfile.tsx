@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { InteractionManager, Pressable, Share, Text, View } from "react-native";
 import {
   Building2,
@@ -7,6 +7,7 @@ import {
   ListChecks,
   MoreHorizontal,
 } from "lucide-react-native";
+import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -191,6 +192,9 @@ function MainProfileContent({
   const showToast = useToastStore((s) => s.show);
   const { colorScheme } = useColorScheme();
   const params = useLocalSearchParams<{ tab?: string }>();
+  const isFocused = useIsFocused();
+  const isFocusedRef = useRef(isFocused);
+  isFocusedRef.current = isFocused;
   const { resetChrome } = useProfileChrome();
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
@@ -254,7 +258,9 @@ function MainProfileContent({
   }, [params.tab, visibleTabIds]);
 
   useEffect(() => {
+    if (!isFocusedRef.current) return;
     const task = InteractionManager.runAfterInteractions(() => {
+      if (!isFocusedRef.current) return;
       if (activeTab === "my-lists") {
         if (params.tab === undefined) return;
         router.setParams({ tab: undefined });
@@ -264,7 +270,7 @@ function MainProfileContent({
       router.setParams({ tab: activeTab });
     });
     return () => task.cancel();
-  }, [activeTab, params.tab, router]);
+  }, [activeTab, isFocused, params.tab, router]);
 
   const handleTabChange = useCallback(
     (tabId: string) => {

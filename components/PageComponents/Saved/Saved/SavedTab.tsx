@@ -2,8 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Bookmark, Package } from "lucide-react-native";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useProfile, useProfilePicks } from "@/hooks/useProfileList";
@@ -52,18 +51,10 @@ export function SavedTab() {
     }
   }, [subTab, refetchLists, refetchPicks]);
 
+  useRegisterSectionPullToRefresh("saved", handleRefresh, isRefetching);
+
   return (
-    <HomeTabsChromeScrollView
-      className="flex-1"
-      contentContainerClassName="px-4 pb-28"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={handleRefresh}
-        />
-      }
-    >
+    <View className="px-4">
       <SavedListsPicksToggle
         activeTab={subTab}
         onChange={setSubTab}
@@ -119,6 +110,6 @@ export function SavedTab() {
           </View>
         </SavedSectionState>
       )}
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }

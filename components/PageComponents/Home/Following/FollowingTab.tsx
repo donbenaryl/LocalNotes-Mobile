@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { AlertCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
@@ -42,6 +41,8 @@ export function FollowingTab() {
     void Promise.all([refetchFollowing(), refetchActivity()]);
   }, [refetchFollowing, refetchActivity]);
 
+  useRegisterSectionPullToRefresh("following", handleRefresh, isRefetching);
+
   const today = new Date().toISOString().split("T")[0];
 
   const todayCreators = useMemo(() => {
@@ -59,17 +60,7 @@ export function FollowingTab() {
     !followingLoading && !followingError && todayCreators.length > 0;
 
   return (
-    <HomeTabsChromeScrollView
-      showsVerticalScrollIndicator={false}
-      className="flex-1"
-      contentContainerClassName="px-4 pb-28"
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={handleRefresh}
-        />
-      }
-    >
+    <View className="px-4">
       {followingLoading && <FollowingCreatorsRowSkeleton />}
 
       {showNotesToday && (
@@ -149,6 +140,6 @@ export function FollowingTab() {
           </View>
         )}
       </View>
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
+import { useCallback } from "react";
 import {
   Text,
   View,
 } from "react-native";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { Clock, MapPin, Star, Tag } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/Badge";
@@ -66,13 +66,19 @@ export function OffersTab() {
   const { t } = useTranslation();
   const { sections, totalCount, isLoading, isRefetching, error, refetch } = useOffersFeed();
 
+  const handleRefresh = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  useRegisterSectionPullToRefresh("offers", handleRefresh, isRefetching);
+
   if (isLoading) {
     return <OffersTabSkeleton />;
   }
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
+      <View className="items-center justify-center px-6 py-20">
         <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
           {t("offers.error")}
         </Text>
@@ -103,17 +109,7 @@ export function OffersTab() {
   );
 
   return (
-    <HomeTabsChromeScrollView
-      className="flex-1"
-      contentContainerClassName="px-4 pb-8"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={() => void refetch()}
-        />
-      }
-    >
+    <View className="px-4 pb-8">
       <View className="mb-16">
         <View className="mb-6">
           <Text className="font-geist-bold text-lg text-ink dark:text-gray-100">
@@ -161,6 +157,6 @@ export function OffersTab() {
           </>
         )}
       </View>
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }

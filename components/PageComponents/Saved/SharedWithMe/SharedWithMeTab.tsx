@@ -2,8 +2,7 @@ import { useCallback } from "react";
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react-native";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { useProfile } from "@/hooks/useProfileList";
@@ -41,18 +40,10 @@ export function SharedWithMeTab() {
     void Promise.all([refetchShared(), refetchCollab()]);
   }, [refetchShared, refetchCollab]);
 
+  useRegisterSectionPullToRefresh("shared-with-me", handleRefresh, isRefetching);
+
   return (
-    <HomeTabsChromeScrollView
-      className="flex-1"
-      contentContainerClassName="px-4 pb-28"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={handleRefresh}
-        />
-      }
-    >
+    <View className="px-4">
       {isFullyEmpty ? (
         <EmptyScreen
           icon={<Users size={40} color="#D1D5DB" />}
@@ -75,6 +66,6 @@ export function SharedWithMeTab() {
           </View>
         </SavedSectionState>
       )}
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }

@@ -17,6 +17,7 @@ import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/Se
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
+import { resolveSectionTabFromPathname } from "@/utils/sectionTabSync";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useInitializeSearchLocation } from "@/hooks/useInitializeSearchLocation";
 import { HOME_HREF } from "@/constants/swipeNavigation";
@@ -52,13 +53,19 @@ export default function MainSearch() {
   // produces a second slide-in on top of the pager's own animation.
   const [activeTab, setActiveTab] = useState(() => getActiveTab(pathname));
 
-  // Explicit sub-routes only — /search/picks (section entry) must not clobber
-  // local pager state when returning from a stack screen.
   useEffect(() => {
-    if (!pathname.includes("/search")) return;
-    const tab = getActiveTab(pathname);
-    if (tab === "picks") return;
-    setActiveTab(tab);
+    const lastHref = useSectionRouteStore.getState().lastHrefBySection.search;
+    setActiveTab((current) => {
+      const tab = resolveSectionTabFromPathname({
+        pathname,
+        sectionSegment: "/search",
+        defaultTabId: "picks",
+        getActiveTabFromPathname: getActiveTab,
+        lastHref,
+        currentActiveTab: current,
+      });
+      return tab ?? current;
+    });
   }, [pathname]);
 
   // Re-tapping the active footer tab resets to the first sub-tab — see MainHome.

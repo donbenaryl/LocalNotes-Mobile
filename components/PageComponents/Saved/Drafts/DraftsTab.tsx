@@ -3,8 +3,7 @@ import { View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { FolderOpen } from "lucide-react-native";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { useProfile } from "@/hooks/useProfileList";
@@ -30,18 +29,10 @@ export function DraftsTab() {
     void queryClient.invalidateQueries({ queryKey: ["profile-picks"] });
   }, [refetch, queryClient]);
 
+  useRegisterSectionPullToRefresh("draft", handleRefresh, isRefetching);
+
   return (
-    <HomeTabsChromeScrollView
-      className="flex-1"
-      contentContainerClassName="px-4 pb-28"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={handleRefresh}
-        />
-      }
-    >
+    <View className="px-4">
       <DraftsSmartSuggestion />
 
       <PageSectionTitle className="mb-3">
@@ -76,6 +67,6 @@ export function DraftsTab() {
       <DraftsPickCaptures />
 
       <DraftsProfileLink />
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }

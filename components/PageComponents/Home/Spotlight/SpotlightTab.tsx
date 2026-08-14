@@ -1,8 +1,8 @@
+import { useCallback } from "react";
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { useSpotlightEdition } from "@/hooks/useSpotlightEdition";
 import { SpotlightBusinessesSection } from "./SpotlightBusinessesSection";
@@ -18,13 +18,19 @@ export function SpotlightTab() {
   const { t } = useTranslation();
   const { data, isLoading, isRefetching, error, refetch } = useSpotlightEdition();
 
+  const handleRefresh = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  useRegisterSectionPullToRefresh("spotlight", handleRefresh, isRefetching);
+
   if (isLoading) {
     return <SpotlightTabSkeleton />;
   }
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
+      <View className="items-center justify-center px-6 py-20">
         <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
           {t("spotlight.error")}
         </Text>
@@ -40,7 +46,7 @@ export function SpotlightTab() {
 
   if (!data) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
+      <View className="items-center justify-center px-6 py-20">
         <EmptyScreen
           title={t("spotlight.empty")}
           description={t("spotlight.emptyDescription")}
@@ -57,17 +63,7 @@ export function SpotlightTab() {
   const businessesSection = data.sections.find((section) => section.section_key === "businesses");
 
   return (
-    <HomeTabsChromeScrollView
-      className="flex-1"
-      contentContainerClassName="pb-40 px-4"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={() => void refetch()}
-        />
-      }
-    >
+    <View className="px-4 pb-8">
       <SpotlightHero edition={data} />
       {picksSection ? <SpotlightPicksSection section={picksSection} /> : null}
       {listsSection ? <SpotlightListsSection section={listsSection} /> : null}
@@ -75,6 +71,6 @@ export function SpotlightTab() {
       {collectionsSection ? <SpotlightCollectionsSection section={collectionsSection} /> : null}
       {businessesSection ? <SpotlightBusinessesSection section={businessesSection} /> : null}
       <SpotlightSponsoredSection sponsored={data.sponsored} />
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }

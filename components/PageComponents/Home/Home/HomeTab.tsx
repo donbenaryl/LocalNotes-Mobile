@@ -1,10 +1,9 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import {
   Text,
   View,
 } from "react-native";
-import { HomeTabsChromeScrollView } from "@/components/ui/HomeTabsChromeScrollView";
-import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { useTranslation } from "react-i18next";
 import type { ListItemDAO, ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -271,6 +270,12 @@ export function HomeTab() {
   const categoryMatchCount =
     contentType === "picks" ? picksCategoryMatchCount : listsCategoryMatchCount;
 
+  const handleRefresh = useCallback(() => {
+    void refetch();
+  }, [refetch]);
+
+  useRegisterSectionPullToRefresh("home", handleRefresh, isRefetching);
+
   const timeLabel = useMemo(
     () =>
       getTimeOfDayLabel(
@@ -329,7 +334,7 @@ export function HomeTab() {
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center px-6">
+      <View className="items-center justify-center px-6 py-20">
         <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
           {t("home.error")}
         </Text>
@@ -353,17 +358,7 @@ export function HomeTab() {
         discoverLists.length === 0;
 
   return (
-    <HomeTabsChromeScrollView
-      className="flex-1"
-      contentContainerClassName="px-4 pb-28"
-      showsVerticalScrollIndicator={false}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={isRefetching}
-          onRefresh={() => void refetch()}
-        />
-      }
-    >
+    <View className="px-4">
       {isLoading ? (
         <HomeTabSkeleton />
       ) : (
@@ -476,6 +471,6 @@ export function HomeTab() {
           ) : null}
         </>
       )}
-    </HomeTabsChromeScrollView>
+    </View>
   );
 }
