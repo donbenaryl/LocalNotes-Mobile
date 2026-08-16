@@ -4,10 +4,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   type ReactNode,
 } from 'react';
 import {
   Easing,
+  runOnJS,
   useAnimatedScrollHandler,
   useSharedValue,
   withTiming,
@@ -30,6 +32,7 @@ interface ProfileChromeContextValue {
   hideProgress: SharedValue<number>;
   scrollHandler: ReturnType<typeof useAnimatedScrollHandler>;
   resetChrome: () => void;
+  setScrollYListener: (listener: ((y: number) => void) | null) => void;
 }
 
 const ProfileChromeContext = createContext<ProfileChromeContextValue | null>(null);
@@ -51,6 +54,18 @@ export function ProfileChromeProvider({
   const hideProgressTarget = useSharedValue(0);
   const revealThresholdSv = useSharedValue(revealThreshold);
   const hideThresholdSv = useSharedValue(hideThreshold);
+  const scrollYListenerRef = useRef<((y: number) => void) | null>(null);
+
+  const reportScrollY = useCallback((y: number) => {
+    scrollYListenerRef.current?.(y);
+  }, []);
+
+  const setScrollYListener = useCallback(
+    (listener: ((y: number) => void) | null) => {
+      scrollYListenerRef.current = listener;
+    },
+    [],
+  );
 
   useEffect(() => {
     revealThresholdSv.value = revealThreshold;
@@ -72,6 +87,8 @@ export function ProfileChromeProvider({
         hideProgressTarget.value = nextTarget;
         hideProgress.value = withTiming(nextTarget, REVEAL_TIMING);
       }
+
+      runOnJS(reportScrollY)(y);
     },
   });
 
@@ -85,8 +102,9 @@ export function ProfileChromeProvider({
       hideProgress,
       scrollHandler,
       resetChrome,
+      setScrollYListener,
     }),
-    [hideProgress, scrollHandler, resetChrome],
+    [hideProgress, scrollHandler, resetChrome, setScrollYListener],
   );
 
   return (

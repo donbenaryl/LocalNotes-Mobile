@@ -1,10 +1,6 @@
-import { useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { View, type ScrollViewProps } from 'react-native';
-import Animated, {
-  runOnJS,
-  useAnimatedScrollHandler,
-  useComposedEventHandler,
-} from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useProfileChrome } from '@/components/PageComponents/Profile/ProfileChromeProvider';
 import { useScrollToTopControl } from '@/hooks/useScrollToTopControl';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton';
@@ -19,26 +15,20 @@ export function ProfileChromeScrollView({
   ...props
 }: ProfileChromeScrollViewProps) {
   const scrollRef = useRef<Animated.ScrollView>(null);
-  const { scrollHandler } = useProfileChrome();
+  const { scrollHandler, setScrollYListener } = useProfileChrome();
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(scrollRef);
 
-  const fabScrollHandler = useAnimatedScrollHandler({
-    onScroll: (event) => {
-      runOnJS(onScrollY)(event.contentOffset.y);
-    },
-  });
-
-  const composedScrollHandler = useComposedEventHandler([
-    scrollHandler,
-    fabScrollHandler,
-  ]);
+  useEffect(() => {
+    setScrollYListener(onScrollY);
+    return () => setScrollYListener(null);
+  }, [onScrollY, setScrollYListener]);
 
   return (
     <View className="flex-1">
       <Animated.ScrollView
         ref={scrollRef}
         {...props}
-        onScroll={composedScrollHandler}
+        onScroll={scrollHandler}
         scrollEventThrottle={scrollEventThrottle}
       >
         {children}

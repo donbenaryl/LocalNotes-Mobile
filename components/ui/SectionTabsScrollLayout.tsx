@@ -19,8 +19,10 @@ import {
 } from '@/components/ui/SectionPager';
 import { GuardedHeader } from '@/components/ui/layout/GuardedHeader';
 import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
+import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton';
 import { useSectionPullToRefresh } from '@/components/ui/SectionPullToRefreshContext';
 import { useContentBottomInset } from '@/hooks/useContentBottomInset';
+import { useScrollToTopControl } from '@/hooks/useScrollToTopControl';
 import type { SectionId } from '@/constants/swipeNavigation';
 
 const STICKY_TIMING = {
@@ -44,6 +46,7 @@ export function SectionTabsScrollLayout({
   pages,
 }: SectionTabsScrollLayoutProps) {
   const scrollRef = useRef<ScrollView>(null);
+  const { visible, onScrollY, scrollToTop } = useScrollToTopControl(scrollRef);
   const contentBottomInset = useContentBottomInset();
   const { handler } = useSectionPullToRefresh();
   const handlerRef = useRef(handler);
@@ -81,15 +84,17 @@ export function SectionTabsScrollLayout({
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (stickyThreshold <= 0) return;
       const y = event.nativeEvent.contentOffset.y;
+      onScrollY(y);
+
+      if (stickyThreshold <= 0) return;
       const nextVisible = y >= stickyThreshold ? 1 : 0;
       if (stickyVisible.value !== nextVisible) {
         stickyVisible.value = withTiming(nextVisible, STICKY_TIMING);
         setStickyInteractive(nextVisible === 1);
       }
     },
-    [stickyThreshold, stickyVisible, setStickyInteractive],
+    [onScrollY, stickyThreshold, stickyVisible, setStickyInteractive],
   );
 
   const handleTabChange = useCallback(
@@ -98,15 +103,17 @@ export function SectionTabsScrollLayout({
       stickyVisible.value = 0;
       setStickyInteractive(false);
       scrollRef.current?.scrollTo({ y: 0, animated: false });
+      onScrollY(0);
     },
-    [onTabChange, stickyVisible, setStickyInteractive],
+    [onScrollY, onTabChange, stickyVisible, setStickyInteractive],
   );
 
   useEffect(() => {
     stickyVisible.value = 0;
     setStickyInteractive(false);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
-  }, [activeTab, stickyVisible, setStickyInteractive]);
+    onScrollY(0);
+  }, [activeTab, onScrollY, stickyVisible, setStickyInteractive]);
 
   const stickyStyle = useAnimatedStyle(() => {
     const height = tabsHeightShared.value;
@@ -173,6 +180,8 @@ export function SectionTabsScrollLayout({
           className="border-b-0"
         />
       </Animated.View>
+
+      <ScrollToTopButton visible={visible} onPress={scrollToTop} />
     </View>
   );
 }

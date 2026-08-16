@@ -105,13 +105,15 @@ export function useProfilePicks(
   categoryIds: string[] = [],
   location?: { latitude: number; longitude: number },
   withImage?: boolean,
+  /** YYYY-MM-DD inclusive lower bound on pick created_at */
+  dateFrom?: string,
 ) {
   const locationKey = location ? `${location.latitude},${location.longitude}` : "";
 
   const { data, isPending, isError, isRefetching, refetch } = useQuery({
     queryKey: viewedUserId
-      ? ["profile-picks", viewedUserId, favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false]
-      : ["profile-picks", favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false],
+      ? ["profile-picks", viewedUserId, favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false, dateFrom ?? ""]
+      : ["profile-picks", favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false, dateFrom ?? ""],
     enabled: enabled && (viewedUserId ? Boolean(viewedUserId) : true),
     staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
@@ -120,6 +122,7 @@ export function useProfilePicks(
         ...(categoryIds.length ? { category_ids: categoryIds } : {}),
         ...(location ? { latitude: location.latitude, longitude: location.longitude } : {}),
         ...(withImage ? { with_image: true as const } : {}),
+        ...(dateFrom ? { date_from: dateFrom } : {}),
       };
       const response = await listService.fetchListItems(
         viewedUserId ? { ...params, user_id: viewedUserId } : params,

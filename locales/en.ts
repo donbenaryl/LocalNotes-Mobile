@@ -459,6 +459,8 @@ const en = {
       empty: 'Business details are not available yet.',
       contact: 'Contact',
       locations: 'Locations',
+      location: 'Location',
+      directionsWithDistance: 'Directions · {{distance}} mi',
       email: 'Email',
       phone: 'Phone',
       website: 'Website',

@@ -10,13 +10,13 @@ import {
 import {
   Globe,
   Mail,
-  MapPin,
   Phone,
 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
+import { BranchLocationCard } from '@/components/PageComponents/Profile/BranchLocationCard';
+import { useUserCoordinates } from '@/hooks/useUserCoordinates';
 import { useBusinessStore } from '@/stores/useBusinessStore';
-import type { BusinessBranchDAO, BusinessLocation } from '@/http/business-api/types';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from '@/constants/colors';
 
@@ -32,16 +32,6 @@ function formatStatCount(value: number | undefined): string {
     return `${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1)}K`;
   }
   return String(Math.round(n));
-}
-
-function formatBusinessAddress(location: BusinessLocation): string {
-  const parts = [
-    location.street_address,
-    [location.city, location.region].filter(Boolean).join(', '),
-    location.postal_code,
-    location.country,
-  ].filter(Boolean);
-  return parts.join('\n');
 }
 
 interface AboutRowProps {
@@ -81,28 +71,14 @@ function AboutRow({ icon, label, value, onPress }: AboutRowProps) {
   return content;
 }
 
-function BranchRow({
-  branch,
-  iconColor,
-}: {
-  branch: BusinessBranchDAO;
-  iconColor: string;
-}) {
-  const address = formatBusinessAddress(branch.location);
-
+function LocationCardSkeleton() {
   return (
-    <View className="border-t border-gray-100 py-3 dark:border-gray-700">
-      {branch.name ? (
-        <Text className="font-geist-semibold text-[13.5px] text-ink dark:text-gray-100">
-          {branch.name}
-        </Text>
-      ) : null}
-      <View className="mt-1 flex-row items-start gap-2.5">
-        <MapPin size={14} color={iconColor} strokeWidth={2} />
-        <Text className="min-w-0 flex-1 font-geist text-[13px] leading-[1.45] text-gray-600 dark:text-gray-400">
-          {address}
-        </Text>
-      </View>
+    <View className="rounded-3xl bg-white p-4 shadow-sm dark:bg-gray-800">
+      <View className="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700" />
+      <View className="mt-3 h-44 rounded-2xl bg-gray-200 dark:bg-gray-700" />
+      <View className="mt-3 h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
+      <View className="mt-2 h-3.5 w-3/5 rounded bg-gray-200 dark:bg-gray-700" />
+      <View className="mt-4 h-[46px] rounded-full bg-gray-200 dark:bg-gray-700" />
     </View>
   );
 }
@@ -119,10 +95,7 @@ function ProfileAboutTabSkeleton() {
           </View>
         </View>
       </View>
-      <View className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-800">
-        <View className="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700" />
-        <View className="mt-3 h-16 rounded bg-gray-200 dark:bg-gray-700" />
-      </View>
+      <LocationCardSkeleton />
     </View>
   );
 }
@@ -131,6 +104,7 @@ export function ProfileAboutTab() {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? ICON_COLOR_DARK : ICON_COLOR_LIGHT;
+  const { coordinates: userCoordinates } = useUserCoordinates();
 
   const businessInfo = useBusinessStore((s) => s.businessInfo);
   const isFetching = useBusinessStore((s) => s.isFetching);
@@ -240,7 +214,7 @@ export function ProfileAboutTab() {
           </Text>
         ) : null}
 
-        <View className="mt-4 flex-row rounded-xl bg-soft py-3 dark:bg-gray-900">
+        {/* <View className="mt-4 flex-row rounded-xl bg-soft py-3 dark:bg-gray-900">
           {stats.map((stat, index) => (
             <View
               key={stat.label}
@@ -256,22 +230,18 @@ export function ProfileAboutTab() {
               </Text>
             </View>
           ))}
-        </View>
+        </View> */}
       </View>
 
-      {businessInfo.branches?.length ? (
-        <View className="rounded-2xl bg-white px-4 pb-4 shadow-sm dark:bg-gray-800">
-          <View className="flex-row items-center gap-2 pt-4">
-            <MapPin size={14} color={iconColor} strokeWidth={2} />
-            <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
-              {t('profile.about.locations')}
-            </Text>
-          </View>
-          {businessInfo.branches.map((branch) => (
-            <BranchRow key={branch.id} branch={branch} iconColor={iconColor} />
-          ))}
-        </View>
-      ) : null}
+      {businessInfo.branches?.map((branch) => (
+        <BranchLocationCard
+          key={branch.id}
+          branch={branch}
+          businessName={businessInfo.name}
+          logoUri={logoUri}
+          userCoordinates={userCoordinates}
+        />
+      ))}
 
       {hasContact ? (
         <View className="rounded-2xl bg-white px-4 shadow-sm dark:bg-gray-800">

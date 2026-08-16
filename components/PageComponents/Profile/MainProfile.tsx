@@ -5,7 +5,6 @@ import {
   Info,
   LayoutGrid,
   List,
-  ListChecks,
   MoreHorizontal,
 } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
@@ -54,7 +53,6 @@ const TAB_IDS: ProfileListTabType[] = [
   "my-lists",
   "saved",
   "collaborative",
-  "contributed",
   "shared-with-me",
   "picks",
   "about",
@@ -227,8 +225,8 @@ function MainProfileContent({
   const displayName = profile?.name?.trim() || t("common.user");
   const profileUserId = profile?.id ?? userId ?? "";
   const accountType = profile?.account_type ?? authAccountType ?? undefined;
-  const isBusinessOwner =
-    isOwnProfile && isBusinessAccountType(accountType ?? undefined);
+  const isBusinessProfile = isBusinessAccountType(accountType ?? undefined);
+  const isBusinessOwner = isOwnProfile && isBusinessProfile;
 
   const ownProfileTabs: TabItem[] = useMemo(() => {
     const base: TabItem[] = [
@@ -237,18 +235,12 @@ function MainProfileContent({
       { id: "saved", label: t("profile.tabs.saved"), icon: List },
     ];
 
-    if (isBusinessOwner) {
+    if (isBusinessProfile) {
       base.push({ id: "about", label: t("profile.tabs.about"), icon: Info });
     }
 
-    base.push({
-      id: "contributed",
-      label: t("profile.tabs.contributed"),
-      icon: ListChecks,
-    });
-
     return base;
-  }, [isBusinessOwner, t]);
+  }, [isBusinessProfile, t]);
 
   const tabs = useMemo(() => {
     if (isOwnProfile) {
@@ -257,7 +249,6 @@ function MainProfileContent({
 
     return ownProfileTabs.filter((tab) => {
       if (tab.id === "saved") return profile?.show_saved_list ?? false;
-      if (tab.id === "contributed") return profile?.show_contributed_lists ?? true;
       if (tab.id === "shared-with-me") return profile?.show_shared_with_me ?? true;
       return true;
     });
@@ -265,7 +256,6 @@ function MainProfileContent({
     isOwnProfile,
     ownProfileTabs,
     profile?.show_saved_list,
-    profile?.show_contributed_lists,
     profile?.show_shared_with_me,
   ]);
 
