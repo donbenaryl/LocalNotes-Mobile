@@ -1,22 +1,31 @@
 import { useState } from "react";
 import { View } from "react-native";
+import type { BusinessAuthorship } from "@/hooks/useProfileList";
 import { ProfileTabPanel, type ProfileListTabType } from "./ProfileTabPanel";
 
 interface ProfileListProps {
   userId: string;
   isOwnProfile?: boolean;
   tab: ProfileListTabType;
+  isBusinessProfile?: boolean;
+  businessId?: string;
+  businessName?: string;
 }
 
 export function ProfileList({
   userId,
   isOwnProfile = true,
   tab,
+  isBusinessProfile = false,
+  businessId,
+  businessName,
 }: ProfileListProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("Published");
   const [selectedSort, setSelectedSort] = useState("Top Engaged List");
   const [pickFavoriteFilter, setPickFavoriteFilter] = useState("All");
+  const [businessAuthorship, setBusinessAuthorship] =
+    useState<BusinessAuthorship>("about");
 
   const statusOpts = ["Published", "Draft"];
   const sortOptions = ["Top Engaged List"];
@@ -39,6 +48,11 @@ export function ProfileList({
         statusOptions={statusOpts}
         sortOptions={sortOptions}
         favoriteOptions={favoriteOptions}
+        isBusinessProfile={isBusinessProfile}
+        businessId={businessId}
+        businessName={businessName}
+        businessAuthorship={businessAuthorship}
+        onBusinessAuthorshipChange={setBusinessAuthorship}
       />
     </View>
   );

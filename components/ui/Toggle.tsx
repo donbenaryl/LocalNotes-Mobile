@@ -29,6 +29,8 @@ interface ToggleProps<T extends string> {
   onChange: (value: T) => void;
   options: ToggleOption<T>[];
   className?: string;
+  /** When true, label options expand equally (full-width segmented control). */
+  fullWidth?: boolean;
 }
 
 export function Toggle<T extends string>({
@@ -36,6 +38,7 @@ export function Toggle<T extends string>({
   onChange,
   options,
   className,
+  fullWidth = false,
 }: ToggleProps<T>) {
   const isIconOnly = options.every((option) => option.icon && !option.label);
 
@@ -43,6 +46,7 @@ export function Toggle<T extends string>({
     <View
       className={cn(
         "flex-row gap-0.5 rounded-full bg-soft p-1 dark:bg-gray-800",
+        fullWidth ? "w-full" : "",
         className,
       )}
     >
@@ -56,6 +60,7 @@ export function Toggle<T extends string>({
             onPress={() => onChange(option.value)}
             className={cn(
               "cursor-pointer rounded-full",
+              fullWidth && !isIconOnly ? "flex-1 items-center" : "",
               isIconOnly ? "p-1.5" : "px-4 py-2",
               isActive ? "bg-white dark:bg-gray-700" : "bg-transparent",
             )}

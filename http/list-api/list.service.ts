@@ -157,6 +157,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (dto.limit !== undefined) query.limit = dto.limit;
       if (dto.sortBy) query.sort_by = dto.sortBy;
       if (dto.sortOrder) query.sort_order = dto.sortOrder;
+      if (dto.businessId) query.business_id = dto.businessId;
 
       return await this.SendRequest<ListItemDAO[]>({
         method:"get",
@@ -268,6 +269,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       date_from?: string;
       /** YYYY-MM-DD inclusive upper bound on pick created_at */
       date_to?: string;
+      business_id?: string;
     }) {
       const query: {
         keyword?: string;
@@ -288,6 +290,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         with_image?: string;
         date_from?: string;
         date_to?: string;
+        business_id?: string;
       } = {};
       if (params?.keyword) query.keyword = params.keyword;
       if (params?.user_id) query.user_id = params.user_id;
@@ -309,6 +312,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (params?.with_image) query.with_image = "true";
       if (params?.date_from) query.date_from = params.date_from;
       if (params?.date_to) query.date_to = params.date_to;
+      if (params?.business_id) query.business_id = params.business_id;
       return await this.SendRequest<ListItemPublic[]>({
         method: "get",
         path: "/list-items",

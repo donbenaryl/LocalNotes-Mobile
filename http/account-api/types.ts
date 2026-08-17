@@ -47,6 +47,9 @@ export interface profileItemDAO {
   show_shared_with_me?: boolean;
   location_id?: string | null;
   location?: AccountLocationDTO | null;
+  /** Present when account_type is business */
+  primary_business_id?: string | null;
+  primary_business_name?: string | null;
 }
 
 export type profileDAO = {

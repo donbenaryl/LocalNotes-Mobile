@@ -1,5 +1,6 @@
-import type { ProfileTabCategory } from "@/hooks/useProfileList";
+import type { BusinessAuthorship, ProfileTabCategory } from "@/hooks/useProfileList";
 import { ProfileListTabContent } from "./ProfileListTabContent";
+import { ProfileBusinessAuthorshipToggle } from "./ProfileBusinessAuthorshipToggle";
 import { ProfileTabFilters } from "./ProfileTabFilters";
 import { View } from "react-native";
 
@@ -18,6 +19,11 @@ interface ProfileListTabPanelProps {
   statusOptions: string[];
   sortOptions: string[];
   favoriteOptions: string[];
+  isBusinessProfile?: boolean;
+  businessId?: string;
+  businessName?: string;
+  businessAuthorship?: BusinessAuthorship;
+  onBusinessAuthorshipChange?: (value: BusinessAuthorship) => void;
 }
 
 export function ProfileListTabPanel({
@@ -35,9 +41,28 @@ export function ProfileListTabPanel({
   statusOptions,
   sortOptions,
   favoriteOptions,
+  isBusinessProfile = false,
+  businessId,
+  businessName,
+  businessAuthorship = "about",
+  onBusinessAuthorshipChange,
 }: ProfileListTabPanelProps) {
+  const showBusinessToggle =
+    tab === "my-lists" &&
+    isBusinessProfile &&
+    Boolean(businessId) &&
+    Boolean(businessName);
+
   return (
     <View className="px-4">
+      {showBusinessToggle && businessName && onBusinessAuthorshipChange ? (
+        <ProfileBusinessAuthorshipToggle
+          businessName={businessName}
+          value={businessAuthorship}
+          onChange={onBusinessAuthorshipChange}
+        />
+      ) : null}
+
       <ProfileTabFilters
         tab={tab}
         userId={userId}
@@ -53,6 +78,8 @@ export function ProfileListTabPanel({
         statusOptions={statusOptions}
         sortOptions={sortOptions}
         favoriteOptions={favoriteOptions}
+        businessAuthorship={showBusinessToggle ? businessAuthorship : "by"}
+        businessId={showBusinessToggle ? businessId : undefined}
       />
       <ProfileListTabContent
         category={tab}
@@ -60,6 +87,9 @@ export function ProfileListTabPanel({
         isOwnProfile={isOwnProfile}
         selectedCategory={selectedCategory}
         selectedStatus={selectedStatus}
+        businessAuthorship={showBusinessToggle ? businessAuthorship : "by"}
+        businessId={showBusinessToggle ? businessId : undefined}
+        businessName={showBusinessToggle ? businessName : undefined}
       />
     </View>
   );

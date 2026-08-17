@@ -2,8 +2,12 @@ import { useCallback, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { Package } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { useProfilePicks } from "@/hooks/useProfileList";
+import {
+  useProfilePicks,
+  type BusinessAuthorship,
+} from "@/hooks/useProfileList";
 import { PickCard } from "./PickCard";
+import { ProfileBusinessAuthorshipToggle } from "./ProfileBusinessAuthorshipToggle";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
 import { ProfileTabFilters } from "./ProfileTabFilters";
 import { useRegisterProfilePullToRefresh } from "./ProfilePullToRefreshContext";
@@ -14,6 +18,11 @@ interface ProfilePicksTabProps {
   favoriteFilter: string;
   onFavoriteFilterChange: (value: string) => void;
   favoriteOptions: string[];
+  isBusinessProfile?: boolean;
+  businessId?: string;
+  businessName?: string;
+  businessAuthorship?: BusinessAuthorship;
+  onBusinessAuthorshipChange?: (value: BusinessAuthorship) => void;
 }
 
 export function ProfilePicksTab({
@@ -22,15 +31,28 @@ export function ProfilePicksTab({
   favoriteFilter,
   onFavoriteFilterChange,
   favoriteOptions,
+  isBusinessProfile = false,
+  businessId,
+  businessName,
+  businessAuthorship = "about",
+  onBusinessAuthorshipChange,
 }: ProfilePicksTabProps) {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const viewedUserId = isOwnProfile ? undefined : userId;
+  const showBusinessToggle =
+    isBusinessProfile && Boolean(businessId) && Boolean(businessName);
+
   const { picks, isPending, isRefetching, refetch } = useProfilePicks(
     favoriteFilter,
     true,
     viewedUserId,
     selectedCategory === "All" ? [] : [selectedCategory],
+    undefined,
+    undefined,
+    undefined,
+    showBusinessToggle ? businessAuthorship : "by",
+    showBusinessToggle ? businessId : undefined,
   );
 
   const handleRefresh = useCallback(() => {
@@ -56,9 +78,22 @@ export function ProfilePicksTab({
     return { leftColumn: left, rightColumn: right };
   }, [sortedPicks]);
 
+  const emptyTitle =
+    showBusinessToggle && businessAuthorship === "about" && businessName
+      ? t("profile.businessAuthorship.picksEmptyAbout", { name: businessName })
+      : t("profile.picks.emptyTitle");
+
   return (
     <>
       <View className="px-4">
+        {showBusinessToggle && businessName && onBusinessAuthorshipChange ? (
+          <ProfileBusinessAuthorshipToggle
+            businessName={businessName}
+            value={businessAuthorship}
+            onChange={onBusinessAuthorshipChange}
+          />
+        ) : null}
+
         <ProfileTabFilters
           tab="picks"
           userId={userId}
@@ -74,6 +109,8 @@ export function ProfilePicksTab({
           statusOptions={[]}
           sortOptions={[]}
           favoriteOptions={favoriteOptions}
+          businessAuthorship={showBusinessToggle ? businessAuthorship : "by"}
+          businessId={showBusinessToggle ? businessId : undefined}
         />
 
         {!isPending && picks.length > 0 && (
@@ -92,7 +129,7 @@ export function ProfilePicksTab({
           <View className="items-center justify-center gap-3 py-16">
             <Package size={48} color="#D1D5DB" />
             <Text className="font-geist-medium text-base text-gray-500 dark:text-gray-400">
-              {t("profile.picks.emptyTitle")}
+              {emptyTitle}
             </Text>
             <Text className="text-center font-geist text-sm text-gray-400 dark:text-gray-500">
               {t("profile.picks.emptyDescription")}

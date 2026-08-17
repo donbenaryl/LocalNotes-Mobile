@@ -15,6 +15,8 @@ export type ProfileTabCategory =
   | "shared-with-me"
   | "picks";
 
+export type BusinessAuthorship = "about" | "by";
+
 interface UseProfileParams {
   category?: ProfileTabCategory;
   dto: listedDTO;
@@ -22,6 +24,8 @@ interface UseProfileParams {
   enabled?: boolean;
   viewedUserId?: string;
   isOwnProfile?: boolean;
+  businessAuthorship?: BusinessAuthorship;
+  businessId?: string;
 }
 
 export function useProfile({
@@ -31,26 +35,49 @@ export function useProfile({
   enabled = true,
   viewedUserId,
   isOwnProfile = true,
+  businessAuthorship = "by",
+  businessId,
 }: UseProfileParams) {
   const isDraftsOrMyLists =
     category === "my-lists" || (category as string) === "draft";
   const categoryFilter =
     selectedCategory && selectedCategory !== "All" ? selectedCategory : undefined;
+  const isAboutBusinessLists =
+    businessAuthorship === "about" &&
+    Boolean(businessId) &&
+    category === "my-lists";
 
   const { data, isPending, isError, isRefetching, refetch } = useQuery({
-    queryKey: isOwnProfile
-      ? isDraftsOrMyLists
-        ? ["profile-lists", category, dto.status, categoryFilter ?? ""]
-        : ["profile-other-lists", category, categoryFilter ?? ""]
-      : isDraftsOrMyLists
-        ? ["profile-user-lists", viewedUserId, dto.status, categoryFilter ?? ""]
-        : ["profile-other-user-lists", viewedUserId, category, categoryFilter ?? ""],
+    queryKey: isAboutBusinessLists
+      ? [
+          "profile-business-lists",
+          businessId,
+          categoryFilter ?? "",
+        ]
+      : isOwnProfile
+        ? isDraftsOrMyLists
+          ? ["profile-lists", category, dto.status, categoryFilter ?? ""]
+          : ["profile-other-lists", category, categoryFilter ?? ""]
+        : isDraftsOrMyLists
+          ? ["profile-user-lists", viewedUserId, dto.status, categoryFilter ?? ""]
+          : ["profile-other-user-lists", viewedUserId, category, categoryFilter ?? ""],
     enabled:
       enabled &&
       category !== "picks" &&
-      (isOwnProfile || Boolean(viewedUserId)),
+      (isAboutBusinessLists
+        ? Boolean(businessId)
+        : isOwnProfile || Boolean(viewedUserId)),
     staleTime: FEED_STALE_TIME_MS,
     queryFn: async (): Promise<ListItemDAO[]> => {
+      if (isAboutBusinessLists && businessId) {
+        const response = await listService.searchLists({
+          businessId,
+          limit: 50,
+          ...(categoryFilter ? { categoryIds: [categoryFilter] } : {}),
+        });
+        return response.data?.data ?? [];
+      }
+
       if (!isOwnProfile && viewedUserId) {
         if (isDraftsOrMyLists) {
           const response = await listService.fetchUserLists({ userId: viewedUserId });
@@ -107,14 +134,49 @@ export function useProfilePicks(
   withImage?: boolean,
   /** YYYY-MM-DD inclusive lower bound on pick created_at */
   dateFrom?: string,
+  businessAuthorship: BusinessAuthorship = "by",
+  businessId?: string,
 ) {
   const locationKey = location ? `${location.latitude},${location.longitude}` : "";
+  const isAboutBusinessPicks =
+    businessAuthorship === "about" && Boolean(businessId);
 
   const { data, isPending, isError, isRefetching, refetch } = useQuery({
-    queryKey: viewedUserId
-      ? ["profile-picks", viewedUserId, favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false, dateFrom ?? ""]
-      : ["profile-picks", favoriteFilter, categoryIds.join(","), locationKey, withImage ?? false, dateFrom ?? ""],
-    enabled: enabled && (viewedUserId ? Boolean(viewedUserId) : true),
+    queryKey: isAboutBusinessPicks
+      ? [
+          "profile-business-picks",
+          businessId,
+          favoriteFilter,
+          categoryIds.join(","),
+          locationKey,
+          withImage ?? false,
+          dateFrom ?? "",
+        ]
+      : viewedUserId
+        ? [
+            "profile-picks",
+            viewedUserId,
+            favoriteFilter,
+            categoryIds.join(","),
+            locationKey,
+            withImage ?? false,
+            dateFrom ?? "",
+          ]
+        : [
+            "profile-picks",
+            favoriteFilter,
+            categoryIds.join(","),
+            locationKey,
+            withImage ?? false,
+            dateFrom ?? "",
+          ],
+    enabled:
+      enabled &&
+      (isAboutBusinessPicks
+        ? Boolean(businessId)
+        : viewedUserId
+          ? Boolean(viewedUserId)
+          : true),
     staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
       const params = {
@@ -124,6 +186,15 @@ export function useProfilePicks(
         ...(withImage ? { with_image: true as const } : {}),
         ...(dateFrom ? { date_from: dateFrom } : {}),
       };
+
+      if (isAboutBusinessPicks && businessId) {
+        const response = await listService.fetchListItems({
+          ...params,
+          business_id: businessId,
+        });
+        return response.data?.data ?? [];
+      }
+
       const response = await listService.fetchListItems(
         viewedUserId ? { ...params, user_id: viewedUserId } : params,
       );
@@ -241,6 +312,8 @@ interface UseTabCategoryOptionsParams {
   selectedStatus?: string;
   favoriteFilter?: string;
   enabled?: boolean;
+  businessAuthorship?: BusinessAuthorship;
+  businessId?: string;
 }
 
 /**
@@ -254,6 +327,8 @@ export function useTabCategoryOptions({
   selectedStatus = "Published",
   favoriteFilter = "All",
   enabled = true,
+  businessAuthorship = "by",
+  businessId,
 }: UseTabCategoryOptionsParams) {
   const { categories: catalog } = useCategories();
   const viewedUserId = isOwnProfile ? undefined : userId;
@@ -264,6 +339,11 @@ export function useTabCategoryOptions({
     enabled && isPicks,
     viewedUserId,
     [],
+    undefined,
+    undefined,
+    undefined,
+    businessAuthorship,
+    businessId,
   );
 
   const { list } = useProfile({
@@ -273,6 +353,8 @@ export function useTabCategoryOptions({
     enabled: enabled && !isPicks,
     viewedUserId,
     isOwnProfile,
+    businessAuthorship,
+    businessId,
   });
 
   const categoryOptions = useMemo(() => {

@@ -361,10 +361,20 @@ function MainProfileContent({
             userId={profileUserId}
             isOwnProfile={isOwnProfile}
             tab={tab.id as ProfileListTabType}
+            isBusinessProfile={isBusinessProfile}
+            businessId={profile?.primary_business_id ?? undefined}
+            businessName={profile?.primary_business_name ?? undefined}
           />
         ),
       })),
-    [isOwnProfile, profileUserId, tabs],
+    [
+      isOwnProfile,
+      isBusinessProfile,
+      profile?.primary_business_id,
+      profile?.primary_business_name,
+      profileUserId,
+      tabs,
+    ],
   );
 
   const moreIconColor =

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { ListFilters } from "@/components/ui/ListFilters";
-import { useTabCategoryOptions, type ProfileTabCategory } from "@/hooks/useProfileList";
+import { useTabCategoryOptions, type BusinessAuthorship, type ProfileTabCategory } from "@/hooks/useProfileList";
 import type { ProfileListTabType } from "./ProfileTabPanel";
 
 function toListTab(tab: ProfileListTabType): ProfileTabCategory {
@@ -23,6 +23,8 @@ interface ProfileTabFiltersProps {
   statusOptions: string[];
   sortOptions: string[];
   favoriteOptions: string[];
+  businessAuthorship?: BusinessAuthorship;
+  businessId?: string;
 }
 
 export function ProfileTabFilters({
@@ -40,6 +42,8 @@ export function ProfileTabFilters({
   statusOptions,
   sortOptions,
   favoriteOptions,
+  businessAuthorship = "by",
+  businessId,
 }: ProfileTabFiltersProps) {
   const listTab = toListTab(tab);
   const { categoryOptions } = useTabCategoryOptions({
@@ -48,6 +52,8 @@ export function ProfileTabFilters({
     isOwnProfile,
     selectedStatus,
     favoriteFilter: pickFavoriteFilter,
+    businessAuthorship,
+    businessId,
   });
 
   useEffect(() => {

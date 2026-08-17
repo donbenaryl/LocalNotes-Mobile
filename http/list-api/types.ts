@@ -184,6 +184,7 @@ export interface serchDTO{
   limit?: number;
   sortBy?: "created_at" | "match";
   sortOrder?: "asc" | "desc";
+  businessId?: string;
 }
 
 /** Response from GET /lists/search/match-histogram and list-items/match-histogram. */

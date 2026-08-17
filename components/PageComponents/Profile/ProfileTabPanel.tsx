@@ -2,7 +2,7 @@ import { ProfileListTabPanel } from "./ProfileListTabPanel";
 import { ProfilePicksTab } from "./ProfilePicksTab";
 import { ProfileAboutTab } from "./ProfileAboutTab";
 import { ComingSoon } from "@/components/ui/ComingSoon";
-import type { ProfileTabCategory } from "@/hooks/useProfileList";
+import type { BusinessAuthorship, ProfileTabCategory } from "@/hooks/useProfileList";
 
 export type ProfileListTabType =
   | "my-lists"
@@ -28,6 +28,11 @@ interface ProfileTabPanelProps {
   statusOptions: string[];
   sortOptions: string[];
   favoriteOptions: string[];
+  isBusinessProfile?: boolean;
+  businessId?: string;
+  businessName?: string;
+  businessAuthorship?: BusinessAuthorship;
+  onBusinessAuthorshipChange?: (value: BusinessAuthorship) => void;
 }
 
 export function ProfileTabPanel({
@@ -45,6 +50,11 @@ export function ProfileTabPanel({
   statusOptions,
   sortOptions,
   favoriteOptions,
+  isBusinessProfile = false,
+  businessId,
+  businessName,
+  businessAuthorship = "about",
+  onBusinessAuthorshipChange,
 }: ProfileTabPanelProps) {
   if (tab === "picks") {
     return (
@@ -54,6 +64,11 @@ export function ProfileTabPanel({
         favoriteFilter={pickFavoriteFilter}
         onFavoriteFilterChange={onPickFavoriteFilterChange}
         favoriteOptions={favoriteOptions}
+        isBusinessProfile={isBusinessProfile}
+        businessId={businessId}
+        businessName={businessName}
+        businessAuthorship={businessAuthorship}
+        onBusinessAuthorshipChange={onBusinessAuthorshipChange}
       />
     );
   }
@@ -82,6 +97,11 @@ export function ProfileTabPanel({
       statusOptions={statusOptions}
       sortOptions={sortOptions}
       favoriteOptions={favoriteOptions}
+      isBusinessProfile={isBusinessProfile}
+      businessId={businessId}
+      businessName={businessName}
+      businessAuthorship={businessAuthorship}
+      onBusinessAuthorshipChange={onBusinessAuthorshipChange}
     />
   );
 }

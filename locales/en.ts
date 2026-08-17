@@ -473,6 +473,12 @@ const en = {
       favorites: 'Favorites',
       all: 'All',
     },
+    businessAuthorship: {
+      about: 'About {{name}}',
+      by: 'By {{name}}',
+      picksEmptyAbout: 'No community picks about {{name}} yet',
+      listsEmptyAbout: 'No lists featuring {{name}} yet',
+    },
     lists: {
       loading: 'Loading lists…',
       error: 'Error loading lists',

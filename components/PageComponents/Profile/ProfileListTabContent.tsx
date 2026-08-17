@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
-import { useProfile, type ProfileTabCategory } from "@/hooks/useProfileList";
+import { useProfile, type BusinessAuthorship, type ProfileTabCategory } from "@/hooks/useProfileList";
 import { useRegisterProfilePullToRefresh } from "./ProfilePullToRefreshContext";
 
 interface ProfileListTabContentProps {
@@ -14,6 +14,9 @@ interface ProfileListTabContentProps {
   isOwnProfile?: boolean;
   selectedCategory: string;
   selectedStatus: string;
+  businessAuthorship?: BusinessAuthorship;
+  businessId?: string;
+  businessName?: string;
 }
 
 export function ProfileListTabContent({
@@ -22,6 +25,9 @@ export function ProfileListTabContent({
   isOwnProfile = true,
   selectedCategory,
   selectedStatus,
+  businessAuthorship = "by",
+  businessId,
+  businessName,
 }: ProfileListTabContentProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
@@ -31,6 +37,8 @@ export function ProfileListTabContent({
     selectedCategory,
     viewedUserId: isOwnProfile ? undefined : userId,
     isOwnProfile,
+    businessAuthorship,
+    businessId,
   });
 
   const handleRefresh = useCallback(() => {
@@ -101,11 +109,18 @@ export function ProfileListTabContent({
   }
 
   if (list.length === 0) {
+    const emptyTitle =
+      businessAuthorship === "about" &&
+      category === "my-lists" &&
+      businessName
+        ? t("profile.businessAuthorship.listsEmptyAbout", { name: businessName })
+        : t("profile.lists.emptyTitle");
+
     return (
       <View className="items-center justify-center gap-3 py-16">
         <FolderOpen size={48} color="#D1D5DB" />
         <Text className="font-geist-medium text-base text-gray-500 dark:text-gray-400">
-          {t("profile.lists.emptyTitle")}
+          {emptyTitle}
         </Text>
         <Text className="font-geist text-center text-sm text-gray-400 dark:text-gray-500">
           {category === "my-lists"
