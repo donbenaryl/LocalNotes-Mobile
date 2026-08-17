@@ -39,14 +39,14 @@ export function ProfilePicksTab({
 }: ProfilePicksTabProps) {
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const viewedUserId = isOwnProfile ? undefined : userId;
+  const picksUserId = userId || undefined;
   const showBusinessToggle =
     isBusinessProfile && Boolean(businessId) && Boolean(businessName);
 
   const { picks, isPending, isRefetching, refetch } = useProfilePicks(
     favoriteFilter,
     true,
-    viewedUserId,
+    picksUserId,
     selectedCategory === "All" ? [] : [selectedCategory],
     undefined,
     undefined,

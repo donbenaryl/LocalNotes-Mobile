@@ -49,6 +49,12 @@ interface SectionPagerProps {
    * ScrollView instead of filling the remaining viewport height.
    */
   embedded?: boolean;
+  /**
+   * Mount the active page plus adjacent neighbours only. Visited pages stay
+   * mounted so swipe-back keeps filter state. Use on Profile so inactive tabs
+   * do not fetch or render their full card trees.
+   */
+  lazy?: boolean;
 }
 
 /**
@@ -82,6 +88,7 @@ export function SectionPager({
   chrome,
   sectionId,
   embedded = false,
+  lazy = false,
 }: SectionPagerProps) {
   const { height: screenHeight } = useWindowDimensions();
   const pagerRef = useRef<PagerView>(null);
@@ -89,6 +96,9 @@ export function SectionPager({
   const [pageHeights, setPageHeights] = useState<Record<string, number>>({});
   /** Page the embedded height follows. Only updated while the pager is idle. */
   const [heightPageId, setHeightPageId] = useState<string | null>(activeId);
+  const [mountedIds, setMountedIds] = useState<Set<string>>(
+    () => new Set(activeId ? [activeId] : []),
+  );
   const isPagerIdleRef = useRef(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -291,6 +301,27 @@ export function SectionPager({
     if (isPagerIdleRef.current) setHeightPageId(activeId);
   }, [activeId]);
 
+  useEffect(() => {
+    if (!lazy) return;
+    const index = Math.max(
+      0,
+      pages.findIndex((page) => page.id === activeId),
+    );
+    setMountedIds((prev) => {
+      const next = new Set(prev);
+      const add = (page: SectionPagerPage | undefined) => {
+        if (page) next.add(page.id);
+      };
+      add(pages[index]);
+      add(pages[index - 1]);
+      add(pages[index + 1]);
+      if (next.size === prev.size && [...next].every((id) => prev.has(id))) {
+        return prev;
+      }
+      return next;
+    });
+  }, [activeId, lazy, pages]);
+
   // Sizing to the tallest page would give every short tab the tallest tab's
   // trailing dead space. screenHeight is a one-frame placeholder until the first
   // measurement lands.
@@ -304,27 +335,35 @@ export function SectionPager({
 
   const renderedPages = useMemo(
     () =>
-      pages.map((page) => (
-        <View
-          key={page.id}
-          style={embedded ? undefined : styles.fill}
-          collapsable={false}
-        >
-          {embedded ? (
-            // PagerView absoluteFills its direct children, so this wrapper always
-            // measures the pager itself. The inner view is the real content height.
-            <View
-              collapsable={false}
-              onLayout={(event) => handleEmbeddedPageLayout(page.id, event)}
-            >
-              {page.render()}
-            </View>
-          ) : (
-            page.render()
-          )}
-        </View>
-      )),
-    [embedded, handleEmbeddedPageLayout, pages],
+      pages.map((page) => {
+        const shouldRender = !lazy || mountedIds.has(page.id);
+        const content = shouldRender ? (
+          page.render()
+        ) : (
+          <View style={{ minHeight: EMBEDDED_MIN_HEIGHT }} />
+        );
+        return (
+          <View
+            key={page.id}
+            style={embedded ? undefined : styles.fill}
+            collapsable={false}
+          >
+            {embedded ? (
+              // PagerView absoluteFills its direct children, so this wrapper always
+              // measures the pager itself. The inner view is the real content height.
+              <View
+                collapsable={false}
+                onLayout={(event) => handleEmbeddedPageLayout(page.id, event)}
+              >
+                {content}
+              </View>
+            ) : (
+              content
+            )}
+          </View>
+        );
+      }),
+    [embedded, handleEmbeddedPageLayout, lazy, mountedIds, pages],
   );
 
   const prevSectionPan = useMemo(
@@ -376,7 +415,7 @@ export function SectionPager({
         initialPage={activeIndex}
         scrollEnabled={isSectionActive}
         overdrag={false}
-        offscreenPageLimit={Math.max(pages.length - 1, 1)}
+        offscreenPageLimit={lazy ? 1 : Math.max(pages.length - 1, 1)}
         onPageScroll={handlePageScroll}
         onPageSelected={handlePageSelected}
         onPageScrollStateChanged={handlePageScrollStateChanged}

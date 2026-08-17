@@ -49,6 +49,7 @@ import { useBusinessStore } from "@/stores/useBusinessStore";
 import { useToastStore } from "@/stores/useToastStore";
 import { isBusinessAccountType } from "@/utils/businessAccount";
 import type { profileItemDAO } from "@/http/account-api/types";
+import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const TAB_IDS: ProfileListTabType[] = [
   "my-lists",
@@ -196,6 +197,7 @@ function ProfileScrollBody({
           </View>
           <SectionPager
             embedded
+            lazy
             pages={pages}
             activeId={activeTab}
             onActiveIdChange={onTabChange}
@@ -496,6 +498,7 @@ export default function MainProfile({ userId }: MainProfileProps) {
       return response.data?.data ?? null;
     },
     enabled: isOwnProfile || Boolean(userId),
+    staleTime: FEED_STALE_TIME_MS,
   });
 
   if (userId && currentUserId && userId === currentUserId) {

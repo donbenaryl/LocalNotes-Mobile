@@ -9,6 +9,8 @@ import { router } from 'expo-router';
 import { getApiBaseUrl } from './environment.config';
 import { useAuthStore } from '../stores/useAuthStore';
 
+const API_TIMEOUT_MS = 15_000;
+
 type HttpServiceConstructorParams = CreateAxiosDefaults<unknown>;
 
 type HttpServiceParams<DTO, DQO> = {
@@ -68,6 +70,7 @@ async function attemptTokenRefresh(): Promise<string> {
   const { data } = await axios.post<{ data: { access: string } }>(
     `${getApiBaseUrl()}/accounts/token/refresh`,
     { refresh_token: storedRefresh },
+    { timeout: API_TIMEOUT_MS },
   );
 
   const newAccessToken = data.data.access;
@@ -194,6 +197,7 @@ class AppHttpService extends HttpService {
     super(
       () => ({
         ...params,
+        timeout: params.timeout ?? API_TIMEOUT_MS,
         baseURL: `${getApiBaseUrl()}${params.baseURL ?? ''}`,
         headers: {
           ...params.headers,
@@ -216,6 +220,7 @@ class PublicHttpService extends HttpService {
   constructor(params: HttpServiceConstructorParams) {
     super(() => ({
       ...params,
+      timeout: params.timeout ?? API_TIMEOUT_MS,
       baseURL: `${getApiBaseUrl()}${params.baseURL ?? ''}`,
       headers: {
         ...params.headers,

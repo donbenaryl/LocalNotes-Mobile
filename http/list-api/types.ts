@@ -204,6 +204,8 @@ export interface userListDTO{
 export interface listedDTO{
   status:string;
   category?:string;
+  business_id?: string;
+  limit?: number;
 }
 export type communityPickItem = {
   id: string;

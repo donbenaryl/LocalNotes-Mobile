@@ -7,6 +7,9 @@ import type { ListItemDAO, listedDTO } from "@/http/list-api/types";
 import { resolveUsedCategories } from "@/utils/listCategories";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
+const PROFILE_PICKS_LIMIT = 30;
+const PROFILE_BUSINESS_LISTS_LIMIT = 50;
+
 export type ProfileTabCategory =
   | "my-lists"
   | "saved"
@@ -70,10 +73,11 @@ export function useProfile({
     staleTime: FEED_STALE_TIME_MS,
     queryFn: async (): Promise<ListItemDAO[]> => {
       if (isAboutBusinessLists && businessId) {
-        const response = await listService.searchLists({
-          businessId,
-          limit: 50,
-          ...(categoryFilter ? { categoryIds: [categoryFilter] } : {}),
+        const response = await listService.fetchLists({
+          status: dto.status,
+          business_id: businessId,
+          limit: PROFILE_BUSINESS_LISTS_LIMIT,
+          ...(categoryFilter ? { category: categoryFilter } : {}),
         });
         return response.data?.data ?? [];
       }
@@ -180,6 +184,7 @@ export function useProfilePicks(
     staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
       const params = {
+        limit: PROFILE_PICKS_LIMIT,
         ...(favoriteFilter === "Favorites only" ? { is_favorite: true as const } : {}),
         ...(categoryIds.length ? { category_ids: categoryIds } : {}),
         ...(location ? { latitude: location.latitude, longitude: location.longitude } : {}),
@@ -292,6 +297,7 @@ export function useSimilarLists(enabled = true) {
 export function useCategories() {
   const { data, isPending, isError } = useQuery({
     queryKey: ["list-categories"],
+    staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
       const response = await homeService.fetchCategories();
       return response.data?.data ?? [];
@@ -332,12 +338,13 @@ export function useTabCategoryOptions({
 }: UseTabCategoryOptionsParams) {
   const { categories: catalog } = useCategories();
   const viewedUserId = isOwnProfile ? undefined : userId;
+  const picksUserId = userId || undefined;
   const isPicks = tab === "picks";
 
   const { picks } = useProfilePicks(
     favoriteFilter,
     enabled && isPicks,
-    viewedUserId,
+    picksUserId,
     [],
     undefined,
     undefined,
