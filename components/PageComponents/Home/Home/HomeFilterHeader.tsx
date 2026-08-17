@@ -8,7 +8,10 @@ import { LocationInputModalTrigger } from "@/components/ui/LocationInputModal";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import { CategoryFilterModal } from "@/components/ui/CategoryFilterModal";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
-import { MatchThreshhold } from "@/components/ui/MatchThreshhold";
+import {
+  MatchThreshhold,
+  type MatchPriorities,
+} from "@/components/ui/MatchThreshhold";
 import { Toggle } from "@/components/ui/Toggle";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
 import type { HomeContentType } from "@/utils/homePicks";
@@ -16,6 +19,7 @@ import {
   useMatchHistogram,
   type MatchHistogramFilters,
 } from "@/hooks/useMatchHistogram";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 export type { HomeContentType };
 
@@ -36,7 +40,11 @@ interface HomeFilterHeaderProps {
   isAllLocations?: boolean;
   isCityLoading?: boolean;
   matchThreshold?: number | null;
-  onMatchThresholdChange?: (threshold: number | null) => void;
+  matchPriorities?: MatchPriorities;
+  onMatchApply?: (
+    threshold: number | null,
+    priorities: MatchPriorities
+  ) => void;
   matchingCount?: number;
   selectedVibes?: string[];
   onVibesChange?: (vibes: string[]) => void;
@@ -85,7 +93,8 @@ export function HomeFilterHeader({
   isAllLocations = true,
   isCityLoading = false,
   matchThreshold,
-  onMatchThresholdChange,
+  matchPriorities,
+  onMatchApply,
   matchingCount,
   selectedVibes = [],
   onVibesChange,
@@ -106,10 +115,11 @@ export function HomeFilterHeader({
   const histogramFilters = useMemo(
     (): MatchHistogramFilters => ({
       vibes: selectedVibes,
+      personalitySides: personalitySidesFromPriorities(matchPriorities ?? {}),
       categoryIds: selectedCategories,
       ...(histogramLocation ?? {}),
     }),
-    [selectedVibes, selectedCategories, histogramLocation],
+    [selectedVibes, matchPriorities, selectedCategories, histogramLocation],
   );
   const { bins: histogramBins } = useMatchHistogram(
     histogramSurface,
@@ -184,10 +194,11 @@ export function HomeFilterHeader({
         isVisible={isMatchModalOpen}
         onClose={() => setIsMatchModalOpen(false)}
         initialThreshold={matchThreshold}
+        initialPriorities={matchPriorities}
         histogramBins={histogramBins}
         matchingCount={matchingCount}
-        onApply={(threshold) => {
-          onMatchThresholdChange?.(threshold);
+        onApply={(threshold, priorities) => {
+          onMatchApply?.(threshold, priorities);
           setIsMatchModalOpen(false);
         }}
       />

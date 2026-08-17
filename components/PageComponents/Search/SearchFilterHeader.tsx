@@ -7,7 +7,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { LocationInputModalTrigger } from "@/components/ui/LocationInputModal";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
-import { MatchThreshhold } from "@/components/ui/MatchThreshhold";
+import {
+  MatchThreshhold,
+  type MatchPriorities,
+} from "@/components/ui/MatchThreshhold";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import {
@@ -16,6 +19,7 @@ import {
 } from "@/hooks/useMatchHistogram";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { useSearchStore } from "@/stores/useSearchStore";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const DEFAULT_RADIUS_KM = 15;
 
@@ -25,7 +29,11 @@ interface SearchFilterHeaderProps {
   onCitySelected: (location: GeoLocation) => void;
   onAllSelected?: () => void;
   matchThreshold: number | null;
-  onMatchThresholdChange: (threshold: number | null) => void;
+  matchPriorities?: MatchPriorities;
+  onMatchApply: (
+    threshold: number | null,
+    priorities: MatchPriorities
+  ) => void;
   matchingCount?: number;
   selectedVibes: string[];
   onVibesChange: (vibes: string[]) => void;
@@ -45,7 +53,8 @@ export function SearchFilterHeader({
   onCitySelected,
   onAllSelected,
   matchThreshold,
-  onMatchThresholdChange,
+  matchPriorities,
+  onMatchApply,
   matchingCount,
   selectedVibes,
   onVibesChange,
@@ -67,6 +76,7 @@ export function SearchFilterHeader({
     () => ({
       query: committedQuery || undefined,
       vibes: selectedVibes,
+      personalitySides: personalitySidesFromPriorities(matchPriorities ?? {}),
       ...(coordinates
         ? {
             latitude: coordinates.latitude,
@@ -77,7 +87,7 @@ export function SearchFilterHeader({
           }
         : {}),
     }),
-    [committedQuery, selectedVibes, coordinates],
+    [committedQuery, selectedVibes, matchPriorities, coordinates],
   );
 
   const { bins: histogramBins } = useMatchHistogram(
@@ -98,6 +108,9 @@ export function SearchFilterHeader({
     },
     [onMeasuredBottomChange],
   );
+
+  const hasMatchPriorities = Object.keys(matchPriorities ?? {}).length > 0;
+  const isMatchActive = matchThreshold !== null || hasMatchPriorities;
 
   const matchLabel =
     matchThreshold !== null
@@ -142,7 +155,7 @@ export function SearchFilterHeader({
           <LocalNotesButton
             label={matchLabel}
             onPress={() => setIsMatchModalOpen(true)}
-            variant={matchThreshold !== null ? "dark" : "light"}
+            variant={isMatchActive ? "dark" : "light"}
             size="xs"
             isRounded
             isWidthFull={false}
@@ -154,10 +167,11 @@ export function SearchFilterHeader({
         isVisible={isMatchModalOpen}
         onClose={() => setIsMatchModalOpen(false)}
         initialThreshold={matchThreshold}
+        initialPriorities={matchPriorities}
         histogramBins={histogramBins}
         matchingCount={matchingCount}
-        onApply={(threshold) => {
-          onMatchThresholdChange(threshold);
+        onApply={(threshold, priorities) => {
+          onMatchApply(threshold, priorities);
           setIsMatchModalOpen(false);
         }}
       />

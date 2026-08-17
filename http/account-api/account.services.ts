@@ -145,6 +145,7 @@ class AccountService extends AppHttpService {
     if (dto.query) query.query = dto.query;
     if (dto.matchMin !== undefined) query.match_min = dto.matchMin;
     if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
+    if (dto.personalitySides?.length) query.personality_sides = dto.personalitySides.join(",");
     if (dto.limit !== undefined) query.limit = dto.limit;
     if (dto.city) query.city = dto.city;
     if (dto.region) query.region = dto.region;
@@ -166,6 +167,7 @@ class AccountService extends AppHttpService {
   ) {
     const query: Record<string, unknown> = {};
     if (dto.query) query.query = dto.query;
+    if (dto.personalitySides?.length) query.personality_sides = dto.personalitySides.join(",");
     if (dto.city) query.city = dto.city;
     if (dto.region) query.region = dto.region;
     if (dto.latitude !== undefined && dto.longitude !== undefined) {

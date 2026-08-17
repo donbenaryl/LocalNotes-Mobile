@@ -1,4 +1,6 @@
+import { QUESTION_GROUPS } from '@/constants/personality';
 import type { UserProfileData } from '@/http/account-api/types';
+import type { MatchPriorities } from '@/components/ui/MatchThreshhold';
 import type { PersonalityQuestion } from '@/types/personality';
 
 export function slugifyTraitLabel(text: string) {
@@ -6,6 +8,41 @@ export function slugifyTraitLabel(text: string) {
     .toLowerCase()
     .replace(/\s+/g, '-')
     .replace(/[^\w-]+/g, '');
+}
+
+/**
+ * Maps selected `MatchPriorities` (question id -> "left" | "right") to the
+ * `TraitSide.slug` values the `personality_sides` query param expects.
+ * Slugs are ordered by question id so query keys stay deterministic.
+ */
+export function personalitySidesFromPriorities(
+  priorities: MatchPriorities,
+): string[] {
+  const questionIds = Object.keys(priorities)
+    .map(Number)
+    .sort((a, b) => a - b);
+
+  if (questionIds.length === 0) {
+    return [];
+  }
+
+  const questionById = new Map<number, PersonalityQuestion>();
+  for (const group of QUESTION_GROUPS) {
+    for (const item of group.items) {
+      questionById.set(item.id, item);
+    }
+  }
+
+  const slugs: string[] = [];
+  for (const id of questionIds) {
+    const question = questionById.get(id);
+    if (!question) continue;
+    const side = priorities[id];
+    const label = side === 'right' ? question.rightLabel : question.leftLabel;
+    slugs.push(slugifyTraitLabel(label));
+  }
+
+  return slugs;
 }
 
 function traitPairKey(leftSlug: string, rightSlug: string) {
@@ -23,7 +60,7 @@ export function buildAnswersFromTraitScores(
       score.trait.left_side.slug,
       score.trait.right_side.slug,
     );
-    scoreByPair.set(key, score.left_value);
+    scoreByPair.set(key, score.right_value);
   }
 
   const answers: Record<number, number> = {};

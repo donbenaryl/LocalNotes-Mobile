@@ -10,6 +10,8 @@ export type MatchHistogramSurface = "lists" | "picks" | "people";
 export interface MatchHistogramFilters {
   query?: string;
   vibes?: string[];
+  /** TraitSide slugs; AND across all selected sides. Sides shrink the pool; match_min never does. */
+  personalitySides?: string[];
   categoryIds?: string[];
   city?: string;
   region?: string;
@@ -28,6 +30,7 @@ async function fetchMatchHistogram(
     const response = await listService.fetchListsMatchHistogram({
       query: filters.query,
       vibe: filters.vibes,
+      personalitySides: filters.personalitySides,
       categoryIds: filters.categoryIds,
       city: filters.city,
       region: filters.region,
@@ -43,6 +46,7 @@ async function fetchMatchHistogram(
     const response = await listService.fetchPicksMatchHistogram({
       keyword: filters.query,
       vibes: filters.vibes,
+      personality_sides: filters.personalitySides,
       category_ids: filters.categoryIds,
       city: filters.city,
       region: filters.region,
@@ -56,6 +60,7 @@ async function fetchMatchHistogram(
 
   const response = await accountService.fetchPeopleMatchHistogram({
     query: filters.query,
+    personalitySides: filters.personalitySides,
     city: filters.city,
     region: filters.region,
     latitude: filters.latitude,
@@ -93,6 +98,7 @@ export function useMatchHistogram(
       surface,
       filters.query ?? "",
       filters.vibes ?? [],
+      filters.personalitySides ?? [],
       filters.categoryIds ?? [],
       filters.city ?? null,
       filters.region ?? null,

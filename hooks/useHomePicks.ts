@@ -3,9 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
+import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 import { useCategories } from "@/hooks/useProfileList";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { isCreatedToday } from "@/utils/time";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 import {
   countCategoryMatchingPublicPicks,
   countMatchingPublicPicks,
@@ -22,6 +24,7 @@ const FOR_YOU_LIMIT = 6;
 export interface UseHomePicksOptions {
   activeFilters: HomeListFilter[];
   matchThreshold: number | null;
+  matchPriorities?: MatchPriorities;
   locationOverride: GeoLocation | null;
   skipLocationFilter?: boolean;
   selectedVibes: string[];
@@ -48,6 +51,13 @@ function buildPickParams(
     scope: "all",
     limit: PICK_LIMIT,
   };
+
+  const personalitySides = personalitySidesFromPriorities(
+    options.matchPriorities ?? {},
+  );
+  if (personalitySides.length > 0) {
+    params.personality_sides = personalitySides;
+  }
 
   if (coordinates) {
     params.latitude = coordinates.latitude;
@@ -124,6 +134,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
     () => [
       options.activeFilters,
       options.matchThreshold,
+      discoverParams.personality_sides,
       options.skipLocationFilter,
       options.locationOverride?.latitude,
       options.locationOverride?.longitude,
@@ -133,7 +144,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
       effectiveCoordinates?.longitude,
       discoverRadiusKm,
     ],
-    [options, effectiveCoordinates, discoverRadiusKm],
+    [options, effectiveCoordinates, discoverRadiusKm, discoverParams.personality_sides],
   );
 
   const discoverQuery = useQuery({

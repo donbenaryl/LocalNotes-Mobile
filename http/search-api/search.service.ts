@@ -63,6 +63,11 @@ class SearchService extends AppHttpService {
       queryParams.vibe = vibes.join(",");
     }
 
+    const personalitySides = params.personalitySides ?? [];
+    if (personalitySides.length > 0) {
+      queryParams.personality_sides = personalitySides.join(",");
+    }
+
     if (params.sortBy) {
       queryParams.sort_by = params.sortBy;
     }

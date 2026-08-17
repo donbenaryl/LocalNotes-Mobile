@@ -12,6 +12,7 @@ import {
   type HomeContentType,
   type HomeListFilter,
 } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
+import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 import { HomeEditorialTitle } from "@/components/PageComponents/Home/Home/HomeEditorialTitle";
 import { HomeTabSkeleton } from "@/components/PageComponents/Home/Home/HomeTabSkeleton";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
@@ -134,6 +135,7 @@ export function HomeTab() {
   const [contentType, setContentType] = useState<HomeContentType>("lists");
   const [activeFilters, setActiveFilters] = useState<HomeListFilter[]>([]);
   const [matchThreshold, setMatchThreshold] = useState<number | null>(null);
+  const [matchPriorities, setMatchPriorities] = useState<MatchPriorities>({});
   const [selectedVibes, setSelectedVibes] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [locationMode, setLocationMode] = useState<HomeLocationMode>("all");
@@ -145,10 +147,15 @@ export function HomeTab() {
     );
   };
 
-  const handleMatchThresholdChange = (threshold: number | null) => {
+  const handleMatchApply = (
+    threshold: number | null,
+    priorities: MatchPriorities
+  ) => {
     setMatchThreshold(threshold);
+    setMatchPriorities(priorities);
+    const isActive = threshold !== null || Object.keys(priorities).length > 0;
     setActiveFilters((prev) =>
-      threshold !== null
+      isActive
         ? prev.includes("personality_match") ? prev : [...prev, "personality_match"]
         : prev.filter((f) => f !== "personality_match")
     );
@@ -226,6 +233,7 @@ export function HomeTab() {
   } = useHomeLists({
     activeFilters,
     matchThreshold,
+    matchPriorities,
     locationOverride: locationMode === "city" ? manualLocation : null,
     skipLocationFilter: locationMode === "all",
     selectedVibes,
@@ -249,6 +257,7 @@ export function HomeTab() {
   } = useHomePicks({
     activeFilters,
     matchThreshold,
+    matchPriorities,
     locationOverride: locationMode === "city" ? manualLocation : null,
     skipLocationFilter: locationMode === "all",
     selectedVibes,
@@ -373,7 +382,8 @@ export function HomeTab() {
             isAllLocations={locationMode === "all"}
             isCityLoading={isLocationLoading}
             matchThreshold={matchThreshold}
-            onMatchThresholdChange={handleMatchThresholdChange}
+            matchPriorities={matchPriorities}
+            onMatchApply={handleMatchApply}
             matchingCount={matchingCount}
             selectedVibes={selectedVibes}
             onVibesChange={handleVibesChange}

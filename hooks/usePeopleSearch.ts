@@ -8,6 +8,7 @@ import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { SEARCH_MAP_RADIUS_KM } from "@/utils/searchMapMarkers";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const SEARCH_LIMIT = 25;
 
@@ -25,12 +26,15 @@ async function fetchPeopleSearch(
 export function usePeopleSearch() {
   const committedQuery = useSearchStore((s) => s.committedQuery);
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
+  const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const coordinates = useEffectiveSearchLocation();
   const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
 
   const params = useMemo((): peopleDiscoverySearchDTO => {
     const p: peopleDiscoverySearchDTO = { query: committedQuery, limit: SEARCH_LIMIT };
     if (matchThreshold !== null) p.matchMin = matchThreshold;
+    const personalitySides = personalitySidesFromPriorities(matchPriorities);
+    if (personalitySides.length > 0) p.personalitySides = personalitySides;
     if (coordinates) {
       if (coordinates.city) {
         p.city = coordinates.city;
@@ -42,13 +46,14 @@ export function usePeopleSearch() {
       }
     }
     return p;
-  }, [committedQuery, matchThreshold, coordinates]);
+  }, [committedQuery, matchThreshold, matchPriorities, coordinates]);
 
   const queryKey = useMemo(
     () => [
       "people-search",
       params.query ?? "",
       params.matchMin ?? null,
+      params.personalitySides ?? [],
       params.city ?? null,
       params.region ?? null,
       params.latitude ?? null,

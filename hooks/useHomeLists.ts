@@ -3,9 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, Location as GeoLocation, serchDTO } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
+import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 import { useCategories } from "@/hooks/useProfileList";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { isCreatedToday } from "@/utils/time";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 import {
   getListPersonalityMatch,
   countCategoryMatchingLists,
@@ -21,6 +23,7 @@ const FOR_YOU_LIMIT = 3;
 export interface UseHomeListsOptions {
   activeFilters: HomeListFilter[];
   matchThreshold: number | null;
+  matchPriorities?: MatchPriorities;
   locationOverride: GeoLocation | null;
   skipLocationFilter?: boolean;
   selectedVibes: string[];
@@ -43,6 +46,13 @@ function buildSearchParams(
   const params: serchDTO = {
     limit: LIST_LIMIT,
   };
+
+  const personalitySides = personalitySidesFromPriorities(
+    options.matchPriorities ?? {},
+  );
+  if (personalitySides.length > 0) {
+    params.personalitySides = personalitySides;
+  }
 
   if (coordinates) {
     params.latitude = coordinates.latitude;
@@ -148,6 +158,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
     () => [
       options.activeFilters,
       options.matchThreshold,
+      searchParams.personalitySides,
       options.skipLocationFilter,
       options.locationOverride?.latitude,
       options.locationOverride?.longitude,
@@ -156,7 +167,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
       effectiveCoordinates?.latitude,
       effectiveCoordinates?.longitude,
     ],
-    [options, effectiveCoordinates],
+    [options, effectiveCoordinates, searchParams.personalitySides],
   );
 
   const discoverQuery = useQuery({

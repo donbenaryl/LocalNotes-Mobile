@@ -85,6 +85,8 @@ export interface UnifiedSearchParams {
   matchMin?: number;
   matchMax?: number;
   vibes?: string[];
+  /** TraitSide slugs; AND across all selected sides. See `personality_sides` API param. */
+  personalitySides?: string[];
   sortBy?: UnifiedSearchSortBy;
   sortOrder?: UnifiedSearchSortOrder;
   limit?: number;

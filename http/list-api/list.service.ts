@@ -144,6 +144,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (dto.matchMin !== undefined) query.match_min = dto.matchMin;
       if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
       if (dto.vibe?.length) query.vibe = dto.vibe.join(",");
+      if (dto.personalitySides?.length) query.personality_sides = dto.personalitySides.join(",");
       if (dto.categoryIds?.length) query.category_ids = dto.categoryIds.join(",");
       if (dto.listItemId) query.list_item_id = dto.listItemId;
       if (dto.city) query.city = dto.city;
@@ -168,6 +169,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       const query: Record<string, unknown> = {};
       if (dto.query) query.query = dto.query;
       if (dto.vibe?.length) query.vibe = dto.vibe.join(",");
+      if (dto.personalitySides?.length) query.personality_sides = dto.personalitySides.join(",");
       if (dto.categoryIds?.length) query.category_ids = dto.categoryIds.join(",");
       if (dto.city) query.city = dto.city;
       if (dto.region) query.region = dto.region;
@@ -186,6 +188,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
     async fetchPicksMatchHistogram(params?: {
       keyword?: string;
       vibes?: string[];
+      personality_sides?: string[];
       category_ids?: string[];
       latitude?: number;
       longitude?: number;
@@ -197,6 +200,9 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       const query: Record<string, unknown> = {};
       if (params?.keyword) query.keyword = params.keyword;
       if (params?.vibes?.length) query.vibe = params.vibes.join(",");
+      if (params?.personality_sides?.length) {
+        query.personality_sides = params.personality_sides.join(",");
+      }
       if (params?.category_ids?.length) {
         query.category_ids = params.category_ids.join(",");
       }
@@ -248,6 +254,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       scope?: "mine" | "all";
       category_ids?: string[];
       vibes?: string[];
+      personality_sides?: string[];
       match_min?: number;
       match_max?: number;
       limit?: number;
@@ -269,6 +276,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         scope?: "mine" | "all";
         category_ids?: string;
         vibe?: string;
+        personality_sides?: string;
         match_min?: number;
         match_max?: number;
         limit?: number;
@@ -287,6 +295,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (params?.scope) query.scope = params.scope;
       if (params?.category_ids?.length) query.category_ids = params.category_ids.join(",");
       if (params?.vibes?.length) query.vibe = params.vibes.join(",");
+      if (params?.personality_sides?.length) query.personality_sides = params.personality_sides.join(",");
       if (params?.match_min !== undefined) query.match_min = params.match_min;
       if (params?.match_max !== undefined) query.match_max = params.match_max;
       if (params?.limit !== undefined) query.limit = params.limit;

@@ -104,12 +104,12 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
     const startedAt = Date.now();
     setPhase("submitting");
     const payload = allQuestions.map((item) => {
-      const leftScore = answers[item.id] ?? 50;
+      const sliderValue = answers[item.id] ?? 50;
       return {
         left_trait: slugifyTraitLabel(item.leftLabel),
-        left_trait_score: leftScore,
+        left_trait_score: 100 - sliderValue,
         right_trait: slugifyTraitLabel(item.rightLabel),
-        right_trait_score: 100 - leftScore,
+        right_trait_score: sliderValue,
       };
     });
 

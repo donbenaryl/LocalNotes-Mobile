@@ -22,6 +22,7 @@ import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useInitializeSearchLocation } from "@/hooks/useInitializeSearchLocation";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import type { Location as GeoLocation } from "@/http/list-api/types";
+import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 
 interface SearchTabItem extends TabItem {
   href: Href;
@@ -86,6 +87,8 @@ export default function MainSearch() {
   const commitQuery = useSearchStore((s) => s.commitQuery);
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
   const setMatchThreshold = useSearchStore((s) => s.setMatchThreshold);
+  const matchPriorities = useSearchStore((s) => s.matchPriorities);
+  const setMatchPriorities = useSearchStore((s) => s.setMatchPriorities);
   const selectedVibes = useSearchStore((s) => s.selectedVibes);
   const setSelectedVibes = useSearchStore((s) => s.setSelectedVibes);
   const locationMode = useSearchStore((s) => s.locationMode);
@@ -159,6 +162,14 @@ export default function MainSearch() {
     setLocationMode("all");
   };
 
+  const handleMatchApply = (
+    threshold: number | null,
+    priorities: MatchPriorities
+  ) => {
+    setMatchThreshold(threshold);
+    setMatchPriorities(priorities);
+  };
+
   const handleBack = useCallback(() => {
     const destination = returnTo ?? HOME_HREF;
     setReturnTo(null);
@@ -209,7 +220,8 @@ export default function MainSearch() {
                 onCitySelected={handleCitySelected}
                 onAllSelected={handleAllSelected}
                 matchThreshold={matchThreshold}
-                onMatchThresholdChange={setMatchThreshold}
+                matchPriorities={matchPriorities}
+                onMatchApply={handleMatchApply}
                 matchingCount={activeResultCount}
                 selectedVibes={selectedVibes}
                 onVibesChange={setSelectedVibes}

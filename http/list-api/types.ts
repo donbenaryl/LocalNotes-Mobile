@@ -172,6 +172,8 @@ export interface serchDTO{
   matchMin?: number;
   matchMax?: number;
   vibe?: string[];
+  /** TraitSide slugs; AND across all selected sides. See `personality_sides` API param. */
+  personalitySides?: string[];
   categoryIds?: string[];
   listItemId?: string;
   city?: string;

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { Location as GeoLocation } from "@/http/list-api/types";
+import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 
 export type SearchLocationMode = "auto" | "city" | "all";
 
@@ -8,6 +9,7 @@ interface SearchStore {
   /** Debounced / committed query used by TanStack Query. */
   committedQuery: string;
   matchThreshold: number | null;
+  matchPriorities: MatchPriorities;
   selectedVibes: string[];
   locationMode: SearchLocationMode;
   manualLocation: GeoLocation | null;
@@ -16,6 +18,7 @@ interface SearchStore {
   setQuery: (query: string) => void;
   commitQuery: (query?: string) => void;
   setMatchThreshold: (threshold: number | null) => void;
+  setMatchPriorities: (priorities: MatchPriorities) => void;
   setSelectedVibes: (vibes: string[]) => void;
   setLocationMode: (mode: SearchLocationMode) => void;
   setManualLocation: (location: GeoLocation | null) => void;
@@ -28,6 +31,7 @@ const INITIAL_STATE = {
   query: "",
   committedQuery: "",
   matchThreshold: null as number | null,
+  matchPriorities: {} as MatchPriorities,
   selectedVibes: [] as string[],
   locationMode: "all" as SearchLocationMode,
   manualLocation: null as GeoLocation | null,
@@ -42,6 +46,7 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
     set({ query: next, committedQuery: next.trim() });
   },
   setMatchThreshold: (matchThreshold) => set({ matchThreshold }),
+  setMatchPriorities: (matchPriorities) => set({ matchPriorities }),
   setSelectedVibes: (selectedVibes) => set({ selectedVibes }),
   setLocationMode: (locationMode) => set({ locationMode }),
   setManualLocation: (manualLocation) => set({ manualLocation }),
@@ -50,6 +55,7 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
   clearFilters: () =>
     set({
       matchThreshold: null,
+      matchPriorities: {},
       selectedVibes: [],
       locationMode: "all",
       manualLocation: null,

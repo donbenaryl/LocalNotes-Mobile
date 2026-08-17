@@ -6,6 +6,7 @@ import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const DEFAULT_RADIUS_KM = 15;
 const SEARCH_LIMIT = 30;
@@ -24,6 +25,7 @@ async function fetchPicksSearch(params: PicksSearchParams): Promise<ListItemPubl
 export function usePicksSearch() {
   const committedQuery = useSearchStore((s) => s.committedQuery);
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
+  const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const selectedVibes = useSearchStore((s) => s.selectedVibes);
   const coordinates = useEffectiveSearchLocation();
   const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
@@ -33,13 +35,15 @@ export function usePicksSearch() {
     if (committedQuery) p.keyword = committedQuery;
     if (matchThreshold !== null) p.match_min = matchThreshold;
     if (selectedVibes.length > 0) p.vibes = selectedVibes;
+    const personalitySides = personalitySidesFromPriorities(matchPriorities);
+    if (personalitySides.length > 0) p.personality_sides = personalitySides;
     if (coordinates) {
       p.latitude = coordinates.latitude;
       p.longitude = coordinates.longitude;
       p.radius_km = DEFAULT_RADIUS_KM;
     }
     return p;
-  }, [committedQuery, matchThreshold, selectedVibes, coordinates]);
+  }, [committedQuery, matchThreshold, matchPriorities, selectedVibes, coordinates]);
 
   const queryKey = useMemo(
     () => [
@@ -47,6 +51,7 @@ export function usePicksSearch() {
       params.keyword ?? "",
       params.match_min ?? null,
       params.vibes ?? [],
+      params.personality_sides ?? [],
       params.latitude ?? null,
       params.longitude ?? null,
       params.radius_km ?? null,

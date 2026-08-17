@@ -6,6 +6,7 @@ import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const DEFAULT_RADIUS_KM = 15;
 const SEARCH_LIMIT = 25;
@@ -22,6 +23,7 @@ async function fetchListSearch(params: serchDTO): Promise<ListItemDAO[]> {
 export function useListSearch() {
   const committedQuery = useSearchStore((s) => s.committedQuery);
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
+  const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const selectedVibes = useSearchStore((s) => s.selectedVibes);
   const coordinates = useEffectiveSearchLocation();
   const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
@@ -30,13 +32,15 @@ export function useListSearch() {
     const p: serchDTO = { query: committedQuery, limit: SEARCH_LIMIT };
     if (matchThreshold !== null) p.matchMin = matchThreshold;
     if (selectedVibes.length > 0) p.vibe = selectedVibes;
+    const personalitySides = personalitySidesFromPriorities(matchPriorities);
+    if (personalitySides.length > 0) p.personalitySides = personalitySides;
     if (coordinates) {
       p.latitude = coordinates.latitude;
       p.longitude = coordinates.longitude;
       p.radiusKm = DEFAULT_RADIUS_KM;
     }
     return p;
-  }, [committedQuery, matchThreshold, selectedVibes, coordinates]);
+  }, [committedQuery, matchThreshold, matchPriorities, selectedVibes, coordinates]);
 
   const queryKey = useMemo(
     () => [
@@ -44,6 +48,7 @@ export function useListSearch() {
       params.query ?? "",
       params.matchMin ?? null,
       params.vibe ?? [],
+      params.personalitySides ?? [],
       params.latitude ?? null,
       params.longitude ?? null,
       params.radiusKm ?? null,
