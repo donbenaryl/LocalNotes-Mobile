@@ -4,19 +4,28 @@ import { WhiteBox } from "@/components/ui/WhiteBox";
 
 function OfferCardSkeleton() {
   return (
-    <WhiteBox>
-      <Skeleton className="h-44 w-full rounded-xl" />
-      <View className="gap-1.5 px-3 pb-3 pt-3">
-        <Skeleton className="h-4 w-2/3" />
-        <Skeleton className="h-3 w-full" />
-        <Skeleton className="h-3 w-4/5" />
-        <View className="mt-1 flex-row items-center gap-1">
-          <Skeleton className="h-3.5 w-3.5 rounded-full" />
-          <Skeleton className="h-3 flex-1" />
+    <WhiteBox className="overflow-hidden p-0">
+      <Skeleton className="aspect-[16/10.5] w-full rounded-none" />
+      <View className="gap-2 px-4 pt-2.5">
+        <View className="flex-row items-center gap-2.5">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <View className="min-w-0 flex-1 gap-1">
+            <Skeleton className="h-4 w-2/5" />
+            <Skeleton className="h-3 w-3/5" />
+          </View>
+          <Skeleton className="h-10 w-24 rounded-full" />
         </View>
-        <View className="mt-2 flex-row gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
-          <Skeleton className="h-3.5 w-24 rounded-full" />
-        </View>
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-4/5" />
+        <Skeleton className="h-4 w-3/5" />
+      </View>
+      <View className="mt-1 flex-row items-center gap-3 border-t border-gray-100 px-4 py-3 dark:border-gray-700">
+        <Skeleton className="h-3.5 w-10 rounded-full" />
+        <Skeleton className="h-3.5 w-10 rounded-full" />
+        <Skeleton className="h-3.5 w-10 rounded-full" />
+        <Skeleton className="h-3.5 w-16 rounded-full" />
+        <View className="flex-1" />
+        <Skeleton className="h-3.5 w-20 rounded-full" />
       </View>
     </WhiteBox>
   );

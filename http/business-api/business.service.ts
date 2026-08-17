@@ -13,6 +13,7 @@ import type {
     BusinessPersonalityColorStatItemDAO,
     BusinessUniqueUsersReachedStatsDAO,
     BusinessTotalListSavesStatsDAO,
+    OwnedBusinessDAO,
     StatsDateRangeParams,
 } from "./types";
 import type { NoteDAO } from "../notes-api/types";
@@ -50,6 +51,19 @@ class BusinessService extends AppHttpService{
        return await this.SendRequest<BusinessItemDAO>({
         method:"get",
         path:"/info",
+       })
+    }
+    async fetchOwnedBusinesses(){
+       return await this.SendRequest<OwnedBusinessDAO[]>({
+        method:"get",
+        path:"/mine",
+       })
+    }
+    async setPrimaryBusiness(businessId: string){
+       return await this.SendRequest<OwnedBusinessDAO[], { business_id: string }>({
+        method:"patch",
+        path:"/primary",
+        body: { business_id: businessId },
        })
     }
     async updateBusiness(dto: UpdateBusinessDTO){

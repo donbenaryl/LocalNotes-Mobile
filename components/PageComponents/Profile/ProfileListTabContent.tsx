@@ -45,7 +45,7 @@ export function ProfileListTabContent({
     void refetch();
   }, [refetch]);
 
-  useRegisterProfilePullToRefresh(handleRefresh, isRefetching);
+  useRegisterProfilePullToRefresh(category, handleRefresh, isRefetching);
 
   const sortedList = useMemo(
     () =>

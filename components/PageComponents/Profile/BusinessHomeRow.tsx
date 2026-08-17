@@ -1,15 +1,14 @@
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ChevronRight, LayoutGrid } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 
 export function BusinessHomeRow() {
   const { t } = useTranslation();
+  const router = useRouter();
 
   const onPress = () => {
-    Alert.alert(
-      t('profile.info.businessHome.comingSoonTitle'),
-      t('profile.info.businessHome.comingSoonMessage'),
-    );
+    router.push('/business-home' as never);
   };
 
   return (

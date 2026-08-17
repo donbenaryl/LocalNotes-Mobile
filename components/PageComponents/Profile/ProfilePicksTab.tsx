@@ -59,7 +59,7 @@ export function ProfilePicksTab({
     void refetch();
   }, [refetch]);
 
-  useRegisterProfilePullToRefresh(handleRefresh, isRefetching);
+  useRegisterProfilePullToRefresh("picks", handleRefresh, isRefetching);
 
   const sortedPicks = useMemo(
     () =>

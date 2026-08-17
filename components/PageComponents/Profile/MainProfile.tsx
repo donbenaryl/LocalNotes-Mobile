@@ -6,6 +6,7 @@ import {
   LayoutGrid,
   List,
   MoreHorizontal,
+  Tag,
 } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
@@ -52,6 +53,7 @@ import type { profileItemDAO } from "@/http/account-api/types";
 const TAB_IDS: ProfileListTabType[] = [
   "my-lists",
   "saved",
+  "offers",
   "collaborative",
   "shared-with-me",
   "picks",
@@ -86,6 +88,7 @@ interface ProfileScrollBodyProps {
   profile: profileItemDAO | null | undefined;
   isPending: boolean;
   profileUserId: string;
+  primaryBusinessId?: string;
   tabs: TabItem[];
   activeTab: ProfileListTabType;
   pages: SectionPagerPage[];
@@ -101,6 +104,7 @@ function ProfileScrollBody({
   profile,
   isPending,
   profileUserId,
+  primaryBusinessId,
   tabs,
   activeTab,
   pages,
@@ -123,6 +127,11 @@ function ProfileScrollBody({
     if (isBusinessOwner) {
       void refreshBusinessInfo();
     }
+    if (primaryBusinessId) {
+      void queryClient.invalidateQueries({
+        queryKey: ["business-offers", primaryBusinessId],
+      });
+    }
   }, [
     handler,
     queryClient,
@@ -130,6 +139,7 @@ function ProfileScrollBody({
     profileUserId,
     isBusinessOwner,
     refreshBusinessInfo,
+    primaryBusinessId,
   ]);
 
   return (
@@ -228,6 +238,8 @@ function MainProfileContent({
   const isBusinessProfile = isBusinessAccountType(accountType ?? undefined);
   const isBusinessOwner = isOwnProfile && isBusinessProfile;
 
+  const primaryBusinessId = profile?.primary_business_id ?? undefined;
+
   const ownProfileTabs: TabItem[] = useMemo(() => {
     const base: TabItem[] = [
       { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
@@ -235,12 +247,13 @@ function MainProfileContent({
       { id: "saved", label: t("profile.tabs.saved"), icon: List },
     ];
 
-    if (isBusinessProfile) {
+    if (isBusinessProfile && primaryBusinessId) {
+      base.push({ id: "offers", label: t("profile.tabs.offers"), icon: Tag });
       base.push({ id: "about", label: t("profile.tabs.about"), icon: Info });
     }
 
     return base;
-  }, [isBusinessProfile, t]);
+  }, [isBusinessProfile, primaryBusinessId, t]);
 
   const tabs = useMemo(() => {
     if (isOwnProfile) {
@@ -408,13 +421,14 @@ function MainProfileContent({
           </Text>
         </View>
       ) : (
-        <ProfilePullToRefreshProvider>
+        <ProfilePullToRefreshProvider activeTabId={activeTab}>
           <ProfileScrollBody
             isOwnProfile={isOwnProfile}
             isBusinessOwner={isBusinessOwner}
             profile={profile}
             isPending={isPending}
             profileUserId={profileUserId}
+            primaryBusinessId={primaryBusinessId}
             tabs={tabs}
             activeTab={activeTab}
             pages={pages}

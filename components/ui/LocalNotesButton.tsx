@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 type LocalNotesButtonSize = "xs" | "sm" | "md" | "lg";
-type LocalNotesButtonVariant = "dark" | "light" | "brand" | "danger";
+type LocalNotesButtonVariant = "dark" | "light" | "brand" | "danger" | "ghost";
 
 interface LocalNotesButtonProps {
   label: string;
@@ -37,6 +37,7 @@ const VARIANT_CONTAINER_CLASS: Record<LocalNotesButtonVariant, string> = {
   light: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
   brand: "bg-brand border-brand",
   danger: "bg-red-700 border border-red-700",
+  ghost: "bg-transparent border border-transparent",
 };
 
 const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
@@ -44,6 +45,7 @@ const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
   light: "text-ink dark:text-gray-100",
   brand: "text-white",
   danger: "text-white",
+  ghost: "text-gray-500 dark:text-gray-400",
 };
 
 export function LocalNotesButton({

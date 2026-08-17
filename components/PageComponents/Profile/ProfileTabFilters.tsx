@@ -4,7 +4,7 @@ import { useTabCategoryOptions, type BusinessAuthorship, type ProfileTabCategory
 import type { ProfileListTabType } from "./ProfileTabPanel";
 
 function toListTab(tab: ProfileListTabType): ProfileTabCategory {
-  if (tab === "about") return "my-lists";
+  if (tab === "about" || tab === "offers") return "my-lists";
   return tab;
 }
 
@@ -65,7 +65,7 @@ export function ProfileTabFilters({
     }
   }, [selectedCategory, categoryOptions, onCategoryChange]);
 
-  if (tab === "about") {
+  if (tab === "about" || tab === "offers") {
     return null;
   }
 

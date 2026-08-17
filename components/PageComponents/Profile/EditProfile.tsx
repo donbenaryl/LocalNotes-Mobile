@@ -4,9 +4,11 @@ import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { ChevronRight } from "lucide-react-native";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { UploadAvatar } from "@/components/ui/UploadAvatar";
+import { DateField } from "@/components/ui/DateField";
 import { TextInput } from "@/components/ui/TextInput";
 import { UsernameField } from "@/components/ui/UsernameField";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
@@ -108,6 +110,7 @@ export default function EditProfile() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const showToast = useToastStore((s) => s.show);
+  const { t } = useTranslation();
 
   // ── Profile data ─────────────────────────────────────────────────────────────
   // Reuses the cached result from the profile screen — no extra network request.
@@ -127,6 +130,7 @@ export default function EditProfile() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [name, setName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [username, setUsername] = useState("");
   const [usernameStatus, setUsernameStatus] =
     useState<UsernameAvailabilityStatus>("idle");
@@ -150,6 +154,7 @@ export default function EditProfile() {
     setFirstName(profile.first_name ?? "");
     setLastName(profile.last_name ?? "");
     setName(profile.name ?? "");
+    setDateOfBirth(profile.date_of_birth ?? "");
     setUsername(profile.username ?? "");
     setBio(profile.bio ?? "");
     setUrlLinkedin(profile.url_linkedin ?? "");
@@ -183,6 +188,7 @@ export default function EditProfile() {
     firstName.trim() !== (profile?.first_name ?? "").trim() ||
     lastName.trim() !== (profile?.last_name ?? "").trim() ||
     name.trim() !== (profile?.name ?? "").trim() ||
+    dateOfBirth.trim() !== (profile?.date_of_birth ?? "").trim() ||
     username.trim().toLowerCase() !==
       (profile?.username ?? "").trim().toLowerCase() ||
     bio.trim() !== (profile?.bio ?? "").trim() ||
@@ -206,6 +212,14 @@ export default function EditProfile() {
       }
       if (bioOverLimit)
         throw new Error(`Bio must be ${BIO_MAX_LENGTH} characters or fewer.`);
+
+      const dobVal = dateOfBirth.trim();
+      if (dobVal) {
+        const dobDate = new Date(dobVal);
+        if (Number.isNaN(dobDate.getTime()) || dobDate >= new Date()) {
+          throw new Error(t("validation.dateOfBirthPast"));
+        }
+      }
 
       // Client-side URL validation mirrors the frontend ProfileModal checks.
       const linkedinVal = urlLinkedin.trim();
@@ -241,6 +255,7 @@ export default function EditProfile() {
         last_name: lastName.trim() || undefined,
         name: name.trim(),
         username: usernameTrimmed,
+        date_of_birth: dobVal || null,
         bio: bio.trim(),
         // Empty string → null to signal "remove this link" to the API.
         url_linkedin: linkedinVal || null,
@@ -384,6 +399,13 @@ export default function EditProfile() {
             autoCapitalize="words"
             returnKeyType="next"
             editable={!isSaving}
+          />
+
+          <DateField
+            label={t("auth.onboarding.dateOfBirthLabel")}
+            placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
+            value={dateOfBirth}
+            onChange={setDateOfBirth}
           />
 
           <UsernameField

@@ -112,6 +112,15 @@ export type BusinessTotalListSavesStatsDAO = {
   total_list_saves: number;
 };
 
+export type OwnedBusinessDAO = {
+  id: string;
+  name: string;
+  role: string;
+  is_primary: boolean;
+  location_count: number;
+  branches: BusinessBranchDAO[];
+};
+
 export type StatsDateRangeParams = {
   date_from?: string;
   date_to?: string;

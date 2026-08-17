@@ -4,6 +4,7 @@ import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import { Calendar } from 'lucide-react-native';
+import { formatIsoDate, parseIsoDate } from '@/utils/dateIso';
 
 interface DateFieldProps {
   label?: string;
@@ -12,20 +13,8 @@ interface DateFieldProps {
   error?: string;
   max?: Date;
   placeholder?: string;
-}
-
-function formatDate(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function parseDate(value: string): Date {
-  if (!value) return new Date(2000, 0, 1);
-  const [year, month, day] = value.split('-').map(Number);
-  if (!year || !month || !day) return new Date(2000, 0, 1);
-  return new Date(year, month - 1, day);
+  displayValue?: string;
+  variant?: 'default' | 'compact';
 }
 
 export function DateField({
@@ -35,9 +24,11 @@ export function DateField({
   error,
   max = new Date(),
   placeholder = 'Select date',
+  displayValue,
+  variant = 'default',
 }: DateFieldProps) {
   const [showPicker, setShowPicker] = useState(false);
-  const selectedDate = parseDate(value);
+  const selectedDate = parseIsoDate(value);
 
   function handleChange(event: DateTimePickerEvent, date?: Date) {
     if (Platform.OS === 'android') {
@@ -48,11 +39,14 @@ export function DateField({
       return;
     }
 
-    onChange(formatDate(date));
+    onChange(formatIsoDate(date));
   }
 
+  const isCompact = variant === 'compact';
+  const shownValue = displayValue ?? value;
+
   return (
-    <View className="w-full">
+    <View className={isCompact ? undefined : 'w-full'}>
       {label ? (
         <Text className="text-gray-500 dark:text-gray-200 font-geist-medium text-sm mb-1.5 capitalize">
           {label}
@@ -61,20 +55,35 @@ export function DateField({
 
       <Pressable
         onPress={() => setShowPicker(true)}
-        className={`flex-row items-center bg-gray-50 dark:bg-gray-800 border rounded-xl px-4 h-14 cursor-pointer ${
-          error ? 'border-error' : 'border-gray-100 dark:border-gray-700'
-        }`}
+        accessibilityRole="button"
+        className={
+          isCompact
+            ? `min-h-[38px] flex-row items-center gap-1 rounded-full border bg-paper px-3 dark:bg-gray-800 ${
+                error ? 'border-error' : 'border-gray-200 dark:border-gray-600'
+              }`
+            : `flex-row items-center bg-gray-50 dark:bg-gray-800 border rounded-xl px-4 h-14 cursor-pointer ${
+                error ? 'border-error' : 'border-gray-100 dark:border-gray-700'
+              }`
+        }
       >
         <Text
-          className={`flex-1 font-geist text-base ${
-            value
-              ? 'text-ink dark:text-gray-100'
-              : 'text-gray-400 dark:text-gray-500'
-          }`}
+          className={
+            isCompact
+              ? `font-geist-bold text-xs ${
+                  shownValue
+                    ? 'text-ink dark:text-gray-100'
+                    : 'text-gray-400 dark:text-gray-500'
+                }`
+              : `flex-1 font-geist text-base ${
+                  value
+                    ? 'text-ink dark:text-gray-100'
+                    : 'text-gray-400 dark:text-gray-500'
+                }`
+          }
         >
-          {value || placeholder}
+          {shownValue || placeholder}
         </Text>
-        <Calendar size={18} color="#6B7280" strokeWidth={2} />
+        <Calendar size={isCompact ? 12 : 18} color="#78716C" strokeWidth={2} />
       </Pressable>
 
       {error ? (

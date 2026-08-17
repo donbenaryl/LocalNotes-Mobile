@@ -7,6 +7,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { FollowButton } from '@/components/ui/FollowButton';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { StatsSection } from '@/components/ui/StatsSection';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
 import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
 import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfileInsights';
@@ -190,23 +191,7 @@ export function ProfileInfo({
           ) : null}
         </View>
 
-        <View className="mt-4 flex-row rounded-2xl bg-white py-3 shadow-sm dark:bg-gray-800">
-          {stats.map((stat, index) => (
-            <View
-              key={stat.label}
-              className={`flex-1 items-center ${
-                index > 0 ? 'border-l border-gray-200 dark:border-gray-700' : ''
-              }`}
-            >
-              <Text className="font-geist-extrabold text-[17px] text-ink dark:text-gray-100">
-                {stat.value}
-              </Text>
-              <Text className="mt-0.5 font-geist-semibold text-[11.5px] uppercase text-gray-400 dark:text-gray-500">
-                {stat.label}
-              </Text>
-            </View>
-          ))}
-        </View>
+        <StatsSection items={stats} className="mt-4" />
 
         <View className="mt-3.5 flex-row items-center gap-2.5 px-0 pb-1">
           {isOwnProfile ? (

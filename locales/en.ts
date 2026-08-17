@@ -450,6 +450,7 @@ const en = {
       myLists: 'My Lists',
       picks: 'Picks',
       saved: 'Saved Lists',
+      offers: 'Offers',
       contributed: 'Contributed Lists',
       sharedWithMe: 'Shared With Me',
       about: 'About',
@@ -1088,6 +1089,260 @@ const en = {
       fallback: 'sent you a notification',
       someone: 'Someone',
       aList: 'a list',
+    },
+  },
+  businessHome: {
+    title: 'Business Home',
+    managingAs: 'Managing as {{name}} · {{role}}',
+    comingSoonTitle: 'Coming soon',
+    comingSoonMessage: 'This feature is not available yet.',
+    switcher: {
+      yourBusinesses: 'Your businesses',
+      locations: 'Locations',
+      locationCount_one: '{{count}} location · {{role}}',
+      locationCount_other: '{{count}} locations · {{role}}',
+      loading: 'Loading your businesses…',
+      error: 'Could not load businesses',
+      retry: 'Try again',
+      empty: 'No businesses linked to this account yet.',
+      noLocations: 'No locations for this business yet.',
+    },
+    dateRangePicker: {
+      title: 'Select period',
+      apply: 'Apply',
+      cancel: 'Cancel',
+    },
+    shortcuts: {
+      promote: 'Promote',
+      campaigns: 'Campaigns',
+      analytics: 'Explore analytics',
+    },
+    stats: {
+      views: 'VIEWS',
+      saves: 'SAVES',
+      redeemed: 'REDEEMED ✓',
+      lists: 'LISTS',
+    },
+    insight: {
+      paidBody:
+        'Views rose 18% — mostly because two new Lists added you. Those visitors save at a lower rate than your usual audience, which is why saves rose only 6%: your discovery is improving faster than your conversion.',
+      paidSource: 'Your data ✦ Automatic interpretation · Business Insights',
+      freeBody:
+        'Views ↑18% · Saves ↑6% this period. Every number here is yours, free, always.',
+      freeSource:
+        '✦ Want to know why these moved differently? Business Insights can explain the change and recommend what to do next.',
+      seeInsights: 'See Business Insights',
+    },
+    sections: {
+      thisWeek: 'This week',
+      alerts: 'Alerts',
+      nextActions: 'Your next actions',
+      insightsTools: 'Business Insights tools',
+      howPeopleFindYou: 'How people find you',
+      campaignResults: 'Campaign results',
+      locations: 'Across your locations',
+      exploreInsights: 'Explore insights',
+      monthlyReport: 'Monthly report',
+      promoteTools: 'Promote · pay per campaign, no membership',
+      businessInsights: 'Business Insights',
+    },
+    brief: {
+      kicker: 'Copilot · {{period}}',
+      body:
+        'Your Saturday service plan is holding — mentions down 3 → 1 — and the cardamom bun test confirmed real demand. Late-hour searches keep rising.',
+      nextLabel: 'Best next move:',
+      nextMove: 'Promote the bun while the Saturday fix finishes.',
+      assignRow: 'Assign to Sarah · Manager ▾ · due this week ▾',
+      assignedOk: 'Assigned to Sarah ✓',
+    },
+    alert: {
+      saturday: 'Saturday',
+      sunday: 'Sunday',
+    },
+    action: {
+      priority: 'Priority',
+      effort: 'Effort',
+      confidence: 'Confidence',
+      recommendedStep: 'Recommended next step',
+      measure: 'Measure',
+    },
+    buttons: {
+      createOffer: 'Create Offer',
+      supportingData: 'Supporting data',
+      assign: 'Assign',
+      confirmHours: 'Confirm Hours',
+      assignToSarah: 'Assign to Sarah',
+      dismiss: 'Dismiss',
+      confirm: 'Confirm',
+      changeHours: 'Change hours',
+      viewPlan: 'View plan',
+      startActionPlan: 'Start action plan',
+      promoteOpportunity: 'Promote this opportunity',
+      explain: 'Explain',
+      reachMore: 'Reach more people like this',
+      runAgain: 'Run it again',
+      editRelaunch: 'Edit & relaunch',
+      receipt: 'Receipt',
+      submitSpotlight: 'Submit Spotlight bid',
+      fixNow: 'Fix now',
+      compareLocations: 'Compare locations',
+      addLocation: 'Add a location',
+      createMorningOffer: 'Create Morning Offer',
+    },
+    tools: {
+      copilot: 'Copilot',
+      improveProfile: 'Improve profile',
+      actionPlans: 'Action plans',
+      alerts: 'Alerts',
+      repeatCampaign: 'Repeat campaign',
+    },
+    discovery: {
+      search: 'Search',
+      lists: 'Lists',
+      picks: 'Picks',
+      discover: 'Discover',
+      seeDetails: 'See details',
+    },
+    campaign: {
+      spend: 'SPEND',
+      redeemed: 'REDEEMED ✓',
+      sales: 'TRACKED SALES',
+      roas: 'TRACKED ROAS',
+      viewSnapshot: 'View insight snapshot',
+      campaignSetup: 'Campaign setup',
+      unlockInsights: 'Unlock Business Insights to compare this with previous campaigns and get your next recommended action.',
+      paidNote: 'Strongest with morning-focused customers. Next recommended action is in your plan above.',
+      compare: '⇄ Compare campaigns',
+    },
+    runAnother: {
+      title: 'Run another campaign',
+      body: 'Each purchase includes its own Campaign Insight Snapshot and limited Campaign Assistant — scoped to that campaign only.',
+    },
+    profileHealth: {
+      title: 'Profile health · {{score}}/100',
+      freeBadge: 'FREE',
+    },
+    locations: {
+      viewing: 'viewing',
+      note: 'Each location keeps its own public profile. One account and team can manage all locations — Business Insights is $39/mo for the first subscribed location, $29/mo each additional.',
+      paidNote: '✦ "Slow service" is emerging at Scottsdale only — the playbook from your Roosevelt Row fix applies.',
+    },
+    explore: {
+      customers: 'Customers',
+      demand: 'Demand',
+      performance: 'Performance',
+      whatCustomersSay: 'What customers say',
+      customersSource:
+        '32 public pick notes · 1,400 savers · emerging: cardamom bun ▲, weekend speed ⚠ · fit & benchmarks live in Performance',
+      viewAllCustomers: 'View all customer insights →',
+      whoTheyAre: 'Who they are',
+      personalitySource:
+        '1,400 savers with taste profiles · top areas: Roosevelt Row 34%, Arcadia 22% · vs. café average: Curators over-represented 1.6×',
+      personalityPaidNote:
+        '✦ Curator-heavy audiences respond best to specificity — named products, named seats, named hours. Broad promotions underperform for you.',
+      whatMakesDifferent: 'What makes them different',
+      diffSource:
+        'Based on the 61% of your savers with taste profiles · vs. Phoenix café average',
+      diffPaidNote: '✦ Spend on the product, not the presentation — this audience rewards substance.',
+      demandSource: 'Search impressions Jul 1–28 — impressions, not unique people',
+      viewDemandReport: 'View full demand report →',
+      demandOpportunity:
+        'Local activity Demand for late-night study cafés is increasing near you.',
+      whenFindYou: 'When people find you',
+      strongest: 'Strongest interest',
+      quietest: 'Quietest',
+      performanceSource: 'Category benchmark Compared with 184 Phoenix cafés',
+      viewPerformanceReport: 'View full performance report →',
+    },
+    monthlyReport: {
+      rowTitle: 'Monthly report',
+      ready: 'July report ready →',
+    },
+    upsell: {
+      membership: 'Membership',
+      perMonth: '/month',
+      body: 'All your analytics are free, always. Membership turns them into an intelligent business assistant — the why, what matters, and what to do next.',
+      paymentNote:
+        'Two ways to pay, ever: campaigns are pay-per-use · Insights is one monthly membership. That\'s the whole structure.',
+      includes: {
+        copilot: 'Business Copilot — ask anything about your data',
+        brief: 'Weekly brief with your best next move',
+        alerts: 'Smart alerts & automatic opportunity detection',
+        interpretation: 'Automatic interpretation & cross-data analysis',
+        actionPlans: 'Action plans & AI profile optimization',
+        campaignIntel: 'Campaign intelligence & monthly report',
+      },
+      trial: 'Try 7 days for $5',
+      finePrint:
+        'Then $39/month unless canceled before the trial ends · Multi-location: $39 first location, $29 each additional — one team, one bill · Membership is not required to advertise · Offers and Spotlight are purchased separately · Campaign results are always included with campaigns you purchase · Cancel anytime',
+    },
+    footerNote:
+      'Public picks and list adds always show who made them. Saves, favorites and views are private — totals only. Paying for a campaign includes campaign data and limited campaign AI; it does not unlock ongoing Copilot. Reaching a data threshold does not unlock paid features. Searches are impressions, not unique people; tracked sales are counter-verified. Nothing publishes without your approval.',
+    sheets: {
+      copilot: {
+        title: '✦ Business Copilot',
+        sampleQuestion: 'Why did saves dip last week?',
+        sampleAnswer:
+          'One cause, not a trend: you left "Best WiFi cafés" (46 businesses) on Jul 22. Saves from that list went to zero while every other source grew.',
+        cite1: '📉 List placements · Jul 15–28',
+        cite2: '📊 Observed',
+        turnIntoPlan: 'Turn into action plan',
+        draftNote: 'Draft a note to the curator',
+        suggest1: 'What should I focus on this week?',
+        suggest2: 'What are customers starting to mention?',
+        suggest3: 'Which hours should I test?',
+      },
+      profile: {
+        title: '✎ Improve profile',
+        healthTitle: 'Profile health',
+        healthBody: 'Strong basics. Two gaps are costing you discovery — both fixable today.',
+        hoursTitle: 'Confirm weekend hours',
+        hoursBody:
+          'Saturday searches can\'t surface you confidently while hours are unconfirmed — and Saturday is your most-mentioned day.',
+        descriptionTitle: 'Refresh your description',
+        descriptionBody:
+          'Your bio doesn\'t mention the words customers actually search for. AI draft:',
+        draft:
+          '"A quiet Roosevelt Row coffee bar for slow mornings and long study sessions — house cardamom buns at 7, rotating guest espresso, window seats worth waiting for."',
+        useDraft: 'Use draft',
+      },
+      plans: {
+        title: '⚑ Action plans',
+        activeTitle: 'Saturday staffing review',
+        activeBody:
+          'Assigned to Marcus · Store Manager · Goal: Zero new "slow" mentions · Baseline: 3 mentions / 30 days · So far: 1 mention · trending down',
+        logNumbers: 'Log this week\'s numbers',
+        completedTitle: 'Cardamom bun +20%',
+        completedBody:
+          'Owner of task: Sarah · Manager · Result: sell-out moved 8:40am → 10:15am, units +19%, zero waste days.',
+      },
+      alerts: {
+        title: '🔔 Alerts',
+        attentionTitle: '"Weekend speed" mentioned again',
+        attentionBody:
+          'What changed: a 3rd pick note in 20 days mentioned slow Saturday service. Why it matters: recurring concerns spread into list notes and cost placements.',
+        opportunityTitle: 'Late-night demand increased 31%',
+        opportunityBody:
+          'Thursday–Saturday shows the strongest growth, and your study-focused audience already fits it.',
+      },
+      report: {
+        title: '📊 July report',
+        oneLineTitle: 'The month in one line',
+        oneLineBody:
+          'Your best save month yet — driven by the bun campaign and the study-list placement — with one recurring concern (Saturday service) now under active repair.',
+        improvedTitle: 'Improved ↗',
+        saves: 'Saves 2.1K · +34%',
+        redemptions: 'Verified redemptions 96 · first campaign',
+      },
+      compare: {
+        title: '⇄ Campaign comparison',
+        headline: 'Your two campaigns, side by side',
+        campaignA: 'Bun + cortado\nmorning · $50 · 96 ✓',
+        campaignB: 'Afternoon special\nMay · $40 · 22 ✓',
+        meaningTitle: 'What the difference means',
+        meaningBody:
+          'Morning-focused customers respond ~3.7× better for you. The audiences barely overlap: the morning campaign converted your study-list savers; the afternoon one reached mostly new viewers who saved but didn\'t redeem.',
+      },
     },
   },
 } as const;

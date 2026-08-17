@@ -1,12 +1,14 @@
 import { ProfileListTabPanel } from "./ProfileListTabPanel";
 import { ProfilePicksTab } from "./ProfilePicksTab";
 import { ProfileAboutTab } from "./ProfileAboutTab";
+import { ProfileOffersTab } from "./ProfileOffersTab";
 import { ComingSoon } from "@/components/ui/ComingSoon";
 import type { BusinessAuthorship, ProfileTabCategory } from "@/hooks/useProfileList";
 
 export type ProfileListTabType =
   | "my-lists"
   | "saved"
+  | "offers"
   | "collaborative"
   | "contributed"
   | "shared-with-me"
@@ -79,6 +81,13 @@ export function ProfileTabPanel({
 
   if (tab === "about") {
     return <ProfileAboutTab />;
+  }
+
+  if (tab === "offers") {
+    if (!businessId) {
+      return <ComingSoon />;
+    }
+    return <ProfileOffersTab businessId={businessId} />;
   }
 
   return (

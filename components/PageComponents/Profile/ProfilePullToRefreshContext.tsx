@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -14,7 +15,7 @@ interface ProfilePullToRefreshHandler {
 }
 
 interface ProfilePullToRefreshContextValue {
-  register: (handler: ProfilePullToRefreshHandler | null) => void;
+  register: (tabId: string, handler: ProfilePullToRefreshHandler | null) => void;
   handler: ProfilePullToRefreshHandler | null;
 }
 
@@ -23,18 +24,53 @@ const ProfilePullToRefreshContext =
 
 interface ProfilePullToRefreshProviderProps {
   children: ReactNode;
+  activeTabId: string;
 }
 
 export function ProfilePullToRefreshProvider({
   children,
+  activeTabId,
 }: ProfilePullToRefreshProviderProps) {
   const [handler, setHandler] = useState<ProfilePullToRefreshHandler | null>(
     null,
   );
+  const registryRef = useRef(new Map<string, ProfilePullToRefreshHandler>());
+  const activeTabIdRef = useRef(activeTabId);
+  activeTabIdRef.current = activeTabId;
 
-  const register = useCallback((next: ProfilePullToRefreshHandler | null) => {
-    setHandler(next);
+  const applyActiveHandler = useCallback(() => {
+    const next = registryRef.current.get(activeTabIdRef.current) ?? null;
+    setHandler((prev) => {
+      if (prev === null && next === null) return prev;
+      if (
+        prev &&
+        next &&
+        prev.onRefresh === next.onRefresh &&
+        prev.refreshing === next.refreshing
+      ) {
+        return prev;
+      }
+      return next;
+    });
   }, []);
+
+  const register = useCallback(
+    (tabId: string, next: ProfilePullToRefreshHandler | null) => {
+      if (next) {
+        registryRef.current.set(tabId, next);
+      } else {
+        registryRef.current.delete(tabId);
+      }
+      if (tabId === activeTabIdRef.current) {
+        applyActiveHandler();
+      }
+    },
+    [applyActiveHandler],
+  );
+
+  useEffect(() => {
+    applyActiveHandler();
+  }, [activeTabId, applyActiveHandler]);
 
   const value = useMemo(
     () => ({
@@ -61,15 +97,22 @@ export function useProfilePullToRefresh() {
   return context;
 }
 
-/** Registers the active profile tab's refetch with the parent chrome ScrollView. */
+/** Registers a profile sub-tab refetch with the parent chrome ScrollView when active. */
 export function useRegisterProfilePullToRefresh(
+  tabId: string,
   onRefresh: () => void,
   refreshing: boolean,
 ) {
   const { register } = useProfilePullToRefresh();
+  const onRefreshRef = useRef(onRefresh);
+  onRefreshRef.current = onRefresh;
+
+  const stableOnRefresh = useCallback(() => {
+    onRefreshRef.current();
+  }, []);
 
   useEffect(() => {
-    register({ onRefresh, refreshing });
-    return () => register(null);
-  }, [register, onRefresh, refreshing]);
+    register(tabId, { onRefresh: stableOnRefresh, refreshing });
+    return () => register(tabId, null);
+  }, [register, tabId, stableOnRefresh, refreshing]);
 }
