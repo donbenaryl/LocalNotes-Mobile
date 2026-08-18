@@ -72,6 +72,7 @@ export interface Item {
   unverified_business: UnverifiedBusiness | null;
   images?: ListItemImage[];
   location?: Location | null;
+  branch?: BusinessBranchDAO | null;
   is_favorite?: boolean;
 }
 export interface Location {
@@ -102,6 +103,8 @@ export interface CreateListItemPayload {
   others_name?: string;
   description: string;
   unverified_business?: string;
+  location?: Location;
+  branch?: string | null;
 }
 
 export interface CreateListDTO {
@@ -261,6 +264,7 @@ export interface ListItemPublic {
   images: ListItemImage[];
   list_usage_count: number;
   location?: Location | null;
+  branch?: BusinessBranchDAO | null;
   created_at?: string;
 }
 
@@ -273,6 +277,7 @@ export interface CreateListItemDTO {
   others_name?: string;
   unverified_business?: string;
   location?: Location;
+  branch?: string | null;
 }
 
 /** Payload for updating a standalone list item (PATCH /lists/items/<id>) */
@@ -284,4 +289,5 @@ export interface UpdateListItemDTO {
   others_name?: string;
   unverified_business?: string;
   location?: Location | null;
+  branch?: string | null;
 }

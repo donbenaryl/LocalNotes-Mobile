@@ -37,6 +37,7 @@ function mapPublicToItemShape(pick: ListItemPublic): Item {
     owner: pick.owner,
     images: pick.images,
     location: pick.location ?? undefined,
+    branch: pick.branch ?? null,
     is_favorite: pick.is_favorite,
   };
 }
@@ -74,6 +75,11 @@ export function useListPickActions(mode: ListFormMode) {
                 ? { unverified_business: data.unverifiedBusiness }
                 : {}),
               ...(data.location !== undefined ? { location: data.location } : {}),
+              ...(data.branchId
+                ? { branch: data.branchId }
+                : !data.businessId
+                  ? { branch: null }
+                  : {}),
             },
           );
 
@@ -125,6 +131,7 @@ export function useListPickActions(mode: ListFormMode) {
             ? { unverified_business: data.unverifiedBusiness }
             : {}),
           ...(data.location ? { location: data.location } : {}),
+          ...(data.branchId ? { branch: data.branchId } : {}),
         });
 
         if (error) {

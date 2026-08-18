@@ -54,6 +54,8 @@ export interface FormSubmitData {
   description: string;
   newFiles: RNFile[];
   location?: Location;
+  /** Selected BusinessBranch id when the pick is tied to a verified business. */
+  branchId?: string;
 }
 
 export interface ListItemFormInitialData {
@@ -65,6 +67,9 @@ export interface ListItemFormInitialData {
   othersName?: string;
   images?: { id: string; url: string }[];
   location?: Location | null;
+  /** Verified business id — used to restore the business + branch picker on edit. */
+  businessId?: string | null;
+  branchId?: string | null;
 }
 
 interface ListItemFormProps {
@@ -142,6 +147,7 @@ export function ListItemForm({
 
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchRequestIdRef = useRef(0);
+  const restoreRequestIdRef = useRef(0);
   const nameInputRef = useRef(nameInput);
   nameInputRef.current = nameInput;
   const scrollRef = useRef<ScrollView | null>(null);
@@ -175,7 +181,7 @@ export function ListItemForm({
     setIsSearching(false);
     setShowSearchResults(false);
     setSelectedBusiness(null);
-    setSelectedBranchId(null);
+    setSelectedBranchId(data?.branchId ?? null);
     setNewItemPhotos([]);
     setLocation(data?.location ?? null);
     setLocalExistingImages(
@@ -200,6 +206,35 @@ export function ListItemForm({
     [applyFormFields],
   );
 
+  const restoreVerifiedBusiness = useCallback(async (data?: ListItemFormInitialData) => {
+    const businessId = data?.businessId;
+    const name = data?.name?.trim();
+    if (!businessId && !name) return;
+    const requestId = ++restoreRequestIdRef.current;
+    try {
+      const response = await businessService.searchBusiness({
+        query: name || "",
+        match: "name",
+      });
+      if (requestId !== restoreRequestIdRef.current) return;
+      const results = response.data?.data ?? [];
+      const match =
+        results.find((business) => business.id === businessId) ??
+        results.find((business) => business.name === name);
+      if (!match) return;
+      setSelectedBusiness(match);
+      const branches = match.branches ?? [];
+      const wanted = data?.branchId;
+      if (wanted && branches.some((branch) => branch.id === wanted)) {
+        setSelectedBranchId(wanted);
+      } else if (branches.length === 1) {
+        setSelectedBranchId(branches[0]!.id);
+      }
+    } catch {
+      // Keep the form usable without the verified-business chrome.
+    }
+  }, []);
+
   // Edit: always re-hydrate on open / when switching picks.
   // Create: preserve in-progress draft on reopen; clear only when leaving edit
   // mode for a fresh create (so edit leftovers don't leak into create).
@@ -209,6 +244,7 @@ export function ListItemForm({
     if (isEditing) {
       hydrateFromInitialData(initialData);
       wasEditingRef.current = true;
+      void restoreVerifiedBusiness(initialData);
       return;
     }
 
@@ -406,6 +442,7 @@ export function ListItemForm({
           description: notesInput.trim(),
           newFiles: newItemPhotos.map((p) => p.file),
           location: resolvedBusinessLocation ?? location ?? undefined,
+          branchId: selectedBranchId ?? undefined,
         }),
       );
       if (!isEditing) {

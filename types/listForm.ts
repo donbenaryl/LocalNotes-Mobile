@@ -17,6 +17,7 @@ export interface ListPickDraft {
   description: string;
   unverified_business?: string;
   location?: GeoLocation;
+  branch?: string;
   newFiles?: RNFile[];
   ownerPersonalityColor?: Record<string, number> | null;
   owner?: {

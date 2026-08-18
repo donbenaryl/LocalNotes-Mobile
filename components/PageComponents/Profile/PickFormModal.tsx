@@ -46,6 +46,11 @@ export function PickFormModal({
             ? { unverified_business: data.unverifiedBusiness }
             : {}),
           ...(data.location !== undefined ? { location: data.location } : {}),
+          ...(data.branchId
+            ? { branch: data.branchId }
+            : !data.businessId
+              ? { branch: null }
+              : {}),
         });
 
         if (error) {
@@ -72,6 +77,7 @@ export function PickFormModal({
         ...(data.othersName ? { others_name: data.othersName } : {}),
         ...(data.unverifiedBusiness ? { unverified_business: data.unverifiedBusiness } : {}),
         ...(data.location ? { location: data.location } : {}),
+        ...(data.branchId ? { branch: data.branchId } : {}),
       });
 
       if (error) {
@@ -109,6 +115,8 @@ export function PickFormModal({
               othersName: editingItem.others_name ?? undefined,
               images: editingItem.images,
               location: editingItem.location,
+              businessId: editingItem.business_id,
+              branchId: editingItem.branch?.id ?? null,
             }
           : createInitialData
       }

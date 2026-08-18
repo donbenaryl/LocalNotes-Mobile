@@ -304,6 +304,8 @@ export function ListForm({ step, listId }: ListFormProps) {
         othersName: editingPick.others_name,
         images: editingPick.existingImages,
         location: editingPick.location ?? null,
+        businessId: editingPick.business,
+        branchId: editingPick.branch ?? null,
       }
     : undefined;
 

@@ -63,6 +63,7 @@ export function mapListItemPublicToPickTag(pick: ListItemPublic): ListPickDraft 
       profile_image: pick.owner.profile_image,
     },
     ...(pick.location ? { location: pick.location } : {}),
+    ...(pick.branch ? { branch: pick.branch.id } : {}),
   };
 }
 
@@ -89,6 +90,7 @@ export function formSubmitToPickDraft(
     others_name: data.othersName,
     description: data.description,
     location: data.location,
+    branch: data.branchId,
     newFiles: data.newFiles.length ? data.newFiles : existing?.newFiles,
     ownerPersonalityColor: existing?.ownerPersonalityColor,
     owner: existing?.owner,
@@ -97,12 +99,24 @@ export function formSubmitToPickDraft(
 
 export function itemsPayloadForApi(items: ListPickDraft[]): CreateListItemPayload[] {
   return items.map(
-    ({ business, new_tags, categories, others_name, description, unverified_business, serverItemId }) => ({
+    ({
+      business,
+      new_tags,
+      categories,
+      others_name,
+      description,
+      unverified_business,
+      serverItemId,
+      location,
+      branch,
+    }) => ({
       ...(serverItemId ? { id: serverItemId } : {}),
       business,
       new_tags,
       description,
       unverified_business,
+      ...(location ? { location } : {}),
+      ...(branch ? { branch } : !business ? { branch: null } : {}),
       // A pick already linked to the server keeps its own categories — only a
       // brand-new pick needs to submit them here.
       ...(serverItemId ? {} : { categories: categories?.map((c) => c.id) ?? [], others_name }),
@@ -153,6 +167,7 @@ export function mapApiItemToPickDraft(
     description: item.description,
     unverified_business: item.unverified_business?.name,
     ...(item.location ? { location: item.location } : {}),
+    ...(item.branch?.id ? { branch: item.branch.id } : {}),
     ...(item.owner
       ? {
           owner: {
