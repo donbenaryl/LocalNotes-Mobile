@@ -8,6 +8,7 @@ import type { BusinessBranchDAO, BusinessLocation } from '@/http/business-api/ty
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from '@/constants/colors';
 import { formatDistanceMiles, getDistanceInMiles } from '@/utils/geo';
 import { openInMaps } from '@/utils/smartPick';
+import { WhiteBox } from '@/components/ui/WhiteBox';
 
 const MAP_HEIGHT = 176;
 const MAP_DELTA = 0.02;
@@ -126,7 +127,7 @@ export function BranchLocationCard({
   };
 
   return (
-    <View className="rounded-3xl bg-white p-4 shadow-sm dark:bg-gray-800">
+    <WhiteBox>
       <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
         {t('profile.about.location')}
       </Text>
@@ -190,6 +191,6 @@ export function BranchLocationCard({
           </Text>
         </Pressable>
       ) : null}
-    </View>
+    </WhiteBox>
   );
 }

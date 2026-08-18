@@ -13,13 +13,9 @@ import {
 } from "@/components/ui/MatchThreshhold";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
 import type { Location as GeoLocation } from "@/http/list-api/types";
-import {
-  useMatchHistogram,
-  type MatchHistogramSurface,
-} from "@/hooks/useMatchHistogram";
+import { type MatchHistogramSurface } from "@/hooks/useMatchHistogram";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
 import { useSearchStore } from "@/stores/useSearchStore";
-import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const DEFAULT_RADIUS_KM = 15;
 
@@ -76,7 +72,6 @@ export function SearchFilterHeader({
     () => ({
       query: committedQuery || undefined,
       vibes: selectedVibes,
-      personalitySides: personalitySidesFromPriorities(matchPriorities ?? {}),
       ...(coordinates
         ? {
             latitude: coordinates.latitude,
@@ -87,13 +82,7 @@ export function SearchFilterHeader({
           }
         : {}),
     }),
-    [committedQuery, selectedVibes, matchPriorities, coordinates],
-  );
-
-  const { bins: histogramBins } = useMatchHistogram(
-    histogramSurface,
-    histogramFilters,
-    isMatchModalOpen && showMatchFilter,
+    [committedQuery, selectedVibes, coordinates],
   );
 
   const handleLayout = useCallback(
@@ -168,7 +157,8 @@ export function SearchFilterHeader({
         onClose={() => setIsMatchModalOpen(false)}
         initialThreshold={matchThreshold}
         initialPriorities={matchPriorities}
-        histogramBins={histogramBins}
+        histogramSurface={histogramSurface}
+        histogramFilters={histogramFilters}
         matchingCount={matchingCount}
         onApply={(threshold, priorities) => {
           onMatchApply(threshold, priorities);

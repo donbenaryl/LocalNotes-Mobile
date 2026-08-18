@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
@@ -6,7 +6,13 @@ import { Slider } from "@/components/ui/Slider";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { FilterHeader } from "@/components/ui/FilterHeader";
 import { QUESTION_GROUPS } from "@/constants/personality";
-import { countFromMatchHistogramBins } from "@/hooks/useMatchHistogram";
+import {
+  countFromMatchHistogramBins,
+  useMatchHistogram,
+  type MatchHistogramFilters,
+  type MatchHistogramSurface,
+} from "@/hooks/useMatchHistogram";
+import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const EMPTY_BINS: number[] = Array.from({ length: 20 }, () => 0);
 const PRESETS: Array<number | null> = [null, 70, 85, 95];
@@ -14,6 +20,7 @@ const HISTOGRAM_MAX_HEIGHT = 60;
 const AXIS_LABELS = ["0%", "25%", "50%", "75%", "100%"];
 const SHEET_HEIGHT_RATIO = 0.85;
 const FOOTER_CONTENT_PAD = 88;
+const HISTOGRAM_PRIORITY_DEBOUNCE_MS = 3000;
 
 export type PrioritySide = "left" | "right";
 export type MatchPriorities = Record<number, PrioritySide>;
@@ -24,8 +31,9 @@ interface MatchThreshholdProps {
   onApply: (threshold: number | null, priorities: MatchPriorities) => void;
   initialThreshold?: number | null;
   initialPriorities?: MatchPriorities;
-  /** 20-bin match distribution from the histogram API; omit while loading. */
-  histogramBins?: number[] | null;
+  histogramSurface: MatchHistogramSurface;
+  /** Location, vibes, query, etc. Personality sides are derived from draft priorities. */
+  histogramFilters?: Omit<MatchHistogramFilters, "personalitySides">;
   /** Fallback count when bins are not yet available. */
   matchingCount?: number;
 }
@@ -128,7 +136,8 @@ export function MatchThreshhold({
   onApply,
   initialThreshold,
   initialPriorities,
-  histogramBins,
+  histogramSurface,
+  histogramFilters = {},
   matchingCount,
 }: MatchThreshholdProps) {
   const { t } = useTranslation();
@@ -138,13 +147,58 @@ export function MatchThreshhold({
   const [localPriorities, setLocalPriorities] = useState<MatchPriorities>(
     initialPriorities ?? {}
   );
+  const [debouncedPriorities, setDebouncedPriorities] = useState<MatchPriorities>(
+    initialPriorities ?? {}
+  );
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearPriorityDebounce = useCallback(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+  }, []);
+
+  const scheduleHistogramRefresh = useCallback(
+    (next: MatchPriorities) => {
+      clearPriorityDebounce();
+      debounceRef.current = setTimeout(() => {
+        setDebouncedPriorities(next);
+        debounceRef.current = null;
+      }, HISTOGRAM_PRIORITY_DEBOUNCE_MS);
+    },
+    [clearPriorityDebounce]
+  );
 
   useEffect(() => {
     if (isVisible) {
+      const next = initialPriorities ?? {};
       setLocalThreshold(initialThreshold ?? null);
-      setLocalPriorities(initialPriorities ?? {});
+      setLocalPriorities(next);
+      setDebouncedPriorities(next);
+      clearPriorityDebounce();
+    } else {
+      clearPriorityDebounce();
     }
-  }, [isVisible, initialThreshold, initialPriorities]);
+    return () => clearPriorityDebounce();
+  }, [isVisible, initialThreshold, initialPriorities, clearPriorityDebounce]);
+
+  const personalitySides = useMemo(
+    () => personalitySidesFromPriorities(debouncedPriorities),
+    [debouncedPriorities]
+  );
+  const histogramQueryFilters = useMemo(
+    (): MatchHistogramFilters => ({
+      ...histogramFilters,
+      personalitySides,
+    }),
+    [histogramFilters, personalitySides]
+  );
+  const { bins: histogramBins } = useMatchHistogram(
+    histogramSurface,
+    histogramQueryFilters,
+    isVisible
+  );
 
   const sliderValue = localThreshold ?? 0;
   const histogramData =
@@ -174,6 +228,7 @@ export function MatchThreshhold({
       } else {
         next[questionId] = side;
       }
+      scheduleHistogramRefresh(next);
       return next;
     });
   };
@@ -182,6 +237,7 @@ export function MatchThreshhold({
     setLocalPriorities((prev) => {
       const next = { ...prev };
       delete next[questionId];
+      scheduleHistogramRefresh(next);
       return next;
     });
   };
@@ -189,6 +245,7 @@ export function MatchThreshhold({
   const handleReset = () => {
     setLocalThreshold(null);
     setLocalPriorities({});
+    scheduleHistogramRefresh({});
   };
 
   const handleApply = () => {

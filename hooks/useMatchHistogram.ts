@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import accountService from "@/http/account-api/account.services";
 import type { MatchHistogramDAO } from "@/http/list-api/types";
@@ -114,6 +114,7 @@ export function useMatchHistogram(
     queryFn: () => fetchMatchHistogram(surface, filters),
     enabled,
     staleTime: FEED_STALE_TIME_MS,
+    placeholderData: keepPreviousData,
   });
 
   return {

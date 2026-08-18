@@ -15,6 +15,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
 import { BranchLocationCard } from '@/components/PageComponents/Profile/BranchLocationCard';
+import { WhiteBox } from '@/components/ui/WhiteBox';
 import { useUserCoordinates } from '@/hooks/useUserCoordinates';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { resolveImageUrl } from '@/utils/httpHelpers';
@@ -73,20 +74,20 @@ function AboutRow({ icon, label, value, onPress }: AboutRowProps) {
 
 function LocationCardSkeleton() {
   return (
-    <View className="rounded-3xl bg-white p-4 shadow-sm dark:bg-gray-800">
+    <WhiteBox>
       <View className="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700" />
       <View className="mt-3 h-44 rounded-2xl bg-gray-200 dark:bg-gray-700" />
       <View className="mt-3 h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
       <View className="mt-2 h-3.5 w-3/5 rounded bg-gray-200 dark:bg-gray-700" />
       <View className="mt-4 h-[46px] rounded-full bg-gray-200 dark:bg-gray-700" />
-    </View>
+    </WhiteBox>
   );
 }
 
 function ProfileAboutTabSkeleton() {
   return (
     <View className="gap-3">
-      <View className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-800">
+      <WhiteBox>
         <View className="flex-row items-center gap-3">
           <View className="h-14 w-14 rounded-xl bg-gray-200 dark:bg-gray-700" />
           <View className="flex-1 gap-2">
@@ -94,7 +95,7 @@ function ProfileAboutTabSkeleton() {
             <View className="h-3 w-2/5 rounded bg-gray-200 dark:bg-gray-700" />
           </View>
         </View>
-      </View>
+      </WhiteBox>
       <LocationCardSkeleton />
     </View>
   );
@@ -176,7 +177,7 @@ export function ProfileAboutTab() {
 
   return (
     <View className="gap-3 px-4 pt-4">
-      <View className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-800">
+      <WhiteBox>
         <View className="flex-row items-center gap-3">
           <View className="h-14 w-14 overflow-hidden rounded-xl bg-soft dark:bg-gray-700">
             {logoUri ? (
@@ -231,7 +232,7 @@ export function ProfileAboutTab() {
             </View>
           ))}
         </View> */}
-      </View>
+      </WhiteBox>
 
       {businessInfo.branches?.map((branch) => (
         <BranchLocationCard
@@ -244,8 +245,8 @@ export function ProfileAboutTab() {
       ))}
 
       {hasContact ? (
-        <View className="rounded-2xl bg-white px-4 shadow-sm dark:bg-gray-800">
-          <Text className="pt-4 font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
+        <WhiteBox>
+          <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
             {t('profile.about.contact')}
           </Text>
           {businessInfo.contact_email ? (
@@ -277,7 +278,7 @@ export function ProfileAboutTab() {
               }}
             />
           ) : null}
-        </View>
+        </WhiteBox>
       ) : null}
     </View>
   );

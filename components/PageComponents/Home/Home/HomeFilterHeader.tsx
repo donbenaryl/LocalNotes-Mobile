@@ -15,11 +15,7 @@ import {
 import { Toggle } from "@/components/ui/Toggle";
 import { VibeFilterModal } from "@/components/ui/VibeFilter";
 import type { HomeContentType } from "@/utils/homePicks";
-import {
-  useMatchHistogram,
-  type MatchHistogramFilters,
-} from "@/hooks/useMatchHistogram";
-import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
+import { type MatchHistogramFilters } from "@/hooks/useMatchHistogram";
 
 export type { HomeContentType };
 
@@ -113,18 +109,12 @@ export function HomeFilterHeader({
 
   const histogramSurface = contentType === "picks" ? "picks" : "lists";
   const histogramFilters = useMemo(
-    (): MatchHistogramFilters => ({
+    (): Omit<MatchHistogramFilters, "personalitySides"> => ({
       vibes: selectedVibes,
-      personalitySides: personalitySidesFromPriorities(matchPriorities ?? {}),
       categoryIds: selectedCategories,
       ...(histogramLocation ?? {}),
     }),
-    [selectedVibes, matchPriorities, selectedCategories, histogramLocation],
-  );
-  const { bins: histogramBins } = useMatchHistogram(
-    histogramSurface,
-    histogramFilters,
-    isMatchModalOpen,
+    [selectedVibes, selectedCategories, histogramLocation],
   );
 
   return (
@@ -195,7 +185,8 @@ export function HomeFilterHeader({
         onClose={() => setIsMatchModalOpen(false)}
         initialThreshold={matchThreshold}
         initialPriorities={matchPriorities}
-        histogramBins={histogramBins}
+        histogramSurface={histogramSurface}
+        histogramFilters={histogramFilters}
         matchingCount={matchingCount}
         onApply={(threshold, priorities) => {
           onMatchApply?.(threshold, priorities);
