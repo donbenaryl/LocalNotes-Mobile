@@ -48,9 +48,11 @@ export function SectionTabsScrollLayout({
   const scrollRef = useRef<ScrollView>(null);
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(scrollRef);
   const contentBottomInset = useContentBottomInset();
-  const { handler } = useSectionPullToRefresh();
+  const { handler, infiniteScrollHandler } = useSectionPullToRefresh();
   const handlerRef = useRef(handler);
   handlerRef.current = handler;
+  const infiniteScrollHandlerRef = useRef(infiniteScrollHandler);
+  infiniteScrollHandlerRef.current = infiniteScrollHandler;
 
   const [headerHeight, setHeaderHeight] = useState(0);
   const [tabsHeight, setTabsHeight] = useState(0);
@@ -84,8 +86,19 @@ export function SectionTabsScrollLayout({
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const y = event.nativeEvent.contentOffset.y;
+      const { contentOffset, layoutMeasurement, contentSize } =
+        event.nativeEvent;
+      const y = contentOffset.y;
       onScrollY(y);
+
+      const infiniteScroll = infiniteScrollHandlerRef.current;
+      if (infiniteScroll?.hasNextPage && !infiniteScroll.isFetchingNextPage) {
+        const distanceFromBottom =
+          contentSize.height - layoutMeasurement.height - y;
+        if (distanceFromBottom < 240) {
+          infiniteScroll.onLoadMore();
+        }
+      }
 
       if (stickyThreshold <= 0) return;
       const nextVisible = y >= stickyThreshold ? 1 : 0;

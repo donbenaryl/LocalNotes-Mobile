@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, Location as GeoLocation, serchDTO } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
@@ -9,16 +9,17 @@ import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { isCreatedToday } from "@/utils/time";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 import {
-  getListPersonalityMatch,
   countCategoryMatchingLists,
+  getListPersonalityMatch,
 } from "@/utils/homePicks";
-import { getListMatchPercent } from "@/utils/matchScore";
+import {
+  FEED_MAX_POOL,
+  FEED_PAGE_SIZE_LISTS,
+} from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 15;
-const LIST_LIMIT = 25;
-const FOR_YOU_LIMIT = 3;
 
 export interface UseHomeListsOptions {
   activeFilters: HomeListFilter[];
@@ -40,12 +41,10 @@ interface EffectiveCoordinates {
 function buildSearchParams(
   options: UseHomeListsOptions,
   coordinates: EffectiveCoordinates | null,
-): serchDTO {
+): Omit<serchDTO, "limit" | "offset"> {
   const { activeFilters, matchThreshold, selectedVibes, selectedCategories } = options;
 
-  const params: serchDTO = {
-    limit: LIST_LIMIT,
-  };
+  const params: Omit<serchDTO, "limit" | "offset"> = {};
 
   const personalitySides = personalitySidesFromPriorities(
     options.matchPriorities ?? {},
@@ -170,9 +169,25 @@ export function useHomeLists(options: UseHomeListsOptions) {
     [options, effectiveCoordinates, searchParams.personalitySides],
   );
 
-  const discoverQuery = useQuery({
+  const discoverQuery = useInfiniteQuery({
     queryKey: ["home-lists-discover", ...filterQueryKey],
-    queryFn: () => fetchLists(searchParams),
+    queryFn: ({ pageParam }) =>
+      fetchLists({
+        ...searchParams,
+        limit: FEED_PAGE_SIZE_LISTS,
+        offset: pageParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
+      if (
+        lastPage.length < FEED_PAGE_SIZE_LISTS ||
+        totalLoaded >= FEED_MAX_POOL
+      ) {
+        return undefined;
+      }
+      return totalLoaded;
+    },
     enabled,
     staleTime: FEED_STALE_TIME_MS,
   });
@@ -180,6 +195,7 @@ export function useHomeLists(options: UseHomeListsOptions) {
   const nearYouSearchParams = useMemo((): serchDTO => {
     return {
       ...searchParams,
+      limit: FEED_PAGE_SIZE_LISTS,
       radiusKm: NEAR_YOU_RADIUS_KM,
       sortBy: "created_at",
       sortOrder: "desc",
@@ -203,38 +219,16 @@ export function useHomeLists(options: UseHomeListsOptions) {
   );
 
   const discoverListsRaw = useMemo(() => {
-    const lists = discoverQuery.data ?? [];
+    const lists = discoverQuery.data?.pages.flat() ?? [];
     return lists.filter((list) => !nearYouIds.has(list.id));
   }, [discoverQuery.data, nearYouIds]);
 
-  const { forYouLists, topMatchPercent } = useMemo(() => {
-    const scored = discoverListsRaw
-      .map((list) => ({
-        list,
-        match: getListMatchPercent(list),
-      }))
-      .sort((a, b) => (b.match ?? 0) - (a.match ?? 0));
+  const discoverLists = discoverListsRaw;
 
-    const topLists = scored.slice(0, FOR_YOU_LIMIT).map((entry) => entry.list);
-    const topMatch = scored[0]?.match ?? null;
-
-    return {
-      forYouLists: topLists,
-      topMatchPercent: topMatch,
-    };
-  }, [discoverListsRaw]);
-
-  const forYouIds = useMemo(
-    () => new Set(forYouLists.map((list) => list.id)),
-    [forYouLists],
+  const unfilteredDiscoverLists = useMemo(
+    () => discoverQuery.data?.pages.flat() ?? [],
+    [discoverQuery.data],
   );
-
-  const discoverLists = useMemo(
-    () => discoverListsRaw.filter((list) => !forYouIds.has(list.id)),
-    [discoverListsRaw, forYouIds],
-  );
-
-  const unfilteredDiscoverLists = discoverQuery.data ?? [];
 
   const matchingCount = useMemo(
     () => countMatchingLists(unfilteredDiscoverLists, options.matchThreshold),
@@ -296,12 +290,12 @@ export function useHomeLists(options: UseHomeListsOptions) {
 
   return {
     nearYouLists,
-    forYouLists,
-    topMatchPercent,
+    forYouLists: [] as ListItemDAO[],
+    topMatchPercent: null as number | null,
     discoverLists,
     isLoading,
     isRefetching:
-      discoverQuery.isRefetching ||
+      (discoverQuery.isRefetching && !discoverQuery.isFetchingNextPage) ||
       (effectiveCoordinates ? nearYouQuery.isRefetching : false),
     error,
     refetch,
@@ -313,5 +307,8 @@ export function useHomeLists(options: UseHomeListsOptions) {
     getMatchingCount,
     getVibeMatchCount,
     getCategoryMatchCount,
+    fetchNextPage: discoverQuery.fetchNextPage,
+    hasNextPage: discoverQuery.hasNextPage ?? false,
+    isFetchingNextPage: discoverQuery.isFetchingNextPage,
   };
 }

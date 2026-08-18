@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
@@ -14,11 +14,14 @@ import {
   countVibeMatchingPublicPicks,
   getPickMatchPercent,
 } from "@/utils/homePicks";
+import {
+  FEED_MAX_POOL,
+  FEED_PAGE_SIZE_PICKS,
+} from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 15;
-const PICK_LIMIT = 30;
 const FOR_YOU_LIMIT = 6;
 
 export interface UseHomePicksOptions {
@@ -44,12 +47,11 @@ function buildPickParams(
   options: UseHomePicksOptions,
   coordinates: EffectiveCoordinates | null,
   radiusKm: number,
-): ListItemsParams {
+): Omit<ListItemsParams, "limit" | "offset"> {
   const { matchThreshold, selectedVibes, selectedCategories } = options;
 
-  const params: ListItemsParams = {
+  const params: Omit<ListItemsParams, "limit" | "offset"> = {
     scope: "all",
-    limit: PICK_LIMIT,
   };
 
   const personalitySides = personalitySidesFromPriorities(
@@ -126,7 +128,10 @@ export function useHomePicks(options: UseHomePicksOptions) {
   );
 
   const nearYouParams = useMemo(
-    () => buildPickParams(options, effectiveCoordinates, NEAR_YOU_RADIUS_KM),
+    (): ListItemsParams => ({
+      ...buildPickParams(options, effectiveCoordinates, NEAR_YOU_RADIUS_KM),
+      limit: FEED_PAGE_SIZE_PICKS,
+    }),
     [options, effectiveCoordinates],
   );
 
@@ -147,9 +152,25 @@ export function useHomePicks(options: UseHomePicksOptions) {
     [options, effectiveCoordinates, discoverRadiusKm, discoverParams.personality_sides],
   );
 
-  const discoverQuery = useQuery({
+  const discoverQuery = useInfiniteQuery({
     queryKey: ["home-picks-discover", ...filterQueryKey],
-    queryFn: () => fetchPicks(discoverParams),
+    queryFn: ({ pageParam }) =>
+      fetchPicks({
+        ...discoverParams,
+        limit: FEED_PAGE_SIZE_PICKS,
+        offset: pageParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
+      if (
+        lastPage.length < FEED_PAGE_SIZE_PICKS ||
+        totalLoaded >= FEED_MAX_POOL
+      ) {
+        return undefined;
+      }
+      return totalLoaded;
+    },
     enabled,
     staleTime: FEED_STALE_TIME_MS,
   });
@@ -173,7 +194,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
   );
 
   const discoverPicksRaw = useMemo(() => {
-    const picks = discoverQuery.data ?? [];
+    const picks = discoverQuery.data?.pages.flat() ?? [];
     return picks.filter((pick) => !nearYouIds.has(pick.id));
   }, [discoverQuery.data, nearYouIds]);
 
@@ -209,7 +230,10 @@ export function useHomePicks(options: UseHomePicksOptions) {
     [nearYouPicks, forYouIds],
   );
 
-  const unfilteredDiscoverPicks = discoverQuery.data ?? [];
+  const unfilteredDiscoverPicks = useMemo(
+    () => discoverQuery.data?.pages.flat() ?? [],
+    [discoverQuery.data],
+  );
 
   const matchingCount = useMemo(
     () =>
@@ -290,7 +314,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
     discoverPicks,
     isLoading,
     isRefetching:
-      discoverQuery.isRefetching ||
+      (discoverQuery.isRefetching && !discoverQuery.isFetchingNextPage) ||
       (effectiveCoordinates ? nearYouQuery.isRefetching : false),
     error,
     refetch,
@@ -302,5 +326,8 @@ export function useHomePicks(options: UseHomePicksOptions) {
     getMatchingCount,
     getVibeMatchCount,
     getCategoryMatchCount,
+    fetchNextPage: discoverQuery.fetchNextPage,
+    hasNextPage: discoverQuery.hasNextPage ?? false,
+    isFetchingNextPage: discoverQuery.isFetchingNextPage,
   };
 }

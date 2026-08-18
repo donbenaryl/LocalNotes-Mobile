@@ -159,6 +159,7 @@ export interface peopleDiscoverySearchDTO{
   /** TraitSide slugs; AND across all selected sides. See `personality_sides` API param. */
   personalitySides?: string[];
   limit?: number;
+  offset?: number;
   city?: string;
   region?: string;
   latitude?: number;

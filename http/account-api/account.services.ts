@@ -147,6 +147,7 @@ class AccountService extends AppHttpService {
     if (dto.matchMax !== undefined) query.match_max = dto.matchMax;
     if (dto.personalitySides?.length) query.personality_sides = dto.personalitySides.join(",");
     if (dto.limit !== undefined) query.limit = dto.limit;
+    if (dto.offset !== undefined) query.offset = dto.offset;
     if (dto.city) query.city = dto.city;
     if (dto.region) query.region = dto.region;
     if (dto.latitude !== undefined && dto.longitude !== undefined) {

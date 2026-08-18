@@ -11,6 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { SpinLoader } from "@/components/ui/SpinLoader";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ScrollToTopButton } from "@/components/ui/ScrollToTopButton";
 import {
@@ -45,7 +46,13 @@ interface SearchResultsLayoutProps<T> {
   keyExtractor: (item: T) => string;
   renderItem?: (item: T) => ReactNode;
   /** Overrides the default single-column FlatList body (e.g. a masonry grid). Still gated by the same isPending/error/data-length states below. */
-  renderBody?: (data: T[]) => ReactNode;
+  renderBody?: (
+    data: T[],
+    pagination: {
+      onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+      listFooter: ReactNode;
+    },
+  ) => ReactNode;
   isLoading: boolean;
   isPending: boolean;
   isRefetching?: boolean;
@@ -53,6 +60,9 @@ interface SearchResultsLayoutProps<T> {
   onRetry: () => void;
   emptyTitle: string;
   emptyDescription?: string;
+  onLoadMore?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
 }
 
 export function SearchResultsLayout<T>({
@@ -73,6 +83,9 @@ export function SearchResultsLayout<T>({
   onRetry,
   emptyTitle,
   emptyDescription,
+  onLoadMore,
+  hasNextPage = false,
+  isFetchingNextPage = false,
 }: SearchResultsLayoutProps<T>) {
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
@@ -106,6 +119,26 @@ export function SearchResultsLayout<T>({
         location: areaLabel,
       })
     : t(`search.resultsMeta.${resultsKind}`, { count: data.length });
+
+  const handleEndReached = () => {
+    if (hasNextPage && !isFetchingNextPage && onLoadMore) {
+      onLoadMore();
+    }
+  };
+
+  const handleScrollNearEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
+    const { layoutMeasurement, contentOffset, contentSize } =
+      event.nativeEvent;
+    const distanceFromBottom =
+      contentSize.height - layoutMeasurement.height - contentOffset.y;
+    if (distanceFromBottom < 200) {
+      handleEndReached();
+    }
+  };
+
+  const listFooter = isFetchingNextPage ? <SpinLoader /> : null;
 
   return (
     <View className="flex-1">
@@ -160,7 +193,10 @@ export function SearchResultsLayout<T>({
           ) : (
             <View className="flex-1">
               {renderBody ? (
-                renderBody(data)
+                renderBody(data, {
+                  onScroll: handleScrollNearEnd,
+                  listFooter,
+                })
               ) : (
                 <>
                   <FlatList
@@ -171,6 +207,8 @@ export function SearchResultsLayout<T>({
                     showsVerticalScrollIndicator={false}
                     scrollEnabled={!isSheetCollapsed}
                     scrollEventThrottle={16}
+                    onEndReached={handleEndReached}
+                    onEndReachedThreshold={0.4}
                     onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
                       onScrollY(event.nativeEvent.contentOffset.y);
                     }}
@@ -180,6 +218,7 @@ export function SearchResultsLayout<T>({
                         onRefresh={onRetry}
                       />
                     }
+                    ListFooterComponent={listFooter}
                     ListEmptyComponent={
                       <EmptyScreen
                         title={emptyTitle}

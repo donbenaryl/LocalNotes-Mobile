@@ -17,8 +17,17 @@ function formatCityLabel(location: {
 
 export function SearchLists() {
   const { t } = useTranslation();
-  const { lists, isLoading, isPending, isRefetching, error, refetch } =
-    useListSearch();
+  const {
+    lists,
+    isLoading,
+    isPending,
+    isRefetching,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useListSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
@@ -46,6 +55,11 @@ export function SearchLists() {
       onRetry={() => {
         void refetch();
       }}
+      onLoadMore={() => {
+        void fetchNextPage();
+      }}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
       emptyTitle={t("search.empty.lists")}
     />
   );

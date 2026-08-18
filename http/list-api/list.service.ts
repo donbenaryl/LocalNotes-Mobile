@@ -155,6 +155,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
       }
       if (dto.limit !== undefined) query.limit = dto.limit;
+      if (dto.offset !== undefined) query.offset = dto.offset;
       if (dto.sortBy) query.sort_by = dto.sortBy;
       if (dto.sortOrder) query.sort_order = dto.sortOrder;
       if (dto.businessId) query.business_id = dto.businessId;
@@ -259,6 +260,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       match_min?: number;
       match_max?: number;
       limit?: number;
+      offset?: number;
       latitude?: number;
       longitude?: number;
       radius_km?: number;
@@ -282,6 +284,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
         match_min?: number;
         match_max?: number;
         limit?: number;
+        offset?: number;
         latitude?: number;
         longitude?: number;
         radius_km?: number;
@@ -302,6 +305,7 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       if (params?.match_min !== undefined) query.match_min = params.match_min;
       if (params?.match_max !== undefined) query.match_max = params.match_max;
       if (params?.limit !== undefined) query.limit = params.limit;
+      if (params?.offset !== undefined) query.offset = params.offset;
       if (params?.latitude !== undefined && params?.longitude !== undefined) {
         query.latitude = params.latitude;
         query.longitude = params.longitude;

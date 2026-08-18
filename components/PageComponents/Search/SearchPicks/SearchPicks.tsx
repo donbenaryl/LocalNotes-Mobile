@@ -1,4 +1,4 @@
-import { ScrollView } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
@@ -20,8 +20,17 @@ function formatCityLabel(location: {
 
 export function SearchPicks() {
   const { t } = useTranslation();
-  const { picks, isLoading, isPending, isRefetching, error, refetch } =
-    usePicksSearch();
+  const {
+    picks,
+    isLoading,
+    isPending,
+    isRefetching,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = usePicksSearch();
   const locationMode = useSearchStore((s) => s.locationMode);
   const manualLocation = useSearchStore((s) => s.manualLocation);
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
@@ -41,7 +50,7 @@ export function SearchPicks() {
       areaLabel={areaLabel}
       data={picks}
       keyExtractor={(item) => item.id}
-      renderBody={(data) =>
+      renderBody={(data, { onScroll, listFooter }) =>
         data.length === 0 ? (
           <EmptyScreen
             title={t("search.empty.picks")}
@@ -51,6 +60,8 @@ export function SearchPicks() {
           <ScrollView
             contentContainerClassName="px-4 pb-28"
             showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+            onScroll={onScroll}
             refreshControl={
               <AppRefreshControl
                 refreshing={isRefetching}
@@ -59,6 +70,7 @@ export function SearchPicks() {
             }
           >
             <PicksMasonryGrid picks={data} onRefresh={() => void refetch()} />
+            {listFooter ? <View>{listFooter}</View> : null}
           </ScrollView>
         )
       }
@@ -69,6 +81,11 @@ export function SearchPicks() {
       onRetry={() => {
         void refetch();
       }}
+      onLoadMore={() => {
+        void fetchNextPage();
+      }}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
       emptyTitle={t("search.empty.picks")}
     />
   );

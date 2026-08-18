@@ -185,6 +185,7 @@ export interface serchDTO{
   longitude?: number;
   radiusKm?: number;
   limit?: number;
+  offset?: number;
   sortBy?: "created_at" | "match";
   sortOrder?: "asc" | "desc";
   businessId?: string;

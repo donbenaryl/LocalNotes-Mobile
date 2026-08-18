@@ -20,7 +20,7 @@ const HISTOGRAM_MAX_HEIGHT = 60;
 const AXIS_LABELS = ["0%", "25%", "50%", "75%", "100%"];
 const SHEET_HEIGHT_RATIO = 0.85;
 const FOOTER_CONTENT_PAD = 88;
-const HISTOGRAM_PRIORITY_DEBOUNCE_MS = 3000;
+const HISTOGRAM_PRIORITY_DEBOUNCE_MS = 2000;
 
 export type PrioritySide = "left" | "right";
 export type MatchPriorities = Record<number, PrioritySide>;
@@ -128,6 +128,17 @@ function getPriorityLabel(questionId: number, side: PrioritySide): string {
     }
   }
   return "";
+}
+
+function matchHistogramEntityLabel(
+  surface: MatchHistogramSurface,
+  count: number | undefined,
+): string {
+  if (surface === "people") return "people";
+
+  const useSingular = count === 1;
+  if (surface === "picks") return useSingular ? "pick" : "picks";
+  return useSingular ? "list" : "lists";
 }
 
 export function MatchThreshhold({
@@ -266,6 +277,10 @@ export function MatchThreshhold({
     displayValue === 0 ? "any match" : `match ${displayValue}%+`;
   const footerPrioritySuffix =
     priorityNames.length > 0 ? ` · ${priorityNames.join(" + ")}` : "";
+  const footerEntityLabel = matchHistogramEntityLabel(
+    histogramSurface,
+    liveMatchingCount,
+  );
 
   return (
     <Modal
@@ -276,9 +291,10 @@ export function MatchThreshhold({
         <View className="flex-row items-center justify-between gap-3">
           <Text className="flex-1 text-sm text-ink dark:text-gray-100">
             <Text className="font-geist-bold">
-              {liveMatchingCount !== undefined ? liveMatchingCount : "—"} lists
+              {liveMatchingCount !== undefined ? liveMatchingCount : "—"}{" "}
+              {footerEntityLabel}
             </Text>
-            {" "}
+            {" · "}
             {footerMatchLabel}
             {footerPrioritySuffix}
           </Text>

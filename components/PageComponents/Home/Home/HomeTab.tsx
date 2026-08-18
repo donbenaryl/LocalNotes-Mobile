@@ -1,9 +1,7 @@
 import { useCallback, useMemo, useState, type ReactNode } from "react";
-import {
-  Text,
-  View,
-} from "react-native";
-import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
+import { Text, View } from "react-native";
+import { useRegisterSectionPullToRefresh, useRegisterSectionInfiniteScroll } from "@/components/ui/SectionPullToRefreshContext";
+import { SpinLoader } from "@/components/ui/SpinLoader";
 import { useTranslation } from "react-i18next";
 import type { ListItemDAO, ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -230,6 +228,9 @@ export function HomeTab() {
     matchingCount: listsMatchingCount,
     vibeMatchCount: listsVibeMatchCount,
     categoryMatchCount: listsCategoryMatchCount,
+    fetchNextPage: fetchNextListsPage,
+    hasNextPage: hasNextListsPage,
+    isFetchingNextPage: isFetchingNextListsPage,
   } = useHomeLists({
     activeFilters,
     matchThreshold,
@@ -254,6 +255,9 @@ export function HomeTab() {
     matchingCount: picksMatchingCount,
     vibeMatchCount: picksVibeMatchCount,
     categoryMatchCount: picksCategoryMatchCount,
+    fetchNextPage: fetchNextPicksPage,
+    hasNextPage: hasNextPicksPage,
+    isFetchingNextPage: isFetchingNextPicksPage,
   } = useHomePicks({
     activeFilters,
     matchThreshold,
@@ -278,6 +282,26 @@ export function HomeTab() {
     contentType === "picks" ? picksVibeMatchCount : listsVibeMatchCount;
   const categoryMatchCount =
     contentType === "picks" ? picksCategoryMatchCount : listsCategoryMatchCount;
+
+  const fetchNextPage =
+    contentType === "picks" ? fetchNextPicksPage : fetchNextListsPage;
+  const hasNextPage =
+    contentType === "picks" ? hasNextPicksPage : hasNextListsPage;
+  const isFetchingNextPage =
+    contentType === "picks"
+      ? isFetchingNextPicksPage
+      : isFetchingNextListsPage;
+
+  const handleLoadMore = useCallback(() => {
+    void fetchNextPage();
+  }, [fetchNextPage]);
+
+  useRegisterSectionInfiniteScroll(
+    "home",
+    handleLoadMore,
+    hasNextPage,
+    isFetchingNextPage,
+  );
 
   const handleRefresh = useCallback(() => {
     void refetch();
@@ -424,6 +448,8 @@ export function HomeTab() {
                   ))}
                 </HomeSection>
               ) : null}
+
+              {isFetchingNextPage ? <SpinLoader className="py-6" /> : null}
             </>
           ) : (
             <>
@@ -461,6 +487,8 @@ export function HomeTab() {
                   />
                 </HomeSection>
               ) : null}
+
+              {isFetchingNextPage ? <SpinLoader className="py-6" /> : null}
             </>
           )}
 

@@ -1,15 +1,18 @@
 import { useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, serchDTO } from "@/http/list-api/types";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
+import {
+  FEED_MAX_POOL,
+  FEED_PAGE_SIZE_LISTS,
+} from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const DEFAULT_RADIUS_KM = 15;
-const SEARCH_LIMIT = 25;
 
 async function fetchListSearch(params: serchDTO): Promise<ListItemDAO[]> {
   const response = await listService.searchLists(params);
@@ -28,8 +31,8 @@ export function useListSearch() {
   const coordinates = useEffectiveSearchLocation();
   const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
 
-  const params = useMemo((): serchDTO => {
-    const p: serchDTO = { query: committedQuery, limit: SEARCH_LIMIT };
+  const filterParams = useMemo((): Omit<serchDTO, "limit" | "offset"> => {
+    const p: Omit<serchDTO, "limit" | "offset"> = { query: committedQuery };
     if (matchThreshold !== null) p.matchMin = matchThreshold;
     if (selectedVibes.length > 0) p.vibe = selectedVibes;
     const personalitySides = personalitySidesFromPriorities(matchPriorities);
@@ -45,24 +48,43 @@ export function useListSearch() {
   const queryKey = useMemo(
     () => [
       "list-search",
-      params.query ?? "",
-      params.matchMin ?? null,
-      params.vibe ?? [],
-      params.personalitySides ?? [],
-      params.latitude ?? null,
-      params.longitude ?? null,
-      params.radiusKm ?? null,
+      filterParams.query ?? "",
+      filterParams.matchMin ?? null,
+      filterParams.vibe ?? [],
+      filterParams.personalitySides ?? [],
+      filterParams.latitude ?? null,
+      filterParams.longitude ?? null,
+      filterParams.radiusKm ?? null,
     ],
-    [params],
+    [filterParams],
   );
 
-  const listQuery = useQuery({
+  const listQuery = useInfiniteQuery({
     queryKey,
-    queryFn: () => fetchListSearch(params),
+    queryFn: ({ pageParam }) =>
+      fetchListSearch({
+        ...filterParams,
+        limit: FEED_PAGE_SIZE_LISTS,
+        offset: pageParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
+      if (
+        lastPage.length < FEED_PAGE_SIZE_LISTS ||
+        totalLoaded >= FEED_MAX_POOL
+      ) {
+        return undefined;
+      }
+      return totalLoaded;
+    },
     staleTime: FEED_STALE_TIME_MS,
   });
 
-  const lists = listQuery.data ?? [];
+  const lists = useMemo(
+    () => listQuery.data?.pages.flat() ?? [],
+    [listQuery.data],
+  );
 
   useEffect(() => {
     setActiveResultCount(lists.length);
@@ -72,8 +94,11 @@ export function useListSearch() {
     lists,
     isLoading: listQuery.isFetching && lists.length > 0,
     isPending: listQuery.isPending && listQuery.data === undefined,
-    isRefetching: listQuery.isRefetching,
+    isRefetching: listQuery.isRefetching && !listQuery.isFetchingNextPage,
     error: listQuery.error?.message ?? null,
     refetch: listQuery.refetch,
+    fetchNextPage: listQuery.fetchNextPage,
+    hasNextPage: listQuery.hasNextPage ?? false,
+    isFetchingNextPage: listQuery.isFetchingNextPage,
   };
 }

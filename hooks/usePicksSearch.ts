@@ -1,15 +1,18 @@
 import { useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemPublic } from "@/http/list-api/types";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useEffectiveSearchLocation } from "@/hooks/useEffectiveSearchLocation";
+import {
+  FEED_MAX_POOL,
+  FEED_PAGE_SIZE_PICKS,
+} from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 
 const DEFAULT_RADIUS_KM = 15;
-const SEARCH_LIMIT = 30;
 
 type PicksSearchParams = NonNullable<Parameters<typeof listService.fetchListItems>[0]>;
 
@@ -30,8 +33,8 @@ export function usePicksSearch() {
   const coordinates = useEffectiveSearchLocation();
   const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
 
-  const params = useMemo((): PicksSearchParams => {
-    const p: PicksSearchParams = { scope: "all", limit: SEARCH_LIMIT };
+  const filterParams = useMemo((): Omit<PicksSearchParams, "limit" | "offset"> => {
+    const p: Omit<PicksSearchParams, "limit" | "offset"> = { scope: "all" };
     if (committedQuery) p.keyword = committedQuery;
     if (matchThreshold !== null) p.match_min = matchThreshold;
     if (selectedVibes.length > 0) p.vibes = selectedVibes;
@@ -48,24 +51,43 @@ export function usePicksSearch() {
   const queryKey = useMemo(
     () => [
       "picks-search",
-      params.keyword ?? "",
-      params.match_min ?? null,
-      params.vibes ?? [],
-      params.personality_sides ?? [],
-      params.latitude ?? null,
-      params.longitude ?? null,
-      params.radius_km ?? null,
+      filterParams.keyword ?? "",
+      filterParams.match_min ?? null,
+      filterParams.vibes ?? [],
+      filterParams.personality_sides ?? [],
+      filterParams.latitude ?? null,
+      filterParams.longitude ?? null,
+      filterParams.radius_km ?? null,
     ],
-    [params],
+    [filterParams],
   );
 
-  const picksQuery = useQuery({
+  const picksQuery = useInfiniteQuery({
     queryKey,
-    queryFn: () => fetchPicksSearch(params),
+    queryFn: ({ pageParam }) =>
+      fetchPicksSearch({
+        ...filterParams,
+        limit: FEED_PAGE_SIZE_PICKS,
+        offset: pageParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
+      if (
+        lastPage.length < FEED_PAGE_SIZE_PICKS ||
+        totalLoaded >= FEED_MAX_POOL
+      ) {
+        return undefined;
+      }
+      return totalLoaded;
+    },
     staleTime: FEED_STALE_TIME_MS,
   });
 
-  const picks = picksQuery.data ?? [];
+  const picks = useMemo(
+    () => picksQuery.data?.pages.flat() ?? [],
+    [picksQuery.data],
+  );
 
   useEffect(() => {
     setActiveResultCount(picks.length);
@@ -75,8 +97,11 @@ export function usePicksSearch() {
     picks,
     isLoading: picksQuery.isFetching && picks.length > 0,
     isPending: picksQuery.isPending && picksQuery.data === undefined,
-    isRefetching: picksQuery.isRefetching,
+    isRefetching: picksQuery.isRefetching && !picksQuery.isFetchingNextPage,
     error: picksQuery.error?.message ?? null,
     refetch: picksQuery.refetch,
+    fetchNextPage: picksQuery.fetchNextPage,
+    hasNextPage: picksQuery.hasNextPage ?? false,
+    isFetchingNextPage: picksQuery.isFetchingNextPage,
   };
 }
