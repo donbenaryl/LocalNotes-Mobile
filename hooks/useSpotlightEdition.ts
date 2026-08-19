@@ -13,11 +13,12 @@ async function fetchSpotlightEdition(city?: string): Promise<SpotlightEditionDAO
   return response.data?.data ?? null;
 }
 
-export function useSpotlightEdition(city?: string) {
+export function useSpotlightEdition(city?: string, enabled = true) {
   const editionQuery = useQuery({
     queryKey: ["spotlight-edition", city],
     queryFn: () => fetchSpotlightEdition(city),
     staleTime: FEED_STALE_TIME_MS,
+    enabled,
   });
 
   return {

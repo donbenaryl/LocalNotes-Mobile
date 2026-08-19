@@ -18,9 +18,10 @@ import { useColorScheme } from 'nativewind';
 import { LocationInput } from '@/components/ui/LocationInput';
 import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { Skeleton } from '@/components/ui/Skeleton';
 import type { Location as GeoLocation } from '@/http/list-api/types';
 
-function formatLocationLabel(location: GeoLocation): string {
+export function formatLocationLabel(location: GeoLocation): string {
   // street_address holds the complete address when set from Google Places.
   if (location.street_address?.trim()) {
     return location.street_address.trim();
@@ -103,13 +104,46 @@ export function LocationInputModalTrigger({
           onLocationSelected(loc);
           setVisible(false);
         }}
-        onAllSelected={() => {
-          setSelectedAddressLabel(null);
-          onAllSelected?.();
-          setVisible(false);
-        }}
+        onAllSelected={
+          onAllSelected
+            ? () => {
+                setSelectedAddressLabel(null);
+                onAllSelected();
+                setVisible(false);
+              }
+            : undefined
+        }
       />
     </>
+  );
+}
+
+interface LocationPickerChipProps {
+  cityLabel: string;
+  isLoading?: boolean;
+  onLocationSelected: (location: GeoLocation) => void;
+}
+
+export function LocationPickerChip({
+  cityLabel,
+  isLoading = false,
+  onLocationSelected,
+}: LocationPickerChipProps) {
+  if (isLoading) {
+    return (
+      <View className="flex-row items-center">
+        <MapPin size={13} color="#6B7280" />
+        <Skeleton className="ml-1 h-4 w-24 rounded-lg" />
+      </View>
+    );
+  }
+
+  return (
+    <LocationInputModalTrigger
+      cityLabel={cityLabel}
+      isAllSelected={false}
+      onLocationSelected={onLocationSelected}
+    />
   );
 }
 

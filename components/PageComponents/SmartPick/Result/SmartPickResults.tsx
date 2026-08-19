@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { MapPin } from 'lucide-react-native';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { useUserCoordinates } from '@/hooks/useUserCoordinates';
+import type { SelectableCoordinates } from '@/hooks/useSelectableLocation';
 import { useSmartPickWebResults } from '@/hooks/useSmartPickWebResults';
 import { dedupeSmartPickResults, isStretchConversation } from '@/utils/smartPick';
 import type { DetailedConversation } from '@/http/smart-pick-api/types';
@@ -16,12 +16,12 @@ import { SmartPickNoResults } from './SmartPickNoResults';
 interface SmartPickResultsProps {
   conversation: DetailedConversation;
   onBack: () => void;
+  coordinates: SelectableCoordinates | null;
 }
 
-export function SmartPickResults({ conversation, onBack }: SmartPickResultsProps) {
+export function SmartPickResults({ conversation, onBack, coordinates }: SmartPickResultsProps) {
   const { t } = useTranslation();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const { coordinates } = useUserCoordinates();
   const { trigger, webResults, isLoading: isWebLoading } = useSmartPickWebResults(conversation.id);
 
   const isStretch = isStretchConversation(conversation);

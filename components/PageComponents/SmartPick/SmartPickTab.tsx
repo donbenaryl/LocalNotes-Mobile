@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { AppScrollView } from '@/components/ui/AppScrollView';
 import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { GuardedHeader } from '@/components/ui/layout/GuardedHeader';
-import { useUserCoordinates } from '@/hooks/useUserCoordinates';
+import { LocationPickerChip } from '@/components/ui/LocationInputModal';
+import { useSelectableLocation } from '@/hooks/useSelectableLocation';
 import { useCreateSmartPick } from '@/hooks/useCreateSmartPick';
 import type { ConversationRequest } from '@/http/smart-pick-api/types';
 import { SmartPickForm } from './Form/SmartPickForm';
@@ -14,7 +15,8 @@ import { View } from 'react-native';
 export function SmartPickTab() {
   const [step, setStep] = useState<'form' | 'result'>('form');
   const [formState, setFormState] = useState<SmartPickFormState>(EMPTY_SMART_PICK_FORM);
-  const { coordinates } = useUserCoordinates();
+  const { cityLabel, isLoading: isLocationLoading, coordinates, onLocationSelected } =
+    useSelectableLocation();
   const { createSmartPick, conversation, isCreating, error, reset } = useCreateSmartPick();
 
   const handleChange = (patch: Partial<SmartPickFormState>) => {
@@ -69,11 +71,28 @@ export function SmartPickTab() {
     setStep('form');
   };
 
+  const locationChip = (
+    <View className="mb-2 flex-row items-center justify-end">
+      <LocationPickerChip
+        cityLabel={cityLabel}
+        isLoading={isLocationLoading}
+        onLocationSelected={onLocationSelected}
+      />
+    </View>
+  );
+
   if (step === 'result' && conversation) {
     return (
       <AppScrollView contentContainerClassName="pb-28" showsVerticalScrollIndicator={false}>
-        <View className="px-4"><GuardedHeader /></View>
-        <SmartPickResults conversation={conversation} onBack={handleBackToForm} />
+        <View className="px-4">
+          <GuardedHeader />
+          {locationChip}
+        </View>
+        <SmartPickResults
+          conversation={conversation}
+          onBack={handleBackToForm}
+          coordinates={coordinates}
+        />
       </AppScrollView>
     );
   }
@@ -86,6 +105,7 @@ export function SmartPickTab() {
       showsVerticalScrollIndicator={false}
     >
       <GuardedHeader />
+      {locationChip}
       <SmartPickForm
         formState={formState}
         onChange={handleChange}
@@ -99,4 +119,3 @@ export function SmartPickTab() {
     </KeyboardAwareScrollView>
   );
 }
-

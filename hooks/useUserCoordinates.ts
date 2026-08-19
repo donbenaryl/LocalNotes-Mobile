@@ -5,7 +5,7 @@ import accountService from "@/http/account-api/account.services";
 
 export type CoordinateSource = "profile" | "device" | null;
 
-interface UserCoordinates {
+export interface UserCoordinates {
   latitude: number;
   longitude: number;
   source: CoordinateSource;
