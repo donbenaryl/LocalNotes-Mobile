@@ -53,6 +53,8 @@ interface SearchResultsLayoutProps<T> {
       listFooter: ReactNode;
     },
   ) => ReactNode;
+  /** Total matching results from the API; falls back to loaded `data.length` when omitted. */
+  totalCount?: number;
   isLoading: boolean;
   isPending: boolean;
   isRefetching?: boolean;
@@ -77,6 +79,7 @@ export function SearchResultsLayout<T>({
   keyExtractor,
   renderItem,
   renderBody,
+  totalCount,
   isPending,
   isRefetching = false,
   error,
@@ -113,12 +116,13 @@ export function SearchResultsLayout<T>({
     [isSheetCollapsed, maxExpandedHeight, windowHeight],
   );
 
+  const resultCount = totalCount ?? data.length;
   const resultsLabel = areaLabel
     ? t("search.resultsMeta.inLocation", {
-        count: data.length,
+        count: resultCount,
         location: areaLabel,
       })
-    : t(`search.resultsMeta.${resultsKind}`, { count: data.length });
+    : t(`search.resultsMeta.${resultsKind}`, { count: resultCount });
 
   const handleEndReached = () => {
     if (hasNextPage && !isFetchingNextPage && onLoadMore) {

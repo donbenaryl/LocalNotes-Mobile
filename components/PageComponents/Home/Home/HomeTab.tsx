@@ -191,8 +191,6 @@ export function HomeTab() {
       return {
         latitude: manualLocation.latitude,
         longitude: manualLocation.longitude,
-        city: manualLocation.city || undefined,
-        region: manualLocation.region || undefined,
         radiusKm,
       };
     }

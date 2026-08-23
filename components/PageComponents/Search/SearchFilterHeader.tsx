@@ -68,22 +68,40 @@ export function SearchFilterHeader({
   const committedQuery = useSearchStore((s) => s.committedQuery);
   const coordinates = useEffectiveSearchLocation();
 
-  const histogramFilters = useMemo(
-    () => ({
+  const histogramFilters = useMemo(() => {
+    const locationFilters = (() => {
+      if (!coordinates) return {};
+
+      // People search prefers city/region when set (backend city mode wins).
+      if (histogramSurface === "people") {
+        if (coordinates.city) {
+          return {
+            city: coordinates.city,
+            ...(coordinates.region ? { region: coordinates.region } : {}),
+          };
+        }
+        return {
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
+          radiusKm: DEFAULT_RADIUS_KM,
+        };
+      }
+
+      // Lists/picks search only send lat/lng radius — omit city/region so the
+      // histogram pool matches the feed (city params would win on the backend).
+      return {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        radiusKm: DEFAULT_RADIUS_KM,
+      };
+    })();
+
+    return {
       query: committedQuery || undefined,
       vibes: selectedVibes,
-      ...(coordinates
-        ? {
-            latitude: coordinates.latitude,
-            longitude: coordinates.longitude,
-            city: coordinates.city,
-            region: coordinates.region,
-            radiusKm: DEFAULT_RADIUS_KM,
-          }
-        : {}),
-    }),
-    [committedQuery, selectedVibes, coordinates],
-  );
+      ...locationFilters,
+    };
+  }, [committedQuery, selectedVibes, coordinates, histogramSurface]);
 
   const handleLayout = useCallback(
     (_event: LayoutChangeEvent) => {

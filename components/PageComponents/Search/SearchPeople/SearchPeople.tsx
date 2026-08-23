@@ -19,6 +19,7 @@ export function SearchPeople() {
   const { t } = useTranslation();
   const {
     people,
+    totalCount,
     isLoading,
     isPending,
     isRefetching,
@@ -48,6 +49,7 @@ export function SearchPeople() {
       data={people}
       keyExtractor={(item) => item.id}
       renderItem={(item) => <PeopleCard data={item} />}
+      totalCount={totalCount}
       isLoading={isLoading}
       isPending={isPending}
       isRefetching={isRefetching}

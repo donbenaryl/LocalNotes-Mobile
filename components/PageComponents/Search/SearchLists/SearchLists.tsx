@@ -19,6 +19,7 @@ export function SearchLists() {
   const { t } = useTranslation();
   const {
     lists,
+    totalCount,
     isLoading,
     isPending,
     isRefetching,
@@ -48,6 +49,7 @@ export function SearchLists() {
       data={lists}
       keyExtractor={(item) => item.id}
       renderItem={(item) => <ListCardDetailed list={item} />}
+      totalCount={totalCount}
       isLoading={isLoading}
       isPending={isPending}
       isRefetching={isRefetching}

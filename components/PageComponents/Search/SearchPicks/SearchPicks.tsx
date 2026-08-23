@@ -22,6 +22,7 @@ export function SearchPicks() {
   const { t } = useTranslation();
   const {
     picks,
+    totalCount,
     isLoading,
     isPending,
     isRefetching,
@@ -74,6 +75,7 @@ export function SearchPicks() {
           </ScrollView>
         )
       }
+      totalCount={totalCount}
       isLoading={isLoading}
       isPending={isPending}
       isRefetching={isRefetching}

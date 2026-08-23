@@ -15,14 +15,23 @@ import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 import { dedupeById } from "@/utils/dedupeById";
 
+type PeopleSearchPage = {
+  items: UnifiedSearchPersonDAO[];
+  total: number;
+};
+
 async function fetchPeopleSearch(
   params: peopleDiscoverySearchDTO,
-): Promise<UnifiedSearchPersonDAO[]> {
+): Promise<PeopleSearchPage> {
   const response = await accountService.searchPeople(params);
   if (response.error) {
     throw new Error(response.error.message);
   }
-  return response.data?.data ?? [];
+  const items = response.data?.data ?? [];
+  return {
+    items,
+    total: response.data?.pagination?.total ?? items.length,
+  };
 }
 
 /** Backs the People search tab via GET /accounts/search?scope=all. */
@@ -78,25 +87,30 @@ export function usePeopleSearch() {
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-      if (lastPage.length < FEED_PAGE_SIZE_LISTS) return undefined;
-      const nextOffset = lastPageParam + lastPage.length;
+      if (lastPage.items.length < FEED_PAGE_SIZE_LISTS) return undefined;
+      const nextOffset = lastPageParam + lastPage.items.length;
       if (nextOffset >= FEED_MAX_POOL) return undefined;
+      if (nextOffset >= lastPage.total) return undefined;
       return nextOffset;
     },
     staleTime: FEED_STALE_TIME_MS,
   });
 
   const people = useMemo(
-    () => dedupeById(peopleQuery.data?.pages.flat() ?? []),
+    () =>
+      dedupeById(peopleQuery.data?.pages.flatMap((page) => page.items) ?? []),
     [peopleQuery.data],
   );
 
+  const totalCount = peopleQuery.data?.pages[0]?.total ?? people.length;
+
   useEffect(() => {
-    setActiveResultCount(people.length);
-  }, [people.length, setActiveResultCount]);
+    setActiveResultCount(totalCount);
+  }, [totalCount, setActiveResultCount]);
 
   return {
     people,
+    totalCount,
     isLoading: peopleQuery.isFetching && people.length > 0,
     isPending: peopleQuery.isPending && peopleQuery.data === undefined,
     isRefetching: peopleQuery.isRefetching && !peopleQuery.isFetchingNextPage,

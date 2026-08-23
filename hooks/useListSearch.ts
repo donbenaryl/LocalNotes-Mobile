@@ -15,12 +15,21 @@ import { dedupeById } from "@/utils/dedupeById";
 
 const DEFAULT_RADIUS_KM = 15;
 
-async function fetchListSearch(params: serchDTO): Promise<ListItemDAO[]> {
+type ListSearchPage = {
+  items: ListItemDAO[];
+  total: number;
+};
+
+async function fetchListSearch(params: serchDTO): Promise<ListSearchPage> {
   const response = await listService.searchLists(params);
   if (response.error) {
     throw new Error(response.error.message);
   }
-  return response.data?.data ?? [];
+  const items = response.data?.data ?? [];
+  return {
+    items,
+    total: response.data?.pagination?.total ?? items.length,
+  };
 }
 
 /** Backs the Lists search tab via GET /lists/search (replaces the shared unified-search call). */
@@ -70,25 +79,30 @@ export function useListSearch() {
       }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-      if (lastPage.length < FEED_PAGE_SIZE_LISTS) return undefined;
-      const nextOffset = lastPageParam + lastPage.length;
+      if (lastPage.items.length < FEED_PAGE_SIZE_LISTS) return undefined;
+      const nextOffset = lastPageParam + lastPage.items.length;
       if (nextOffset >= FEED_MAX_POOL) return undefined;
+      if (nextOffset >= lastPage.total) return undefined;
       return nextOffset;
     },
     staleTime: FEED_STALE_TIME_MS,
   });
 
   const lists = useMemo(
-    () => dedupeById(listQuery.data?.pages.flat() ?? []),
+    () =>
+      dedupeById(listQuery.data?.pages.flatMap((page) => page.items) ?? []),
     [listQuery.data],
   );
 
+  const totalCount = listQuery.data?.pages[0]?.total ?? lists.length;
+
   useEffect(() => {
-    setActiveResultCount(lists.length);
-  }, [lists.length, setActiveResultCount]);
+    setActiveResultCount(totalCount);
+  }, [totalCount, setActiveResultCount]);
 
   return {
     lists,
+    totalCount,
     isLoading: listQuery.isFetching && lists.length > 0,
     isPending: listQuery.isPending && listQuery.data === undefined,
     isRefetching: listQuery.isRefetching && !listQuery.isFetchingNextPage,
