@@ -19,6 +19,7 @@ import {
   X,
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
@@ -138,6 +139,7 @@ export function PickDetailModal({
   data,
 }: PickDetailModalProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { colorScheme } = useColorScheme();
   const { height, width } = useWindowDimensions();
   const isDark = colorScheme === "dark";
@@ -167,6 +169,30 @@ export function PickDetailModal({
   }, [visible]);
 
   const title = data.business_name?.trim() || t("profile.picks.untitled");
+  const canClaimBusiness = !data.is_verified;
+
+  const handleClaimBusiness = () => {
+    onClose();
+    const locationLabelValue = formatLocationLabel(data.location) ?? "";
+    const logo =
+      resolveImageUrl(data.images?.[0]?.url) ?? data.images?.[0]?.url ?? "";
+    router.push({
+      pathname: "/(app)/(stack)/claim-business/form",
+      params: {
+        source: "pick",
+        listItemId: data.id,
+        targetName: title,
+        hasExistingBusiness: data.business_id ? "true" : "false",
+        proposedName: data.business_name ?? "",
+        businessId: data.business_id ?? "",
+        businessType: "",
+        locationLabel: locationLabelValue,
+        logo,
+        contactEmail: "",
+        phoneNumber: "",
+      },
+    });
+  };
   const locationLabel = formatLocationLabel(data.location);
   const categoryLabel = formatCategoryLabel(data);
   // Server-computed against the pick's owner; hidden on your own picks.
@@ -547,6 +573,18 @@ export function PickDetailModal({
               <ShareIcon size={16} color={actionIconColor} />
             </Pressable>
           </View>
+
+          {canClaimBusiness ? (
+            <Pressable
+              onPress={handleClaimBusiness}
+              accessibilityRole="button"
+              className="mx-4 mt-3 cursor-pointer rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:bg-brand/15"
+            >
+              <Text className="text-center font-geist-semibold text-[13px] text-brand">
+                {t("claimBusiness.entry.claimThisBusiness")}
+              </Text>
+            </Pressable>
+          ) : null}
 
           {shouldShowAppearsInSection ? (
             <View className="mt-4 px-4">

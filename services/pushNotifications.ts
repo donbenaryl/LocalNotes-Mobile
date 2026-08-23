@@ -8,6 +8,7 @@ import {
   PUSH_CATEGORY_LIST_ACTIVITY,
 } from '@/constants/pushNotifications';
 import listService from '@/http/list-api/list.service';
+import { hydrateUserProfile } from '@/services/authBootstrap';
 import { parseRichPushData, type RichPushData } from '@/types/pushNotification';
 
 let categoriesRegistered = false;
@@ -117,11 +118,33 @@ function resolveDeepLink(data: RichPushData): Href | null {
   if (link === '/notifications' || link.startsWith('/notifications')) {
     return '/(app)/(stack)/notifications' as Href;
   }
+  if (link === '/business-home' || link.startsWith('/business-home')) {
+    return '/(app)/(stack)/business-home' as Href;
+  }
+  if (link === '/claim-business' || link.startsWith('/claim-business')) {
+    return '/(app)/(stack)/claim-business' as Href;
+  }
 
   return null;
 }
 
 export function navigateFromPushData(data: RichPushData): void {
+  const link = data.deepLink?.trim() ?? '';
+  const isClaimApproved =
+    link === '/business-home' || link.startsWith('/business-home');
+
+  if (isClaimApproved) {
+    void hydrateUserProfile().finally(() => {
+      const href = resolveDeepLink(data);
+      if (href) {
+        router.push(href);
+        return;
+      }
+      router.push('/(app)/(stack)/notifications' as Href);
+    });
+    return;
+  }
+
   const href = resolveDeepLink(data);
   if (href) {
     router.push(href);

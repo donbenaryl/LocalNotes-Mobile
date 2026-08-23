@@ -11,6 +11,7 @@ import {
 } from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
+import { dedupeById } from "@/utils/dedupeById";
 
 const DEFAULT_RADIUS_KM = 15;
 
@@ -71,21 +72,17 @@ export function usePicksSearch() {
         offset: pageParam,
       }),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
-      if (
-        lastPage.length < FEED_PAGE_SIZE_PICKS ||
-        totalLoaded >= FEED_MAX_POOL
-      ) {
-        return undefined;
-      }
-      return totalLoaded;
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (lastPage.length < FEED_PAGE_SIZE_PICKS) return undefined;
+      const nextOffset = lastPageParam + lastPage.length;
+      if (nextOffset >= FEED_MAX_POOL) return undefined;
+      return nextOffset;
     },
     staleTime: FEED_STALE_TIME_MS,
   });
 
   const picks = useMemo(
-    () => picksQuery.data?.pages.flat() ?? [],
+    () => dedupeById(picksQuery.data?.pages.flat() ?? []),
     [picksQuery.data],
   );
 

@@ -17,6 +17,7 @@ import {
   FEED_PAGE_SIZE_LISTS,
 } from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
+import { dedupeById } from "@/utils/dedupeById";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 15;
@@ -178,15 +179,11 @@ export function useHomeLists(options: UseHomeListsOptions) {
         offset: pageParam,
       }),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
-      if (
-        lastPage.length < FEED_PAGE_SIZE_LISTS ||
-        totalLoaded >= FEED_MAX_POOL
-      ) {
-        return undefined;
-      }
-      return totalLoaded;
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (lastPage.length < FEED_PAGE_SIZE_LISTS) return undefined;
+      const nextOffset = lastPageParam + lastPage.length;
+      if (nextOffset >= FEED_MAX_POOL) return undefined;
+      return nextOffset;
     },
     enabled,
     staleTime: FEED_STALE_TIME_MS,
@@ -219,14 +216,14 @@ export function useHomeLists(options: UseHomeListsOptions) {
   );
 
   const discoverListsRaw = useMemo(() => {
-    const lists = discoverQuery.data?.pages.flat() ?? [];
+    const lists = dedupeById(discoverQuery.data?.pages.flat() ?? []);
     return lists.filter((list) => !nearYouIds.has(list.id));
   }, [discoverQuery.data, nearYouIds]);
 
   const discoverLists = discoverListsRaw;
 
   const unfilteredDiscoverLists = useMemo(
-    () => discoverQuery.data?.pages.flat() ?? [],
+    () => dedupeById(discoverQuery.data?.pages.flat() ?? []),
     [discoverQuery.data],
   );
 

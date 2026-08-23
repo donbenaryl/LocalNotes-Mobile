@@ -19,6 +19,7 @@ import {
   FEED_PAGE_SIZE_PICKS,
 } from "@/constants/feedPagination";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
+import { dedupeById } from "@/utils/dedupeById";
 
 const NEAR_YOU_RADIUS_KM = 5;
 const DEFAULT_RADIUS_KM = 15;
@@ -161,15 +162,11 @@ export function useHomePicks(options: UseHomePicksOptions) {
         offset: pageParam,
       }),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      const totalLoaded = allPages.reduce((sum, page) => sum + page.length, 0);
-      if (
-        lastPage.length < FEED_PAGE_SIZE_PICKS ||
-        totalLoaded >= FEED_MAX_POOL
-      ) {
-        return undefined;
-      }
-      return totalLoaded;
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (lastPage.length < FEED_PAGE_SIZE_PICKS) return undefined;
+      const nextOffset = lastPageParam + lastPage.length;
+      if (nextOffset >= FEED_MAX_POOL) return undefined;
+      return nextOffset;
     },
     enabled,
     staleTime: FEED_STALE_TIME_MS,
@@ -194,7 +191,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
   );
 
   const discoverPicksRaw = useMemo(() => {
-    const picks = discoverQuery.data?.pages.flat() ?? [];
+    const picks = dedupeById(discoverQuery.data?.pages.flat() ?? []);
     return picks.filter((pick) => !nearYouIds.has(pick.id));
   }, [discoverQuery.data, nearYouIds]);
 
@@ -231,7 +228,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
   );
 
   const unfilteredDiscoverPicks = useMemo(
-    () => discoverQuery.data?.pages.flat() ?? [],
+    () => dedupeById(discoverQuery.data?.pages.flat() ?? []),
     [discoverQuery.data],
   );
 

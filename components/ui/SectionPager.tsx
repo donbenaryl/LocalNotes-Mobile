@@ -1,4 +1,5 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -6,7 +7,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { StyleSheet, View, useWindowDimensions, type LayoutChangeEvent } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from "react-native";
 import PagerView, {
   type PageScrollStateChangedNativeEvent,
   type PagerViewOnPageScrollEvent,
@@ -25,6 +34,10 @@ import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 import { useSectionSwipeStore } from "@/stores/useSectionSwipeStore";
 import { navigateToSection } from "@/utils/navigateToSection";
 import { pathnameMatchesTabId } from "@/utils/sectionTabSync";
+import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import { useSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
+import { useContentBottomInset } from "@/hooks/useContentBottomInset";
+import type { ScrollToTopTarget } from "@/hooks/useScrollToTopControl";
 
 export interface SectionPagerPage {
   id: string;
@@ -50,12 +63,31 @@ interface SectionPagerProps {
    */
   embedded?: boolean;
   /**
+   * When true, each page is a flex-fill ScrollView (PTR + infinite scroll).
+   * Use instead of `embedded` for Home/Saved so tall feeds scroll reliably.
+   * Requires SectionPullToRefreshProvider.
+   */
+  scrollable?: boolean;
+  /**
    * Mount the active page plus adjacent neighbours only. Visited pages stay
    * mounted so swipe-back keeps filter state. Use on Profile so inactive tabs
    * do not fetch or render their full card trees.
    */
   lazy?: boolean;
+  /** Active tab ScrollView for scroll-to-top (scrollable mode). */
+  onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
+  /** Forward active-page scroll Y for scroll-to-top visibility. */
+  onScrollY?: (y: number) => void;
 }
+
+/** Stable boundary so feed trees bail out when only `isActive` changes. */
+const PagerPageContent = memo(function PagerPageContent({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  return <>{children}</>;
+});
 
 /**
  * Fraction of a page drag after which the tab bar treats the next sub-tab as
@@ -71,6 +103,78 @@ const ACTIVE_OFFSET_X = 12;
 const EDGE_STRIP_WIDTH = 28;
 const EMBEDDED_MIN_HEIGHT = 200;
 const PROFILE_HREF = "/profile" as Href;
+
+function SectionScrollablePage({
+  pageId,
+  isActive,
+  onActiveScrollRef,
+  onScrollY,
+  children,
+}: {
+  pageId: string;
+  isActive: boolean;
+  onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
+  onScrollY?: (y: number) => void;
+  children: ReactNode;
+}) {
+  const scrollRef = useRef<ScrollView>(null);
+  const contentBottomInset = useContentBottomInset();
+  const { handler, infiniteScrollHandler } = useSectionPullToRefresh();
+  const infiniteScrollHandlerRef = useRef(infiniteScrollHandler);
+  infiniteScrollHandlerRef.current = infiniteScrollHandler;
+  const onScrollYRef = useRef(onScrollY);
+  onScrollYRef.current = onScrollY;
+  const onActiveScrollRefStable = useRef(onActiveScrollRef);
+  onActiveScrollRefStable.current = onActiveScrollRef;
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!isActive) return;
+      const { contentOffset, layoutMeasurement, contentSize } =
+        event.nativeEvent;
+      const y = contentOffset.y;
+      onScrollYRef.current?.(y);
+
+      const infiniteScroll = infiniteScrollHandlerRef.current;
+      if (infiniteScroll?.hasNextPage && !infiniteScroll.isFetchingNextPage) {
+        const distanceFromBottom =
+          contentSize.height - layoutMeasurement.height - y;
+        if (distanceFromBottom < 240) {
+          infiniteScroll.onLoadMore();
+        }
+      }
+    },
+    [isActive],
+  );
+
+  useEffect(() => {
+    if (!isActive) return;
+    onActiveScrollRefStable.current?.(scrollRef.current);
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    onScrollYRef.current?.(0);
+    return () => onActiveScrollRefStable.current?.(null);
+  }, [isActive, pageId]);
+
+  return (
+    <ScrollView
+      ref={scrollRef}
+      style={styles.fill}
+      nestedScrollEnabled
+      onScroll={handleScroll}
+      scrollEventThrottle={16}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: contentBottomInset }}
+      refreshControl={
+        <AppRefreshControl
+          refreshing={handler?.refreshing ?? false}
+          onRefresh={() => handler?.onRefresh()}
+        />
+      }
+    >
+      {children}
+    </ScrollView>
+  );
+}
 
 /**
  * Inner-section PagerView for sub-tabs within a footer section.
@@ -88,7 +192,10 @@ export function SectionPager({
   chrome,
   sectionId,
   embedded = false,
+  scrollable = false,
   lazy = false,
+  onActiveScrollRef,
+  onScrollY,
 }: SectionPagerProps) {
   const { height: screenHeight } = useWindowDimensions();
   const pagerRef = useRef<PagerView>(null);
@@ -333,7 +440,11 @@ export function SectionPager({
       )
     : EMBEDDED_MIN_HEIGHT;
 
-  const renderedPages = useMemo(
+  const fillPages = !embedded || scrollable;
+
+  // Content trees are independent of activeId so tab switches do not rebuild
+  // every feed. PagerPageContent memo-bails when only the scroll shell updates.
+  const pageContents = useMemo(
     () =>
       pages.map((page) => {
         const shouldRender = !lazy || mountedIds.has(page.id);
@@ -342,28 +453,62 @@ export function SectionPager({
         ) : (
           <View style={{ minHeight: EMBEDDED_MIN_HEIGHT }} />
         );
+        return {
+          id: page.id,
+          content: <PagerPageContent>{content}</PagerPageContent>,
+        };
+      }),
+    [lazy, mountedIds, pages],
+  );
+
+  const renderedPages = useMemo(
+    () =>
+      pageContents.map(({ id, content }) => {
+        let body: ReactNode = content;
+        if (scrollable) {
+          body = (
+            <SectionScrollablePage
+              pageId={id}
+              isActive={id === activeId}
+              onActiveScrollRef={onActiveScrollRef}
+              onScrollY={onScrollY}
+            >
+              {content}
+            </SectionScrollablePage>
+          );
+        } else if (embedded) {
+          // PagerView absoluteFills its direct children, so this wrapper always
+          // measures the pager itself. The inner view is the real content height.
+          body = (
+            <View
+              collapsable={false}
+              onLayout={(event) => handleEmbeddedPageLayout(id, event)}
+            >
+              {content}
+            </View>
+          );
+        }
+
         return (
           <View
-            key={page.id}
-            style={embedded ? undefined : styles.fill}
+            key={id}
+            style={fillPages ? styles.fill : undefined}
             collapsable={false}
           >
-            {embedded ? (
-              // PagerView absoluteFills its direct children, so this wrapper always
-              // measures the pager itself. The inner view is the real content height.
-              <View
-                collapsable={false}
-                onLayout={(event) => handleEmbeddedPageLayout(page.id, event)}
-              >
-                {content}
-              </View>
-            ) : (
-              content
-            )}
+            {body}
           </View>
         );
       }),
-    [embedded, handleEmbeddedPageLayout, lazy, mountedIds, pages],
+    [
+      activeId,
+      embedded,
+      fillPages,
+      handleEmbeddedPageLayout,
+      onActiveScrollRef,
+      onScrollY,
+      pageContents,
+      scrollable,
+    ],
   );
 
   const prevSectionPan = useMemo(
@@ -403,7 +548,7 @@ export function SectionPager({
   return (
     <View
       className={
-        embedded
+        embedded && !scrollable
           ? "bg-page dark:bg-gray-900"
           : "flex-1 overflow-hidden bg-page dark:bg-gray-900"
       }
@@ -411,7 +556,11 @@ export function SectionPager({
       {chrome}
       <PagerView
         ref={pagerRef}
-        style={embedded ? { height: embeddedPagerHeight } : styles.fill}
+        style={
+          embedded && !scrollable
+            ? { height: embeddedPagerHeight }
+            : styles.fill
+        }
         initialPage={activeIndex}
         scrollEnabled={isSectionActive}
         overdrag={false}

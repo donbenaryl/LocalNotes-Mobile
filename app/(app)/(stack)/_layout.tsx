@@ -12,6 +12,11 @@ export default function StackLayout() {
           backgroundColor: colorScheme === 'dark' ? '#111827' : '#fafaf7',
         },
       }}
-    />
+    >
+      <Stack.Screen name="claim-business/index" />
+      <Stack.Screen name="claim-business/search" />
+      <Stack.Screen name="claim-business/form" />
+      <Stack.Screen name="claim-business/submitted" />
+    </Stack>
   );
 }

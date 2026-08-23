@@ -119,7 +119,7 @@ interface PickPreviewRowProps {
   onPress: () => void;
 }
 
-function PickPreviewRow({
+export function PickPreviewRow({
   item,
   index,
   personalityColor,

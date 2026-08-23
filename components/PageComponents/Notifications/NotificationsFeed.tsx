@@ -24,6 +24,7 @@ import {
 import listService from '@/http/list-api/list.service';
 import type { notificationItemDAO } from '@/http/account-api/types';
 import type { ListItemPublic } from '@/http/list-api/types';
+import { hydrateUserProfile } from '@/services/authBootstrap';
 
 const FILTERS: { id: NotificationFilter; labelKey: string }[] = [
   { id: 'all', labelKey: 'notifications.chips.all' },
@@ -71,6 +72,17 @@ export default function NotificationsFeed() {
   const handlePress = async (item: notificationItemDAO) => {
     if (!item.is_read) {
       markAsRead(item.id);
+    }
+
+    if (item.notification_type === 'BUSINESS_CLAIM_APPROVED') {
+      await hydrateUserProfile();
+      router.push('/(app)/(stack)/business-home' as never);
+      return;
+    }
+
+    if (item.notification_type === 'BUSINESS_CLAIM_REJECTED') {
+      router.push('/(app)/(stack)/claim-business' as never);
+      return;
     }
 
     if (item.related_list?.id) {

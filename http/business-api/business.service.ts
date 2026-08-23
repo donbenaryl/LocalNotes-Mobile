@@ -15,6 +15,16 @@ import type {
     BusinessTotalListSavesStatsDAO,
     OwnedBusinessDAO,
     StatsDateRangeParams,
+    BusinessClaimDAO,
+    ClaimableBusinessDAO,
+    ClaimablePickDAO,
+    SearchClaimableDTO,
+    SubmitClaimDTO,
+    ClaimOtpTargetDTO,
+    ClaimOtpVerifyDTO,
+    ClaimEmailOtpStartDAO,
+    ClaimPhoneOtpStartDAO,
+    BusinessTypeDAO,
 } from "./types";
 import type { NoteDAO } from "../notes-api/types";
 
@@ -28,6 +38,12 @@ class BusinessService extends AppHttpService{
        return await this.SendRequest<BusinessItemDAO[]>({
         method:"get",
         path:"/"
+       })
+    }
+    async fetchBusinessTypes(){
+       return await this.SendRequest<BusinessTypeDAO[]>({
+        method:"get",
+        path:"/types",
        })
     }
     async searchBusiness(dto: searchBusinessDTO){
@@ -185,6 +201,106 @@ class BusinessService extends AppHttpService{
             method: "get",
             path: `/${businessId}/stats/total-list-saves`,
             query: params,
+        });
+    }
+
+    async submitBusinessClaim(dto: SubmitClaimDTO) {
+        const formData = new FormData();
+        formData.append("verification_method", dto.verification_method ?? "document");
+        formData.append("work_email", dto.work_email);
+        formData.append("proof_of_ownership", dto.proof_of_ownership as never);
+        if (dto.phone_number) formData.append("phone_number", dto.phone_number);
+
+        if (dto.business) formData.append("business", dto.business);
+        if (dto.list_item) formData.append("list_item", dto.list_item);
+        if (dto.source) formData.append("source", dto.source);
+        if (dto.proposed_name) formData.append("proposed_name", dto.proposed_name);
+        if (dto.proposed_business_type) {
+            formData.append("proposed_business_type", dto.proposed_business_type);
+        }
+        if (dto.proposed_website) {
+            formData.append("proposed_website", dto.proposed_website);
+        }
+        if (dto.proposed_location) {
+            const loc = dto.proposed_location;
+            if (loc.street_address != null) {
+                formData.append("proposed_location[street_address]", loc.street_address);
+            }
+            if (loc.postal_code != null) {
+                formData.append("proposed_location[postal_code]", loc.postal_code);
+            }
+            formData.append("proposed_location[city]", loc.city);
+            formData.append("proposed_location[region]", loc.region);
+            formData.append("proposed_location[country]", loc.country);
+            formData.append("proposed_location[latitude]", String(loc.latitude));
+            formData.append("proposed_location[longitude]", String(loc.longitude));
+        }
+
+        return await this.SendRequest<BusinessClaimDAO, FormData>({
+            method: "post",
+            path: "/claim-business",
+            body: formData,
+        });
+    }
+
+    async startClaimEmailOtp(dto: ClaimOtpTargetDTO) {
+        return await this.SendRequest<ClaimEmailOtpStartDAO, ClaimOtpTargetDTO>({
+            method: "post",
+            path: "/claim-business/start-email-otp",
+            body: dto,
+        });
+    }
+
+    async verifyClaimEmailOtp(dto: ClaimOtpVerifyDTO) {
+        return await this.SendRequest<BusinessClaimDAO, ClaimOtpVerifyDTO>({
+            method: "post",
+            path: "/claim-business/verify-email-otp",
+            body: dto,
+        });
+    }
+
+    async startClaimPhoneOtp(dto: ClaimOtpTargetDTO) {
+        return await this.SendRequest<ClaimPhoneOtpStartDAO, ClaimOtpTargetDTO>({
+            method: "post",
+            path: "/claim-business/start-phone-otp",
+            body: dto,
+        });
+    }
+
+    async verifyClaimPhoneOtp(dto: ClaimOtpVerifyDTO) {
+        return await this.SendRequest<BusinessClaimDAO, ClaimOtpVerifyDTO>({
+            method: "post",
+            path: "/claim-business/verify-phone-otp",
+            body: dto,
+        });
+    }
+
+    async fetchMyBusinessClaims() {
+        return await this.SendRequest<BusinessClaimDAO[]>({
+            method: "get",
+            path: "/claims/mine",
+        });
+    }
+
+    async searchClaimableBusinesses(dto: SearchClaimableDTO = {}) {
+        const query: Record<string, unknown> = {};
+        if (dto.query) query.query = dto.query;
+        if (dto.page !== undefined) query.page = dto.page;
+        return await this.SendRequest<ClaimableBusinessDAO[]>({
+            method: "get",
+            path: "/claimable",
+            query,
+        });
+    }
+
+    async searchClaimablePicks(dto: SearchClaimableDTO = {}) {
+        const query: Record<string, unknown> = {};
+        if (dto.query) query.query = dto.query;
+        if (dto.page !== undefined) query.page = dto.page;
+        return await this.SendRequest<ClaimablePickDAO[]>({
+            method: "get",
+            path: "/claimable-picks",
+            query,
         });
     }
 }

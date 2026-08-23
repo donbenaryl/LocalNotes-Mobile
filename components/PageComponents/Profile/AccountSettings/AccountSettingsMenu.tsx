@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 import { AppScrollView } from '@/components/ui/AppScrollView';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -142,10 +142,6 @@ export default function AccountSettingsMenu() {
     setDeleteModalVisible(false);
   };
 
-  const handleComingSoon = () => {
-    Alert.alert(t('accountSettings.menu.comingSoon'));
-  };
-
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <PageHeader
@@ -249,7 +245,9 @@ export default function AccountSettingsMenu() {
             icon={Building2}
             title={t('accountSettings.menu.claimBusiness')}
             subtitle={t('accountSettings.menu.claimBusinessSub')}
-            onPress={handleComingSoon}
+            onPress={() =>
+              router.push('/(app)/(stack)/claim-business')
+            }
             isLast
           />
         </SettingsSection>

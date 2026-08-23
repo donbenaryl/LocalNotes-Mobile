@@ -7,6 +7,7 @@ import {
   UserPlus,
   Eye,
   Bell,
+  Building2,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
@@ -36,6 +37,10 @@ function getBadgeConfig(type: string): BadgeConfig {
       return { icon: Sparkles, bgClass: 'bg-brand' };
     case 'BUSINESS_VIEWED':
       return { icon: Eye, bgClass: 'bg-brand' };
+    case 'BUSINESS_CLAIM_APPROVED':
+      return { icon: Building2, bgClass: 'bg-emerald-700' };
+    case 'BUSINESS_CLAIM_REJECTED':
+      return { icon: Building2, bgClass: 'bg-rose-600' };
     default:
       return { icon: Bell, bgClass: 'bg-gray-600' };
   }
