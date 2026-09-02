@@ -305,6 +305,8 @@ const en = {
       claimBusiness: 'Claim a business',
       claimBusinessSub: 'Manage a business listing',
       termsPrivacy: 'Terms & privacy',
+      support: 'Support',
+      supportSub: 'Phone, email, and mailing address',
       about: 'About LocalNotes',
       signOut: 'Sign out',
       deleteAccount: 'Delete account',
@@ -1487,6 +1489,19 @@ const en = {
       isYourBusiness: 'Is this your business?',
       claimThisBusiness: 'Claim this business',
     },
+  },
+  support: {
+    title: 'Support',
+    intro:
+      'Questions, feedback, or account help — reach LocalNotes using the contact details below.',
+    contactSection: 'Contact us',
+    legalSection: 'Legal',
+    phone: 'Phone',
+    address: 'Address',
+    email: 'Email',
+    privacyPolicy: 'Privacy Policy',
+    termsOfService: 'Terms of Service',
+    communityGuidelines: 'Community Guidelines',
   },
 } as const;
 

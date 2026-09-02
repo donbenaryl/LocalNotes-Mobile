@@ -839,6 +839,10 @@ const TERMS_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
+        text: 'Phone: +1-602-652-4777',
+      },
+      {
+        type: 'paragraph',
         text: 'Email: localnotesapp@gmail.com',
       },
     ],

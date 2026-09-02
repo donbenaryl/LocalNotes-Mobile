@@ -9,6 +9,7 @@ import {
   Building2,
   FileText,
   Globe,
+  Headphones,
   Info,
   Link2,
   LogOut,
@@ -253,6 +254,12 @@ export default function AccountSettingsMenu() {
         </SettingsSection>
 
         <SettingsSection title={t('accountSettings.sections.helpLegal')}>
+          <SettingsNavRow
+            icon={Headphones}
+            title={t('accountSettings.menu.support')}
+            subtitle={t('accountSettings.menu.supportSub')}
+            onPress={() => router.push('/support')}
+          />
           <SettingsNavRow
             icon={FileText}
             title={t('accountSettings.menu.termsPrivacy')}
