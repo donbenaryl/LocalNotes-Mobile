@@ -18,8 +18,8 @@ import { navigateToSection } from '@/utils/navigateToSection';
 import { DropDown, type DropDownOption } from '@/components/ui/DropDown';
 
 const BRAND = '#FF6B1A';
-const INACTIVE_LIGHT = '#9CA3AF';
-const INACTIVE_DARK = '#6B7280';
+const INACTIVE_LIGHT = '#4B5563';
+const INACTIVE_DARK = '#D1D5DB';
 
 interface FooterTab {
   id: SectionId;
@@ -138,7 +138,8 @@ export function GuardedFooter() {
         </View>
 
         <View
-          className="w-full flex-row items-center rounded-full border border-gray-200/70 bg-page/90 dark:border-gray-700/70 dark:bg-gray-900/90"
+          className="w-full flex-row items-center rounded-full border border-gray-200/90 bg-page/95 dark:border-gray-700/90 dark:bg-gray-900/95"
+     
           style={[{ height: FOOTER_BAR_HEIGHT }, BAR_SHADOW]}
         >
           {TABS.map((tab) => {
@@ -165,7 +166,7 @@ export function GuardedFooter() {
                   />
                   <Text
                     className={`mt-0.5 text-[10px] font-geist ${
-                      isActive ? 'text-brand' : 'text-gray-400 dark:text-gray-500'
+                      isActive ? 'text-brand' : 'text-gray-600 dark:text-gray-300'
                     }`}
                     numberOfLines={1}
                   >
