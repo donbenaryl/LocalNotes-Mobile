@@ -539,11 +539,6 @@ export function ListForm({ step, listId }: ListFormProps) {
         <View className="mb-6 mt-2">
           <Text className="font-geist-bold text-xl text-ink dark:text-gray-100">
             {isEditing ? t("listForm.editHeroTitle") : t("listForm.heroTitle")}{" "}
-            {!isEditing ? (
-              <Text className="font-fraunces text-xl text-brand">
-                {t("listForm.heroTitleItalic")}
-              </Text>
-            ) : null}
           </Text>
           <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
             {isEditing
