@@ -1,10 +1,10 @@
 import { Pressable, Text, View } from "react-native";
-import { Ban, Share2, type LucideIcon } from "lucide-react-native";
+import { Ban, Flag, Share2, type LucideIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
 import { COLORS } from "@/constants/colors";
 
-export type ProfileActionKey = "share" | "block";
+export type ProfileActionKey = "share" | "report" | "block";
 
 interface ProfileActionsSheetProps {
   visible: boolean;
@@ -34,6 +34,12 @@ export function ProfileActionsSheet({
       key: "share",
       label: t("profile.safety.shareProfile"),
       icon: Share2,
+    },
+    {
+      key: "report",
+      label: t("profile.safety.report"),
+      icon: Flag,
+      destructive: true,
     },
     {
       key: "block",

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
-import { Bookmark, Heart, UserPlus } from "lucide-react-native";
+import { Bookmark, Flag, Heart, UserPlus } from "lucide-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -8,6 +8,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { MatchBadge } from "@/components/ui/MatchBadge";
 import { PersonalityName } from "@/components/ui/PersonalityName";
 import { CardOptionsMenu, type CardOptionsMenuItem } from "@/components/ui/CardOptionsMenu";
+import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import accountService from "@/http/account-api/account.services";
 import listService from "@/http/list-api/list.service";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -43,6 +44,7 @@ export function ListDetailsHeader({
   const [isSaving, setIsSaving] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [isFollowLoading, setIsFollowLoading] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   // Keep save / like / follow sync paths independent so updating one
   // (e.g. save → parent/query) cannot clobber another local action state.
@@ -187,6 +189,15 @@ export function ListDetailsHeader({
         variant: isFollowed ? "brand" : "default",
         onPress: handleFollowToggle,
       });
+
+      items.push({
+        kind: "action",
+        key: "report",
+        label: t("listDetail.report"),
+        icon: Flag,
+        variant: "destructive",
+        onPress: () => setReportOpen(true),
+      });
     }
 
     return items;
@@ -202,8 +213,9 @@ export function ListDetailsHeader({
   ]);
 
   return (
-    <View className="pb-2 border-b border-gray-200 dark:border-gray-700 mb-4">
-      <PageHeader borderless rightChild={<CardOptionsMenu items={menuItems} />} />
+    <>
+      <View className="pb-2 border-b border-gray-200 dark:border-gray-700 mb-4">
+        <PageHeader borderless rightChild={<CardOptionsMenu items={menuItems} />} />
 
       <View className="gap-3 px-6 pb-2">
         <View className="flex-row items-center gap-2.5">
@@ -245,6 +257,17 @@ export function ListDetailsHeader({
           />
         </View>
       </View>
-    </View>
+      </View>
+      {!isOwnList ? (
+        <ReportUserSheet
+          visible={reportOpen}
+          onClose={() => setReportOpen(false)}
+          userId={list.account.id}
+          displayName={list.account.name}
+          contentType="list"
+          contentId={list.id}
+        />
+      ) : null}
+    </>
   );
 }

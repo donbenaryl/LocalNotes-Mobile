@@ -35,6 +35,7 @@ import {
   type ProfileActionKey,
 } from "./ProfileActionsSheet";
 import { BlockUserModal } from "./BlockUserModal";
+import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import {
   ProfilePullToRefreshProvider,
   useProfilePullToRefresh,
@@ -233,6 +234,7 @@ function MainProfileContent({
   });
   const [actionsOpen, setActionsOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const displayName = profile?.name?.trim() || t("common.user");
   const profileUserId = profile?.id ?? userId ?? "";
@@ -358,6 +360,11 @@ function MainProfileContent({
         void handleShare();
         return;
       }
+      if (action === "report") {
+        setActionsOpen(false);
+        setReportOpen(true);
+        return;
+      }
       if (action === "block") {
         setActionsOpen(false);
         setBlockOpen(true);
@@ -458,6 +465,13 @@ function MainProfileContent({
             displayName={displayName}
             onConfirm={() => blockMutation.mutate()}
             isLoading={blockMutation.isPending}
+          />
+          <ReportUserSheet
+            visible={reportOpen}
+            onClose={() => setReportOpen(false)}
+            userId={profileUserId}
+            displayName={displayName}
+            contentType="profile"
           />
         </>
       ) : null}

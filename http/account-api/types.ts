@@ -311,9 +311,13 @@ export type AccountReportReason =
   | "impersonation"
   | "other";
 
+export type ReportContentType = "profile" | "list" | "pick";
+
 export interface ReportUserDTO {
   reason: AccountReportReason;
   details?: string;
+  content_type?: ReportContentType;
+  content_id?: string;
 }
 
 export interface BlockedAccountDAO {

@@ -35,6 +35,7 @@ import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
+import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
 
 interface PickDetailModalProps {
   visible: boolean;
@@ -156,6 +157,7 @@ export function PickDetailModal({
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
   const [isListDetailOpen, setIsListDetailOpen] = useState(false);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     setPhotoIndex(0);
@@ -323,7 +325,8 @@ export function PickDetailModal({
 
   const isImageViewerOpen =
     isImageFullScreenVisible && photos.length > 0;
-  const isPickSheetVisible = visible && !isImageViewerOpen && !isListDetailOpen;
+  const isPickSheetVisible =
+    visible && !isImageViewerOpen && !isListDetailOpen && !reportOpen;
 
   const sheetMaxHeight = height * 0.7;
   const appearsInCount =
@@ -562,6 +565,18 @@ export function PickDetailModal({
                   {t("profile.picks.directions")}
                 </Text>
               </Pressable>
+            ) : null}
+
+            {(!data.is_owner && data.owner) ? (
+              <ReportFlagButton
+                userId={data.owner.id}
+                displayName={data.owner.name}
+                contentType="pick"
+                contentId={data.id}
+                size={16}
+                className="h-[46px] w-[46px] cursor-pointer items-center justify-center rounded-full border-[1.5px] border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+                onOpenChange={setReportOpen}
+              />
             ) : null}
 
             <Pressable

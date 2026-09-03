@@ -26,6 +26,7 @@ import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { PickPreviewImage } from "@/components/ui/PickPreviewImage";
 import { ListCommentsSheet } from "@/components/PageComponents/List/ListDetails/ListCommentsSheet";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
+import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useListFormStore } from "@/stores/useListFormStore";
 import { getListMatchPercent } from "@/utils/matchScore";
@@ -523,36 +524,48 @@ export function ListCardDetailed({
       <CardOptionsMenu items={ownMenuItems} isDeleting={isDeleting} />
     </View>
   ) : (
-    <Pressable
-      onPress={() => void handleSave()}
-      disabled={isSaving}
-      accessibilityRole="button"
-      accessibilityLabel={
-        isSaved ? t("listDetail.savedList") : t("home.saveList")
-      }
-      accessibilityState={{ selected: isSaved }}
-      className="h-11 w-11 cursor-pointer items-center justify-center"
-      hitSlop={4}
-    >
-      <View
-        className={`h-9 w-9 items-center justify-center rounded-full ${
-          isSaved ? "bg-brand" : ""
-        }`}
-        style={isSaved ? undefined : actionIconBackingStyle}
+    <View className="flex-row items-center gap-1.5">
+      <ReportFlagButton
+        userId={list.account.id}
+        displayName={list.account.name}
+        contentType="list"
+        contentId={list.id}
+        size={16}
+        className="h-9 w-9 items-center justify-center rounded-full"
+        style={actionIconBackingStyle}
+        hitSlop={4}
+      />
+      <Pressable
+        onPress={() => void handleSave()}
+        disabled={isSaving}
+        accessibilityRole="button"
+        accessibilityLabel={
+          isSaved ? t("listDetail.savedList") : t("home.saveList")
+        }
+        accessibilityState={{ selected: isSaved }}
+        className="h-11 w-11 cursor-pointer items-center justify-center"
+        hitSlop={4}
       >
-        <Bookmark
-          size={16}
-          color={
-            isSaved
-              ? "#FFFFFF"
-              : colorScheme === "dark"
-                ? "#F9FAFB"
-                : "#1C1917"
-          }
-          fill={isSaved ? "#FFFFFF" : "transparent"}
-        />
-      </View>
-    </Pressable>
+        <View
+          className={`h-9 w-9 items-center justify-center rounded-full ${
+            isSaved ? "bg-brand" : ""
+          }`}
+          style={isSaved ? undefined : actionIconBackingStyle}
+        >
+          <Bookmark
+            size={16}
+            color={
+              isSaved
+                ? "#FFFFFF"
+                : colorScheme === "dark"
+                  ? "#F9FAFB"
+                  : "#1C1917"
+            }
+            fill={isSaved ? "#FFFFFF" : "transparent"}
+          />
+        </View>
+      </Pressable>
+    </View>
   );
 
   return (

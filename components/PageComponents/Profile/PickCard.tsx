@@ -10,6 +10,7 @@ import { CardHero } from "@/components/ui/CardHero";
 import { CardOptionsMenu } from "@/components/ui/CardOptionsMenu";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
+import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
 import { PickDetailModal } from "./PickDetailModal";
 import { PickFormModal } from "./PickFormModal";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -296,6 +297,17 @@ export function PickCard({
         ) : null}
 
         <View className="absolute right-2 top-2 flex-row items-center gap-1">
+          {!data.is_owner && data.owner ? (
+            <ReportFlagButton
+              userId={data.owner.id}
+              displayName={data.owner.name}
+              contentType="pick"
+              contentId={data.id}
+              size={14}
+              className="rounded-full p-1.5 cursor-pointer"
+              style={actionIconBackingStyle}
+            />
+          ) : null}
           {!canManage && (
             <Pressable
               onPress={() => void handleToggleFavorite()}
