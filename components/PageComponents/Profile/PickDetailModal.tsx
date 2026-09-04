@@ -36,6 +36,8 @@ import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
 import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { isBusinessAccountType } from "@/utils/businessAccount";
 
 interface PickDetailModalProps {
   visible: boolean;
@@ -141,6 +143,7 @@ export function PickDetailModal({
 }: PickDetailModalProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const { colorScheme } = useColorScheme();
   const { height, width } = useWindowDimensions();
   const isDark = colorScheme === "dark";
@@ -171,7 +174,8 @@ export function PickDetailModal({
   }, [visible]);
 
   const title = data.business_name?.trim() || t("profile.picks.untitled");
-  const canClaimBusiness = !data.is_verified;
+  const canClaimBusiness =
+    isBusinessAccountType(accountType ?? undefined) && !data.is_verified;
 
   const handleClaimBusiness = () => {
     onClose();

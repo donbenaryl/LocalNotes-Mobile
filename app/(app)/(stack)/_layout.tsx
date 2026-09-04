@@ -13,10 +13,7 @@ export default function StackLayout() {
         },
       }}
     >
-      <Stack.Screen name="claim-business/index" />
-      <Stack.Screen name="claim-business/search" />
-      <Stack.Screen name="claim-business/form" />
-      <Stack.Screen name="claim-business/submitted" />
+      <Stack.Screen name="claim-business" />
     </Stack>
   );
 }

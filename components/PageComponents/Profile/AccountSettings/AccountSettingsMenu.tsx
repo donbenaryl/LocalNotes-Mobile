@@ -32,6 +32,7 @@ import { useBiometricStore } from '@/stores/useBiometricStore';
 import { useLocaleStore } from '@/stores/useLocaleStore';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { toast } from '@/components/ui/Toast';
+import { isBusinessAccountType } from '@/utils/businessAccount';
 import { AccountSettingsCard } from './AccountSettingsCard';
 import { DeleteAccountModal } from './DeleteAccountModal';
 import { SettingsNavRow } from './SettingsNavRow';
@@ -44,6 +45,7 @@ export default function AccountSettingsMenu() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const authAccountType = useAuthStore((s) => s.accountType);
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const locale = useLocaleStore((s) => s.locale);
@@ -90,6 +92,8 @@ export default function AccountSettingsMenu() {
       }
     : null;
   const personalityValue = profile?.personality_name ?? undefined;
+  const accountType = profile?.account_type ?? authAccountType ?? undefined;
+  const canClaimBusiness = isBusinessAccountType(accountType);
   const connectedSummary = useAccountSettingsStore((s) =>
     s.connectedProviders
       .filter((p) => p.connected)
@@ -241,16 +245,19 @@ export default function AccountSettingsMenu() {
                 '/(app)/(stack)/profile/account-settings/connected-accounts',
               )
             }
+            isLast={!canClaimBusiness}
           />
-          <SettingsNavRow
-            icon={Building2}
-            title={t('accountSettings.menu.claimBusiness')}
-            subtitle={t('accountSettings.menu.claimBusinessSub')}
-            onPress={() =>
-              router.push('/(app)/(stack)/claim-business')
-            }
-            isLast
-          />
+          {canClaimBusiness ? (
+            <SettingsNavRow
+              icon={Building2}
+              title={t('accountSettings.menu.claimBusiness')}
+              subtitle={t('accountSettings.menu.claimBusinessSub')}
+              onPress={() =>
+                router.push('/(app)/(stack)/claim-business')
+              }
+              isLast
+            />
+          ) : null}
         </SettingsSection>
 
         <SettingsSection title={t('accountSettings.sections.helpLegal')}>
