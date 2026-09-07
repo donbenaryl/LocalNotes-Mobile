@@ -5,6 +5,7 @@ import { toast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { mapProfileToUser } from '@/utils/mapProfileToUser';
 import { isCommonPassword } from '@/utils/isCommonPassword';
+import { isWorkEmail } from '@/utils/isWorkEmail';
 import {
   isUsernameBlocking,
   type UsernameAvailabilityStatus,
@@ -25,6 +26,7 @@ export interface IndividualForm {
 export interface BusinessForm {
   contactName: string;
   dateOfBirth: string;
+  businessEmail: string;
   businessName: string;
   businessWebsite: string;
   password: string;
@@ -45,6 +47,7 @@ const INITIAL_INDIVIDUAL: IndividualForm = {
 const INITIAL_BUSINESS: BusinessForm = {
   contactName: '',
   dateOfBirth: '',
+  businessEmail: '',
   businessName: '',
   businessWebsite: '',
   password: '',
@@ -143,6 +146,14 @@ export function useOnboardingForm() {
     }
     const dobError = validateDateOfBirth(businessForm.dateOfBirth);
     if (dobError) next.dateOfBirth = dobError;
+    const emailTrimmed = businessForm.businessEmail.trim();
+    if (!emailTrimmed) {
+      next.businessEmail = t('validation.workEmailRequired');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      next.businessEmail = t('validation.emailInvalid');
+    } else if (!isWorkEmail(emailTrimmed)) {
+      next.businessEmail = t('auth.signUpBusiness.workEmailInvalid');
+    }
     if (!businessForm.businessName.trim()) {
       next.businessName = t('validation.businessNameRequired');
     }
@@ -201,6 +212,7 @@ export function useOnboardingForm() {
       formData.append('date_of_birth', businessForm.dateOfBirth);
       formData.append('business_name', businessForm.businessName.trim());
       formData.append('username', normalizedUsername);
+      formData.append('business_email', businessForm.businessEmail.trim());
       if (businessForm.businessWebsite.trim()) {
         formData.append(
           'business_website',

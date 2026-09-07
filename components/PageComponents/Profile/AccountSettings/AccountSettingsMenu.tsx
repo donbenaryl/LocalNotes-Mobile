@@ -94,6 +94,8 @@ export default function AccountSettingsMenu() {
   const personalityValue = profile?.personality_name ?? undefined;
   const accountType = profile?.account_type ?? authAccountType ?? undefined;
   const canClaimBusiness = isBusinessAccountType(accountType);
+  const canConvertToBusiness = Boolean(accountType) && !canClaimBusiness;
+  const canAddAnotherBusiness = canClaimBusiness;
   const connectedSummary = useAccountSettingsStore((s) =>
     s.connectedProviders
       .filter((p) => p.connected)
@@ -245,8 +247,30 @@ export default function AccountSettingsMenu() {
                 '/(app)/(stack)/profile/account-settings/connected-accounts',
               )
             }
-            isLast={!canClaimBusiness}
+            isLast={!canConvertToBusiness && !canAddAnotherBusiness && !canClaimBusiness}
           />
+          {canConvertToBusiness ? (
+            <SettingsNavRow
+              icon={Building2}
+              title={t('accountSettings.menu.convertToBusiness')}
+              subtitle={t('accountSettings.menu.convertToBusinessSub')}
+              onPress={() =>
+                router.push('/(app)/(stack)/convert-to-business')
+              }
+              isLast
+            />
+          ) : null}
+          {canAddAnotherBusiness ? (
+            <SettingsNavRow
+              icon={Building2}
+              title={t('accountSettings.menu.addAnotherBusiness')}
+              subtitle={t('accountSettings.menu.addAnotherBusinessSub')}
+              onPress={() =>
+                router.push('/(app)/(stack)/convert-to-business')
+              }
+              isLast={!canClaimBusiness}
+            />
+          ) : null}
           {canClaimBusiness ? (
             <SettingsNavRow
               icon={Building2}

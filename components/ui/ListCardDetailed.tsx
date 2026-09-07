@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import {
   Bookmark,
   ChevronDown,
   ChevronRight,
   Edit,
+  Flag,
   Heart,
   MessageCircle,
   Pin,
@@ -26,7 +27,7 @@ import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { PickPreviewImage } from "@/components/ui/PickPreviewImage";
 import { ListCommentsSheet } from "@/components/PageComponents/List/ListDetails/ListCommentsSheet";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
-import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
+import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useListFormStore } from "@/stores/useListFormStore";
 import { getListMatchPercent } from "@/utils/matchScore";
@@ -173,7 +174,6 @@ interface ListCardCollapsedBannerProps {
   accentColor: string;
   accessibilityLabel: string;
   onExpand: () => void;
-  sideAction: ReactNode;
   /** When set, shows PersonalityMatchPill top-left (same as expanded card). */
   matchPercent?: number | null;
 }
@@ -185,7 +185,6 @@ function ListCardCollapsedBanner({
   accentColor,
   accessibilityLabel,
   onExpand,
-  sideAction,
   matchPercent,
 }: ListCardCollapsedBannerProps) {
   const showMatch = matchPercent !== undefined;
@@ -229,7 +228,7 @@ function ListCardCollapsedBanner({
       ) : null}
 
       <View
-        className={`absolute bottom-0 left-3.5 right-[118px] z-[2] justify-center ${
+        className={`absolute bottom-0 left-3.5 right-3.5 z-[2] justify-center ${
           showMatch ? "top-9" : "top-0"
         }`}
         pointerEvents="none"
@@ -247,10 +246,6 @@ function ListCardCollapsedBanner({
         >
           {meta}
         </Text>
-      </View>
-
-      <View className="absolute right-1.5 top-1 z-[2] flex-row items-center gap-1.5">
-        {sideAction}
       </View>
     </View>
   );
@@ -302,6 +297,7 @@ export function ListCardDetailed({
   const [commentsOriginRect, setCommentsOriginRect] = useState<ScreenRect | null>(
     null,
   );
+  const [reportOpen, setReportOpen] = useState(false);
   const cardRef = useRef<View>(null);
 
   const visibleItems = picksExpanded
@@ -468,23 +464,51 @@ export function ListCardDetailed({
     [list, isOwnList],
   );
 
-  const ownMenuItems = useMemo((): CardOptionsMenuItem[] => {
+  const engagementMenuItems = useMemo((): CardOptionsMenuItem[] => {
+    if (isOwnList) {
+      return [
+        {
+          kind: "action",
+          key: "edit",
+          label: t("profile.lists.edit"),
+          icon: Edit,
+          onPress: handleEdit,
+        },
+        {
+          kind: "action",
+          key: "pin",
+          label: t("profile.lists.pin"),
+          icon: Pin,
+          variant: isPinned ? "brand" : "default",
+          onPress: handlePin,
+        },
+        {
+          kind: "action",
+          key: "like",
+          label: isLiked ? t("listDetail.liked") : t("listDetail.like"),
+          icon: Heart,
+          variant: isLiked ? "brand" : "default",
+          onPress: handleLike,
+        },
+        {
+          kind: "action",
+          key: "comment",
+          label: t("listDetail.comment"),
+          icon: MessageCircle,
+          onPress: handleOpenComments,
+        },
+        {
+          kind: "action",
+          key: "delete",
+          label: t("profile.lists.delete"),
+          icon: Trash2,
+          variant: "destructive",
+          onPress: () => setIsDeleteModalOpen(true),
+        },
+      ];
+    }
+
     return [
-      {
-        kind: "action",
-        key: "edit",
-        label: t("profile.lists.edit"),
-        icon: Edit,
-        onPress: handleEdit,
-      },
-      {
-        kind: "action",
-        key: "pin",
-        label: t("profile.lists.pin"),
-        icon: Pin,
-        variant: isPinned ? "brand" : "default",
-        onPress: handlePin,
-      },
       {
         kind: "action",
         key: "like",
@@ -495,19 +519,40 @@ export function ListCardDetailed({
       },
       {
         kind: "action",
-        key: "delete",
-        label: t("profile.lists.delete"),
-        icon: Trash2,
+        key: "comment",
+        label: t("listDetail.comment"),
+        icon: MessageCircle,
+        onPress: handleOpenComments,
+      },
+      {
+        kind: "action",
+        key: "save",
+        label: isSaved ? t("listDetail.savedList") : t("listDetail.saveList"),
+        icon: Bookmark,
+        variant: isSaved ? "brand" : "default",
+        onPress: handleSave,
+      },
+      {
+        kind: "action",
+        key: "report",
+        label: t("listDetail.report"),
+        icon: Flag,
         variant: "destructive",
-        onPress: () => setIsDeleteModalOpen(true),
+        onPress: () => setReportOpen(true),
       },
     ];
-  }, [t, isPinned, isLiked, handleEdit, handlePin, handleLike]);
-
-  const actionIconBackingStyle = {
-    backgroundColor:
-      colorScheme === "dark" ? "rgba(17,24,39,0.8)" : "rgba(255,255,255,0.94)",
-  };
+  }, [
+    t,
+    isLiked,
+    isSaved,
+    isPinned,
+    isOwnList,
+    handleEdit,
+    handlePin,
+    handleLike,
+    handleOpenComments,
+    handleSave,
+  ]);
 
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
   const iconDim = colorScheme === "dark" ? "#6B7280" : "#A8A29E";
@@ -518,55 +563,6 @@ export function ListCardDetailed({
     count: picksCount,
     where: whereLabel,
   });
-
-  const sideAction = isOwnList ? (
-    <View className="rounded-full" style={actionIconBackingStyle}>
-      <CardOptionsMenu items={ownMenuItems} isDeleting={isDeleting} />
-    </View>
-  ) : (
-    <View className="flex-row items-center gap-1.5">
-      <ReportFlagButton
-        userId={list.account.id}
-        displayName={list.account.name}
-        contentType="list"
-        contentId={list.id}
-        size={16}
-        className="h-9 w-9 items-center justify-center rounded-full"
-        style={actionIconBackingStyle}
-        hitSlop={4}
-      />
-      <Pressable
-        onPress={() => void handleSave()}
-        disabled={isSaving}
-        accessibilityRole="button"
-        accessibilityLabel={
-          isSaved ? t("listDetail.savedList") : t("home.saveList")
-        }
-        accessibilityState={{ selected: isSaved }}
-        className="h-11 w-11 cursor-pointer items-center justify-center"
-        hitSlop={4}
-      >
-        <View
-          className={`h-9 w-9 items-center justify-center rounded-full ${
-            isSaved ? "bg-brand" : ""
-          }`}
-          style={isSaved ? undefined : actionIconBackingStyle}
-        >
-          <Bookmark
-            size={16}
-            color={
-              isSaved
-                ? "#FFFFFF"
-                : colorScheme === "dark"
-                  ? "#F9FAFB"
-                  : "#1C1917"
-            }
-            fill={isSaved ? "#FFFFFF" : "transparent"}
-          />
-        </View>
-      </Pressable>
-    </View>
-  );
 
   return (
     <>
@@ -583,7 +579,6 @@ export function ListCardDetailed({
               count: picksCount,
             })}
             onExpand={() => onExpand?.()}
-            sideAction={sideAction}
             matchPercent={isOwnList ? undefined : personalityMatch}
           />
         ) : (
@@ -623,8 +618,6 @@ export function ListCardDetailed({
                 ) : null}
               </View>
 
-              <View className="absolute right-2 top-2 z-10">{sideAction}</View>
-
               <View
                 className={
                   !heroImageUrl && (!isOwnList || showNewBadge)
@@ -632,6 +625,7 @@ export function ListCardDetailed({
                     : "px-4 pt-2.5"
                 }
               >
+                {/* User Details Section */}
                 <View className="mb-2 flex-row items-center gap-2.5">
                   <Avatar
                     name={list.account.name}
@@ -658,8 +652,10 @@ export function ListCardDetailed({
                     ) : null}
                   </View>
 
-                  {!isOwnList ? (
-                    <View className={!heroImageUrl ? "mr-8" : ""}>
+                  <View
+                    className="flex-row items-center"
+                  >
+                    {!isOwnList ? (
                       <FollowButton
                         userId={list.account.id}
                         initialIsFollowed={list.account_is_followed}
@@ -668,8 +664,16 @@ export function ListCardDetailed({
                         loading={isFollowLoading}
                         variant="outline"
                       />
+                    ) : null}
+
+                    <View className="-mr-3">
+                      <CardOptionsMenu
+                        items={engagementMenuItems}
+                        iconOrientation="vertical"
+                        isDeleting={isDeleting}
+                      />
                     </View>
-                  ) : null}
+                  </View>
                 </View>
 
                 {!heroImageUrl ? (
@@ -873,6 +877,17 @@ export function ListCardDetailed({
         onCommentCountChange={setCommentsCount}
         originRect={commentsOriginRect}
       />
+
+      {!isOwnList ? (
+        <ReportUserSheet
+          visible={reportOpen}
+          onClose={() => setReportOpen(false)}
+          userId={list.account.id}
+          displayName={list.account.name}
+          contentType="list"
+          contentId={list.id}
+        />
+      ) : null}
     </>
   );
 }

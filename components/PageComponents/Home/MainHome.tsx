@@ -19,7 +19,7 @@ interface HomeTabItem extends TabItem {
 }
 
 const TABS: HomeTabItem[] = [
-  { id: "home", label: "Home", icon: Home, href: "/(app)/(tabs)/home" },
+  { id: "home", label: "Discover", icon: Home, href: "/(app)/(tabs)/home" },
   {
     id: "following",
     label: "Following",

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { TextInput } from "../../../ui/TextInput";
 import { DateField } from "../../../ui/DateField";
 import { InputHint } from "../../../ui/InputHint";
+import { BusinessOnboardingFields } from "./BusinessOnboardingFields";
 import type {
   BusinessForm,
   FormErrors,
@@ -159,39 +160,33 @@ export function OnboardingDetailsFields({
 
   return (
     <View className="gap-4">
-      <TextInput
-        label={t("auth.onboarding.contactNameLabel")}
-        placeholder={t("auth.onboarding.contactNamePlaceholder")}
-        value={businessForm.contactName}
-        onChangeText={(value) => patchBusiness("contactName", value)}
-        autoCapitalize="words"
-        error={errors.contactName}
-      />
-      <DateField
-        label={t("auth.onboarding.dateOfBirthLabel")}
-        placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
-        value={businessForm.dateOfBirth}
-        onChange={(value) => patchBusiness("dateOfBirth", value)}
-        error={errors.dateOfBirth}
-      />
-
-      <SectionLabel>{t("auth.onboarding.businessDetailsSection")}</SectionLabel>
-
-      <TextInput
-        label={t("auth.signUpBusiness.businessNameLabel")}
-        placeholder={t("auth.signUpBusiness.businessNamePlaceholder")}
-        value={businessForm.businessName}
-        onChangeText={(value) => patchBusiness("businessName", value)}
-        error={errors.businessName}
-      />
-      <TextInput
-        label={t("auth.signUpBusiness.businessWebsiteLabel")}
-        placeholder={t("auth.signUpBusiness.businessWebsitePlaceholder")}
-        value={businessForm.businessWebsite}
-        onChangeText={(value) => patchBusiness("businessWebsite", value)}
-        autoCapitalize="none"
-        keyboardType="url"
-        error={errors.businessWebsite}
+      <BusinessOnboardingFields
+        values={{
+          contactName: businessForm.contactName,
+          businessEmail: businessForm.businessEmail,
+          businessName: businessForm.businessName,
+          businessWebsite: businessForm.businessWebsite,
+        }}
+        errors={errors}
+        onChange={(next) =>
+          onBusinessChange({
+            ...businessForm,
+            contactName: next.contactName,
+            businessEmail: next.businessEmail,
+            businessName: next.businessName,
+            businessWebsite: next.businessWebsite,
+          })
+        }
+        clearFieldError={clearFieldError}
+        afterContact={
+          <DateField
+            label={t("auth.onboarding.dateOfBirthLabel")}
+            placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
+            value={businessForm.dateOfBirth}
+            onChange={(value) => patchBusiness("dateOfBirth", value)}
+            error={errors.dateOfBirth}
+          />
+        }
       />
 
       {beforePassword}

@@ -83,7 +83,7 @@ function AnimatedTabButton({
     <GestureDetector gesture={tap}>
       <Animated.View
         style={borderStyle}
-        className="relative mr-6 cursor-pointer flex-row items-center gap-2 border-b-2 px-2 pb-3 pr-4"
+        className="relative mr-4 cursor-pointer flex-row items-center gap-2 border-b-2 px-2 pb-3 pr-4"
       >
         <View className="h-3 w-3">
           <Animated.View
@@ -160,7 +160,7 @@ export function Tabs({
                   activeOpacity={0.6}
                   key={tab.id}
                   onPress={() => onTabChange(tab.id)}
-                  className={`relative mr-6 cursor-pointer flex-row items-center gap-2 border-b-2 px-2 pb-3 pr-4 ${
+                  className={`relative mr-4 cursor-pointer flex-row items-center gap-2 border-b-2 px-2 pb-3 pr-4 ${
                     isActive ? 'border-brand' : 'border-transparent'
                   }`}
                 >

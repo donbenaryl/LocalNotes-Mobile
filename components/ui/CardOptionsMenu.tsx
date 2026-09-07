@@ -11,6 +11,7 @@ import {
 import {
   Edit,
   MoreHorizontal,
+  MoreVertical,
   Pin,
   Trash2,
   type LucideIcon,
@@ -45,6 +46,7 @@ interface CardOptionsMenuProps {
   onPin?: () => void;
   pinIcon?: LucideIcon;
   isDeleting?: boolean;
+  iconOrientation?: "horizontal" | "vertical";
 }
 
 interface ButtonLayout {
@@ -61,6 +63,7 @@ export function CardOptionsMenu({
   onPin,
   pinIcon: PinIcon = Pin,
   isDeleting = false,
+  iconOrientation = "horizontal",
 }: CardOptionsMenuProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -176,6 +179,8 @@ export function CardOptionsMenu({
         >
           {isDeleting ? (
             <ActivityIndicator size="small" color="#9CA3AF" />
+          ) : iconOrientation === "vertical" ? (
+            <MoreVertical size={20} color="#6B7280" />
           ) : (
             <MoreHorizontal size={20} color="#6B7280" />
           )}

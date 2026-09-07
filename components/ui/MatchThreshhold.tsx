@@ -17,6 +17,8 @@ import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 const EMPTY_BINS: number[] = Array.from({ length: 20 }, () => 0);
 const PRESETS: Array<number | null> = [null, 70, 85, 95];
 const HISTOGRAM_MAX_HEIGHT = 60;
+const EMPTY_BAR_HEIGHT = 2;
+const MIN_DATA_BAR_HEIGHT = 6;
 const AXIS_LABELS = ["0%", "25%", "50%", "75%", "100%"];
 const SHEET_HEIGHT_RATIO = 0.85;
 const FOOTER_CONTENT_PAD = 88;
@@ -362,12 +364,18 @@ export function MatchThreshhold({
           {histogramData.map((value, index) => {
             const bucketStart = index * 5;
             const isActive = bucketStart >= sliderValue && sliderValue > 0;
-            const barHeight = Math.round((value / maxBarValue) * HISTOGRAM_MAX_HEIGHT);
+            const barHeight =
+              value <= 0
+                ? EMPTY_BAR_HEIGHT
+                : Math.max(
+                    Math.round((value / maxBarValue) * HISTOGRAM_MAX_HEIGHT),
+                    MIN_DATA_BAR_HEIGHT,
+                  );
             return (
               <View
                 key={index}
                 className={`flex-1 rounded-sm ${isActive ? "bg-brand" : "bg-gray-200 dark:bg-gray-700"}`}
-                style={{ height: Math.max(barHeight, 4) }}
+                style={{ height: barHeight }}
               />
             );
           })}

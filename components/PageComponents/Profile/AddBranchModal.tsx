@@ -1,0 +1,146 @@
+import { useEffect, useState } from "react";
+import { Text, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useTranslation } from "react-i18next";
+import { Modal } from "@/components/ui/Modal";
+import { TextInput } from "@/components/ui/TextInput";
+import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
+import { LocationInput } from "@/components/ui/LocationInput";
+import { formatLocationLabel } from "@/components/ui/LocationInputModal";
+import type { Location as GeoLocation } from "@/http/list-api/types";
+import type { BusinessLocation } from "@/http/business-api/types";
+
+interface AddBranchModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onSave: (name: string, location: BusinessLocation) => Promise<void>;
+  loading?: boolean;
+}
+
+function toBusinessLocation(location: GeoLocation): BusinessLocation {
+  return {
+    street_address:
+      location.street_address?.trim() || formatLocationLabel(location),
+    postal_code: location.postal_code?.trim() || "",
+    city: location.city,
+    region: location.region ?? "",
+    country: location.country,
+    latitude: location.latitude,
+    longitude: location.longitude,
+  };
+}
+
+export function AddBranchModal({
+  visible,
+  onClose,
+  onSave,
+  loading = false,
+}: AddBranchModalProps) {
+  const { t } = useTranslation();
+  const [name, setName] = useState("");
+  const [location, setLocation] = useState<GeoLocation | null>(null);
+  const [nameError, setNameError] = useState<string | undefined>();
+  const [locationError, setLocationError] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (!visible) {
+      setName("");
+      setLocation(null);
+      setNameError(undefined);
+      setLocationError(undefined);
+    }
+  }, [visible]);
+
+  const handleSave = async () => {
+    let valid = true;
+    if (!name.trim()) {
+      setNameError(t("editProfile.business.branchNameRequired"));
+      valid = false;
+    } else {
+      setNameError(undefined);
+    }
+    if (!location) {
+      setLocationError(t("editProfile.business.branchLocationRequired"));
+      valid = false;
+    } else {
+      setLocationError(undefined);
+    }
+    if (!valid || !location) return;
+    await onSave(name.trim(), toBusinessLocation(location));
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      onClose={onClose}
+      title={t("editProfile.business.addBranch")}
+      footer={
+        <View className="flex-row items-center gap-3">
+          <View className="flex-1">
+            <LocalNotesButton
+              label={t("common.cancel")}
+              onPress={onClose}
+              variant="light"
+              disabled={loading}
+            />
+          </View>
+          <View className="flex-1">
+            <LocalNotesButton
+              label={
+                loading
+                  ? t("editProfile.business.addingBranch")
+                  : t("editProfile.business.addBranch")
+              }
+              onPress={() => void handleSave()}
+              variant="dark"
+              disabled={loading}
+              loading={loading}
+            />
+          </View>
+        </View>
+      }
+    >
+      {/* Explicit style overrides GestureHandlerRootView's internal flex:1 default, which
+          collapses content when nested inside Modal's auto-height bottom sheet. */}
+      <GestureHandlerRootView style={{ width: "100%" }}>
+        <View className="gap-4 pb-24">
+          <TextInput
+            label={t("editProfile.business.branchName")}
+            placeholder={t("editProfile.business.branchNamePlaceholder")}
+            value={name}
+            onChangeText={(value) => {
+              setName(value);
+              setNameError(undefined);
+            }}
+            error={nameError}
+            editable={!loading}
+          />
+          <View>
+            <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-gray-300">
+              {t("editProfile.business.branchAddress")}
+            </Text>
+            <LocationInput
+              inModal
+              showAddressFields
+              initialLocation={location}
+              placeholder={t("editProfile.business.branchAddressPlaceholder")}
+              onLocationSelected={(loc) => {
+                setLocation(loc);
+                setLocationError(undefined);
+                if (!name.trim()) {
+                  setName(loc.city?.trim() || formatLocationLabel(loc));
+                }
+              }}
+              containerClassName="pb-0"
+            />
+            {locationError ? (
+              <Text className="mt-1 font-geist text-xs text-error">
+                {locationError}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      </GestureHandlerRootView>
+    </Modal>
+  );
+}
