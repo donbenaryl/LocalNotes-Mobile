@@ -1,20 +1,24 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { View, TouchableOpacity, Text, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { useRouter, usePathname } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { FOOTER_BAR_HEIGHT, FOOTER_MIN_INSET } from '@/constants/layout';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
 import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { useBusinessStore } from '@/stores/useBusinessStore';
 import {
   getSectionId,
   SECTION_ENTRY_HREF,
   type SectionId,
 } from '@/constants/swipeNavigation';
 import { navigateToSection } from '@/utils/navigateToSection';
+import { isBusinessAccountType } from '@/utils/businessAccount';
 import { DropDown, type DropDownOption } from '@/components/ui/DropDown';
 
 const BRAND = '#FF6B1A';
@@ -51,11 +55,6 @@ const FAB_SHADOW = Platform.select({
   default: {},
 });
 
-const CREATE_OPTIONS: DropDownOption[] = [
-  { value: 'pick', label: 'Create a Pick' },
-  { value: 'list', label: 'Create a List' },
-];
-
 const BAR_SHADOW = Platform.select({
   ios: {
     shadowColor: '#000',
@@ -68,6 +67,7 @@ const BAR_SHADOW = Platform.select({
 });
 
 export function GuardedFooter() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const router = useRouter();
@@ -78,6 +78,24 @@ export function GuardedFooter() {
   const storeSection = useSectionRouteStore((s) => s.activeSection);
   const requestSection = useSectionRouteStore((s) => s.requestSection);
   const resetSectionTab = useSectionRouteStore((s) => s.resetSectionTab);
+  const accountType = useAuthStore((s) => s.accountType);
+  const businessId = useBusinessStore((s) => s.businessId);
+  const canCreateOffer =
+    isBusinessAccountType(accountType ?? undefined) && Boolean(businessId);
+
+  const createOptions = useMemo((): DropDownOption[] => {
+    const options: DropDownOption[] = [
+      { value: 'pick', label: t('common.createPick') },
+      { value: 'list', label: t('common.createList') },
+    ];
+    if (canCreateOffer) {
+      options.push({
+        value: 'offer',
+        label: t('businessHome.buttons.createOffer'),
+      });
+    }
+    return options;
+  }, [canCreateOffer, t]);
 
   // Optimistic: set on the tap/swipe itself. pathname is only the first-frame
   // fallback, before any navigation has resolved.
@@ -87,13 +105,17 @@ export function GuardedFooter() {
   const handleCreateOptionSelect = (value: string) => {
     if (value === 'pick') {
       openPickModal();
-    } else {
-      const { resetCreate, isDirty } = useListFormStore.getState();
-      if (!isDirty('create')) {
-        resetCreate();
-      }
-      router.push('/(app)/(stack)/lists/new' as never);
+      return;
     }
+    if (value === 'offer') {
+      router.push('/(app)/(stack)/offers/new' as never);
+      return;
+    }
+    const { resetCreate, isDirty } = useListFormStore.getState();
+    if (!isDirty('create')) {
+      resetCreate();
+    }
+    router.push('/(app)/(stack)/lists/new' as never);
   };
 
   // Keep-alive Tabs: navigate (never replace) so section shells stay mounted.
@@ -184,7 +206,7 @@ export function GuardedFooter() {
         selected=""
         onApply={handleCreateOptionSelect}
         onClose={() => setIsCreatePickerOpen(false)}
-        options={CREATE_OPTIONS}
+        options={createOptions}
       />
     </View>
   );
