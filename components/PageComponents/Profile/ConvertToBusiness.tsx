@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useColorScheme } from "nativewind";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { TextInput } from "@/components/ui/TextInput";
 import { InputHint } from "@/components/ui/InputHint";
@@ -12,11 +13,15 @@ import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { BottomWrapper } from "@/components/ui/BottomWrapper";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { DropDown } from "@/components/ui/DropDown";
 import {
-  BusinessOnboardingFields,
-  type BusinessOnboardingValues,
-} from "@/components/PageComponents/Auth/OnBoarding/BusinessOnboardingFields";
+  BusinessProfileFields,
+  type BusinessProfileFormValues,
+} from "@/components/PageComponents/Profile/BusinessProfileFields";
+import { AddBranchModal } from "@/components/PageComponents/Profile/AddBranchModal";
+import { EditBranchHoursModal } from "@/components/PageComponents/Profile/EditBranchHoursModal";
 import accountService from "@/http/account-api/account.services";
+import businessService from "@/http/business-api/business.service";
 import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useBusinessStore } from "@/stores/useBusinessStore";
@@ -24,30 +29,50 @@ import { mapProfileToUser } from "@/utils/mapProfileToUser";
 import { isBusinessAccountType } from "@/utils/businessAccount";
 import { isCommonPassword } from "@/utils/isCommonPassword";
 import { isWorkEmail } from "@/utils/isWorkEmail";
+import {
+  openingHoursForApi,
+  validateOpeningHours,
+} from "@/utils/openingHours";
 import type { FormErrors } from "@/hooks/useOnboardingForm";
 
-const INITIAL_VALUES: BusinessOnboardingValues = {
-  contactName: "",
-  businessEmail: "",
+const EMPTY_BUSINESS_FORM: BusinessProfileFormValues = {
   businessName: "",
+  businessType: "",
+  businessBio: "",
+  contactEmail: "",
+  phoneNumber: "",
   businessWebsite: "",
+  logoUrl: null,
+  logoFiles: [],
+  logoDeleted: false,
+  branches: [],
 };
 
 export default function ConvertToBusiness() {
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { colorScheme } = useColorScheme();
   const updateUser = useAuthStore((s) => s.updateUser);
   const authAccountType = useAuthStore((s) => s.accountType);
   const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
   const loadOwnedBusinesses = useBusinessStore((s) => s.loadOwnedBusinesses);
 
-  const [values, setValues] = useState<BusinessOnboardingValues>(INITIAL_VALUES);
+  const [contactName, setContactName] = useState("");
+  const [businessForm, setBusinessForm] =
+    useState<BusinessProfileFormValues>(EMPTY_BUSINESS_FORM);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [seeded, setSeeded] = useState(false);
+  const [typePickerOpen, setTypePickerOpen] = useState(false);
+  const [addBranchVisible, setAddBranchVisible] = useState(false);
+  const [editingHoursBranchId, setEditingHoursBranchId] = useState<
+    string | null
+  >(null);
+
+  const addBranchIconColor = colorScheme === "dark" ? "#F3F4F6" : "#191B1C";
 
   const { data: profile, isPending } = useQuery({
     queryKey: ["profile"],
@@ -57,15 +82,25 @@ export default function ConvertToBusiness() {
     },
   });
 
+  const { data: businessTypes = [] } = useQuery({
+    queryKey: ["business-types"],
+    queryFn: async () => {
+      const res = await businessService.fetchBusinessTypes();
+      return res.data?.data ?? [];
+    },
+  });
+
+  const businessTypeOptions = useMemo(
+    () => businessTypes.map((item) => ({ value: item.name, label: item.name })),
+    [businessTypes],
+  );
+
   const accountType = profile?.account_type ?? authAccountType ?? undefined;
   const isAddAnother = isBusinessAccountType(accountType);
 
   useEffect(() => {
     if (!profile || seeded) return;
-    setValues((prev) => ({
-      ...prev,
-      contactName: profile.name?.trim() || prev.contactName,
-    }));
+    setContactName(profile.name?.trim() || "");
     setSeeded(true);
   }, [profile, seeded]);
 
@@ -95,10 +130,13 @@ export default function ConvertToBusiness() {
 
   function validate(): boolean {
     const next: FormErrors = {};
-    if (!values.contactName.trim()) {
+    if (!contactName.trim()) {
       next.contactName = t("validation.contactNameRequired");
     }
-    const emailTrimmed = values.businessEmail.trim();
+    if (!businessForm.businessName.trim()) {
+      next.businessName = t("editProfile.business.nameRequired");
+    }
+    const emailTrimmed = businessForm.contactEmail.trim();
     if (!emailTrimmed) {
       next.businessEmail = t("validation.workEmailRequired");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
@@ -106,14 +144,22 @@ export default function ConvertToBusiness() {
     } else if (!isWorkEmail(emailTrimmed)) {
       next.businessEmail = t("auth.signUpBusiness.workEmailInvalid");
     }
-    if (!values.businessName.trim()) {
-      next.businessName = t("validation.businessNameRequired");
+    if (!businessForm.phoneNumber.trim()) {
+      next.phoneNumber = t("editProfile.business.phoneRequired");
     }
     if (
-      values.businessWebsite.trim() &&
-      !/^https?:\/\/.+/i.test(values.businessWebsite.trim())
+      businessForm.businessWebsite.trim() &&
+      !/^https?:\/\/.+/i.test(businessForm.businessWebsite.trim())
     ) {
-      next.businessWebsite = t("validation.businessWebsiteInvalid");
+      next.businessWebsite = t("editProfile.business.websiteInvalid");
+    }
+    for (const branch of businessForm.branches) {
+      const hoursErrorKey = validateOpeningHours(branch.openingHours);
+      if (hoursErrorKey) {
+        next.openingHours = t(`editProfile.business.${hoursErrorKey}`);
+        toast.error(t(`editProfile.business.${hoursErrorKey}`));
+        break;
+      }
     }
     if (showPassword) {
       const passwordError = validatePasswordValue(password);
@@ -135,12 +181,67 @@ export default function ConvertToBusiness() {
       }
       const formData = new FormData();
       formData.append("user_type", "business");
-      formData.append("name", values.contactName.trim());
-      formData.append("business_name", values.businessName.trim());
-      formData.append("business_email", values.businessEmail.trim());
-      if (values.businessWebsite.trim()) {
-        formData.append("business_website", values.businessWebsite.trim());
+      formData.append("name", contactName.trim());
+      formData.append("business_name", businessForm.businessName.trim());
+      formData.append("business_email", businessForm.contactEmail.trim());
+      if (businessForm.businessType.trim()) {
+        formData.append("business_type", businessForm.businessType.trim());
       }
+      if (businessForm.businessBio.trim()) {
+        formData.append("business_bio", businessForm.businessBio.trim());
+      }
+      if (businessForm.phoneNumber.trim()) {
+        formData.append("business_phone", businessForm.phoneNumber.trim());
+      }
+      if (businessForm.businessWebsite.trim()) {
+        formData.append(
+          "business_website",
+          businessForm.businessWebsite.trim(),
+        );
+      }
+      if (businessForm.logoFiles[0]) {
+        formData.append("business_logo", businessForm.logoFiles[0].file as never);
+      }
+      businessForm.branches.forEach((branch, index) => {
+        const loc = branch.location;
+        formData.append(`business_locations[${index}][name]`, branch.name);
+        formData.append(`business_locations[${index}][city]`, loc.city);
+        formData.append(
+          `business_locations[${index}][country]`,
+          loc.country,
+        );
+        if (loc.region) {
+          formData.append(`business_locations[${index}][region]`, loc.region);
+        }
+        if (loc.street_address) {
+          formData.append(
+            `business_locations[${index}][street_address]`,
+            loc.street_address,
+          );
+        }
+        if (loc.postal_code) {
+          formData.append(
+            `business_locations[${index}][postal_code]`,
+            loc.postal_code,
+          );
+        }
+        if (loc.latitude != null) {
+          formData.append(
+            `business_locations[${index}][latitude]`,
+            String(loc.latitude),
+          );
+        }
+        if (loc.longitude != null) {
+          formData.append(
+            `business_locations[${index}][longitude]`,
+            String(loc.longitude),
+          );
+        }
+        formData.append(
+          `business_locations[${index}][opening_hours]`,
+          JSON.stringify(openingHoursForApi(branch.openingHours)),
+        );
+      });
       if (showPassword && password) {
         formData.append("password", password);
       }
@@ -204,53 +305,113 @@ export default function ConvertToBusiness() {
       <KeyboardAwareScrollView
         className="flex-1"
         bottomOffset={120}
-        contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 24 }}
+        contentContainerStyle={{ paddingBottom: 120 }}
       >
-        <Text className="mt-4 mb-6 font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="mt-4 mb-2 px-6 font-geist text-sm text-gray-500 dark:text-gray-400">
           {isAddAnother
             ? t("convertToBusiness.addHelper")
             : t("convertToBusiness.helper")}
         </Text>
-        <View className="gap-4">
-          <BusinessOnboardingFields
-            values={values}
-            errors={errors}
-            onChange={setValues}
-            clearFieldError={clearFieldError}
+
+        <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
+          <TextInput
+            label={t("auth.onboarding.contactNameLabel")}
+            placeholder={t("auth.onboarding.contactNamePlaceholder")}
+            value={contactName}
+            onChangeText={(value) => {
+              setContactName(value);
+              clearFieldError("contactName");
+            }}
+            autoCapitalize="words"
+            error={errors.contactName}
+            editable={!isSubmitting}
           />
-          {showPassword ? (
-            <>
-              <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500 pt-2">
-                {t("auth.onboarding.securitySection")}
-              </Text>
-              <TextInput
-                label={t("auth.signUp.passwordLabel")}
-                placeholder={t("auth.onboarding.passwordPlaceholder")}
-                value={password}
-                onChangeText={(value) => {
-                  setPassword(value);
-                  clearFieldError("password");
-                }}
-                isPassword
-                autoComplete="new-password"
-                error={errors.password}
-              />
-              <InputHint hint={t("common.passwordHint")} />
-              <TextInput
-                label={t("auth.signUp.confirmPasswordLabel")}
-                placeholder={t("auth.signUp.confirmPasswordPlaceholder")}
-                value={confirmPassword}
-                onChangeText={(value) => {
-                  setConfirmPassword(value);
-                  clearFieldError("confirmPassword");
-                }}
-                isPassword
-                autoComplete="new-password"
-                error={errors.confirmPassword}
-              />
-            </>
-          ) : null}
         </View>
+
+        <BusinessProfileFields
+          values={businessForm}
+          onChange={(next) => {
+            setBusinessForm(next);
+            clearFieldError("businessName");
+            clearFieldError("businessEmail");
+            clearFieldError("phoneNumber");
+            clearFieldError("businessWebsite");
+            clearFieldError("openingHours");
+          }}
+          editable={!isSubmitting}
+          onPressBusinessType={() => setTypePickerOpen(true)}
+          onAddBranch={() => setAddBranchVisible(true)}
+          onRemoveBranch={(branchId) => {
+            setBusinessForm((prev) => ({
+              ...prev,
+              branches: prev.branches.filter((b) => b.id !== branchId),
+            }));
+          }}
+          onEditBranchHours={(branchId) => setEditingHoursBranchId(branchId)}
+          addBranchIconColor={addBranchIconColor}
+          contactEmailHint={t("auth.signUpBusiness.workEmailHint")}
+        />
+
+        {errors.businessName ||
+        errors.businessEmail ||
+        errors.phoneNumber ||
+        errors.businessWebsite ? (
+          <View className="px-6 gap-1 pb-2">
+            {errors.businessName ? (
+              <Text className="font-geist text-xs text-error">
+                {errors.businessName}
+              </Text>
+            ) : null}
+            {errors.businessEmail ? (
+              <Text className="font-geist text-xs text-error">
+                {errors.businessEmail}
+              </Text>
+            ) : null}
+            {errors.phoneNumber ? (
+              <Text className="font-geist text-xs text-error">
+                {errors.phoneNumber}
+              </Text>
+            ) : null}
+            {errors.businessWebsite ? (
+              <Text className="font-geist text-xs text-error">
+                {errors.businessWebsite}
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
+
+        {showPassword ? (
+          <View className="px-6 gap-4 pb-4">
+            <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500 pt-2">
+              {t("auth.onboarding.securitySection")}
+            </Text>
+            <TextInput
+              label={t("auth.signUp.passwordLabel")}
+              placeholder={t("auth.onboarding.passwordPlaceholder")}
+              value={password}
+              onChangeText={(value) => {
+                setPassword(value);
+                clearFieldError("password");
+              }}
+              isPassword
+              autoComplete="new-password"
+              error={errors.password}
+            />
+            <InputHint hint={t("common.passwordHint")} />
+            <TextInput
+              label={t("auth.signUp.confirmPasswordLabel")}
+              placeholder={t("auth.signUp.confirmPasswordPlaceholder")}
+              value={confirmPassword}
+              onChangeText={(value) => {
+                setConfirmPassword(value);
+                clearFieldError("confirmPassword");
+              }}
+              isPassword
+              autoComplete="new-password"
+              error={errors.confirmPassword}
+            />
+          </View>
+        ) : null}
       </KeyboardAwareScrollView>
 
       <KeyboardStickyView
@@ -274,6 +435,62 @@ export default function ConvertToBusiness() {
           />
         </BottomWrapper>
       </KeyboardStickyView>
+
+      <DropDown
+        visible={typePickerOpen}
+        options={businessTypeOptions}
+        selected={businessForm.businessType}
+        onApply={(value) =>
+          setBusinessForm((prev) => ({ ...prev, businessType: value }))
+        }
+        onClose={() => setTypePickerOpen(false)}
+        isSearchable
+        searchPlaceholder={t("common.search")}
+      />
+
+      <AddBranchModal
+        visible={addBranchVisible}
+        onClose={() => setAddBranchVisible(false)}
+        onSave={async (branchName, branchLocation, openingHours) => {
+          setBusinessForm((prev) => ({
+            ...prev,
+            branches: [
+              ...prev.branches,
+              {
+                id: `draft-${Date.now()}-${prev.branches.length}`,
+                name: branchName,
+                location: branchLocation,
+                openingHours,
+              },
+            ],
+          }));
+          setAddBranchVisible(false);
+        }}
+      />
+      <EditBranchHoursModal
+        visible={editingHoursBranchId !== null}
+        branchName={
+          businessForm.branches.find((b) => b.id === editingHoursBranchId)
+            ?.name
+        }
+        initialHours={
+          businessForm.branches.find((b) => b.id === editingHoursBranchId)
+            ?.openingHours
+        }
+        onClose={() => setEditingHoursBranchId(null)}
+        onSave={async (hours) => {
+          if (!editingHoursBranchId) return;
+          setBusinessForm((prev) => ({
+            ...prev,
+            branches: prev.branches.map((branch) =>
+              branch.id === editingHoursBranchId
+                ? { ...branch, openingHours: hours }
+                : branch,
+            ),
+          }));
+          setEditingHoursBranchId(null);
+        }}
+      />
     </SafeAreaView>
   );
 }

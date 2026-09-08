@@ -10,12 +10,30 @@ export type BusinessLocation = {
   longitude: number;
 };
 
+export type DayHours = {
+  open: string | null;
+  close: string | null;
+};
+
+export type OpeningHours = Partial<
+  Record<
+    | "monday"
+    | "tuesday"
+    | "wednesday"
+    | "thursday"
+    | "friday"
+    | "saturday"
+    | "sunday",
+    DayHours
+  >
+>;
+
 export type BusinessBranchDAO = {
   id: string;
   name: string;
   location: BusinessLocation;
+  opening_hours?: OpeningHours;
 };
-
 export type BusinessItemDAO = {
   id: string;
   name: string;
@@ -74,6 +92,13 @@ export type BusinessTypeDAO = {
 export interface AddBranchDTO {
   name: string;
   location: BusinessLocation;
+  opening_hours?: OpeningHours;
+}
+
+export interface UpdateBranchDTO {
+  id: string;
+  name?: string;
+  opening_hours?: OpeningHours;
 }
 
 export type BusinessViewsStatsDAO = {

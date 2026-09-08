@@ -7,13 +7,25 @@ import { TextInput } from "@/components/ui/TextInput";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { LocationInput } from "@/components/ui/LocationInput";
 import { formatLocationLabel } from "@/components/ui/LocationInputModal";
+import { OpeningHoursEditor } from "@/components/PageComponents/Profile/BusinessProfileFields";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import type { BusinessLocation } from "@/http/business-api/types";
+import {
+  emptyOpeningHours,
+  openingHoursForApi,
+  validateOpeningHours,
+  type OpeningHours,
+} from "@/utils/openingHours";
+import { toast } from "@/components/ui/Toast";
 
 interface AddBranchModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (name: string, location: BusinessLocation) => Promise<void>;
+  onSave: (
+    name: string,
+    location: BusinessLocation,
+    openingHours: OpeningHours,
+  ) => Promise<void>;
   loading?: boolean;
 }
 
@@ -39,6 +51,7 @@ export function AddBranchModal({
   const { t } = useTranslation();
   const [name, setName] = useState("");
   const [location, setLocation] = useState<GeoLocation | null>(null);
+  const [openingHours, setOpeningHours] = useState<OpeningHours>(emptyOpeningHours());
   const [nameError, setNameError] = useState<string | undefined>();
   const [locationError, setLocationError] = useState<string | undefined>();
 
@@ -46,6 +59,7 @@ export function AddBranchModal({
     if (!visible) {
       setName("");
       setLocation(null);
+      setOpeningHours(emptyOpeningHours());
       setNameError(undefined);
       setLocationError(undefined);
     }
@@ -65,8 +79,17 @@ export function AddBranchModal({
     } else {
       setLocationError(undefined);
     }
+    const hoursErrorKey = validateOpeningHours(openingHours);
+    if (hoursErrorKey) {
+      toast.error(t(`editProfile.business.${hoursErrorKey}`));
+      valid = false;
+    }
     if (!valid || !location) return;
-    await onSave(name.trim(), toBusinessLocation(location));
+    await onSave(
+      name.trim(),
+      toBusinessLocation(location),
+      openingHoursForApi(openingHours),
+    );
   };
 
   return (
@@ -138,6 +161,19 @@ export function AddBranchModal({
                 {locationError}
               </Text>
             ) : null}
+          </View>
+          <View className="gap-2">
+            <Text className="font-geist-medium text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+              {t("editProfile.business.hoursSection")}
+            </Text>
+            <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
+              {t("editProfile.business.hoursHelper")}
+            </Text>
+            <OpeningHoursEditor
+              hours={openingHours}
+              editable={!loading}
+              onChange={setOpeningHours}
+            />
           </View>
         </View>
       </GestureHandlerRootView>

@@ -6,6 +6,7 @@ import type {
     searchBusinessDTO,
     UpdateBusinessDTO,
     AddBranchDTO,
+    UpdateBranchDTO,
     BusinessViewsStatsDAO,
     BusinessMentionsStatsDAO,
     BusinessCategoryStatItemDAO,
@@ -101,6 +102,18 @@ class BusinessService extends AppHttpService{
             method: "post",
             path: "/add-branch",
             body: dto,
+        });
+    }
+    async updateBranch(dto: UpdateBranchDTO) {
+        const formData = new FormData();
+        if (dto.name !== undefined) formData.append("name", dto.name);
+        if (dto.opening_hours !== undefined) {
+          formData.append("opening_hours", JSON.stringify(dto.opening_hours));
+        }
+        return await this.SendRequest<BusinessItemDAO, FormData>({
+            method: "patch",
+            path: `/branches/${dto.id}/update`,
+            body: formData,
         });
     }
     async uploadLogo(file: RNFile) {

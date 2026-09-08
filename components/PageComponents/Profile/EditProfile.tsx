@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronRight, MapPin, Plus, X } from "lucide-react-native";
+import { ChevronDown, ChevronRight } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { UploadAvatar } from "@/components/ui/UploadAvatar";
@@ -17,27 +17,28 @@ import { BottomWrapper } from "@/components/ui/BottomWrapper";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { DropDown } from "@/components/ui/DropDown";
-import {
-  ImageUploadField,
-  type UploadedImageFile,
-} from "@/components/ui/ImageUploadField";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { HomeLocationFormModal } from "@/components/PageComponents/Profile/HomeLocationFormModal";
 import { AddBranchModal } from "@/components/PageComponents/Profile/AddBranchModal";
 import { OwnedBusinessPickerModal } from "@/components/PageComponents/Profile/OwnedBusinessPickerModal";
+import {
+  BusinessProfileFields,
+  type BusinessProfileFormValues,
+} from "@/components/PageComponents/Profile/BusinessProfileFields";
+import { EditBranchHoursModal } from "@/components/PageComponents/Profile/EditBranchHoursModal";
 import { useToastStore } from "@/stores/useToastStore";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import accountService from "@/http/account-api/account.services";
 import businessService from "@/http/business-api/business.service";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { isBusinessAccountType } from "@/utils/businessAccount";
-import { cn } from "@/utils/cn";
+import { normalizeOpeningHours } from "@/utils/openingHours";
 import type { updateAccountDTO } from "@/http/account-api/types";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import type {
-  BusinessBranchDAO,
-  BusinessLocation,
   BusinessItemDAO,
+  BusinessLocation,
+  OpeningHours,
 } from "@/http/business-api/types";
 import {
   isUsernameBlocking,
@@ -46,6 +47,19 @@ import {
 
 const BIO_MAX_LENGTH = 160;
 const EDIT_PROFILE_FOOTER_OFFSET = 120;
+
+const EMPTY_BUSINESS_FORM: BusinessProfileFormValues = {
+  businessName: "",
+  businessType: "",
+  businessBio: "",
+  contactEmail: "",
+  phoneNumber: "",
+  businessWebsite: "",
+  logoUrl: null,
+  logoFiles: [],
+  logoDeleted: false,
+  branches: [],
+};
 
 function SectionLabel({ label }: { label: string }) {
   return (
@@ -110,18 +124,6 @@ function ProfileRow({
       {inner}
     </TouchableOpacity>
   );
-}
-
-function formatBranchAddress(location: BusinessLocation): string {
-  return [
-    location.street_address,
-    location.postal_code,
-    location.city,
-    location.region,
-    location.country,
-  ]
-    .filter(Boolean)
-    .join(", ");
 }
 
 export default function EditProfile() {
@@ -202,18 +204,13 @@ export default function EditProfile() {
   const [location, setLocation] = useState<GeoLocation | null>(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
 
-  const [businessName, setBusinessName] = useState("");
-  const [businessType, setBusinessType] = useState("");
-  const [businessBio, setBusinessBio] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [businessWebsite, setBusinessWebsite] = useState("");
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [logoFiles, setLogoFiles] = useState<UploadedImageFile[]>([]);
-  const [logoDeleted, setLogoDeleted] = useState(false);
-  const [branches, setBranches] = useState<BusinessBranchDAO[]>([]);
+  const [businessForm, setBusinessForm] =
+    useState<BusinessProfileFormValues>(EMPTY_BUSINESS_FORM);
   const [typePickerOpen, setTypePickerOpen] = useState(false);
   const [addBranchVisible, setAddBranchVisible] = useState(false);
+  const [editingHoursBranchId, setEditingHoursBranchId] = useState<
+    string | null
+  >(null);
   const [pendingDeleteBranchId, setPendingDeleteBranchId] = useState<
     string | null
   >(null);
@@ -254,17 +251,28 @@ export default function EditProfile() {
     );
   }, [profile]);
 
+  function mapBranchesFromApi(info: BusinessItemDAO) {
+    return (info.branches ?? []).map((branch) => ({
+      id: branch.id,
+      name: branch.name,
+      location: branch.location,
+      openingHours: normalizeOpeningHours(branch.opening_hours),
+    }));
+  }
+
   function seedBusinessForm(info: BusinessItemDAO) {
-    setBusinessName(info.name ?? "");
-    setBusinessType(info.business_type ?? "");
-    setBusinessBio(info.bio ?? "");
-    setContactEmail(info.contact_email ?? "");
-    setPhoneNumber(info.phone_number ?? "");
-    setBusinessWebsite(info.website ?? "");
-    setLogoUrl(info.logo || null);
-    setLogoFiles([]);
-    setLogoDeleted(false);
-    setBranches(info.branches ?? []);
+    setBusinessForm({
+      businessName: info.name ?? "",
+      businessType: info.business_type ?? "",
+      businessBio: info.bio ?? "",
+      contactEmail: info.contact_email ?? "",
+      phoneNumber: info.phone_number ?? "",
+      businessWebsite: info.website ?? "",
+      logoUrl: info.logo || null,
+      logoFiles: [],
+      logoDeleted: false,
+      branches: mapBranchesFromApi(info),
+    });
     setSeededBusinessId(info.id);
   }
 
@@ -298,14 +306,18 @@ export default function EditProfile() {
   const isBusinessDirty =
     isBusiness &&
     !!businessInfo &&
-    (businessName.trim() !== (businessInfo.name ?? "").trim() ||
-      businessType.trim() !== (businessInfo.business_type ?? "").trim() ||
-      businessBio.trim() !== (businessInfo.bio ?? "").trim() ||
-      contactEmail.trim() !== (businessInfo.contact_email ?? "").trim() ||
-      phoneNumber.trim() !== (businessInfo.phone_number ?? "").trim() ||
-      businessWebsite.trim() !== (businessInfo.website ?? "").trim() ||
-      logoFiles.length > 0 ||
-      logoDeleted);
+    (businessForm.businessName.trim() !== (businessInfo.name ?? "").trim() ||
+      businessForm.businessType.trim() !==
+        (businessInfo.business_type ?? "").trim() ||
+      businessForm.businessBio.trim() !== (businessInfo.bio ?? "").trim() ||
+      businessForm.contactEmail.trim() !==
+        (businessInfo.contact_email ?? "").trim() ||
+      businessForm.phoneNumber.trim() !==
+        (businessInfo.phone_number ?? "").trim() ||
+      businessForm.businessWebsite.trim() !==
+        (businessInfo.website ?? "").trim() ||
+      businessForm.logoFiles.length > 0 ||
+      businessForm.logoDeleted);
 
   const isDirty = isProfileDirty || isBusinessDirty;
   const bioOverLimit = bio.length > BIO_MAX_LENGTH;
@@ -420,32 +432,36 @@ export default function EditProfile() {
       }
 
       if (isBusinessDirty) {
-        if (!businessName.trim()) {
+        if (!businessForm.businessName.trim()) {
           throw new Error(t("editProfile.business.nameRequired"));
         }
-        if (!contactEmail.trim()) {
+        if (!businessForm.contactEmail.trim()) {
           throw new Error(t("editProfile.business.emailRequired"));
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail.trim())) {
+        if (
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessForm.contactEmail.trim())
+        ) {
           throw new Error(t("editProfile.business.emailInvalid"));
         }
-        if (!phoneNumber.trim()) {
+        if (!businessForm.phoneNumber.trim()) {
           throw new Error(t("editProfile.business.phoneRequired"));
         }
-        const websiteVal = businessWebsite.trim();
+        const websiteVal = businessForm.businessWebsite.trim();
         if (websiteVal && !/^https?:\/\/.+/i.test(websiteVal)) {
           throw new Error(t("editProfile.business.websiteInvalid"));
         }
 
-        if (logoDeleted && !logoFiles[0]) {
+        if (businessForm.logoDeleted && !businessForm.logoFiles[0]) {
           const deleteRes = await businessService.deleteLogo();
           if (deleteRes.error) {
             throw new Error(
               deleteRes.error.message ?? t("editProfile.business.saveFailed"),
             );
           }
-        } else if (logoFiles[0]) {
-          const uploadRes = await businessService.uploadLogo(logoFiles[0].file);
+        } else if (businessForm.logoFiles[0]) {
+          const uploadRes = await businessService.uploadLogo(
+            businessForm.logoFiles[0].file,
+          );
           if (uploadRes.error) {
             throw new Error(
               uploadRes.error.message ?? t("editProfile.business.saveFailed"),
@@ -454,11 +470,11 @@ export default function EditProfile() {
         }
 
         const updateRes = await businessService.updateBusiness({
-          name: businessName.trim(),
-          business_type: businessType.trim(),
-          bio: businessBio.trim(),
-          contact_email: contactEmail.trim(),
-          phone_number: phoneNumber.trim(),
+          name: businessForm.businessName.trim(),
+          business_type: businessForm.businessType.trim(),
+          bio: businessForm.businessBio.trim(),
+          contact_email: businessForm.contactEmail.trim(),
+          phone_number: businessForm.phoneNumber.trim(),
           website: websiteVal,
         });
         if (updateRes.error) {
@@ -535,13 +551,16 @@ export default function EditProfile() {
     mutationFn: async ({
       name: branchName,
       location: branchLocation,
+      openingHours,
     }: {
       name: string;
       location: BusinessLocation;
+      openingHours: OpeningHours;
     }) => {
       const res = await businessService.addBranch({
         name: branchName,
         location: branchLocation,
+        opening_hours: openingHours,
       });
       if (res.error || !res.data?.data) {
         throw new Error(
@@ -551,7 +570,10 @@ export default function EditProfile() {
       return res.data.data;
     },
     onSuccess: async (data) => {
-      setBranches(data.branches ?? []);
+      setBusinessForm((prev) => ({
+        ...prev,
+        branches: mapBranchesFromApi(data),
+      }));
       queryClient.setQueryData(["business-info", data.id], data);
       await refreshBusinessInfo();
       setAddBranchVisible(false);
@@ -568,6 +590,47 @@ export default function EditProfile() {
     },
   });
 
+  const { mutateAsync: updateBranchHoursAsync, isPending: isUpdatingHours } =
+    useMutation({
+      mutationFn: async ({
+        branchId,
+        openingHours,
+      }: {
+        branchId: string;
+        openingHours: OpeningHours;
+      }) => {
+        const res = await businessService.updateBranch({
+          id: branchId,
+          opening_hours: openingHours,
+        });
+        if (res.error || !res.data?.data) {
+          throw new Error(
+            res.error?.message ?? t("editProfile.business.saveFailed"),
+          );
+        }
+        return res.data.data;
+      },
+      onSuccess: async (data) => {
+        setBusinessForm((prev) => ({
+          ...prev,
+          branches: mapBranchesFromApi(data),
+        }));
+        queryClient.setQueryData(["business-info", data.id], data);
+        await refreshBusinessInfo();
+        setEditingHoursBranchId(null);
+        showToast({ type: "success", message: "Branch hours updated." });
+      },
+      onError: (err: unknown) => {
+        showToast({
+          type: "error",
+          message:
+            err instanceof Error
+              ? err.message
+              : t("editProfile.business.saveFailed"),
+        });
+      },
+    });
+
   const { mutate: deleteBranch, isPending: isDeletingBranch } = useMutation({
     mutationFn: async (branchId: string) => {
       const res = await businessService.deleteBranch(branchId);
@@ -579,7 +642,10 @@ export default function EditProfile() {
       return res.data.data;
     },
     onSuccess: async (data) => {
-      setBranches(data.branches ?? []);
+      setBusinessForm((prev) => ({
+        ...prev,
+        branches: mapBranchesFromApi(data),
+      }));
       queryClient.setQueryData(["business-info", data.id], data);
       await refreshBusinessInfo();
       setPendingDeleteBranchId(null);
@@ -632,11 +698,6 @@ export default function EditProfile() {
   const locationValue = location
     ? [location.city, location.region].filter(Boolean).join(", ")
     : undefined;
-
-  const existingLogoImages =
-    logoUrl && !logoDeleted
-      ? [{ id: "logo", url: logoUrl }]
-      : [];
 
   return (
     <SafeAreaView
@@ -736,183 +797,38 @@ export default function EditProfile() {
         </View>
 
         {isBusiness ? (
-          <>
-            <SectionLabel label={t("editProfile.business.section")} />
-            {canSwitchBusiness ? (
-              <Pressable
-                onPress={() => setBusinessPickerVisible(true)}
-                accessibilityRole="button"
-                className="mx-6 mb-2 flex-row items-center justify-between rounded-xl border border-gray-100 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900"
-              >
-                <View className="min-w-0 flex-1 pr-3">
-                  <Text className="font-geist text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    {t("editProfile.business.editingBusiness")}
-                  </Text>
-                  <Text
-                    className="mt-0.5 font-geist-semibold text-sm text-ink dark:text-gray-100"
-                    numberOfLines={1}
-                  >
-                    {businessInfo?.name ?? businessName}
-                  </Text>
-                </View>
-                <ChevronDown size={18} color="#9CA3AF" />
-              </Pressable>
-            ) : null}
-            <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
-              <TextInput
-                label={t("editProfile.business.name")}
-                value={businessName}
-                onChangeText={setBusinessName}
-                placeholder={t("editProfile.business.namePlaceholder")}
-                placeholderTextColor={placeholderColor}
-                editable={!isSaving}
-              />
-
-              <View>
-                <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-gray-300">
-                  {t("editProfile.business.type")}
-                </Text>
+          <BusinessProfileFields
+            values={businessForm}
+            onChange={setBusinessForm}
+            editable={!isSaving}
+            onPressBusinessType={() => setTypePickerOpen(true)}
+            onAddBranch={() => setAddBranchVisible(true)}
+            onRemoveBranch={(branchId) => setPendingDeleteBranchId(branchId)}
+            onEditBranchHours={(branchId) => setEditingHoursBranchId(branchId)}
+            addBranchIconColor={addBranchIconColor}
+            header={
+              canSwitchBusiness ? (
                 <Pressable
-                  onPress={() => setTypePickerOpen(true)}
-                  disabled={isSaving}
+                  onPress={() => setBusinessPickerVisible(true)}
                   accessibilityRole="button"
-                  className="h-14 flex-row items-center rounded-xl border border-gray-100 bg-gray-50 px-4 dark:border-gray-700 dark:bg-gray-800"
+                  className="mx-6 mb-2 flex-row items-center justify-between rounded-xl border border-gray-100 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900"
                 >
-                  <Text
-                    className={cn(
-                      "flex-1 font-geist text-base",
-                      businessType
-                        ? "text-ink dark:text-gray-100"
-                        : "text-gray-400 dark:text-gray-500",
-                    )}
-                  >
-                    {businessType || t("editProfile.business.typePlaceholder")}
-                  </Text>
+                  <View className="min-w-0 flex-1 pr-3">
+                    <Text className="font-geist text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                      {t("editProfile.business.editingBusiness")}
+                    </Text>
+                    <Text
+                      className="mt-0.5 font-geist-semibold text-sm text-ink dark:text-gray-100"
+                      numberOfLines={1}
+                    >
+                      {businessInfo?.name ?? businessForm.businessName}
+                    </Text>
+                  </View>
                   <ChevronDown size={18} color="#9CA3AF" />
                 </Pressable>
-              </View>
-
-              <TextInput
-                label={t("editProfile.business.bio")}
-                value={businessBio}
-                onChangeText={setBusinessBio}
-                placeholder={t("editProfile.business.bioPlaceholder")}
-                placeholderTextColor={placeholderColor}
-                multiline
-                numberOfLines={4}
-                textAlignVertical="top"
-                editable={!isSaving}
-              />
-
-              <TextInput
-                label={t("editProfile.business.contactEmail")}
-                value={contactEmail}
-                onChangeText={setContactEmail}
-                placeholder={t("editProfile.business.contactEmailPlaceholder")}
-                placeholderTextColor={placeholderColor}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!isSaving}
-              />
-
-              <TextInput
-                label={t("editProfile.business.phone")}
-                value={phoneNumber}
-                onChangeText={setPhoneNumber}
-                placeholder={t("editProfile.business.phonePlaceholder")}
-                placeholderTextColor={placeholderColor}
-                keyboardType="phone-pad"
-                editable={!isSaving}
-              />
-
-              <TextInput
-                label={t("editProfile.business.website")}
-                value={businessWebsite}
-                onChangeText={setBusinessWebsite}
-                placeholder={t("editProfile.business.websitePlaceholder")}
-                placeholderTextColor={placeholderColor}
-                keyboardType="url"
-                autoCapitalize="none"
-                editable={!isSaving}
-              />
-
-              <ImageUploadField
-                label={t("editProfile.business.logo")}
-                helperText={t("editProfile.business.logoHelper")}
-                maxFiles={1}
-                existingImages={existingLogoImages}
-                onRemoveExisting={() => {
-                  setLogoDeleted(true);
-                  setLogoUrl(null);
-                }}
-                newFiles={logoFiles}
-                onAppendNewFiles={(files) => {
-                  setLogoDeleted(false);
-                  setLogoFiles(
-                    files.map((file) => ({
-                      uri: file.uri,
-                      file,
-                    })),
-                  );
-                }}
-                onRemoveNewAt={() => setLogoFiles([])}
-              />
-            </View>
-
-            <View className="px-6 pt-6 pb-2 flex-row items-start justify-between">
-              <View className="flex-1 pr-3">
-                <Text className="font-geist-medium text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                  {t("editProfile.business.branchesSection")}
-                </Text>
-                <Text className="mt-1 font-geist text-xs text-gray-400 dark:text-gray-500">
-                  {t("editProfile.business.branchesHelper")}
-                </Text>
-              </View>
-              <LocalNotesButton
-                label={t("editProfile.business.addBranch")}
-                onPress={() => setAddBranchVisible(true)}
-                variant="light"
-                size="sm"
-                isWidthFull={false}
-                leftIcon={<Plus size={14} color={addBranchIconColor} />}
-              />
-            </View>
-            <View className="px-6 pb-4 gap-3">
-              {branches.length === 0 ? (
-                <Text className="py-4 text-center font-geist text-sm text-gray-400 dark:text-gray-500">
-                  {t("editProfile.business.noBranches")}
-                </Text>
-              ) : (
-                branches.map((branch) => (
-                  <View
-                    key={branch.id}
-                    className="flex-row items-center justify-between rounded-xl border border-gray-100 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900"
-                  >
-                    <View className="flex-1 flex-row items-start gap-3 pr-3">
-                      <MapPin size={18} color="#6B7280" />
-                      <View className="flex-1">
-                        <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
-                          {branch.name}
-                        </Text>
-                        <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
-                          {formatBranchAddress(branch.location)}
-                        </Text>
-                      </View>
-                    </View>
-                    <Pressable
-                      onPress={() => setPendingDeleteBranchId(branch.id)}
-                      accessibilityRole="button"
-                      accessibilityLabel={t("editProfile.business.removeBranch")}
-                      hitSlop={8}
-                      className="p-1"
-                    >
-                      <X size={16} color="#9CA3AF" />
-                    </Pressable>
-                  </View>
-                ))
-              )}
-            </View>
-          </>
+              ) : null
+            }
+          />
         ) : null}
 
         <SectionLabel label="Social Links" />
@@ -1014,8 +930,10 @@ export default function EditProfile() {
           <DropDown
             visible={typePickerOpen}
             options={businessTypeOptions}
-            selected={businessType}
-            onApply={setBusinessType}
+            selected={businessForm.businessType}
+            onApply={(value) =>
+              setBusinessForm((prev) => ({ ...prev, businessType: value }))
+            }
             onClose={() => setTypePickerOpen(false)}
             isSearchable
             searchPlaceholder={t("common.search")}
@@ -1035,10 +953,31 @@ export default function EditProfile() {
             visible={addBranchVisible}
             onClose={() => setAddBranchVisible(false)}
             loading={isAddingBranch}
-            onSave={async (branchName, branchLocation) => {
+            onSave={async (branchName, branchLocation, openingHours) => {
               await addBranchAsync({
                 name: branchName,
                 location: branchLocation,
+                openingHours,
+              });
+            }}
+          />
+          <EditBranchHoursModal
+            visible={editingHoursBranchId !== null}
+            branchName={
+              businessForm.branches.find((b) => b.id === editingHoursBranchId)
+                ?.name
+            }
+            initialHours={
+              businessForm.branches.find((b) => b.id === editingHoursBranchId)
+                ?.openingHours
+            }
+            loading={isUpdatingHours}
+            onClose={() => setEditingHoursBranchId(null)}
+            onSave={async (hours) => {
+              if (!editingHoursBranchId) return;
+              await updateBranchHoursAsync({
+                branchId: editingHoursBranchId,
+                openingHours: hours,
               });
             }}
           />
