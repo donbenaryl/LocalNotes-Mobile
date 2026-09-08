@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import notesService from "@/http/notes-api/notes.service";
-import { useUserCoordinates } from "@/hooks/useUserCoordinates";
+import type { SelectableCoordinates } from "@/hooks/useSelectableLocation";
 import { mapNoteDaoToOfferItem, type OfferCardItem } from "@/types/offer";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
@@ -58,9 +58,10 @@ function groupOffers(offers: OfferCardItem[]): OffersSections {
   return { expiringSoon, followed, nearYou, other };
 }
 
-export function useOffersFeed() {
-  const { coordinates } = useUserCoordinates();
-
+export function useOffersFeed(
+  coordinates: SelectableCoordinates | null = null,
+  enabled = true,
+) {
   const feedQuery = useQuery({
     queryKey: [
       "offers-feed",
@@ -70,6 +71,7 @@ export function useOffersFeed() {
     queryFn: () =>
       fetchOffersFeed(coordinates?.latitude, coordinates?.longitude),
     staleTime: FEED_STALE_TIME_MS,
+    enabled,
   });
 
   const offers = feedQuery.data ?? [];
