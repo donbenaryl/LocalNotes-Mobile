@@ -22,6 +22,7 @@ export interface NoteDAO {
   description: string | null;
   expires_at: string | null;
   visibility: Visibility;
+  billing_status?: "active" | "past_due" | "canceled";
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -45,4 +46,5 @@ export interface UpsertNoteDTO {
   business_id: string;
   category_ids?: string[];
   others_name?: string;
+  expire_after?: "1h" | "24h" | "7d" | "30d" | "never";
 }

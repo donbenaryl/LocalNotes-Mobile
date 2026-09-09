@@ -20,6 +20,7 @@ import {
 import { navigateToSection } from '@/utils/navigateToSection';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import { DropDown, type DropDownOption } from '@/components/ui/DropDown';
+import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 
 const BRAND = '#FF6B1A';
 const INACTIVE_LIGHT = '#4B5563';
@@ -80,6 +81,7 @@ export function GuardedFooter() {
   const resetSectionTab = useSectionRouteStore((s) => s.resetSectionTab);
   const accountType = useAuthStore((s) => s.accountType);
   const businessId = useBusinessStore((s) => s.businessId);
+  const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const canCreateOffer =
     isBusinessAccountType(accountType ?? undefined) && Boolean(businessId);
 
@@ -108,7 +110,7 @@ export function GuardedFooter() {
       return;
     }
     if (value === 'offer') {
-      router.push('/(app)/(stack)/offers/new' as never);
+      void openCreateOfferOnWeb();
       return;
     }
     const { resetCreate, isDirty } = useListFormStore.getState();

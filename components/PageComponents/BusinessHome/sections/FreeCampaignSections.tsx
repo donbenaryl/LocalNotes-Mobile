@@ -1,12 +1,14 @@
 import { Alert, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { BUSINESS_HOME_PROFILE_HEALTH } from '@/constants/businessHomeMock';
+import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { MembershipGate } from '../ui/MembershipGate';
 
 export function RunAnotherCampaignSection({ isPaidMember }: { isPaidMember: boolean }) {
   const { t } = useTranslation();
+  const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
 
   const showComingSoon = () => {
     Alert.alert(
@@ -27,7 +29,7 @@ export function RunAnotherCampaignSection({ isPaidMember }: { isPaidMember: bool
         <View className="mt-2.5 flex-row flex-wrap gap-1.5">
           <LocalNotesButton
             label={t('businessHome.buttons.createOffer')}
-            onPress={showComingSoon}
+            onPress={() => void openCreateOfferOnWeb()}
             variant="brand"
             size="sm"
             isRounded

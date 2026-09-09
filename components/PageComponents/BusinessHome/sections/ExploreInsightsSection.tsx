@@ -8,6 +8,7 @@ import {
   BUSINESS_HOME_PERFORMANCE_ROWS,
 } from '@/constants/businessHomeMock';
 import type { BusinessHomePersonalityRow } from '@/hooks/useBusinessHomeData';
+import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { SectionHeading } from '../ui/SectionHeading';
@@ -53,6 +54,7 @@ export function ExploreInsightsSection({
   isPaidMember,
 }: ExploreInsightsSectionProps) {
   const { t } = useTranslation();
+  const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const [tab, setTab] = useState<ExploreTab>('customers');
 
   const showComingSoon = () => {
@@ -199,7 +201,7 @@ export function ExploreInsightsSection({
           </Text>
           <LocalNotesButton
             label={t('businessHome.buttons.createOffer')}
-            onPress={showComingSoon}
+            onPress={() => void openCreateOfferOnWeb()}
             variant="brand"
             size="xs"
             isRounded

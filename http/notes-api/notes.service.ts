@@ -1,6 +1,10 @@
 import { AppHttpService } from "..";
 import type { RNFile } from "../types";
-import type { NoteDAO, NoteCategoryDAO, UpsertNoteDTO } from "./types";
+import type {
+  NoteDAO,
+  NoteCategoryDAO,
+  UpsertNoteDTO,
+} from "./types";
 
 class NotesService extends AppHttpService {
   constructor() {

@@ -10,3 +10,8 @@ export function getApiBaseUrl(): string {
 }
 
 export const mapboxToken = process.env.EXPO_PUBLIC_MAPBOX_TOKEN ?? '';
+
+/** Web app root (no trailing slash) used to hand off paid features to the browser. */
+export function getWebAppUrl(): string {
+  return String(Constants.expoConfig?.extra?.webAppUrl ?? '').trim().replace(/\/$/, '');
+}

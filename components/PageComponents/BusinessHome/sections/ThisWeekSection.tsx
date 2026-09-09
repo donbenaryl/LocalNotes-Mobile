@@ -6,6 +6,7 @@ import {
   BUSINESS_HOME_ACTIVITY_ROWS,
   BUSINESS_HOME_BRIEF,
 } from '@/constants/businessHomeMock';
+import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { SectionHeading } from '../ui/SectionHeading';
@@ -17,6 +18,7 @@ interface ThisWeekSectionProps {
 
 export function ThisWeekSection({ isPaidMember }: ThisWeekSectionProps) {
   const { t } = useTranslation();
+  const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const [showAssign, setShowAssign] = useState(false);
   const [assigned, setAssigned] = useState(false);
 
@@ -49,7 +51,7 @@ export function ThisWeekSection({ isPaidMember }: ThisWeekSectionProps) {
         <View className="mt-2.5 flex-row flex-wrap gap-1.5">
           <LocalNotesButton
             label={t('businessHome.buttons.createOffer')}
-            onPress={showComingSoon}
+            onPress={() => void openCreateOfferOnWeb()}
             variant="brand"
             size="sm"
             isRounded

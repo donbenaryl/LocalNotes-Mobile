@@ -2,10 +2,17 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 
 const IS_DEV = true;
 const PRODUCTION_API_URL = 'https://api.localnotesapp.com';
+const PRODUCTION_WEB_APP_URL = 'https://app.localnotesapp.com';
 
 const apiUrl = IS_DEV
   ? (process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000')
   : PRODUCTION_API_URL;
+
+// Web app URL used to hand off paid features (e.g. publishing an Offer) to
+// the browser — payment processing must never happen inside the mobile app.
+const webAppUrl = (
+  process.env.EXPO_PUBLIC_WEB_APP_URL ?? PRODUCTION_WEB_APP_URL
+).trim();
 
 const googleWebClientId = (
   process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? ''
@@ -115,6 +122,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: IS_DEV ? 'com.localnotes.mobile.dev' : 'com.localnotes.mobile',
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
+    config: {
+      googleMaps: {
+        apiKey: (process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '').trim(),
+      },
+    },
     permissions: [
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.ACCESS_FINE_LOCATION',
@@ -134,6 +146,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     apiUrl,
+    webAppUrl,
     googleWebClientId,
     googleIosClientId,
     googleIosUrlScheme,

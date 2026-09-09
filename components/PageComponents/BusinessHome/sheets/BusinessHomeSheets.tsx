@@ -2,6 +2,7 @@ import { Alert, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import type { BusinessHomeSheetId } from './types';
 
@@ -24,6 +25,7 @@ function SheetScroll({ children }: { children: React.ReactNode }) {
 
 export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsProps) {
   const { t } = useTranslation();
+  const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
 
   const showComingSoon = () => {
     Alert.alert(
@@ -208,7 +210,7 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
             </Text>
             <LocalNotesButton
               label={t('businessHome.buttons.createOffer')}
-              onPress={showComingSoon}
+              onPress={() => void openCreateOfferOnWeb()}
               variant="dark"
               size="xs"
               isRounded
