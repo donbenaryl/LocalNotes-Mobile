@@ -28,7 +28,6 @@ import { useBusinessStore } from "@/stores/useBusinessStore";
 import { mapProfileToUser } from "@/utils/mapProfileToUser";
 import { isBusinessAccountType } from "@/utils/businessAccount";
 import { isCommonPassword } from "@/utils/isCommonPassword";
-import { isWorkEmail } from "@/utils/isWorkEmail";
 import {
   openingHoursForApi,
   validateOpeningHours,
@@ -141,8 +140,6 @@ export default function ConvertToBusiness() {
       next.businessEmail = t("validation.workEmailRequired");
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
       next.businessEmail = t("validation.emailInvalid");
-    } else if (!isWorkEmail(emailTrimmed)) {
-      next.businessEmail = t("auth.signUpBusiness.workEmailInvalid");
     }
     if (!businessForm.phoneNumber.trim()) {
       next.phoneNumber = t("editProfile.business.phoneRequired");

@@ -5,7 +5,6 @@ import { toast } from '@/components/ui/Toast';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { mapProfileToUser } from '@/utils/mapProfileToUser';
 import { isCommonPassword } from '@/utils/isCommonPassword';
-import { isWorkEmail } from '@/utils/isWorkEmail';
 import {
   isUsernameBlocking,
   type UsernameAvailabilityStatus,
@@ -151,8 +150,6 @@ export function useOnboardingForm() {
       next.businessEmail = t('validation.workEmailRequired');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
       next.businessEmail = t('validation.emailInvalid');
-    } else if (!isWorkEmail(emailTrimmed)) {
-      next.businessEmail = t('auth.signUpBusiness.workEmailInvalid');
     }
     if (!businessForm.businessName.trim()) {
       next.businessName = t('validation.businessNameRequired');

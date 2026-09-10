@@ -48,7 +48,7 @@ const en = {
     businessNameRequired: 'Business name is required',
     businessWebsiteRequired: 'Business website is required',
     businessWebsiteInvalid: 'Enter a valid URL (e.g. https://example.com)',
-    workEmailRequired: 'Work email is required',
+    workEmailRequired: 'Business email is required',
     usernameRequired: 'Username is required',
     usernameTooShort: 'Username must be at least 3 characters.',
     usernameTooLong: 'Username must be at most 30 characters.',
@@ -170,10 +170,10 @@ const en = {
       businessNamePlaceholder: 'e.g. Acme Corp',
       businessWebsiteLabel: 'Business Website',
       businessWebsitePlaceholder: 'https://example.com',
-      workEmailLabel: 'Work Email',
-      workEmailPlaceholder: 'you@company.com',
+      workEmailLabel: 'Business Email',
+      workEmailPlaceholder: 'you@example.com',
       workEmailHint:
-        'Use a company work email for this business — not Gmail, Yahoo, or Hotmail.',
+        'Contact email for this business. Personal addresses like Gmail are allowed.',
       workEmailInvalid: 'Please provide a work email address.',
     },
     signUpFooter: {
@@ -1386,7 +1386,7 @@ const en = {
   convertToBusiness: {
     title: 'Convert to business',
     helper:
-      'Fill in your business details. Business accounts require a work email address.',
+      'Fill in your business details. A valid business contact email is required.',
     submit: 'Convert account',
     submitting: 'Converting…',
     saveSuccess: 'Your account is now a business account.',
