@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { View, type ScrollViewProps } from 'react-native';
+import { StyleSheet, View, type ScrollViewProps } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useProfileChrome } from '@/components/PageComponents/Profile/ProfileChromeProvider';
 import { useScrollToTopControl } from '@/hooks/useScrollToTopControl';
@@ -24,7 +24,7 @@ export function ProfileChromeScrollView({
   }, [onScrollY, setScrollYListener]);
 
   return (
-    <View className="flex-1">
+    <View style={styles.host}>
       <Animated.ScrollView
         ref={scrollRef}
         {...props}
@@ -37,3 +37,7 @@ export function ProfileChromeScrollView({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  host: { flex: 1 },
+});

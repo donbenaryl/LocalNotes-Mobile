@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Platform, StyleSheet, View } from "react-native";
 import PagerView, {
   type PageScrollStateChangedNativeEvent,
   type PagerViewOnPageScrollEvent,
@@ -10,6 +10,10 @@ import MainHome from "@/components/PageComponents/Home/MainHome";
 import MainSaved from "@/components/PageComponents/Saved/MainSaved";
 import MainSearch from "@/components/PageComponents/Search/MainSearch";
 import { SmartPickTab } from "@/components/PageComponents/SmartPick/SmartPickTab";
+import {
+  FillPagerView,
+  pagerPageFillStyle,
+} from "@/components/ui/FillPagerView";
 import {
   getSectionId,
   SECTION_ORDER,
@@ -28,6 +32,13 @@ import { navigateToSection } from "@/utils/navigateToSection";
 const SECTION_COMMIT_THRESHOLD = 0.15;
 
 /**
+ * Android ViewPager2 blanks RN ScrollView/FlatList feeds. Mount only the
+ * active footer section there (footer taps + router still switch sections).
+ * iOS keeps the swipable outer pager.
+ */
+const USE_OUTER_PAGER = Platform.OS !== "android";
+
+/**
  * Source of truth for footer-section swipe order (SECTION_ORDER).
  * Expo Tabs underneath only keep URLs / deep links in sync.
  * Returns null for stack routes (e.g. Profile) so the pager stays put.
@@ -37,6 +48,35 @@ function sectionIndexFromPathname(pathname: string): number | null {
   if (!section) return null;
   const index = SECTION_ORDER.indexOf(section);
   return index === -1 ? null : index;
+}
+
+function renderSection(section: SectionId): ReactNode {
+  switch (section) {
+    case "home":
+      return (
+        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+          <MainHome />
+        </View>
+      );
+    case "smart-pick":
+      return (
+        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+          <SmartPickTab />
+        </View>
+      );
+    case "saved":
+      return (
+        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+          <MainSaved />
+        </View>
+      );
+    case "search":
+      return (
+        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+          <MainSearch />
+        </View>
+      );
+  }
 }
 
 /**
@@ -73,6 +113,7 @@ export function SectionShellPager() {
   const isPagerIdleRef = useRef(true);
 
   useEffect(() => {
+    if (!USE_OUTER_PAGER) return;
     if (!isPagerIdleRef.current) return;
     setScrollEnabled(swipeEnabled);
   }, [swipeEnabled]);
@@ -101,6 +142,7 @@ export function SectionShellPager() {
       setSwipeEnabled(true);
     }
 
+    if (!USE_OUTER_PAGER) return;
     if (nativeIndexRef.current === index) return;
 
     nativeIndexRef.current = index;
@@ -153,8 +195,18 @@ export function SectionShellPager() {
     [pathname, router],
   );
 
+  if (!USE_OUTER_PAGER) {
+    const section =
+      activeSection ?? SECTION_ORDER[bootIndex] ?? SECTION_ORDER[0];
+    return (
+      <View style={styles.fill} collapsable={false}>
+        {renderSection(section)}
+      </View>
+    );
+  }
+
   return (
-    <PagerView
+    <FillPagerView
       ref={pagerRef}
       style={styles.fill}
       initialPage={bootIndex}
@@ -164,24 +216,22 @@ export function SectionShellPager() {
       onPageScrollStateChanged={handlePageScrollStateChanged}
       onPageSelected={handlePageSelected}
     >
-      <View key="home" style={styles.fill} collapsable={false}>
-        <MainHome />
+      <View key="home" style={pagerPageFillStyle} collapsable={false}>
+        {renderSection("home")}
       </View>
-      <View key="smart-pick" style={styles.fill} collapsable={false}>
-        <View className="flex-1 bg-page dark:bg-gray-900">
-          <SmartPickTab />
-        </View>
+      <View key="smart-pick" style={pagerPageFillStyle} collapsable={false}>
+        {renderSection("smart-pick")}
       </View>
-      <View key="saved" style={styles.fill} collapsable={false}>
-        <MainSaved />
+      <View key="saved" style={pagerPageFillStyle} collapsable={false}>
+        {renderSection("saved")}
       </View>
-      <View key="search" style={styles.fill} collapsable={false}>
-        <MainSearch />
+      <View key="search" style={pagerPageFillStyle} collapsable={false}>
+        {renderSection("search")}
       </View>
-    </PagerView>
+    </FillPagerView>
   );
 }
 
 const styles = StyleSheet.create({
-  fill: { flex: 1 },
+  fill: { flex: 1, minHeight: 0 },
 });

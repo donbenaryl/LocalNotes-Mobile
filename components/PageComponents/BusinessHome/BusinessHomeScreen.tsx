@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { AppScrollView } from '@/components/ui/AppScrollView';
 import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
@@ -67,7 +67,7 @@ export default function BusinessHomeScreen() {
   }
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View style={styles.root} className="bg-page dark:bg-gray-900">
       <BusinessHomeHeader
         businessName={businessName}
         locationName={locationName}
@@ -82,16 +82,19 @@ export default function BusinessHomeScreen() {
       />
 
       {isLoading ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={styles.fill} className="items-center justify-center">
           <ActivityIndicator size="large" color="#FF6B1A" />
         </View>
       ) : (
         <AppScrollView
-          className="flex-1"
+          style={styles.fill}
           showsVerticalScrollIndicator={false}
           contentContainerClassName="pb-4"
+          // RefreshControl blanks flex ScrollViews on Android (same as Profile/Home).
           refreshControl={
-            <AppRefreshControl refreshing={isRefetching} onRefresh={refetchAll} />
+            Platform.OS === 'android' ? undefined : (
+              <AppRefreshControl refreshing={isRefetching} onRefresh={refetchAll} />
+            )
           }
         >
           <BusinessHomeShortcuts />
@@ -123,3 +126,8 @@ export default function BusinessHomeScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  fill: { flex: 1 },
+});

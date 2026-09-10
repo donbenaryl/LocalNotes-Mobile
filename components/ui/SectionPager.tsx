@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   View,
@@ -35,6 +36,10 @@ import { useSectionSwipeStore } from "@/stores/useSectionSwipeStore";
 import { navigateToSection } from "@/utils/navigateToSection";
 import { pathnameMatchesTabId } from "@/utils/sectionTabSync";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
+import {
+  FillPagerView,
+  pagerPageFillStyle,
+} from "@/components/ui/FillPagerView";
 import { useSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { useContentBottomInset } from "@/hooks/useContentBottomInset";
 import type { ScrollToTopTarget } from "@/hooks/useScrollToTopControl";
@@ -103,6 +108,12 @@ const ACTIVE_OFFSET_X = 12;
 const EDGE_STRIP_WIDTH = 28;
 const EMBEDDED_MIN_HEIGHT = 200;
 const PROFILE_HREF = "/profile" as Href;
+/**
+ * Nested ViewPager2 + vertical ScrollView/FlatList paints blank pages on
+ * Android even when the pager has a real size. Skip the inner pager there and
+ * mount only the active tab (tab bar + outer shell swipe still work).
+ */
+const USE_INNER_PAGER = Platform.OS !== "android";
 
 function SectionScrollablePage({
   pageId,
@@ -156,23 +167,25 @@ function SectionScrollablePage({
   }, [isActive, pageId]);
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      style={styles.fill}
-      nestedScrollEnabled
-      onScroll={handleScroll}
-      scrollEventThrottle={16}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: contentBottomInset }}
-      refreshControl={
-        <AppRefreshControl
-          refreshing={handler?.refreshing ?? false}
-          onRefresh={() => handler?.onRefresh()}
-        />
-      }
-    >
-      {children}
-    </ScrollView>
+    <View style={styles.feedHost} collapsable={false}>
+      <ScrollView
+        ref={scrollRef}
+        style={styles.feedScroll}
+        contentContainerStyle={{ paddingBottom: contentBottomInset }}
+        nestedScrollEnabled
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <AppRefreshControl
+            refreshing={handler?.refreshing ?? false}
+            onRefresh={() => handler?.onRefresh()}
+          />
+        }
+      >
+        {children}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -299,8 +312,11 @@ export function SectionPager({
     }
     const hasNextSection =
       sectionId != null && getAdjacentSection(sectionId, "left") != null;
+    // Without an inner pager (Android), the shell always owns horizontal swipe.
     const allowParentSwipe =
-      pages.length <= 1 || (activeIndex === lastIndex && hasNextSection);
+      !USE_INNER_PAGER ||
+      pages.length <= 1 ||
+      (activeIndex === lastIndex && hasNextSection);
     setSwipeEnabled(allowParentSwipe);
   }, [
     activeIndex,
@@ -492,7 +508,7 @@ export function SectionPager({
         return (
           <View
             key={id}
-            style={fillPages ? styles.fill : undefined}
+            style={fillPages ? pagerPageFillStyle : undefined}
             collapsable={false}
           >
             {body}
@@ -545,19 +561,102 @@ export function SectionPager({
     [handleProfilePanEnd, showProfileStrip],
   );
 
+  const isEmbeddedHeight = embedded && !scrollable;
+  const activePage = pages[activeIndex] ?? pages[0];
+
+  // Android: never mount ViewPager2 around feeds (including Profile embedded).
+  // Search (chrome prop, fills column): remaining-height flex host for map/sheet.
+  // Profile (embedded in parent scroll): content-sized active tab only.
+  // Home/Saved (no chrome; inside parent KAV): content-sized so Yoga does not collapse.
+  if (!USE_INNER_PAGER) {
+    const shouldRenderActive =
+      activePage != null && (!lazy || mountedIds.has(activePage.id));
+    // Search passes chrome into this pager; Home/Saved Android keep chrome as
+    // siblings in KeyboardAwareScrollView and omit the chrome prop.
+    const fillRemaining = !embedded && (scrollable || chrome != null);
+
+    let activeBody: ReactNode = null;
+    if (activePage != null) {
+      const content = shouldRenderActive ? (
+        <PagerPageContent>{activePage.render()}</PagerPageContent>
+      ) : (
+        <View style={{ minHeight: EMBEDDED_MIN_HEIGHT }} />
+      );
+
+      if (scrollable) {
+        activeBody = (
+          <SectionScrollablePage
+            pageId={activePage.id}
+            isActive
+            onActiveScrollRef={onActiveScrollRef}
+            onScrollY={onScrollY}
+          >
+            {content}
+          </SectionScrollablePage>
+        );
+      } else if (embedded) {
+        activeBody = (
+          <View
+            collapsable={false}
+            onLayout={(event) => handleEmbeddedPageLayout(activePage.id, event)}
+          >
+            {content}
+          </View>
+        );
+      } else if (fillRemaining) {
+        activeBody = (
+          <View style={styles.feedHost} collapsable={false}>
+            {content}
+          </View>
+        );
+      } else {
+        activeBody = <View collapsable={false}>{content}</View>;
+      }
+    }
+
+    return (
+      <View
+        className="bg-page dark:bg-gray-900"
+        style={fillRemaining ? styles.feedHost : undefined}
+      >
+        {chrome}
+        {activeBody}
+
+        {showPrevSectionStrip ? (
+          <GestureDetector gesture={prevSectionPan}>
+            <View
+              style={styles.leftStrip}
+              collapsable={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            />
+          </GestureDetector>
+        ) : null}
+
+        {showProfileStrip ? (
+          <GestureDetector gesture={profilePan}>
+            <View
+              style={styles.rightStrip}
+              collapsable={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            />
+          </GestureDetector>
+        ) : null}
+      </View>
+    );
+  }
+
   return (
     <View
-      className={
-        embedded && !scrollable
-          ? "bg-page dark:bg-gray-900"
-          : "flex-1 overflow-hidden bg-page dark:bg-gray-900"
-      }
+      className="bg-page dark:bg-gray-900"
+      style={isEmbeddedHeight ? undefined : styles.fill}
     >
       {chrome}
-      <PagerView
+      <FillPagerView
         ref={pagerRef}
         style={
-          embedded && !scrollable
+          isEmbeddedHeight
             ? { height: embeddedPagerHeight }
             : styles.fill
         }
@@ -570,7 +669,7 @@ export function SectionPager({
         onPageScrollStateChanged={handlePageScrollStateChanged}
       >
         {renderedPages}
-      </PagerView>
+      </FillPagerView>
 
       {showPrevSectionStrip ? (
         <GestureDetector gesture={prevSectionPan}>
@@ -599,6 +698,9 @@ export function SectionPager({
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  /** Remaining-height column under section chrome — minHeight:0 is required on Android Yoga. */
+  feedHost: { flex: 1, minHeight: 0 },
+  feedScroll: { flex: 1 },
   leftStrip: {
     position: "absolute",
     top: 0,

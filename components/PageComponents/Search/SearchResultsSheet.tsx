@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useWindowDimensions, View } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -10,6 +10,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
+  type SharedValue,
 } from "react-native-reanimated";
 
 interface SearchResultsSheetProps {
@@ -18,6 +19,8 @@ interface SearchResultsSheetProps {
   maxExpandedHeight?: number;
   collapsedLabel?: string;
   onCollapsedChange?: (isCollapsed: boolean) => void;
+  /** Optional parent-owned height so layout (e.g. map band) can track the sheet on the UI thread. */
+  height?: SharedValue<number>;
 }
 
 const HEADER_HEIGHT = 26;
@@ -43,6 +46,7 @@ export function SearchResultsSheet({
   maxExpandedHeight,
   collapsedLabel,
   onCollapsedChange,
+  height,
 }: SearchResultsSheetProps) {
   const { height: windowHeight } = useWindowDimensions();
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -75,7 +79,8 @@ export function SearchResultsSheet({
     );
   }, [expandedHeight, maxSnapHeight]);
 
-  const sheetHeight = useSharedValue(expandedHeight);
+  const internalSheetHeight = useSharedValue(expandedHeight);
+  const sheetHeight = height ?? internalSheetHeight;
   const panStartHeight = useSharedValue(expandedHeight);
   const collapsedState = useSharedValue(isCollapsed);
 
@@ -152,6 +157,7 @@ export function SearchResultsSheet({
       <Animated.View
         className="overflow-hidden rounded-t-2xl border-t border-gray-200 bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
         style={[
+          styles.sheetColumn,
           { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 16 },
           sheetStyle,
         ]}
@@ -167,8 +173,13 @@ export function SearchResultsSheet({
           </View>
         </GestureDetector>
 
-        <View className="flex-1">{children}</View>
+        <View style={styles.body}>{children}</View>
       </Animated.View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  sheetColumn: { flexDirection: "column" },
+  body: { flex: 1, minHeight: 0 },
+});

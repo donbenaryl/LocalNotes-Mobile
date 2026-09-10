@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { InteractionManager, Pressable, Share, Text, View } from "react-native";
+import {
+  InteractionManager,
+  Platform,
+  Pressable,
+  Share,
+  Text,
+  View,
+} from "react-native";
 import {
   Building2,
   Info,
@@ -146,15 +153,18 @@ function ProfileScrollBody({
 
   return (
     <ProfileChromeScrollView
-      className="flex-1"
+      style={{ flex: 1 }}
       nestedScrollEnabled
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingBottom: contentBottomInset }}
+      // RefreshControl blanks the profile scroll body on Android (same as KAV).
       refreshControl={
-        <AppRefreshControl
-          refreshing={handler?.refreshing ?? false}
-          onRefresh={handleRefresh}
-        />
+        Platform.OS === "android" ? undefined : (
+          <AppRefreshControl
+            refreshing={handler?.refreshing ?? false}
+            onRefresh={handleRefresh}
+          />
+        )
       }
     >
       {isPending ? (

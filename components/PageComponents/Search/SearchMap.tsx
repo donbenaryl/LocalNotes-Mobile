@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Text, useWindowDimensions, View } from "react-native";
-import MapView, { Marker, type Region } from "react-native-maps";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import MapView, {
+  Marker,
+  PROVIDER_GOOGLE,
+  type Region,
+} from "react-native-maps";
 import { useTranslation } from "react-i18next";
 import { MapPinMarker } from "@/components/ui/MapPinMarker";
 import type { BusinessItemDAO } from "@/http/business-api/types";
@@ -18,7 +28,7 @@ import {
 
 export type SearchMapMode = "lists" | "places" | "people";
 
-/** Extra map height clipped by overflow-hidden to cover Apple Maps  Maps label. */
+/** Extra map height clipped by host overflow to cover Apple Maps  Maps label. */
 const LEGAL_LABEL_CLIP = 28;
 
 interface SearchMapProps {
@@ -27,8 +37,12 @@ interface SearchMapProps {
   businesses?: BusinessItemDAO[];
   picks?: ListItemPublic[];
   people?: UnifiedSearchPersonDAO[];
-  /** Fraction of screen height for the embedded map (handoff ~30%). */
+  /** Fraction of screen height for the embedded map (handoff ~30%). Use 1 to fill parent. */
   heightRatio?: number;
+  /** Host width when filling the Search results band (Android needs explicit pixels). */
+  mapWidth?: number;
+  /** Settled visible height for camera fitting when filling the parent. */
+  mapHeight?: number;
   areaLabel?: string;
   bottomOverlayHeight?: number;
 }
@@ -44,6 +58,8 @@ export function SearchMap({
   picks,
   people,
   heightRatio = 0.3,
+  mapWidth,
+  mapHeight: measuredMapHeight,
   areaLabel,
   bottomOverlayHeight = 0,
 }: SearchMapProps) {
@@ -53,6 +69,14 @@ export function SearchMap({
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const fallbackCenter = useEffectiveSearchLocation();
+  const fillParent = heightRatio >= 1;
+  const hasHostWidth = mapWidth != null && mapWidth > 0;
+
+  // Camera math uses settled visible height when filling; otherwise ratio-based height.
+  const mapHeight =
+    fillParent && measuredMapHeight != null && measuredMapHeight > 0
+      ? measuredMapHeight
+      : Math.max(windowHeight * (fillParent ? 0.5 : heightRatio), 160);
 
   const markers = useMemo((): SearchMapMarker[] => {
     if (mode === "places") {
@@ -74,7 +98,6 @@ export function SearchMap({
     () => getSearchMapRegion(markers, fallbackCenter),
     [markers, fallbackCenter],
   );
-  const mapHeight = Math.max(windowHeight * heightRatio, 160);
   const markerCoordinates = useMemo(
     () =>
       markers.map((marker) => ({
@@ -144,14 +167,80 @@ export function SearchMap({
     region,
   ]);
 
+  // Legal-label clip is Apple Maps only. Extra MapView height + overflow:hidden
+  // blanks Google Maps TextureView on Android even when the host has pixels.
+  const clipLegalLabel = Platform.OS === "ios";
+
+  if (fillParent && !hasHostWidth) {
+    return null;
+  }
+
+  if (fillParent) {
+    const hostStyle = [
+      styles.hostFillParent,
+      clipLegalLabel ? styles.hostClip : styles.hostFill,
+      { width: mapWidth },
+    ];
+    const mapViewStyle = clipLegalLabel
+      ? [styles.mapFillParent, { width: mapWidth, marginBottom: -LEGAL_LABEL_CLIP }]
+      : [styles.mapFillParent, { width: mapWidth }];
+
+    return (
+      <View collapsable={false} style={hostStyle}>
+        <MapView
+          key="search-map-fill"
+          ref={mapRef}
+          provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
+          googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
+          style={mapViewStyle}
+          initialRegion={region as Region}
+          showsUserLocation={false}
+          showsMyLocationButton={false}
+        >
+          {markers.map((marker, index) => (
+            <Marker
+              key={marker.id}
+              coordinate={{
+                latitude: marker.latitude,
+                longitude: marker.longitude,
+              }}
+              onPress={() => setActiveId(marker.id)}
+            >
+              <MapPinMarker
+                number={index + 1}
+                isActive={marker.id === activeId}
+                variant={marker.kind === "business" ? "place" : "default"}
+              />
+            </Marker>
+          ))}
+        </MapView>
+
+        {markers.length === 0 ? (
+          <View className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/90 px-3 py-2 dark:bg-gray-900/90">
+            <Text className="text-center font-geist text-[11px] text-gray-500 dark:text-gray-400">
+              {t("search.map.noPins")}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+    );
+  }
+
+  const mapViewHeight = mapHeight + (clipLegalLabel ? LEGAL_LABEL_CLIP : 0);
+  const hostStyle = [
+    clipLegalLabel ? styles.hostClip : styles.hostFill,
+    { height: mapHeight },
+  ];
+  const mapViewStyle = { width: "100%" as const, height: mapViewHeight };
+
   return (
-    <View
-      className="overflow-hidden border-b border-gray-200 dark:border-gray-700"
-      style={{ height: mapHeight }}
-    >
+    <View collapsable={false} style={hostStyle}>
       <MapView
+        key="search-map"
         ref={mapRef}
-        style={{ flex: 1, marginBottom: -LEGAL_LABEL_CLIP }}
+        provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
+        googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
+        style={mapViewStyle}
         initialRegion={region as Region}
         showsUserLocation={false}
         showsMyLocationButton={false}
@@ -184,3 +273,17 @@ export function SearchMap({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  hostClip: { overflow: "hidden" },
+  hostFill: { overflow: "visible" },
+  hostFillParent: {
+    flex: 1,
+    minHeight: 0,
+    alignSelf: "stretch",
+  },
+  mapFillParent: {
+    flex: 1,
+    minHeight: 0,
+  },
+});

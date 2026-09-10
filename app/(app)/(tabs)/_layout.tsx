@@ -1,24 +1,45 @@
 import { StyleSheet, View } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Tabs, usePathname } from 'expo-router';
+import { useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { SectionShellPager } from '@/components/ui/SectionShellPager';
 import { GuardedFooter } from '@/components/ui/layout/GuardedFooter';
 import { PickFormModal } from '@/components/PageComponents/Profile/PickFormModal';
+import { getSectionId } from '@/constants/swipeNavigation';
 import { usePickModalStore } from '@/stores/usePickModalStore';
+import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
 
 /**
  * Visible UI is SectionShellPager (SECTION_ORDER). Hidden Tabs exist only so
  * router.navigate / deep links still resolve to section URLs.
+ *
+ * Android still uses this shell (not a second Tabs UI tree): Expo Tabs scenes
+ * were laying out at 0 height under the custom footer. Feed blanks are fixed
+ * in SectionTabsScrollLayout (chrome inside ScrollView), not by swapping trees.
  */
 export default function TabsLayout() {
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+  const pendingSection = useSectionRouteStore((s) => s.pendingSection);
+  const syncSectionFromPathname = useSectionRouteStore(
+    (s) => s.syncSectionFromPathname,
+  );
   const { isOpen, close } = usePickModalStore();
 
+  useEffect(() => {
+    const pathSection = getSectionId(pathname);
+    if (!pathSection) return;
+    syncSectionFromPathname(pathSection);
+  }, [pathname, pendingSection, syncSectionFromPathname]);
+
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900" style={{ paddingTop: insets.top }}>
-      <View className="flex-1">
+    <View
+      style={[styles.root, { paddingTop: insets.top }]}
+      className="bg-page dark:bg-gray-900"
+    >
+      <View style={styles.fill}>
         <View
           pointerEvents="none"
           style={styles.urlTabs}
@@ -57,11 +78,19 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  fill: {
+    flex: 1,
+    minHeight: 0,
+  },
   urlTabs: {
     ...StyleSheet.absoluteFillObject,
     opacity: 0,
   },
   shell: {
     flex: 1,
+    minHeight: 0,
   },
 });

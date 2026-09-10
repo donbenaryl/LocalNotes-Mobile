@@ -3,7 +3,9 @@ import {
   Easing,
   Modal as RNModal,
   PanResponder,
+  Platform,
   Pressable,
+  StyleSheet,
   Text,
   View,
   useWindowDimensions,
@@ -292,9 +294,9 @@ export function Modal({
   }
 
   const sheetContent = isBottom ? (
-    <Animated.View style={{ transform: [{ translateY }] }}>
+    <Animated.View style={[styles.sheetSlide, { transform: [{ translateY }] }]}>
       <Reanimated.View
-        style={sheetSizeStyle}
+        style={[styles.sheetColumn, sheetSizeStyle]}
         className={`bg-white dark:bg-gray-900 rounded-t-[35px] px-8 ${footer ? 'pb-0' : 'pb-10'}`}
       >
         <View
@@ -333,7 +335,7 @@ export function Modal({
           </View>
         ) : null}
 
-        <View className={hasFixedSheetHeight ? 'relative min-h-0 flex-1' : 'relative'}>
+        <View style={hasFixedSheetHeight ? styles.sheetBodyFill : styles.sheetBodyWrap}>
           {children}
           {footer ? (
             <BottomWrapper className="-mx-8 bg-white dark:bg-gray-900">
@@ -418,13 +420,22 @@ export function Modal({
       {topPreview}
 
       {avoidKeyboard ? (
-        <KeyboardAvoidingView
-          behavior="padding"
-          style={{ zIndex: 30, flex: 1, justifyContent: 'flex-end' }}
-          pointerEvents="box-none"
-        >
-          {sheetContent}
-        </KeyboardAvoidingView>
+        Platform.OS === 'android' ? (
+          <View
+            pointerEvents="box-none"
+            style={styles.androidSheetHost}
+          >
+            {sheetContent}
+          </View>
+        ) : (
+          <KeyboardAvoidingView
+            behavior="padding"
+            style={{ zIndex: 30, flex: 1, justifyContent: 'flex-end' }}
+            pointerEvents="box-none"
+          >
+            {sheetContent}
+          </KeyboardAvoidingView>
+        )
       ) : (
         <Reanimated.View
           className="z-30 flex-1 justify-end"
@@ -437,3 +448,26 @@ export function Modal({
     </RNModal>
   );
 }
+
+const styles = StyleSheet.create({
+  sheetSlide: {
+    width: '100%',
+  },
+  sheetColumn: {
+    flexDirection: 'column',
+    width: '100%',
+  },
+  sheetBodyFill: {
+    position: 'relative',
+    flex: 1,
+    minHeight: 0,
+  },
+  sheetBodyWrap: {
+    position: 'relative',
+  },
+  androidSheetHost: {
+    zIndex: 30,
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+});

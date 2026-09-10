@@ -2,12 +2,18 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
+  StyleSheet,
   Text,
   useWindowDimensions,
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
@@ -93,6 +99,7 @@ export function SearchResultsLayout<T>({
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
   const [isSheetCollapsed, setIsSheetCollapsed] = useState(false);
+  const [hostSize, setHostSize] = useState({ width: 0, height: 0 });
   const listRef = useRef<FlatList<T>>(null);
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(listRef);
   const filterHeaderBottom = useSearchChromeStore((s) => s.filterHeaderBottom);
@@ -104,17 +111,27 @@ export function SearchResultsLayout<T>({
       SEARCH_RESULTS_SHEET_MIN_EXPANDED_HEIGHT,
     );
   }, [filterHeaderBottom, windowHeight]);
-  const sheetOverlayHeight = useMemo(
+  const defaultSheetHeight = useMemo(
     () =>
-      isSheetCollapsed
-        ? SEARCH_RESULTS_SHEET_COLLAPSED_HEIGHT
-        : Math.max(
-            maxExpandedHeight ??
-              windowHeight * SEARCH_RESULTS_SHEET_EXPANDED_HEIGHT_RATIO,
-            SEARCH_RESULTS_SHEET_MIN_EXPANDED_HEIGHT,
-          ),
-    [isSheetCollapsed, maxExpandedHeight, windowHeight],
+      Math.max(
+        windowHeight * SEARCH_RESULTS_SHEET_EXPANDED_HEIGHT_RATIO,
+        SEARCH_RESULTS_SHEET_MIN_EXPANDED_HEIGHT,
+      ),
+    [windowHeight],
   );
+  const sheetHeight = useSharedValue(defaultSheetHeight);
+  const mapBandStyle = useAnimatedStyle(() => ({
+    marginBottom: sheetHeight.value,
+  }));
+
+  /** Settled visible map height for camera fitting — not updated every drag frame. */
+  const visibleMapHeight = useMemo(() => {
+    if (hostSize.height <= 0) return 0;
+    const sheetInset = isSheetCollapsed
+      ? SEARCH_RESULTS_SHEET_COLLAPSED_HEIGHT
+      : defaultSheetHeight;
+    return Math.max(hostSize.height - sheetInset, 0);
+  }, [defaultSheetHeight, hostSize.height, isSheetCollapsed]);
 
   const resultCount = totalCount ?? data.length;
   const resultsLabel = areaLabel
@@ -145,28 +162,48 @@ export function SearchResultsLayout<T>({
   const listFooter = isFetchingNextPage ? <SpinLoader /> : null;
 
   return (
-    <View className="flex-1">
-      <View className="absolute inset-0">
-        <SearchMap
-          mode={mode}
-          lists={listsForMap}
-          businesses={businessesForMap}
-          picks={picksForMap}
-          people={peopleForMap}
-          areaLabel={areaLabel}
-          heightRatio={1}
-          bottomOverlayHeight={sheetOverlayHeight}
-        />
-      </View>
+    <View
+      style={styles.host}
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        if (
+          width > 0 &&
+          height > 0 &&
+          (width !== hostSize.width || height !== hostSize.height)
+        ) {
+          setHostSize({ width, height });
+        }
+      }}
+    >
+      <Animated.View
+        collapsable={false}
+        style={[styles.mapBand, mapBandStyle]}
+      >
+        {hostSize.width > 0 ? (
+          <SearchMap
+            mode={mode}
+            lists={listsForMap}
+            businesses={businessesForMap}
+            picks={picksForMap}
+            people={peopleForMap}
+            areaLabel={areaLabel}
+            heightRatio={1}
+            mapWidth={hostSize.width}
+            mapHeight={visibleMapHeight > 0 ? visibleMapHeight : undefined}
+            bottomOverlayHeight={0}
+          />
+        ) : null}
+      </Animated.View>
 
       <SearchResultsSheet
         collapsedLabel={resultsLabel}
         onCollapsedChange={setIsSheetCollapsed}
         maxExpandedHeight={maxExpandedHeight}
+        height={sheetHeight}
       >
         <View
           pointerEvents={isSheetCollapsed ? "none" : "auto"}
-          className="flex-1"
+          style={styles.fill}
         >
           <Badge
             label={resultsLabel}
@@ -176,14 +213,20 @@ export function SearchResultsLayout<T>({
           />
 
           {isPending && data.length === 0 ? (
-            <View className="flex-1 items-center justify-center gap-2 py-16">
+            <View
+              style={styles.fill}
+              className="items-center justify-center gap-2 py-16"
+            >
               <ActivityIndicator size="large" color="#FF6B1A" />
               <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
                 {t("search.loading")}
               </Text>
             </View>
           ) : error && data.length === 0 ? (
-            <View className="flex-1 items-center justify-center gap-3 px-6 py-16">
+            <View
+              style={styles.fill}
+              className="items-center justify-center gap-3 px-6 py-16"
+            >
               <EmptyScreen title={t("search.error")} description={error} />
               <LocalNotesButton
                 label={t("search.retry")}
@@ -195,7 +238,7 @@ export function SearchResultsLayout<T>({
               />
             </View>
           ) : (
-            <View className="flex-1">
+            <View style={styles.fill}>
               {renderBody ? (
                 renderBody(data, {
                   onScroll: handleScrollNearEnd,
@@ -216,11 +259,14 @@ export function SearchResultsLayout<T>({
                     onScroll={(event: NativeSyntheticEvent<NativeScrollEvent>) => {
                       onScrollY(event.nativeEvent.contentOffset.y);
                     }}
+                    // RefreshControl blanks flex FlatLists on Android.
                     refreshControl={
-                      <AppRefreshControl
-                        refreshing={isRefetching}
-                        onRefresh={onRetry}
-                      />
+                      Platform.OS === "android" ? undefined : (
+                        <AppRefreshControl
+                          refreshing={isRefetching}
+                          onRefresh={onRetry}
+                        />
+                      )
                     }
                     ListFooterComponent={listFooter}
                     ListEmptyComponent={
@@ -245,3 +291,17 @@ export function SearchResultsLayout<T>({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  host: { flex: 1, minHeight: 0 },
+  fill: { flex: 1, minHeight: 0 },
+  /**
+   * Flex band above the sheet (marginBottom = live sheet height). Overlapping a
+   * sibling sheet on the TextureView blanks the entire Android Google Map.
+   */
+  mapBand: {
+    flex: 1,
+    minHeight: 0,
+    width: "100%",
+  },
+});

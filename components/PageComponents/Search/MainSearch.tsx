@@ -177,7 +177,7 @@ export default function MainSearch() {
   }, [returnTo, router, setReturnTo]);
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="bg-page dark:bg-gray-900" style={{ flex: 1 }}>
       <SectionPager
         sectionId="search"
         chrome={

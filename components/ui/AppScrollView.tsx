@@ -1,5 +1,10 @@
 import { useRef, type ReactNode } from 'react';
-import { ScrollView, View, type ScrollViewProps } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  type ScrollViewProps,
+} from 'react-native';
 import { useScrollToTopControl } from '@/hooks/useScrollToTopControl';
 import { ScrollToTopButton } from '@/components/ui/ScrollToTopButton';
 
@@ -23,7 +28,7 @@ export function AppScrollView({
   };
 
   return (
-    <View className="flex-1">
+    <View style={styles.host}>
       <ScrollView
         ref={scrollRef}
         {...props}
@@ -36,3 +41,7 @@ export function AppScrollView({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  host: { flex: 1 },
+});

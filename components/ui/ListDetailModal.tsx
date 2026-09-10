@@ -1,4 +1,12 @@
-import { ActivityIndicator, ScrollView, Text, View, useWindowDimensions } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
@@ -7,6 +15,9 @@ import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO } from "@/http/list-api/types";
+
+/** Modal drag handle (pt-3 pb-3) + sheet bottom padding (pb-10). */
+const SHEET_CHROME = 12 + 12 + 40;
 
 interface ListDetailModalProps {
   visible: boolean;
@@ -21,7 +32,8 @@ export function ListDetailModal({
 }: ListDetailModalProps) {
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
-  const sheetMaxHeight = height * 0.85;
+  const insets = useSafeAreaInsets();
+  const scrollMaxHeight = height - insets.top - SHEET_CHROME;
 
   const {
     data: list,
@@ -48,14 +60,17 @@ export function ListDetailModal({
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        style={{ maxHeight: sheetMaxHeight }}
+        style={{ maxHeight: scrollMaxHeight }}
         className="-mx-4"
         contentContainerClassName="pb-2"
+        // RefreshControl blanks flex ScrollViews on Android.
         refreshControl={
-          <AppRefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => void refetch()}
-          />
+          Platform.OS === "android" ? undefined : (
+            <AppRefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => void refetch()}
+            />
+          )
         }
       >
         {isPending ? (

@@ -1,4 +1,4 @@
-import { ScrollView, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
@@ -59,15 +59,19 @@ export function SearchPicks() {
           />
         ) : (
           <ScrollView
+            style={styles.fill}
             contentContainerClassName="px-4 pb-28"
             showsVerticalScrollIndicator={false}
             scrollEventThrottle={16}
             onScroll={onScroll}
+            // RefreshControl blanks flex ScrollViews on Android.
             refreshControl={
-              <AppRefreshControl
-                refreshing={isRefetching}
-                onRefresh={() => void refetch()}
-              />
+              Platform.OS === "android" ? undefined : (
+                <AppRefreshControl
+                  refreshing={isRefetching}
+                  onRefresh={() => void refetch()}
+                />
+              )
             }
           >
             <PicksMasonryGrid picks={data} onRefresh={() => void refetch()} />
@@ -92,3 +96,7 @@ export function SearchPicks() {
     />
   );
 }
+
+const styles = StyleSheet.create({
+  fill: { flex: 1, minHeight: 0 },
+});
