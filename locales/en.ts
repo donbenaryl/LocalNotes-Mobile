@@ -1264,7 +1264,7 @@ const en = {
     },
     locations: {
       viewing: 'viewing',
-      note: 'Each location keeps its own public profile. One account and team can manage all locations — Business Insights is $39/mo for the first subscribed location, $29/mo each additional.',
+      note: 'Each location keeps its own public profile. One account and team can manage all locations — Business Insights membership is billed per subscribed location on the web.',
       paidNote: '✦ "Slow service" is emerging at Scottsdale only — the playbook from your Roosevelt Row fix applies.',
     },
     explore: {
@@ -1300,7 +1300,6 @@ const en = {
     },
     upsell: {
       membership: 'Membership',
-      perMonth: '/month',
       body: 'All your analytics are free, always. Membership turns them into an intelligent business assistant — the why, what matters, and what to do next.',
       paymentNote:
         'Two ways to pay, ever: campaigns are pay-per-use · Insights is one monthly membership. That\'s the whole structure.',
@@ -1312,9 +1311,8 @@ const en = {
         actionPlans: 'Action plans & AI profile optimization',
         campaignIntel: 'Campaign intelligence & monthly report',
       },
-      trial: 'Try 7 days for $5',
-      finePrint:
-        'Then $39/month unless canceled before the trial ends · Multi-location: $39 first location, $29 each additional — one team, one bill · Membership is not required to advertise · Offers and Spotlight are purchased separately · Campaign results are always included with campaigns you purchase · Cancel anytime',
+      continueOnWeb: 'Continue on web',
+      openWebError: 'Could not open Business Insights on the web.',
     },
     footerNote:
       'Public picks and list adds always show who made them. Saves, favorites and views are private — totals only. Paying for a campaign includes campaign data and limited campaign AI; it does not unlock ongoing Copilot. Reaching a data threshold does not unlock paid features. Searches are impressions, not unique people; tracked sales are counter-verified. Nothing publishes without your approval.',

@@ -1,5 +1,6 @@
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnWeb';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { SectionHeading } from '../ui/SectionHeading';
 import { MembershipGate } from '../ui/MembershipGate';
@@ -74,13 +75,7 @@ export function MonthlyReportSection({
 
 export function UpsellSection({ isPaidMember }: { isPaidMember: boolean }) {
   const { t } = useTranslation();
-
-  const showComingSoon = () => {
-    Alert.alert(
-      t('businessHome.comingSoonTitle'),
-      t('businessHome.comingSoonMessage'),
-    );
-  };
+  const openBusinessInsightsOnWeb = useOpenBusinessInsightsOnWeb();
 
   const includes = [
     'businessHome.upsell.includes.copilot',
@@ -95,14 +90,9 @@ export function UpsellSection({ isPaidMember }: { isPaidMember: boolean }) {
     <MembershipGate isPaidMember={isPaidMember} tier="free">
       <SectionHeading title={t('businessHome.sections.businessInsights')} />
       <BusinessHomeCard variant="upsell">
-        <View className="flex-row items-baseline justify-between">
-          <Text className="font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
-            {t('businessHome.upsell.membership')}
-          </Text>
-          <Text className="font-geist-extrabold text-xl text-ink dark:text-gray-100">
-            $39<Text className="text-xs text-gray-500">{t('businessHome.upsell.perMonth')}</Text>
-          </Text>
-        </View>
+        <Text className="font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+          {t('businessHome.upsell.membership')}
+        </Text>
         <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-600 dark:text-gray-400">
           {t('businessHome.upsell.body')}
         </Text>
@@ -120,17 +110,14 @@ export function UpsellSection({ isPaidMember }: { isPaidMember: boolean }) {
           ))}
         </View>
         <Pressable
-          onPress={showComingSoon}
+          onPress={() => void openBusinessInsightsOnWeb()}
           accessibilityRole="button"
           className="mt-3 min-h-12 items-center justify-center rounded-full bg-brand"
         >
           <Text className="font-geist-extrabold text-[14.5px] text-white">
-            {t('businessHome.upsell.trial')}
+            {t('businessHome.upsell.continueOnWeb')}
           </Text>
         </Pressable>
-        <Text className="mt-2 font-geist-semibold text-[11px] leading-[1.55] text-gray-500">
-          {t('businessHome.upsell.finePrint')}
-        </Text>
       </BusinessHomeCard>
     </MembershipGate>
   );
