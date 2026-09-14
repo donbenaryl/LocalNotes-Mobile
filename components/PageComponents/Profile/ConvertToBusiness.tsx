@@ -24,8 +24,7 @@ import accountService from "@/http/account-api/account.services";
 import businessService from "@/http/business-api/business.service";
 import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useBusinessStore } from "@/stores/useBusinessStore";
-import { mapProfileToUser } from "@/utils/mapProfileToUser";
+import { syncSessionFromProfile } from "@/services/authBootstrap";
 import { isBusinessAccountType } from "@/utils/businessAccount";
 import { isCommonPassword } from "@/utils/isCommonPassword";
 import {
@@ -52,10 +51,7 @@ export default function ConvertToBusiness() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { colorScheme } = useColorScheme();
-  const updateUser = useAuthStore((s) => s.updateUser);
   const authAccountType = useAuthStore((s) => s.accountType);
-  const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
-  const loadOwnedBusinesses = useBusinessStore((s) => s.loadOwnedBusinesses);
 
   const [contactName, setContactName] = useState("");
   const [businessForm, setBusinessForm] =
@@ -126,6 +122,35 @@ export default function ConvertToBusiness() {
     }
     return undefined;
   }
+
+  const canSubmit = useMemo(() => {
+    if (!contactName.trim()) return false;
+    if (!businessForm.businessName.trim()) return false;
+    const emailTrimmed = businessForm.contactEmail.trim();
+    if (!emailTrimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      return false;
+    }
+    if (!businessForm.phoneNumber.trim()) return false;
+    const websiteTrimmed = businessForm.businessWebsite.trim();
+    if (websiteTrimmed && !/^https?:\/\/.+/i.test(websiteTrimmed)) {
+      return false;
+    }
+    for (const branch of businessForm.branches) {
+      if (validateOpeningHours(branch.openingHours)) return false;
+    }
+    if (showPassword) {
+      if (validatePasswordValue(password)) return false;
+      if (!confirmPassword || password !== confirmPassword) return false;
+    }
+    return true;
+  }, [
+    contactName,
+    businessForm,
+    showPassword,
+    password,
+    confirmPassword,
+    t,
+  ]);
 
   function validate(): boolean {
     const next: FormErrors = {};
@@ -260,11 +285,7 @@ export default function ConvertToBusiness() {
       return response.data.data;
     },
     onSuccess: async (data) => {
-      updateUser(mapProfileToUser(data));
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["business-info"] });
-      await refreshBusinessInfo();
-      await loadOwnedBusinesses();
+      await syncSessionFromProfile(data, queryClient);
       toast.success(
         isAddAnother
           ? t("convertToBusiness.addSuccess")
@@ -427,7 +448,7 @@ export default function ConvertToBusiness() {
             }
             onPress={() => submit()}
             variant="dark"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !canSubmit}
             loading={isSubmitting}
           />
         </BottomWrapper>

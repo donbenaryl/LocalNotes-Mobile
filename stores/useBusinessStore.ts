@@ -126,6 +126,7 @@ export const useBusinessStore = create<BusinessState>((set, get) => ({
           owned[0];
         set({
           ownedBusinesses: owned,
+          businessId: current?.id ?? get().businessId,
           isFetchingOwned: false,
           hasFetchedOwned: true,
           ownedError: null,

@@ -11,6 +11,7 @@ import { StatsSection } from '@/components/ui/StatsSection';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
 import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
 import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfileInsights';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { useSimilarScores } from '@/hooks/useSimilarScores';
 import {
   getDominantPersonalityColor,
@@ -74,7 +75,9 @@ export function ProfileInfo({
 }: ProfileInfoProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
+  const authAccountType = useAuthStore((s) => s.accountType);
   const isDark = colorScheme === 'dark';
+  const accountType = profile.account_type ?? authAccountType ?? undefined;
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
   const accentColor = getDominantPersonalityColor(profile.personality_color);
   const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
@@ -91,7 +94,7 @@ export function ProfileInfo({
     listCount: featuredListCount,
     monthDelta,
     topTypes,
-  } = useBusinessOwnerProfileInsights(isOwnProfile, profile.account_type);
+  } = useBusinessOwnerProfileInsights(isOwnProfile, accountType);
   // Held back only while fetching — a resolved-but-absent score shows as 0%.
   const showTasteMatch = !isOwnProfile && !isMatchLoading;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);

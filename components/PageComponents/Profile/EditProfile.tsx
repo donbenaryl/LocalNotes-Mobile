@@ -27,6 +27,7 @@ import {
 } from "@/components/PageComponents/Profile/BusinessProfileFields";
 import { EditBranchHoursModal } from "@/components/PageComponents/Profile/EditBranchHoursModal";
 import { useToastStore } from "@/stores/useToastStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import accountService from "@/http/account-api/account.services";
 import businessService from "@/http/business-api/business.service";
@@ -140,6 +141,7 @@ export default function EditProfile() {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const addBranchIconColor = colorScheme === "dark" ? "#F3F4F6" : "#191B1C";
+  const authAccountType = useAuthStore((s) => s.accountType);
 
   const {
     data: profile,
@@ -153,7 +155,8 @@ export default function EditProfile() {
     },
   });
 
-  const isBusiness = isBusinessAccountType(profile?.account_type);
+  const accountType = profile?.account_type ?? authAccountType ?? undefined;
+  const isBusiness = isBusinessAccountType(accountType);
 
   useEffect(() => {
     if (!isBusiness) return;

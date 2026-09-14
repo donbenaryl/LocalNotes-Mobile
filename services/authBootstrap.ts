@@ -1,4 +1,6 @@
+import type { QueryClient } from '@tanstack/react-query';
 import accountService from '../http/account-api/account.services';
+import type { profileItemDAO } from '../http/account-api/types';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useBusinessStore } from '../stores/useBusinessStore';
 import { useBiometricStore } from '../stores/useBiometricStore';
@@ -14,19 +16,55 @@ export async function hydrateBusinessInfo(
   await useBusinessStore.getState().loadBusinessInfo();
 }
 
-export async function hydrateUserProfile(): Promise<boolean> {
-  const response = await accountService.fetchUser();
-  if (response.error || !response.data?.data) {
-    return false;
-  }
-
-  const profile = response.data.data;
+export async function syncSessionFromProfile(
+  profile: profileItemDAO,
+  queryClient?: QueryClient,
+): Promise<void> {
   const user = mapProfileToUser(profile);
   useAuthStore.setState({
     user,
     accountType: user.accountType,
   });
-  await hydrateBusinessInfo(profile.account_type);
+
+  if (queryClient) {
+    queryClient.setQueryData(['profile'], profile);
+  }
+
+  if (isBusinessAccountType(profile.account_type)) {
+    await useBusinessStore.getState().refreshBusinessInfo();
+    await useBusinessStore.getState().loadOwnedBusinesses();
+
+    const businessInfo = useBusinessStore.getState().businessInfo;
+    if (queryClient && businessInfo?.id) {
+      queryClient.setQueryData(['business-info', businessInfo.id], businessInfo);
+    }
+  }
+
+  if (queryClient) {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['profile-picks'] }),
+      queryClient.invalidateQueries({ queryKey: ['profile-lists'] }),
+      queryClient.invalidateQueries({ queryKey: ['profile-other-lists'] }),
+      queryClient.invalidateQueries({ queryKey: ['profile-business-lists'] }),
+      queryClient.invalidateQueries({ queryKey: ['business-stats-lists-month'] }),
+      queryClient.invalidateQueries({
+        queryKey: ['business-stats-personality-colors'],
+      }),
+      queryClient.invalidateQueries({ queryKey: ['business-home-views'] }),
+      queryClient.invalidateQueries({ queryKey: ['business-info'] }),
+    ]);
+  }
+}
+
+export async function hydrateUserProfile(
+  queryClient?: QueryClient,
+): Promise<boolean> {
+  const response = await accountService.fetchUser();
+  if (response.error || !response.data?.data) {
+    return false;
+  }
+
+  await syncSessionFromProfile(response.data.data, queryClient);
   return true;
 }
 
