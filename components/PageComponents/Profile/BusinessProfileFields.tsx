@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Keyboard, Pressable, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useColorScheme } from "nativewind";
 import { ChevronDown, MapPin, Plus, X } from "lucide-react-native";
@@ -288,7 +288,10 @@ export function BusinessProfileFields({
             {t("editProfile.business.type")}
           </Text>
           <Pressable
-            onPress={onPressBusinessType}
+            onPress={() => {
+              Keyboard.dismiss();
+              onPressBusinessType();
+            }}
             disabled={!editable}
             accessibilityRole="button"
             className="h-14 flex-row items-center rounded-xl border border-gray-100 bg-gray-50 px-4 dark:border-gray-700 dark:bg-gray-800"

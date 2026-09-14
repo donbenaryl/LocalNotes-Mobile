@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Keyboard,
   Pressable,
   ScrollView,
   Text,
@@ -39,7 +40,43 @@ export function DropDown({
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
   const [searchQuery, setSearchQuery] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
   const listMaxHeight = Math.round(height * 0.5);
+
+  useEffect(() => {
+    if (!visible) {
+      setModalVisible(false);
+      return;
+    }
+
+    let cancelled = false;
+    let hideListener: { remove: () => void } | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    const showModal = () => {
+      if (!cancelled) {
+        setModalVisible(true);
+      }
+    };
+
+    if (Keyboard.isVisible()) {
+      Keyboard.dismiss();
+      hideListener = Keyboard.addListener("keyboardDidHide", () => {
+        hideListener?.remove();
+        if (timeoutId) clearTimeout(timeoutId);
+        showModal();
+      });
+      timeoutId = setTimeout(showModal, 400);
+    } else {
+      showModal();
+    }
+
+    return () => {
+      cancelled = true;
+      hideListener?.remove();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [visible]);
 
   useEffect(() => {
     if (visible) {
@@ -61,7 +98,13 @@ export function DropDown({
   };
 
   return (
-    <Modal visible={visible} onClose={onClose} position="bottom" withCloseIcon>
+    <Modal
+      visible={modalVisible}
+      onClose={onClose}
+      position="bottom"
+      withCloseIcon
+      avoidKeyboard={false}
+    >
       <View>
         {isSearchable ? (
           <View className="relative mb-4">
