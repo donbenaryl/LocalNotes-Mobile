@@ -32,6 +32,12 @@ export interface ReportUserSheetProps {
   displayName: string;
   contentType?: ReportContentType;
   contentId?: string;
+  /** Called after a successful report so parents can hide content instantly. */
+  onReported?: (payload: {
+    contentType?: ReportContentType;
+    contentId?: string;
+    userId: string;
+  }) => void;
 }
 
 export function ReportUserSheet({
@@ -41,6 +47,7 @@ export function ReportUserSheet({
   displayName,
   contentType,
   contentId,
+  onReported,
 }: ReportUserSheetProps) {
   const { t } = useTranslation();
   const showToast = useToastStore((s) => s.show);
@@ -60,8 +67,13 @@ export function ReportUserSheet({
 
   const reportMutation = useMutation({
     mutationFn: (payload: ReportUserDTO) => accountService.reportUser(userId, payload),
-    onSuccess: () => {
+    onSuccess: (_data, payload) => {
       showToast({ type: "success", message: t("profile.safety.reportSuccess") });
+      onReported?.({
+        contentType: payload.content_type,
+        contentId: payload.content_id,
+        userId,
+      });
       setReason(null);
       setDetails("");
       onClose();

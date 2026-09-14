@@ -7,6 +7,7 @@ import { TextInput } from "@/components/ui/TextInput";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { LocationInput } from "@/components/ui/LocationInput";
 import { formatLocationLabel } from "@/components/ui/LocationInputModal";
+import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { OpeningHoursEditor } from "@/components/PageComponents/Profile/BusinessProfileFields";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import type { BusinessLocation } from "@/http/business-api/types";
@@ -17,6 +18,10 @@ import {
   type OpeningHours,
 } from "@/utils/openingHours";
 import { toast } from "@/components/ui/Toast";
+
+/** Clears absolute footer (Cancel / Add branch) when scrolling to the last hours row. */
+const FOOTER_CONTENT_PAD = 88;
+const SHEET_HEIGHT_RATIO = 0.92;
 
 interface AddBranchModalProps {
   visible: boolean;
@@ -97,6 +102,7 @@ export function AddBranchModal({
       visible={visible}
       onClose={onClose}
       title={t("editProfile.business.addBranch")}
+      sheetHeightRatio={SHEET_HEIGHT_RATIO}
       footer={
         <View className="flex-row items-center gap-3">
           <View className="flex-1">
@@ -123,59 +129,65 @@ export function AddBranchModal({
         </View>
       }
     >
-      {/* Explicit style overrides GestureHandlerRootView's internal flex:1 default, which
-          collapses content when nested inside Modal's auto-height bottom sheet. */}
-      <GestureHandlerRootView style={{ width: "100%" }}>
-        <View className="gap-4 pb-24">
-          <TextInput
-            label={t("editProfile.business.branchName")}
-            placeholder={t("editProfile.business.branchNamePlaceholder")}
-            value={name}
-            onChangeText={(value) => {
-              setName(value);
-              setNameError(undefined);
-            }}
-            error={nameError}
-            editable={!loading}
-          />
-          <View>
-            <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-gray-300">
-              {t("editProfile.business.branchAddress")}
-            </Text>
-            <LocationInput
-              inModal
-              showAddressFields
-              initialLocation={location}
-              placeholder={t("editProfile.business.branchAddressPlaceholder")}
-              onLocationSelected={(loc) => {
-                setLocation(loc);
-                setLocationError(undefined);
-                if (!name.trim()) {
-                  setName(loc.city?.trim() || formatLocationLabel(loc));
-                }
+      {/* flex:1 is safe once Modal caps height via sheetHeightRatio; needed so
+          LocationInput RNGH taps work and the scroll body fills the sheet. */}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <KeyboardAwareScrollView
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: FOOTER_CONTENT_PAD }}
+        >
+          <View className="gap-4">
+            <TextInput
+              label={t("editProfile.business.branchName")}
+              placeholder={t("editProfile.business.branchNamePlaceholder")}
+              value={name}
+              onChangeText={(value) => {
+                setName(value);
+                setNameError(undefined);
               }}
-              containerClassName="pb-0"
-            />
-            {locationError ? (
-              <Text className="mt-1 font-geist text-xs text-error">
-                {locationError}
-              </Text>
-            ) : null}
-          </View>
-          <View className="gap-2">
-            <Text className="font-geist-medium text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
-              {t("editProfile.business.hoursSection")}
-            </Text>
-            <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
-              {t("editProfile.business.hoursHelper")}
-            </Text>
-            <OpeningHoursEditor
-              hours={openingHours}
+              error={nameError}
               editable={!loading}
-              onChange={setOpeningHours}
             />
+            <View>
+              <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-gray-300">
+                {t("editProfile.business.branchAddress")}
+              </Text>
+              <LocationInput
+                inModal
+                showAddressFields
+                initialLocation={location}
+                placeholder={t("editProfile.business.branchAddressPlaceholder")}
+                onLocationSelected={(loc) => {
+                  setLocation(loc);
+                  setLocationError(undefined);
+                  if (!name.trim()) {
+                    setName(loc.city?.trim() || formatLocationLabel(loc));
+                  }
+                }}
+                containerClassName="pb-0"
+              />
+              {locationError ? (
+                <Text className="mt-1 font-geist text-xs text-error">
+                  {locationError}
+                </Text>
+              ) : null}
+            </View>
+            <View className="gap-2">
+              <Text className="font-geist-medium text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                {t("editProfile.business.hoursSection")}
+              </Text>
+              <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
+                {t("editProfile.business.hoursHelper")}
+              </Text>
+              <OpeningHoursEditor
+                hours={openingHours}
+                editable={!loading}
+                onChange={setOpeningHours}
+              />
+            </View>
           </View>
-        </View>
+        </KeyboardAwareScrollView>
       </GestureHandlerRootView>
     </Modal>
   );

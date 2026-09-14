@@ -336,11 +336,15 @@ const TERMS_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'Users may report content or accounts through in-app tools or localnotesapp@gmail.com. Reports should identify the content, explain the concern, and provide supporting information where available.',
+        text: 'LocalNotes has zero tolerance for objectionable content and abusive users. Content that violates these Terms or the Community Guidelines—including hate speech, harassment, sexual exploitation, illegal activity, spam, and other abusive material—is prohibited and may result in immediate removal and account suspension or termination.',
       },
       {
         type: 'paragraph',
-        text: "We may remove content, restrict distribution, issue warnings, limit features, suspend accounts, or terminate accounts. For significant actions, we will generally provide a reason unless notice would compromise safety, another person's privacy, a legal obligation, or an investigation.",
+        text: 'Users may report content or accounts through in-app tools or localnotesapp@gmail.com. Reports should identify the content, explain the concern, and provide supporting information where available. Blocking another user immediately removes that user\'s content from your feed and notifies LocalNotes so we can review the account.',
+      },
+      {
+        type: 'paragraph',
+        text: 'We review reports of objectionable content within 24 hours. When a report is substantiated, we remove the violating content and eject (suspend or terminate) the user who provided it. We may also remove content, restrict distribution, issue warnings, or limit features. For significant actions, we will generally provide a reason unless notice would compromise safety, another person\'s privacy, a legal obligation, or an investigation.',
       },
       {
         type: 'paragraph',

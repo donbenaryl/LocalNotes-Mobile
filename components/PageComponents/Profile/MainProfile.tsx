@@ -352,8 +352,17 @@ function MainProfileContent({
   const blockMutation = useMutation({
     mutationFn: () => accountService.blockUser(profileUserId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["profile", userId] });
-      await queryClient.invalidateQueries({ queryKey: ["blocked-users"] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["profile", userId] }),
+        queryClient.invalidateQueries({ queryKey: ["blocked-users"] }),
+        queryClient.invalidateQueries({ queryKey: ["home"] }),
+        queryClient.invalidateQueries({ queryKey: ["home-lists"] }),
+        queryClient.invalidateQueries({ queryKey: ["home-picks"] }),
+        queryClient.invalidateQueries({ queryKey: ["search"] }),
+        queryClient.invalidateQueries({ queryKey: ["spotlight"] }),
+        queryClient.invalidateQueries({ queryKey: ["following"] }),
+        queryClient.invalidateQueries({ queryKey: ["list-comments"] }),
+      ]);
       showToast({ type: "success", message: t("profile.safety.blockSuccess") });
       setBlockOpen(false);
       handleBack();

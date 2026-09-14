@@ -12,6 +12,7 @@ import { PageTitleHeading } from '@/components/ui/PageTitleHeading';
 import { LocalNotesButton } from '../../../ui/LocalNotesButton';
 import { ArrowRight } from 'lucide-react-native';
 import { ContinueWith } from '../ContinueWith';
+import { TermsConsent } from '../TermsConsent';
 import authService from '../../../../http/auth-api/auth.service';
 import type { signInDAO } from '../../../../http/auth-api/types';
 import { toast } from '../../../ui/Toast';
@@ -61,6 +62,7 @@ export function MainSignIn() {
 
   const [form, setForm] = useState<FormState>({ email: '', password: '' });
   const [errors, setErrors] = useState<FormErrors>({});
+  const [agreed, setAgreed] = useState(false);
 
   const showFaceUnlock = biometricEnabled && hasToken && isSessionLocked;
 
@@ -98,6 +100,10 @@ export function MainSignIn() {
   });
 
   function handleSignIn() {
+    if (!agreed) {
+      toast.error(t('auth.consent.error'));
+      return;
+    }
     const validationErrors = validate(form);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -162,7 +168,11 @@ export function MainSignIn() {
         </TouchableOpacity>
       </View>
 
-      <View className="px-6 mt-8">
+      <View className="px-6 mt-6 mb-2">
+        <TermsConsent agreed={agreed} onChange={setAgreed} showBadge />
+      </View>
+
+      <View className="px-6 mt-6">
         <LocalNotesButton
           label={
             mutation.isPending
@@ -171,7 +181,7 @@ export function MainSignIn() {
           }
           onPress={handleSignIn}
           variant="dark"
-          disabled={isBusy}
+          disabled={isBusy || !agreed}
           rightIcon={
             <ArrowRight
               size={12}
@@ -186,7 +196,8 @@ export function MainSignIn() {
         linkText={t('auth.signIn.createAccount')}
         onLinkPress={() => router.replace('/sign-up')}
         onSocialAuth={signInWithProvider}
-        socialDisabled={isBusy}
+        socialDisabled={isBusy || !agreed}
+        hideTerms
       />
     </KeyboardAwareScrollView>
   );

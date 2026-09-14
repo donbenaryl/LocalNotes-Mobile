@@ -178,11 +178,11 @@ const GUIDELINES_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'Reporting. Users may report content, accounts, and businesses through the in-app Report function or by emailing localnotesapp@gmail.com. Reports should identify the content and explain the concern. Reports are handled confidentially to the extent reasonably possible, but we may disclose information when required by law or necessary to investigate a serious safety issue.',
+        text: 'Reporting. Users may report content, accounts, and businesses through the in-app Report function or by emailing localnotesapp@gmail.com. Reports should identify the content and explain the concern. Reporting immediately hides that content from your feed. We review reports within 24 hours and, when substantiated, remove the content and eject the user who provided it. Reports are handled confidentially to the extent reasonably possible, but we may disclose information when required by law or necessary to investigate a serious safety issue.',
       },
       {
         type: 'paragraph',
-        text: 'Blocking. Users may block another user to stop direct interaction and reduce visibility between the accounts. Blocking does not necessarily remove public content or prevent LocalNotes from preserving information for safety, enforcement, or legal purposes.',
+        text: 'Blocking. Users may block another user to stop direct interaction. Blocking immediately removes that user\'s content from your feed and notifies LocalNotes of the inappropriate content so our team can review it. Blocking does not necessarily remove the content for other users or prevent LocalNotes from preserving information for safety, enforcement, or legal purposes.',
       },
       {
         type: 'paragraph',
@@ -199,7 +199,7 @@ const GUIDELINES_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'We may use automated systems and human review to detect and evaluate potential violations. Depending on severity, context, history, intent, and applicable law, we may:',
+        text: 'LocalNotes has zero tolerance for objectionable content and abusive users. We may use automated systems and human review to detect and evaluate potential violations. We aim to act on objectionable content reports within 24 hours by removing the content and ejecting the user who provided it. Depending on severity, context, history, intent, and applicable law, we may:',
       },
       {
         type: 'bullets',

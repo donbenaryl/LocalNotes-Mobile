@@ -17,6 +17,11 @@ interface ReportFlagButtonProps {
   hitSlop?: number;
   /** Notified whenever the report sheet opens/closes, for parents that must hide their own modal while it's up. */
   onOpenChange?: (open: boolean) => void;
+  onReported?: (payload: {
+    contentType?: ReportContentType;
+    contentId?: string;
+    userId: string;
+  }) => void;
 }
 
 export function ReportFlagButton({
@@ -29,6 +34,7 @@ export function ReportFlagButton({
   style,
   hitSlop,
   onOpenChange,
+  onReported,
 }: ReportFlagButtonProps) {
   const { t } = useTranslation();
   const [reportOpen, setReportOpen] = useState(false);
@@ -63,6 +69,7 @@ export function ReportFlagButton({
         displayName={displayName}
         contentType={contentType}
         contentId={contentId}
+        onReported={onReported}
       />
     </>
   );

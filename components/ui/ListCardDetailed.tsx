@@ -14,6 +14,7 @@ import {
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
+import { useQueryClient } from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import accountService from "@/http/account-api/account.services";
 import { Avatar } from "@/components/ui/Avatar";
@@ -263,6 +264,7 @@ export function ListCardDetailed({
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const isOwnList = user?.id === list.account.id;
   const picksCount = list.items?.length ?? 0;
@@ -886,6 +888,11 @@ export function ListCardDetailed({
           displayName={list.account.name}
           contentType="list"
           contentId={list.id}
+          onReported={() => {
+            void queryClient.invalidateQueries({ queryKey: ["home"] });
+            void queryClient.invalidateQueries({ queryKey: ["home-lists"] });
+            void queryClient.invalidateQueries({ queryKey: ["search"] });
+          }}
         />
       ) : null}
     </>

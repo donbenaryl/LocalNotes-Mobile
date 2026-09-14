@@ -266,6 +266,11 @@ export function ListDetailsHeader({
           displayName={list.account.name}
           contentType="list"
           contentId={list.id}
+          onReported={() => {
+            void queryClient.invalidateQueries({ queryKey: ["home"] });
+            void queryClient.invalidateQueries({ queryKey: ["home-lists"] });
+            void queryClient.invalidateQueries({ queryKey: ["list-detail", list.id] });
+          }}
         />
       ) : null}
     </>

@@ -106,6 +106,19 @@ const en = {
         guidelinesLink: 'Community Guidelines',
       },
     },
+    consent: {
+      badge: 'Required before you continue',
+      prefix: 'I agree to the ',
+      terms: 'Terms',
+      separator: ', ',
+      privacy: 'Privacy Policy',
+      andSeparator: ', and ',
+      guidelines: 'Community Guidelines',
+      suffix: '.',
+      zeroTolerance:
+        'LocalNotes has zero tolerance for objectionable content and abusive users.',
+      error: 'Please agree to continue',
+    },
     signUp: {
       title: 'Sign Up',
       headerTitle: 'Create account',
@@ -154,7 +167,7 @@ const en = {
         mixedCase: 'Mixed case',
       },
       consent: {
-        badge: 'Required for every new account',
+        badge: 'Required before you continue',
         prefix: 'I agree to the ',
         terms: 'Terms',
         separator: ', ',
@@ -525,7 +538,7 @@ const en = {
       reportDetailsRequired: 'Required',
       reportSubmit: 'Submit report',
       reportCancel: 'Cancel',
-      reportSuccess: 'Report submitted.',
+      reportSuccess: 'Report submitted. This content is hidden from your feed.',
       reportError: 'Couldn’t submit this report. Try again.',
       reportReasons: {
         spam: 'Spam, scams, or fraud',
@@ -539,13 +552,13 @@ const en = {
       },
       block: 'Block {{name}}',
       blockTitle: 'Block {{name}}?',
-      blockBodyBefore: 'They won’t be able to follow you, see your lists, mention you, or reach you — and ',
+      blockBodyBefore: 'Their content is removed from your feed immediately, and LocalNotes is notified. They won’t be able to follow you, see your lists, mention you, or reach you — and ',
       blockBodyEmphasis: 'you won’t see them either.',
       blockBodyAfter:
         ' They won’t be told. You can undo this in Settings → Privacy.',
       blockConfirm: 'Block',
       blockCancel: 'Cancel',
-      blockSuccess: 'Blocked.',
+      blockSuccess: 'Blocked. Their content is hidden from your feed and LocalNotes was notified.',
       blockError: 'Couldn’t block this user. Try again.',
     },
     picks: {

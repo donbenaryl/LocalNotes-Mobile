@@ -309,9 +309,10 @@ export type AccountReportReason =
   | "dangerous"
   | "minor_sexual_content"
   | "impersonation"
+  | "blocked"
   | "other";
 
-export type ReportContentType = "profile" | "list" | "pick";
+export type ReportContentType = "profile" | "list" | "pick" | "comment";
 
 export interface ReportUserDTO {
   reason: AccountReportReason;

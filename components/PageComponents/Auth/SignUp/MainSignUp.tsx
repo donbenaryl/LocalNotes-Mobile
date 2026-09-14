@@ -11,12 +11,12 @@ import { ArrowRight } from 'lucide-react-native';
 import { TextInput } from '../../../ui/TextInput';
 import { UsernameField } from '../../../ui/UsernameField';
 import { LocalNotesButton } from '../../../ui/LocalNotesButton';
-import { Checkbox } from '../../../ui/Checkbox';
 import authService from '../../../../http/auth-api/auth.service';
 import { toast } from '../../../ui/Toast';
 import { EnterOTP } from './EnterOTP';
 import { PageTitleHeading } from '@/components/ui/PageTitleHeading';
 import { ContinueWith } from '../ContinueWith';
+import { TermsConsent } from '../TermsConsent';
 import { useOnboardingForm } from '@/hooks/useOnboardingForm';
 import { UserTypeCard } from '../OnBoarding/UserTypeCard';
 import { OnboardingDetailsFields } from '../OnBoarding/OnboardingDetailsFields';
@@ -102,7 +102,7 @@ export function MainSignUp() {
     }
 
     if (!agreed) {
-      toast.error(t('auth.signUp.consent.error'));
+      toast.error(t('auth.consent.error'));
       return;
     }
 
@@ -198,44 +198,12 @@ export function MainSignUp() {
               />
             </View>
 
-            <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-brand-dark mb-2.5">
-              {t('auth.signUp.consent.badge')}
-            </Text>
-
-            <View className="flex-row gap-3.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-paper dark:bg-gray-800 p-4 mb-6">
-              <View className="pt-0.5">
-                <Checkbox checked={agreed} onChange={setAgreed} size={26} />
-              </View>
-
-              <View className="flex-1">
-                <Text className="font-geist-semibold text-[15px] leading-snug text-ink dark:text-gray-100">
-                  {t('auth.signUp.consent.prefix')}
-                  <Text
-                    className="font-geist-semibold text-[15px] text-brand underline cursor-pointer"
-                    onPress={() => router.push('/terms' as Href)}
-                  >
-                    {t('auth.signUp.consent.terms')}
-                  </Text>
-                  {t('auth.signUp.consent.separator')}
-                  <Text
-                    className="font-geist-semibold text-[15px] text-brand underline cursor-pointer"
-                    onPress={() => router.push('/privacy-policy' as Href)}
-                  >
-                    {t('auth.signUp.consent.privacy')}
-                  </Text>
-                  {t('auth.signUp.consent.andSeparator')}
-                  <Text
-                    className="font-geist-semibold text-[15px] text-brand underline cursor-pointer"
-                    onPress={() =>
-                      router.push('/community-guidelines' as Href)
-                    }
-                  >
-                    {t('auth.signUp.consent.guidelines')}
-                  </Text>
-                  {t('auth.signUp.consent.suffix')}
-                </Text>
-              </View>
-            </View>
+            <TermsConsent
+              agreed={agreed}
+              onChange={setAgreed}
+              showBadge
+              className="mb-6"
+            />
 
             <LocalNotesButton
               label={
@@ -261,22 +229,19 @@ export function MainSignUp() {
         {step === 'verify' ? (
           <EnterOTP
             email={userEmail}
-            onVerified={() => handleOtpVerified()}
-            onChangeEmail={() => {
-              setStep('email');
-              setEmail(userEmail);
-            }}
+            onVerified={() => void handleOtpVerified()}
+            onChangeEmail={() => setStep('email')}
           />
         ) : null}
       </View>
 
       {step === 'email' ? (
         <ContinueWith
-          hideTerms={true}
           promptText={t('auth.signUpFooter.haveAccount')}
           linkText={t('auth.signUpFooter.signIn')}
-          onLinkPress={() => router.replace('/sign-in' as Href)}
+          onLinkPress={() => router.replace('/sign-in')}
           onSocialAuth={signInWithProvider}
+          hideTerms
           socialDisabled={!agreed || socialPending || signUpMutation.isPending}
         />
       ) : null}

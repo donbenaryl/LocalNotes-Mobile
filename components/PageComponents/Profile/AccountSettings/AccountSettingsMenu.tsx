@@ -294,7 +294,17 @@ export default function AccountSettingsMenu() {
           <SettingsNavRow
             icon={FileText}
             title={t('accountSettings.menu.termsPrivacy')}
+            onPress={() => router.push('/terms')}
+          />
+          <SettingsNavRow
+            icon={FileText}
+            title={t('support.privacyPolicy')}
             onPress={() => router.push('/privacy-policy')}
+          />
+          <SettingsNavRow
+            icon={FileText}
+            title={t('support.communityGuidelines')}
+            onPress={() => router.push('/community-guidelines')}
           />
           <SettingsNavRow
             icon={Info}

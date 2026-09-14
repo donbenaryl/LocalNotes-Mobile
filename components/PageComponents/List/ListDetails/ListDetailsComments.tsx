@@ -7,11 +7,13 @@ import { Avatar } from "@/components/ui/Avatar";
 import { MentionedText } from "@/components/ui/MentionedText";
 import { MentionTextInput } from "@/components/ui/MentionTextInput";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
 import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { formatRelativeTime } from "@/utils/time";
 import { cn } from "@/utils/cn";
+import { useAuthStore } from "@/stores/useAuthStore";
 import type { Comment, ListItemDAO } from "@/http/list-api/types";
 import type { MentionSearchResultItem } from "@/http/account-api/types";
 
@@ -28,6 +30,7 @@ export function ListDetailsComments({
 }: ListDetailsCommentsProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const currentUserId = useAuthStore((s) => s.user?.id);
   const [commentText, setCommentText] = useState("");
   const [pickedMentions, setPickedMentions] = useState<
     MentionSearchResultItem[]
@@ -60,6 +63,19 @@ export function ListDetailsComments({
   useEffect(() => {
     onCommentCountChange?.(comments.length);
   }, [comments.length, onCommentCountChange]);
+
+  const hideReportedComment = (commentId: string) => {
+    queryClient.setQueryData<Comment[]>(["list-comments", list.id], (prev) =>
+      (prev ?? []).filter((c) => c.id !== commentId),
+    );
+    setRepliesByParent((prev) => {
+      const next: Record<string, Comment[]> = {};
+      for (const [parentId, replies] of Object.entries(prev)) {
+        next[parentId] = replies.filter((r) => r.id !== commentId);
+      }
+      return next;
+    });
+  };
 
   const createCommentMutation = useMutation({
     mutationFn: async () => {
@@ -259,6 +275,18 @@ export function ListDetailsComments({
                   {comment.likes_count}
                 </Text>
               </Pressable>
+              {comment.account.id !== currentUserId ? (
+                <ReportFlagButton
+                  userId={comment.account.id}
+                  displayName={comment.account.name}
+                  contentType="comment"
+                  contentId={comment.id}
+                  size={14}
+                  onReported={({ contentId }) => {
+                    if (contentId) hideReportedComment(contentId);
+                  }}
+                />
+              ) : null}
             </View>
           </View>
         </View>
