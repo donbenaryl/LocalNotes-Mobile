@@ -9,14 +9,19 @@ export const SEARCH_MAP_RADIUS_KM = 15;
 
 export type SearchMapMarkerKind = "list" | "business" | "pick" | "person";
 
-export interface SearchMapMarker {
+type SearchMapMarkerBase = {
   id: string;
-  kind: SearchMapMarkerKind;
   latitude: number;
   longitude: number;
   title: string;
   subtitle?: string;
-}
+};
+
+export type SearchMapMarker =
+  | (SearchMapMarkerBase & { kind: "list"; items: ListItemDAO[] })
+  | (SearchMapMarkerBase & { kind: "business"; items: BusinessItemDAO[] })
+  | (SearchMapMarkerBase & { kind: "pick"; items: ListItemPublic[] })
+  | (SearchMapMarkerBase & { kind: "person"; items: UnifiedSearchPersonDAO[] });
 
 function hasValidCoordinates(
   location?: Location | null | { latitude?: number; longitude?: number },
@@ -31,30 +36,51 @@ function hasValidCoordinates(
   );
 }
 
+/** Match web MapPanel: collapse pins that share the same 6-decimal lat/lng. */
+function locationKey(latitude: number, longitude: number): string {
+  return `${latitude.toFixed(6)}:${longitude.toFixed(6)}`;
+}
+
+function markerId(
+  kind: SearchMapMarkerKind,
+  latitude: number,
+  longitude: number,
+): string {
+  return `${kind}:${locationKey(latitude, longitude)}`;
+}
+
 /** List pins sit at the list's geographic center (handoff 05.A.1). */
 export function buildListMapMarkers(lists: ListItemDAO[]): SearchMapMarker[] {
-  const markers: SearchMapMarker[] = [];
+  const grouped = new Map<string, SearchMapMarker & { kind: "list" }>();
 
   for (const list of lists) {
     if (!hasValidCoordinates(list.location)) continue;
-    markers.push({
-      id: `list-${list.id}`,
+    const { latitude, longitude } = list.location;
+    const key = locationKey(latitude, longitude);
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.items.push(list);
+      continue;
+    }
+    grouped.set(key, {
+      id: markerId("list", latitude, longitude),
       kind: "list",
-      latitude: list.location.latitude,
-      longitude: list.location.longitude,
+      latitude,
+      longitude,
       title: list.name,
-      subtitle: list.location.city,
+      subtitle: list.location.city || undefined,
+      items: [list],
     });
   }
 
-  return markers;
+  return Array.from(grouped.values());
 }
 
 /** Place pins use the first branch with valid coordinates (web MapPanel). */
 export function buildBusinessMapMarkers(
   businesses: BusinessItemDAO[],
 ): SearchMapMarker[] {
-  const markers: SearchMapMarker[] = [];
+  const grouped = new Map<string, SearchMapMarker & { kind: "business" }>();
 
   for (const business of businesses) {
     const branch =
@@ -65,17 +91,25 @@ export function buildBusinessMapMarkers(
     const location = branch?.location ?? fallback;
     if (!location || !hasValidCoordinates(location)) continue;
 
-    markers.push({
-      id: `business-${business.id}`,
+    const { latitude, longitude } = location;
+    const key = locationKey(latitude, longitude);
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.items.push(business);
+      continue;
+    }
+    grouped.set(key, {
+      id: markerId("business", latitude, longitude),
       kind: "business",
-      latitude: location.latitude,
-      longitude: location.longitude,
+      latitude,
+      longitude,
       title: business.name,
-      subtitle: business.business_type,
+      subtitle: location.city || business.business_type || undefined,
+      items: [business],
     });
   }
 
-  return markers;
+  return Array.from(grouped.values());
 }
 
 function pickTitle(pick: ListItemPublic): string {
@@ -94,21 +128,29 @@ function pickTitle(pick: ListItemPublic): string {
 
 /** Pick pins use each pick's own location when geocoded. */
 export function buildPickMapMarkers(picks: ListItemPublic[]): SearchMapMarker[] {
-  const markers: SearchMapMarker[] = [];
+  const grouped = new Map<string, SearchMapMarker & { kind: "pick" }>();
 
   for (const pick of picks) {
     if (!hasValidCoordinates(pick.location)) continue;
-    markers.push({
-      id: `pick-${pick.id}`,
+    const { latitude, longitude } = pick.location;
+    const key = locationKey(latitude, longitude);
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.items.push(pick);
+      continue;
+    }
+    grouped.set(key, {
+      id: markerId("pick", latitude, longitude),
       kind: "pick",
-      latitude: pick.location.latitude,
-      longitude: pick.location.longitude,
+      latitude,
+      longitude,
       title: pickTitle(pick),
       subtitle: pick.location.city || undefined,
+      items: [pick],
     });
   }
 
-  return markers;
+  return Array.from(grouped.values());
 }
 
 function distanceKm(
@@ -175,21 +217,29 @@ export function filterPeopleForMap(
 export function buildPeopleMapMarkers(
   people: UnifiedSearchPersonDAO[],
 ): SearchMapMarker[] {
-  const markers: SearchMapMarker[] = [];
+  const grouped = new Map<string, SearchMapMarker & { kind: "person" }>();
 
   for (const person of people) {
     if (!hasValidCoordinates(person.location)) continue;
-    markers.push({
-      id: `person-${person.id}`,
+    const { latitude, longitude } = person.location;
+    const key = locationKey(latitude, longitude);
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.items.push(person);
+      continue;
+    }
+    grouped.set(key, {
+      id: markerId("person", latitude, longitude),
       kind: "person",
-      latitude: person.location.latitude,
-      longitude: person.location.longitude,
+      latitude,
+      longitude,
       title: person.name,
       subtitle: person.location.city || undefined,
+      items: [person],
     });
   }
 
-  return markers;
+  return Array.from(grouped.values());
 }
 
 export type MapFallbackCenter = {

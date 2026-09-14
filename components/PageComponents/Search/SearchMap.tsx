@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -13,6 +13,7 @@ import MapView, {
 } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 import { MapPinMarker } from "@/components/ui/MapPinMarker";
+import { SearchMapPinSheet } from "@/components/PageComponents/Search/SearchMapPinSheet";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
@@ -51,6 +52,65 @@ const MAP_EDGE_PADDING = 24;
 const SINGLE_MARKER_LATITUDE_DELTA = 0.04;
 const SINGLE_MARKER_LONGITUDE_DELTA = 0.04;
 
+interface SearchMapPinProps {
+  marker: SearchMapMarker;
+  isActive: boolean;
+  onPress: (marker: SearchMapMarker) => void;
+}
+
+/**
+ * Memoized pin so only the old/new active markers re-render on selection.
+ * Pulses `tracksViewChanges` for one frame when this pin's active state or
+ * count changes — avoids the custom-marker bitmap swap that makes numbers
+ * appear to change when every pin re-snapshots at once.
+ */
+const SearchMapPin = memo(function SearchMapPin({
+  marker,
+  isActive,
+  onPress,
+}: SearchMapPinProps) {
+  const [tracksViewChanges, setTracksViewChanges] = useState(true);
+  const prevActiveRef = useRef(isActive);
+  const prevCountRef = useRef(marker.items.length);
+  const isFirstPaintRef = useRef(true);
+
+  useEffect(() => {
+    if (isFirstPaintRef.current) {
+      isFirstPaintRef.current = false;
+      const frame = requestAnimationFrame(() => setTracksViewChanges(false));
+      return () => cancelAnimationFrame(frame);
+    }
+
+    const countChanged = prevCountRef.current !== marker.items.length;
+    const activeChanged = prevActiveRef.current !== isActive;
+    prevCountRef.current = marker.items.length;
+    prevActiveRef.current = isActive;
+
+    if (!countChanged && !activeChanged) return;
+
+    setTracksViewChanges(true);
+    const frame = requestAnimationFrame(() => setTracksViewChanges(false));
+    return () => cancelAnimationFrame(frame);
+  }, [isActive, marker.items.length]);
+
+  return (
+    <Marker
+      coordinate={{
+        latitude: marker.latitude,
+        longitude: marker.longitude,
+      }}
+      tracksViewChanges={tracksViewChanges}
+      onPress={() => onPress(marker)}
+    >
+      <MapPinMarker
+        number={marker.items.length}
+        isActive={isActive}
+        variant={marker.kind === "business" ? "place" : "default"}
+      />
+    </Marker>
+  );
+});
+
 export function SearchMap({
   mode,
   lists = [],
@@ -67,6 +127,9 @@ export function SearchMap({
   const { height: windowHeight } = useWindowDimensions();
   const mapRef = useRef<MapView>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<SearchMapMarker | null>(
+    null,
+  );
 
   const fallbackCenter = useEffectiveSearchLocation();
   const fillParent = heightRatio >= 1;
@@ -114,6 +177,16 @@ export function SearchMap({
       ),
     [bottomOverlayHeight, mapHeight],
   );
+
+  const handlePinPress = useCallback((marker: SearchMapMarker) => {
+    setActiveId(marker.id);
+    setSelectedMarker(marker);
+  }, []);
+
+  const handleSheetClose = useCallback(() => {
+    setSelectedMarker(null);
+    setActiveId(null);
+  }, []);
 
   useEffect(() => {
     if (markers.length === 0) {
@@ -167,9 +240,47 @@ export function SearchMap({
     region,
   ]);
 
+  // Keep the sheet in sync if search results refresh while open.
+  useEffect(() => {
+    if (!activeId) return;
+    const next = markers.find((marker) => marker.id === activeId);
+    if (!next) {
+      setSelectedMarker(null);
+      setActiveId(null);
+      return;
+    }
+    setSelectedMarker(next);
+  }, [markers, activeId]);
+
   // Legal-label clip is Apple Maps only. Extra MapView height + overflow:hidden
   // blanks Google Maps TextureView on Android even when the host has pixels.
   const clipLegalLabel = Platform.OS === "ios";
+
+  const pinSheet = (
+    <SearchMapPinSheet
+      visible={selectedMarker != null}
+      onClose={handleSheetClose}
+      marker={selectedMarker}
+    />
+  );
+
+  const markerNodes = markers.map((marker) => (
+    <SearchMapPin
+      key={marker.id}
+      marker={marker}
+      isActive={marker.id === activeId}
+      onPress={handlePinPress}
+    />
+  ));
+
+  const emptyOverlay =
+    markers.length === 0 ? (
+      <View className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/90 px-3 py-2 dark:bg-gray-900/90">
+        <Text className="text-center font-geist text-[11px] text-gray-500 dark:text-gray-400">
+          {t("search.map.noPins")}
+        </Text>
+      </View>
+    ) : null;
 
   if (fillParent && !hasHostWidth) {
     return null;
@@ -186,43 +297,24 @@ export function SearchMap({
       : [styles.mapFillParent, { width: mapWidth }];
 
     return (
-      <View collapsable={false} style={hostStyle}>
-        <MapView
-          key="search-map-fill"
-          ref={mapRef}
-          provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
-          googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
-          style={mapViewStyle}
-          initialRegion={region as Region}
-          showsUserLocation={false}
-          showsMyLocationButton={false}
-        >
-          {markers.map((marker, index) => (
-            <Marker
-              key={marker.id}
-              coordinate={{
-                latitude: marker.latitude,
-                longitude: marker.longitude,
-              }}
-              onPress={() => setActiveId(marker.id)}
-            >
-              <MapPinMarker
-                number={index + 1}
-                isActive={marker.id === activeId}
-                variant={marker.kind === "business" ? "place" : "default"}
-              />
-            </Marker>
-          ))}
-        </MapView>
-
-        {markers.length === 0 ? (
-          <View className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/90 px-3 py-2 dark:bg-gray-900/90">
-            <Text className="text-center font-geist text-[11px] text-gray-500 dark:text-gray-400">
-              {t("search.map.noPins")}
-            </Text>
-          </View>
-        ) : null}
-      </View>
+      <>
+        <View collapsable={false} style={hostStyle}>
+          <MapView
+            key="search-map-fill"
+            ref={mapRef}
+            provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
+            googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
+            style={mapViewStyle}
+            initialRegion={region as Region}
+            showsUserLocation={false}
+            showsMyLocationButton={false}
+          >
+            {markerNodes}
+          </MapView>
+          {emptyOverlay}
+        </View>
+        {pinSheet}
+      </>
     );
   }
 
@@ -234,43 +326,24 @@ export function SearchMap({
   const mapViewStyle = { width: "100%" as const, height: mapViewHeight };
 
   return (
-    <View collapsable={false} style={hostStyle}>
-      <MapView
-        key="search-map"
-        ref={mapRef}
-        provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
-        googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
-        style={mapViewStyle}
-        initialRegion={region as Region}
-        showsUserLocation={false}
-        showsMyLocationButton={false}
-      >
-        {markers.map((marker, index) => (
-          <Marker
-            key={marker.id}
-            coordinate={{
-              latitude: marker.latitude,
-              longitude: marker.longitude,
-            }}
-            onPress={() => setActiveId(marker.id)}
-          >
-            <MapPinMarker
-              number={index + 1}
-              isActive={marker.id === activeId}
-              variant={marker.kind === "business" ? "place" : "default"}
-            />
-          </Marker>
-        ))}
-      </MapView>
-
-      {markers.length === 0 ? (
-        <View className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/90 px-3 py-2 dark:bg-gray-900/90">
-          <Text className="text-center font-geist text-[11px] text-gray-500 dark:text-gray-400">
-            {t("search.map.noPins")}
-          </Text>
-        </View>
-      ) : null}
-    </View>
+    <>
+      <View collapsable={false} style={hostStyle}>
+        <MapView
+          key="search-map"
+          ref={mapRef}
+          provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
+          googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
+          style={mapViewStyle}
+          initialRegion={region as Region}
+          showsUserLocation={false}
+          showsMyLocationButton={false}
+        >
+          {markerNodes}
+        </MapView>
+        {emptyOverlay}
+      </View>
+      {pinSheet}
+    </>
   );
 }
 

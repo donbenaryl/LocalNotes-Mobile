@@ -782,6 +782,16 @@ const en = {
     map: {
       areaLabel: '{{location}}',
       noPins: 'No locations to show on the map',
+      pinSheet: {
+        lists_one: '{{count}} list',
+        lists_other: '{{count}} lists',
+        picks_one: '{{count}} pick',
+        picks_other: '{{count}} picks',
+        people_one: '{{count}} person',
+        people_other: '{{count}} people',
+        places_one: '{{count}} place',
+        places_other: '{{count}} places',
+      },
     },
   },
   offers: {
