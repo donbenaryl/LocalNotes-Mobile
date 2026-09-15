@@ -93,6 +93,8 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
   const { colorScheme } = useColorScheme();
 
   const imageSrc = offer.imageUrl ? resolveImageUrl(offer.imageUrl) : null;
+  const videoSrc = offer.videoUrl ? resolveImageUrl(offer.videoUrl) : null;
+  const hasHero = Boolean(imageSrc || videoSrc);
   const untilLabel = offer.expiresAt ? getTimeLeftLabel(offer.expiresAt) : "";
   const isLessThanADay = untilLabel.includes("left");
   const branchLabels = offer.businessBranches ?? [];
@@ -121,9 +123,10 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
   return (
     <Pressable onPress={handlePress} accessibilityRole="button">
       <WhiteBox className="overflow-hidden p-0">
-        {imageSrc ? (
+        {hasHero ? (
           <CardHero
-            imageUrl={imageSrc}
+            imageUrl={imageSrc ?? undefined}
+            videoUrl={videoSrc ?? undefined}
             title={offer.title ?? ""}
             subtitle={categoriesSubtitle}
             aspectClassName="aspect-[16/10.5]"
@@ -145,7 +148,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
 
         <View
           className={
-            !imageSrc && showExpiryBadge ? "px-4 pt-10" : "px-4 pt-2.5"
+            !hasHero && showExpiryBadge ? "px-4 pt-10" : "px-4 pt-2.5"
           }
         >
           <View className="mb-2 flex-row items-center gap-2.5">
@@ -180,7 +183,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
 
           {badge ? <View className="mb-3">{badge}</View> : null}
 
-          {!imageSrc && offer.title ? (
+          {!hasHero && offer.title ? (
             <Text
               className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-gray-100"
               numberOfLines={2}
@@ -189,7 +192,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
             </Text>
           ) : null}
 
-          {!imageSrc && categoriesSubtitle ? (
+          {!hasHero && categoriesSubtitle ? (
             <Text
               className="mb-2 font-geist text-[13px] text-gray-500 dark:text-gray-400"
               numberOfLines={2}

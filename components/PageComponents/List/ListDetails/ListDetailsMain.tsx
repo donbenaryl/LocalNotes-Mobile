@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { MapPin } from "lucide-react-native";
@@ -49,6 +49,15 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
       return response.data?.data ?? null;
     },
   });
+
+  const viewedListIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!listId || !list) return;
+    if (viewedListIdRef.current === listId) return;
+    viewedListIdRef.current = listId;
+    void listService.viewList(listId);
+  }, [listId, list]);
 
   const displayList =
     list && savedStateOverride != null

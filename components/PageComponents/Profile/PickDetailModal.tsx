@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Image,
   InteractionManager,
@@ -172,6 +172,15 @@ export function PickDetailModal({
       setSelectedListId(null);
     }
   }, [visible]);
+
+  const viewedPickIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    if (viewedPickIdRef.current === data.id) return;
+    viewedPickIdRef.current = data.id;
+    void listService.viewListItem(data.id);
+  }, [visible, data.id]);
 
   const title = data.business_name?.trim() || t("profile.picks.untitled");
   const canClaimBusiness =

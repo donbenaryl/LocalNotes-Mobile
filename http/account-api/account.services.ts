@@ -286,6 +286,12 @@ class AccountService extends AppHttpService {
       body: dto,
     });
   }
+  async viewProfile(userId: string) {
+    return await this.SendRequest<null>({
+      method: "post",
+      path: `/${userId}/view`,
+    });
+  }
 }
 
 export default new AccountService();

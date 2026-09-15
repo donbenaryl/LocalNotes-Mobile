@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { Clock, MapPin, Star, Tag } from "lucide-react-native";
@@ -8,6 +8,7 @@ import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { LocationPickerChip } from "@/components/ui/LocationInputModal";
 import { OfferCard } from "@/components/ui/OfferCard";
+import { OfferDetailsMain } from "@/components/PageComponents/Offers/OfferDetailsMain";
 import { useOffersFeed } from "@/hooks/useOffersFeed";
 import { useSelectableLocation } from "@/hooks/useSelectableLocation";
 import type { Location as GeoLocation } from "@/http/list-api/types";
@@ -20,6 +21,7 @@ interface OffersSectionProps {
   subtitle: string;
   offers: OfferCardItem[];
   badge?: ReactNode;
+  onOfferPress: (offerId: string) => void;
 }
 
 function OffersLocationBar({
@@ -71,6 +73,7 @@ function OffersSection({
   subtitle,
   offers,
   badge,
+  onOfferPress,
 }: OffersSectionProps) {
   if (offers.length === 0) return null;
 
@@ -97,7 +100,12 @@ function OffersSection({
 
       <View className="gap-4">
         {offers.map((offer) => (
-          <OfferCard key={offer.id} offer={offer} badge={badge} />
+          <OfferCard
+            key={offer.id}
+            offer={offer}
+            badge={badge}
+            onPress={() => onOfferPress(offer.id)}
+          />
         ))}
       </View>
     </View>
@@ -114,6 +122,7 @@ export function OffersTab() {
   } = useSelectableLocation();
   const { sections, totalCount, isLoading, isRefetching, error, refetch } =
     useOffersFeed(coordinates, !isLocationLoading);
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
   const handleRefresh = useCallback(() => {
     void refetch();
@@ -194,6 +203,7 @@ export function OffersTab() {
               title={t("offers.sections.expiringSoon.title")}
               subtitle={t("offers.sections.expiringSoon.subtitle")}
               offers={sections.expiringSoon}
+              onOfferPress={setSelectedOfferId}
             />
             <OffersSection
               icon={<Star size={20} color="#FB923C" />}
@@ -201,6 +211,7 @@ export function OffersTab() {
               subtitle={t("offers.sections.followed.subtitle")}
               offers={sections.followed}
               badge={followedBadge}
+              onOfferPress={setSelectedOfferId}
             />
             <OffersSection
               icon={<MapPin size={20} color="#3B82F6" />}
@@ -208,16 +219,24 @@ export function OffersTab() {
               subtitle={t("offers.sections.nearYou.subtitle")}
               offers={sections.nearYou}
               badge={nearYouBadge}
+              onOfferPress={setSelectedOfferId}
             />
             <OffersSection
               icon={<Tag size={20} color="#9CA3AF" />}
               title={t("offers.sections.moreOffers.title")}
               subtitle={t("offers.sections.moreOffers.subtitle")}
               offers={sections.other}
+              onOfferPress={setSelectedOfferId}
             />
           </>
         )}
       </View>
+
+      <OfferDetailsMain
+        noteId={selectedOfferId ?? undefined}
+        visible={selectedOfferId != null}
+        onClose={() => setSelectedOfferId(null)}
+      />
     </OffersShell>
   );
 }

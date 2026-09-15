@@ -1,10 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { OfferCard } from "@/components/ui/OfferCard";
 import { OffersTabSkeleton } from "@/components/PageComponents/Home/Offers/OffersTabSkeleton";
+import { OfferDetailsMain } from "@/components/PageComponents/Offers/OfferDetailsMain";
 import { useBusinessOffers } from "@/hooks/useBusinessOffers";
 import { useRegisterProfilePullToRefresh } from "./ProfilePullToRefreshContext";
 
@@ -16,6 +17,7 @@ export function ProfileOffersTab({ businessId }: ProfileOffersTabProps) {
   const { t } = useTranslation();
   const { offers, isLoading, isRefetching, error, refetch } =
     useBusinessOffers(businessId);
+  const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
 
   const handleRefresh = useCallback(() => {
     void refetch();
@@ -61,8 +63,18 @@ export function ProfileOffersTab({ businessId }: ProfileOffersTabProps) {
   return (
     <View className="gap-4 px-4">
       {offers.map((offer) => (
-        <OfferCard key={offer.id} offer={offer} />
+        <OfferCard
+          key={offer.id}
+          offer={offer}
+          onPress={() => setSelectedOfferId(offer.id)}
+        />
       ))}
+
+      <OfferDetailsMain
+        noteId={selectedOfferId ?? undefined}
+        visible={selectedOfferId != null}
+        onClose={() => setSelectedOfferId(null)}
+      />
     </View>
   );
 }

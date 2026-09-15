@@ -534,6 +534,15 @@ export default function MainProfile({ userId }: MainProfileProps) {
     staleTime: FEED_STALE_TIME_MS,
   });
 
+  const viewedProfileIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isOwnProfile || !profile?.id) return;
+    if (viewedProfileIdRef.current === profile.id) return;
+    viewedProfileIdRef.current = profile.id;
+    void accountService.viewProfile(profile.id);
+  }, [isOwnProfile, profile?.id]);
+
   if (userId && currentUserId && userId === currentUserId) {
     return null;
   }

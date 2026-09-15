@@ -1,11 +1,16 @@
 import type { ReactNode } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useVideoPlayer, VideoView } from "expo-video";
 import { twMerge } from "tailwind-merge";
 import { toRgba, useImageGradientColor } from "@/hooks/useImageGradientColor";
+import { usePlayableVideoUri } from "@/hooks/usePlayableVideoUri";
 
 interface CardHeroProps {
-  imageUrl: string;
+  /** Poster / still image. Optional when `videoUrl` is set. */
+  imageUrl?: string;
+  /** When set, muted looping video takes priority over the image. */
+  videoUrl?: string;
   title: string;
   subtitle?: string;
   /** Replaces string subtitle + subtitleExtra when provided */
@@ -33,8 +38,87 @@ const GRADIENT_FILL = {
   bottom: 0,
 } as const;
 
+interface HeroVideoPreviewProps {
+  uri: string;
+}
+
+/** Autoplaying, muted, looped preview for card heroes. */
+function HeroVideoPreview({ uri }: HeroVideoPreviewProps) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
+
+  return (
+    <View
+      pointerEvents="none"
+      className="absolute inset-0 h-full w-full"
+      style={{ width: "100%", height: "100%" }}
+    >
+      <VideoView
+        player={player}
+        style={{ width: "100%", height: "100%" }}
+        contentFit="cover"
+        nativeControls={false}
+        surfaceType="textureView"
+      />
+    </View>
+  );
+}
+
+interface HeroMediaProps {
+  imageUrl?: string;
+  videoUrl?: string;
+  pointerEventsNone: boolean;
+}
+
+/** Video (preferred) or image fill for the hero background. */
+function HeroMedia({ imageUrl, videoUrl, pointerEventsNone }: HeroMediaProps) {
+  const { playableUri, isPreparing } = usePlayableVideoUri(
+    videoUrl ?? null,
+  );
+
+  if (videoUrl) {
+    if (playableUri) {
+      return <HeroVideoPreview uri={playableUri} />;
+    }
+
+    if (imageUrl) {
+      return (
+        <Image
+          source={{ uri: imageUrl }}
+          className="absolute inset-0 h-full w-full"
+          resizeMode="cover"
+          pointerEvents={pointerEventsNone ? "none" : "auto"}
+        />
+      );
+    }
+
+    return (
+      <View className="absolute inset-0 h-full w-full items-center justify-center bg-black">
+        {isPreparing ? <ActivityIndicator color="#FFFFFF" /> : null}
+      </View>
+    );
+  }
+
+  if (imageUrl) {
+    return (
+      <Image
+        source={{ uri: imageUrl }}
+        className="absolute inset-0 h-full w-full"
+        resizeMode="cover"
+        pointerEvents={pointerEventsNone ? "none" : "auto"}
+      />
+    );
+  }
+
+  return null;
+}
+
 export function CardHero({
   imageUrl,
+  videoUrl,
   title,
   subtitle,
   subtitleNode,
@@ -57,11 +141,10 @@ export function CardHero({
         className,
       )}
     >
-      <Image
-        source={{ uri: imageUrl }}
-        className="absolute inset-0 h-full w-full"
-        resizeMode="cover"
-        pointerEvents={onPress ? "none" : "auto"}
+      <HeroMedia
+        imageUrl={imageUrl}
+        videoUrl={videoUrl}
+        pointerEventsNone={Boolean(onPress)}
       />
 
       {onPress ? (

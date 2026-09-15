@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -23,14 +24,23 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { Modal } from '@/components/ui/Modal';
+import { usePlayableVideoUri } from '@/hooks/usePlayableVideoUri';
+
+export interface MediaItem {
+  type: 'image' | 'video';
+  uri: string;
+}
 
 interface ImageFullScreenProps {
-  /** Single image URI. Prefer `uris` when showing a gallery. */
+  /** Single image URI. Prefer `uris` when showing a gallery. Ignored when `media` is provided. */
   uri?: string;
-  /** Gallery of image URIs. When provided, swipe left/right to navigate. */
+  /** Gallery of image URIs. When provided, swipe left/right to navigate. Ignored when `media` is provided. */
   uris?: string[];
-  /** Index to open when `uris` has multiple images. */
+  /** Mixed image/video items. Takes precedence over `uri`/`uris` when provided. */
+  media?: MediaItem[];
+  /** Index to open when there are multiple items. */
   initialIndex?: number;
   visible: boolean;
   onClose: () => void;
@@ -207,9 +217,78 @@ function ZoomableImagePage({
   );
 }
 
+interface VideoPageProps {
+  uri: string;
+  width: number;
+  height: number;
+  isActive: boolean;
+}
+
+interface PlayableVideoViewProps {
+  uri: string;
+  width: number;
+  height: number;
+  isActive: boolean;
+}
+
+/** Mounted only with a playable URI so useVideoPlayer is never fed a Range-broken http source. */
+function PlayableVideoView({
+  uri,
+  width,
+  height,
+  isActive,
+}: PlayableVideoViewProps) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = false;
+  });
+
+  useEffect(() => {
+    if (isActive) {
+      player.play();
+    } else {
+      player.pause();
+      player.currentTime = 0;
+    }
+  }, [isActive, player]);
+
+  return (
+    <VideoView
+      player={player}
+      style={{ width, height }}
+      contentFit="contain"
+      nativeControls
+      allowsFullscreen
+      allowsPictureInPicture={false}
+      // Overlapping views (page counter, gesture layer) can lose correct
+      // z-order/touch behavior with the default surfaceView on Android.
+      surfaceType="textureView"
+    />
+  );
+}
+
+function VideoPage({ uri, width, height, isActive }: VideoPageProps) {
+  const { playableUri, isPreparing } = usePlayableVideoUri(uri);
+
+  return (
+    <View style={{ width, height }} className="items-center justify-center bg-black">
+      {playableUri ? (
+        <PlayableVideoView
+          uri={playableUri}
+          width={width}
+          height={height}
+          isActive={isActive}
+        />
+      ) : isPreparing ? (
+        <ActivityIndicator color="#FFFFFF" />
+      ) : null}
+    </View>
+  );
+}
+
 export function ImageFullScreen({
   uri,
   uris,
+  media,
   initialIndex = 0,
   visible,
   onClose,
@@ -217,17 +296,20 @@ export function ImageFullScreen({
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
-  const listRef = useRef<FlatList<string>>(null);
+  const listRef = useRef<FlatList<MediaItem>>(null);
 
-  const images = useMemo(() => {
-    if (uris && uris.length > 0) return uris.filter(Boolean);
-    if (uri) return [uri];
+  const items = useMemo<MediaItem[]>(() => {
+    if (media && media.length > 0) return media.filter((item) => Boolean(item.uri));
+    if (uris && uris.length > 0) {
+      return uris.filter(Boolean).map((u) => ({ type: 'image' as const, uri: u }));
+    }
+    if (uri) return [{ type: 'image' as const, uri }];
     return [];
-  }, [uri, uris]);
+  }, [uri, uris, media]);
 
   const clampedInitialIndex = Math.max(
     0,
-    Math.min(initialIndex, Math.max(images.length - 1, 0)),
+    Math.min(initialIndex, Math.max(items.length - 1, 0)),
   );
 
   const [currentIndex, setCurrentIndex] = useState(clampedInitialIndex);
@@ -271,34 +353,42 @@ export function ImageFullScreen({
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (width <= 0) return;
       const next = Math.round(event.nativeEvent.contentOffset.x / width);
-      setCurrentIndex(Math.max(0, Math.min(next, images.length - 1)));
+      setCurrentIndex(Math.max(0, Math.min(next, items.length - 1)));
       setIsZoomed(false);
     },
-    [images.length, width],
+    [items.length, width],
   );
 
   const renderItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<string>) => (
-      <ZoomableImagePage
-        uri={item}
-        width={width}
-        height={height}
-        isActive={visible && index === currentIndex}
-        onZoomChange={
-          index === currentIndex ? handleZoomChange : () => undefined
-        }
-      />
-    ),
+    ({ item, index }: ListRenderItemInfo<MediaItem>) =>
+      item.type === 'video' ? (
+        <VideoPage
+          uri={item.uri}
+          width={width}
+          height={height}
+          isActive={visible && index === currentIndex}
+        />
+      ) : (
+        <ZoomableImagePage
+          uri={item.uri}
+          width={width}
+          height={height}
+          isActive={visible && index === currentIndex}
+          onZoomChange={
+            index === currentIndex ? handleZoomChange : () => undefined
+          }
+        />
+      ),
     [width, height, visible, currentIndex, handleZoomChange],
   );
 
   const keyExtractor = useCallback(
-    (item: string, index: number) => `${item}-${index}`,
+    (item: MediaItem, index: number) => `${item.uri}-${index}`,
     [],
   );
 
   const getItemLayout = useCallback(
-    (_: ArrayLike<string> | null | undefined, index: number) => ({
+    (_: ArrayLike<MediaItem> | null | undefined, index: number) => ({
       length: width,
       offset: width * index,
       index,
@@ -306,17 +396,17 @@ export function ImageFullScreen({
     [width],
   );
 
-  const showCounter = images.length > 1;
-  const canSwipe = !isZoomed && images.length > 1;
+  const showCounter = items.length > 1;
+  const canSwipe = !isZoomed && items.length > 1;
 
   return (
     <Modal visible={visible} onClose={onClose} position="fullscreen">
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 items-center justify-center">
-          {images.length > 0 ? (
+          {items.length > 0 ? (
             <FlatList
               ref={listRef}
-              data={images}
+              data={items}
               keyExtractor={keyExtractor}
               renderItem={renderItem}
               horizontal
@@ -343,7 +433,7 @@ export function ImageFullScreen({
               <Text className="font-geist-bold text-[12px] text-white">
                 {t('profile.picks.photoCount', {
                   current: currentIndex + 1,
-                  total: images.length,
+                  total: items.length,
                 })}
               </Text>
             </View>

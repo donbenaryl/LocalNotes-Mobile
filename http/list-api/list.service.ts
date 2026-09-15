@@ -361,6 +361,20 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       });
     }
 
+    async viewList(listId: string) {
+      return await this.SendRequest<null>({
+        method: "post",
+        path: `/${listId}/view`,
+      });
+    }
+
+    async viewListItem(itemId: string) {
+      return await this.SendRequest<null>({
+        method: "post",
+        path: `/items/${itemId}/view`,
+      });
+    }
+
 
 }
 

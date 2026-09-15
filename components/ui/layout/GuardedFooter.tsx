@@ -1,5 +1,11 @@
 import { useCallback, useMemo, useState } from 'react';
-import { View, TouchableOpacity, Text, Platform } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  Platform,
+  InteractionManager,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
 import { useRouter, usePathname } from 'expo-router';
@@ -106,7 +112,13 @@ export function GuardedFooter() {
 
   const handleCreateOptionSelect = (value: string) => {
     if (value === 'pick') {
-      openPickModal();
+      // DropDown still has its RNModal up during onApply. Opening PickFormModal
+      // in the same turn stacks two RNModals and leaves an invisible blocker.
+      InteractionManager.runAfterInteractions(() => {
+        setTimeout(() => {
+          openPickModal();
+        }, 100);
+      });
       return;
     }
     if (value === 'offer') {
