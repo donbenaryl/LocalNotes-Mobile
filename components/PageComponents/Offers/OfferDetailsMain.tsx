@@ -167,7 +167,10 @@ export function OfferDetailsMain({
     if (!noteId || !note) return;
     if (viewedNoteIdRef.current === noteId) return;
     viewedNoteIdRef.current = noteId;
-    void notesService.viewNote(noteId);
+    void notesService.viewNote(noteId, {
+      source: "mobile",
+      origin: "other",
+    });
   }, [noteId, note]);
 
   const offer = note ? mapNoteDaoToOfferItem(note) : null;

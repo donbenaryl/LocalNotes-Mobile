@@ -1,4 +1,5 @@
 import { AppHttpService } from "..";
+import type { ViewTrackingDTO } from "../types";
 import type {
   profileItemDAO,
   UserProfileData,
@@ -286,10 +287,11 @@ class AccountService extends AppHttpService {
       body: dto,
     });
   }
-  async viewProfile(userId: string) {
+  async viewProfile(userId: string, dto: ViewTrackingDTO) {
     return await this.SendRequest<null>({
       method: "post",
       path: `/${userId}/view`,
+      body: dto,
     });
   }
 }

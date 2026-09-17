@@ -1,5 +1,5 @@
 import { AppHttpService } from "..";
-import type { RNFile } from "../types";
+import type { RNFile, ViewTrackingDTO } from "../types";
 import type {
   NoteDAO,
   NoteCategoryDAO,
@@ -82,10 +82,11 @@ class NotesService extends AppHttpService {
     });
   }
 
-  async viewNote(noteId: string) {
+  async viewNote(noteId: string, dto: ViewTrackingDTO) {
     return await this.SendRequest<null>({
       method: "post",
       path: `/${noteId}/view`,
+      body: dto,
     });
   }
 

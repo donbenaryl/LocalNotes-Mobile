@@ -179,7 +179,10 @@ export function PickDetailModal({
     if (!visible) return;
     if (viewedPickIdRef.current === data.id) return;
     viewedPickIdRef.current = data.id;
-    void listService.viewListItem(data.id);
+    void listService.viewListItem(data.id, {
+      source: "mobile",
+      origin: "other",
+    });
   }, [visible, data.id]);
 
   const title = data.business_name?.trim() || t("profile.picks.untitled");

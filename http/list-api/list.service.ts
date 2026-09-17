@@ -1,5 +1,5 @@
 import { AppHttpService } from "..";
-import type { RNFile } from "../types";
+import type { RNFile, ViewTrackingDTO } from "../types";
 import type { CreateListDTO, serchDTO, ListItemDAO, listDTO, Category, userListDTO, listedDTO, Comment, ListItemPublic, CreateListItemDTO, UpdateListItemDTO, Item, MatchHistogramDAO } from "./types";
 
 class ListService extends AppHttpService{
@@ -361,17 +361,19 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       });
     }
 
-    async viewList(listId: string) {
+    async viewList(listId: string, dto: ViewTrackingDTO) {
       return await this.SendRequest<null>({
         method: "post",
         path: `/${listId}/view`,
+        body: dto,
       });
     }
 
-    async viewListItem(itemId: string) {
+    async viewListItem(itemId: string, dto: ViewTrackingDTO) {
       return await this.SendRequest<null>({
         method: "post",
         path: `/items/${itemId}/view`,
+        body: dto,
       });
     }
 

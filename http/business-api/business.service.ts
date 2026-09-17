@@ -1,5 +1,5 @@
 import { AppHttpService } from "..";
-import type { RNFile } from "../types";
+import type { RNFile, ViewTrackingDTO } from "../types";
 import type {
     BusinessItemDAO,
     BusinessDAO,
@@ -161,10 +161,11 @@ class BusinessService extends AppHttpService{
             path: `/${businessId}/notes`,
         });
     }
-    async recordView(businessId: string) {
+    async recordView(businessId: string, dto: ViewTrackingDTO) {
         return await this.SendRequest({
             method: "post",
             path: `/${businessId}/view`,
+            body: dto,
         });
     }
     async getViewsStats(businessId: string, params?: StatsDateRangeParams) {

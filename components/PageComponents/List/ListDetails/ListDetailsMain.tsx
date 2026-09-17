@@ -53,7 +53,10 @@ export function ListDetailsMain({ listId, onClose }: ListDetailsMainProps) {
     if (!listId || !list) return;
     if (viewedListIdRef.current === listId) return;
     viewedListIdRef.current = listId;
-    void listService.viewList(listId);
+    void listService.viewList(listId, {
+      source: "mobile",
+      origin: "other",
+    });
   }, [listId, list]);
 
   const mapPicksCount = list ? buildMapPicks(list).length : 0;

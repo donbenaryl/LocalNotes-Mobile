@@ -72,15 +72,17 @@ function HomeSection({
   children,
   className,
 }: {
-  title: string;
+  title?: string;
   children: ReactNode;
   className?: string;
 }) {
   return (
     <View className={cn("mb-6", className)}>
-      <Text className="mb-3 font-geist-bold text-lg text-ink dark:text-gray-100">
-        {title}
-      </Text>
+      {title &&
+        <Text className="mb-3 font-geist-bold text-lg text-ink dark:text-gray-100">
+          {title}
+        </Text>
+      }
       <View className="gap-4">{children}</View>
     </View>
   );
@@ -440,7 +442,7 @@ export function HomeTab() {
               ) : null}
 
               {sortedDiscoverLists.length > 0 ? (
-                <HomeSection title={t("home.discover")}>
+                <HomeSection>
                   {sortedDiscoverLists.map((list) => (
                     <ListCardDetailed key={list.id} list={list} />
                   ))}

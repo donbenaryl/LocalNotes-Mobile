@@ -540,7 +540,10 @@ export default function MainProfile({ userId }: MainProfileProps) {
     if (isOwnProfile || !profile?.id) return;
     if (viewedProfileIdRef.current === profile.id) return;
     viewedProfileIdRef.current = profile.id;
-    void accountService.viewProfile(profile.id);
+    void accountService.viewProfile(profile.id, {
+      source: "mobile",
+      origin: "profile",
+    });
   }, [isOwnProfile, profile?.id]);
 
   if (userId && currentUserId && userId === currentUserId) {
