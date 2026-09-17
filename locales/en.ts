@@ -665,6 +665,7 @@ const en = {
     savesCountShort: '{{count}}',
     reactionsCountShort: '{{count}}',
     commentsCountShort: '{{count}}',
+    morePicksBadge: '+ {{count}}',
     seeMorePicks: 'See {{count}} more picks',
     showLessPicks: 'Show less',
     saveList: 'Save list',

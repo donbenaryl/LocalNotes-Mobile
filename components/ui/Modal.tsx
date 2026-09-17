@@ -23,6 +23,7 @@ import Reanimated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { BottomWrapper } from '@/components/ui/BottomWrapper';
+import { cn } from '@/utils/cn';
 
 /** Drives the enter/exit choreography of `topContent`: 0 = closed, 1 = fully open. */
 const TOP_CONTENT_ENTER = { duration: 420, easing: Easing.out(Easing.cubic) };
@@ -41,6 +42,8 @@ interface ModalProps {
   /** Content shown above the sheet. As a function, it receives the 0→1 open progress. */
   topContent?: ReactNode | ((progress: Animated.Value) => ReactNode);
   sheetHeightRatio?: number;
+  /** Merged onto the bottom sheet column (e.g. override default `pb-10`). */
+  sheetClassName?: string;
   backdropOpacityValue?: number;
   backdropColor?: string;
 }
@@ -56,6 +59,7 @@ export function Modal({
   avoidKeyboard = true,
   topContent,
   sheetHeightRatio,
+  sheetClassName,
   backdropOpacityValue = 0.5,
   backdropColor = '#1C1917',
 }: ModalProps) {
@@ -297,7 +301,11 @@ export function Modal({
     <Animated.View style={[styles.sheetSlide, { transform: [{ translateY }] }]}>
       <Reanimated.View
         style={[styles.sheetColumn, sheetSizeStyle]}
-        className={`bg-white dark:bg-gray-900 rounded-t-[35px] px-8 ${footer ? 'pb-0' : 'pb-10'}`}
+        className={cn(
+          'bg-white dark:bg-gray-900 rounded-t-[35px] px-8',
+          footer || hasFixedSheetHeight ? 'pb-0' : 'pb-10',
+          sheetClassName,
+        )}
       >
         <View
           className="w-full items-center pt-3 pb-3"

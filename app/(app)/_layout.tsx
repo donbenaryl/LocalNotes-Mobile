@@ -1,8 +1,10 @@
 import { Redirect, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { ListDetailModal } from '@/components/ui/ListDetailModal';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useListDetailModalStore } from '../../stores/useListDetailModalStore';
 import { hydrateUserProfile } from '../../services/authBootstrap';
 
 export default function AppLayout() {
@@ -10,6 +12,8 @@ export default function AppLayout() {
   const isSessionLocked = useAuthStore((s) => s.isSessionLocked);
   const user = useAuthStore((s) => s.user);
   const [isHydrating, setIsHydrating] = useState(isAuthenticated && !user);
+  const listModalId = useListDetailModalStore((s) => s.listId);
+  const closeListModal = useListDetailModalStore((s) => s.close);
   usePushNotifications();
 
   useEffect(() => {
@@ -46,11 +50,18 @@ export default function AppLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: 'transparent' },
-      }}
-    />
+    <>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      />
+      <ListDetailModal
+        visible={Boolean(listModalId)}
+        listId={listModalId}
+        onClose={closeListModal}
+      />
+    </>
   );
 }

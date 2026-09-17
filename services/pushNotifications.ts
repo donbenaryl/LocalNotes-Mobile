@@ -9,6 +9,7 @@ import {
 } from '@/constants/pushNotifications';
 import listService from '@/http/list-api/list.service';
 import { hydrateUserProfile } from '@/services/authBootstrap';
+import { useListDetailModalStore } from '@/stores/useListDetailModalStore';
 import { parseRichPushData, type RichPushData } from '@/types/pushNotification';
 
 let categoriesRegistered = false;
@@ -98,10 +99,8 @@ function resolveDeepLink(data: RichPushData): Href | null {
   if (!link) return null;
 
   if (link.startsWith('/lists/')) {
-    const listId = extractListIdFromDeepLink(link);
-    if (listId) {
-      return `/(app)/(stack)/lists/${listId}` as Href;
-    }
+    // List detail is modal-only; open via store after navigating to a shell route.
+    return null;
   }
   if (link.startsWith('/profile/')) {
     const userId = link.replace('/profile/', '').split('/')[0];
@@ -145,6 +144,13 @@ export function navigateFromPushData(data: RichPushData): void {
     return;
   }
 
+  const listId = extractListIdFromDeepLink(link);
+  if (listId) {
+    router.push('/(app)/(tabs)/home' as Href);
+    useListDetailModalStore.getState().open(listId);
+    return;
+  }
+
   const href = resolveDeepLink(data);
   if (href) {
     router.push(href);
@@ -154,7 +160,8 @@ export function navigateFromPushData(data: RichPushData): void {
 }
 
 function navigateToList(listId: string): void {
-  router.push(`/(app)/(stack)/lists/${listId}` as Href);
+  router.push('/(app)/(tabs)/home' as Href);
+  useListDetailModalStore.getState().open(listId);
 }
 
 /** Like the list (best-effort), then open it. Used by React push action. */

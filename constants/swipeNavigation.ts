@@ -72,7 +72,7 @@ export const SECTION_ENTRY_HREF: Record<SectionId, Href> = {
 
 /**
  * Section a runtime pathname belongs to. Returns null for stack/detail routes
- * outside the ring (e.g. smart-pick/history, lists/[id]).
+ * outside the ring (e.g. smart-pick/history, list edit).
  */
 export function getSectionId(pathname: string): SectionId | null {
   if (pathname.includes("/search")) return "search";

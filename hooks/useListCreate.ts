@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import listService from '@/http/list-api/list.service';
 import type { CreateListDTO } from '@/http/list-api/types';
 import { useListFormStore, type ListFormMode } from '@/stores/useListFormStore';
+import { useListDetailModalStore } from '@/stores/useListDetailModalStore';
 import { useToastStore } from '@/stores/useToastStore';
 import { itemsPayloadForApi } from '@/utils/listPickMappers';
 import { flushListPickImages } from '@/utils/flushListPickImages';
@@ -98,7 +99,10 @@ export function useListCreate(listId?: string) {
               : t('listForm.publishSuccess'),
       });
       if (isEditing) {
-        router.replace(`/(app)/(stack)/lists/${listId}` as never);
+        router.replace('/(app)/(stack)/profile' as never);
+        if (listId) {
+          useListDetailModalStore.getState().open(listId);
+        }
       } else {
         router.replace('/(app)/(stack)/profile');
       }

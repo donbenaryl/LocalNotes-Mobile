@@ -1,38 +1,35 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
+import { useQuery } from "@tanstack/react-query";
 import { MapPin } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
-import { PageLoader } from "@/components/ui/PageLoader";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import listService from "@/http/list-api/list.service";
 import { buildMapPicks } from "@/utils/listPickLocation";
 import { ListDetailsHeader } from "./ListDetailsHeader";
 import { ListDetailsBody } from "./ListDetailsBody";
-import { ListDetailsComments } from "./ListDetailsComments";
 import { ListDetailsMap } from "./ListDetailsMap";
+import { ListDetailsSkeleton } from "./ListDetailsSkeleton";
 import type { ListItemDAO } from "@/http/list-api/types";
+
+/** Sheet wraps content; scroll when taller than this fraction of the window. */
+const SHEET_MAX_HEIGHT_RATIO = 0.55;
 
 interface ListDetailsMainProps {
   listId?: string;
+  /** When set (e.g. inside ListDetailModal), back dismisses instead of router.back(). */
+  onClose?: () => void;
 }
 
-export function ListDetailsMain({ listId }: ListDetailsMainProps) {
+export function ListDetailsMain({ listId, onClose }: ListDetailsMainProps) {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
+  const { height } = useWindowDimensions();
+  const sheetMaxHeight = height * SHEET_MAX_HEIGHT_RATIO;
   const [mapVisible, setMapVisible] = useState(false);
   const [mapInitialIndex, setMapInitialIndex] = useState(0);
-  const [savedStateOverride, setSavedStateOverride] = useState<{
-    is_saved: boolean;
-    saves: number;
-  } | null>(null);
-
-  useEffect(() => {
-    setSavedStateOverride(null);
-  }, [listId]);
 
   const {
     data: list,
@@ -59,37 +56,19 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
     void listService.viewList(listId);
   }, [listId, list]);
 
-  const displayList =
-    list && savedStateOverride != null
-      ? {
-          ...list,
-          is_saved: savedStateOverride.is_saved,
-          saves: savedStateOverride.saves,
-        }
-      : list;
-
-  const mapPicksCount = displayList ? buildMapPicks(displayList).length : 0;
+  const mapPicksCount = list ? buildMapPicks(list).length : 0;
 
   const openMap = (pickIndex: number) => {
-    if (!displayList) return;
-    const picks = buildMapPicks(displayList);
+    if (!list) return;
+    const picks = buildMapPicks(list);
     const mapIndex = picks.findIndex((pick) => pick.index === pickIndex);
     setMapInitialIndex(mapIndex >= 0 ? mapIndex : 0);
     setMapVisible(true);
   };
 
-  const handleRefresh = () => {
-    void refetch();
-    if (listId) {
-      void queryClient.invalidateQueries({
-        queryKey: ["list-comments", listId],
-      });
-    }
-  };
-
   if (!listId) {
     return (
-      <View className="flex-1 items-center justify-center bg-page dark:bg-gray-900">
+      <View className="items-center justify-center bg-page px-6 py-16 dark:bg-gray-900">
         <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
           {t("listDetail.error")}
         </Text>
@@ -98,12 +77,12 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
   }
 
   if (isPending) {
-    return <PageLoader message={t("listDetail.loading")} />;
+    return <ListDetailsSkeleton />;
   }
 
-  if (isError || !displayList) {
+  if (isError || !list) {
     return (
-      <View className="flex-1 items-center justify-center bg-page px-6 dark:bg-gray-900">
+      <View className="items-center justify-center bg-page px-6 py-16 dark:bg-gray-900">
         <Text className="mb-4 text-center font-geist text-base text-gray-500 dark:text-gray-400">
           {t("listDetail.error")}
         </Text>
@@ -119,36 +98,23 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
   }
 
   return (
-    <SafeAreaView
-      edges={["bottom"]}
-      className="flex-1 bg-page dark:bg-gray-900"
-    >
+    <SafeAreaView edges={["bottom"]} className="">
       <KeyboardAwareScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 32 }}
+        style={{ maxHeight: sheetMaxHeight }}
+        contentContainerStyle={{ paddingBottom: 12 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <AppRefreshControl
             refreshing={isRefetching}
-            onRefresh={handleRefresh}
+            onRefresh={() => void refetch()}
           />
         }
       >
-        <ListDetailsHeader
-          list={displayList}
-          onSavedChange={(isSaved, saves) =>
-            setSavedStateOverride({ is_saved: isSaved, saves })
-          }
-        />
-        <ListDetailsBody
-          list={displayList}
-          onRefresh={() => void refetch()}
-        />
-
-        <ListDetailsComments list={displayList} />
+        <ListDetailsHeader list={list} onClose={onClose} />
+        <ListDetailsBody list={list} />
       </KeyboardAwareScrollView>
 
-      {mapPicksCount > 0 ? (
+      {/* {mapPicksCount > 0 ? (
         <Pressable
           onPress={() => openMap(0)}
           accessibilityRole="button"
@@ -159,11 +125,11 @@ export function ListDetailsMain({ listId }: ListDetailsMainProps) {
             {t("listDetail.openAllInMap")}
           </Text>
         </Pressable>
-      ) : null}
+      ) : null} */}
 
       <ListDetailsMap
         visible={mapVisible}
-        list={displayList}
+        list={list}
         initialIndex={mapInitialIndex}
         onClose={() => setMapVisible(false)}
       />

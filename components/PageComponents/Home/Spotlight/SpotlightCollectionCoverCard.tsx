@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { NoImage } from "@/components/ui/NoImage";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
@@ -34,22 +35,22 @@ function formatCuratorShortName(name: string): string {
 interface CollectionMemberRowProps {
   member: SpotlightCollectionMemberDAO;
   isLast: boolean;
+  onPressList: (listId: string) => void;
 }
 
-function CollectionMemberRow({ member, isLast }: CollectionMemberRowProps) {
+function CollectionMemberRow({
+  member,
+  isLast,
+  onPressList,
+}: CollectionMemberRowProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const imageUrl = resolveImageUrl(member.image);
   const { showFallback, onError } = useSpotlightImageFallback(imageUrl);
   const curatorName = formatCuratorShortName(member.curator_name);
 
-  const handleOpen = () => {
-    router.push(`/lists/${member.id}` as never);
-  };
-
   return (
     <Pressable
-      onPress={handleOpen}
+      onPress={() => onPressList(member.id)}
       accessibilityRole="button"
       accessibilityLabel={member.title}
       className={`cursor-pointer flex-row items-center gap-3 px-3.5 py-3 ${
@@ -93,6 +94,7 @@ function CollectionMemberRow({ member, isLast }: CollectionMemberRowProps) {
 export function SpotlightCollectionCoverCard({ collection }: SpotlightCollectionCoverCardProps) {
   const { t } = useTranslation();
   const impressionRef = useSpotlightImpressionTracking(collection.spotlight_item_id);
+  const [selectedListId, setSelectedListId] = useState<string | null>(null);
   const members = collection.lists ?? [];
   const coverUrl =
     resolveImageUrl(collection.cover_image) ??
@@ -159,6 +161,7 @@ export function SpotlightCollectionCoverCard({ collection }: SpotlightCollection
                 key={member.id}
                 member={member}
                 isLast={index === members.length - 1}
+                onPressList={setSelectedListId}
               />
             ))}
           </View>
@@ -176,6 +179,12 @@ export function SpotlightCollectionCoverCard({ collection }: SpotlightCollection
           <ChevronRight size={14} color="#FF6B1A" />
         </Pressable> */}
       </WhiteBox>
+
+      <ListDetailModal
+        visible={selectedListId != null}
+        listId={selectedListId}
+        onClose={() => setSelectedListId(null)}
+      />
     </View>
   );
 }

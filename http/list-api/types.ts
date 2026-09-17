@@ -143,7 +143,7 @@ export interface ListItemDAO {
   is_published:boolean;
   is_pinned:boolean;
   created_at:string;
-  likes:0;
+  likes: number;
   is_saved:boolean;
   is_liked:boolean;
   account: Account;
