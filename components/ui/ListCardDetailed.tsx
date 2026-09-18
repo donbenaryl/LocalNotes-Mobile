@@ -20,6 +20,7 @@ import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { ListEngagementRow } from "@/components/ui/ListEngagementRow";
+import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { PickPreviewImage } from "@/components/ui/PickPreviewImage";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
@@ -599,7 +600,14 @@ export function ListCardDetailed({
                             className="h-12 w-12 shrink-0 rounded-xl"
                             resizeMode="cover"
                           />
-                        ) : null}
+                        ) : (
+                          <NoImage
+                            personalityColor={list.account.personality_color}
+                            size="sm"
+                            appearance="flat"
+                            innerClassName="dark:!bg-gray-900 !bg-white"
+                          />
+                        )}
 
                         <View className="min-w-0 flex-1 justify-center">
                           <Text
