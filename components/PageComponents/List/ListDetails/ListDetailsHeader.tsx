@@ -290,12 +290,6 @@ export function ListDetailsHeader({
                   {categoryLabel}
                 </Text>
               ) : null}
-              {!isOwnList ? (
-                <PersonalityMatchPill
-                  percent={personalityMatch}
-                  personalityColor={list.account.personality_color}
-                />
-              ) : null}
             </View>
           ) : null}
         </View>

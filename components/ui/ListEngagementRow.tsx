@@ -6,6 +6,7 @@ import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { ListCommentsSheet } from "@/components/PageComponents/List/ListDetails/ListCommentsSheet";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO } from "@/http/list-api/types";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -15,6 +16,8 @@ import { cn } from "@/utils/cn";
 interface ListEngagementRowProps {
   list: ListItemDAO;
   locationLabel?: string | null;
+  /** When set, shown on the right instead of locationLabel. */
+  matchPercent?: number | null;
   className?: string;
   commentsOriginRef?: RefObject<View | null>;
 }
@@ -22,6 +25,7 @@ interface ListEngagementRowProps {
 export function ListEngagementRow({
   list,
   locationLabel,
+  matchPercent,
   className,
   commentsOriginRef,
 }: ListEngagementRowProps) {
@@ -246,7 +250,12 @@ export function ListEngagementRow({
 
         <View className="flex-1" />
 
-        {locationLabel ? (
+        {matchPercent !== undefined ? (
+          <PersonalityMatchPill
+            percent={matchPercent}
+            personalityColor={list.account.personality_color}
+          />
+        ) : locationLabel ? (
           <Text
             className="max-w-[45%] font-geist-medium text-[12.5px] text-gray-400"
             numberOfLines={1}

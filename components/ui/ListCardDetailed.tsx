@@ -7,7 +7,6 @@ import {
   Pin,
   Trash2,
 } from "lucide-react-native";
-import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,6 +26,7 @@ import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailM
 import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useListFormStore } from "@/stores/useListFormStore";
+import { useThemeStore } from "@/stores/useThemeStore";
 import { getListMatchPercent } from "@/utils/matchScore";
 import { formatListLocation } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -273,7 +273,7 @@ export function ListCardDetailed({
 }: ListCardDetailedProps) {
   const { t } = useTranslation();
   const router = useRouter();
-  const { colorScheme } = useColorScheme();
+  const theme = useThemeStore((s) => s.theme);
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const viewOrigin =
@@ -475,7 +475,8 @@ export function ListCardDetailed({
     handlePin,
   ]);
 
-  const iconDim = colorScheme === "dark" ? "#6B7280" : "#A8A29E";
+  const isDark = theme === "dark";
+  const iconDim = isDark ? "#6B7280" : "#A8A29E";
 
   const isCollapsed = collapsible && !expanded;
   const whereLabel = cityLabel || list.account.name;
@@ -526,11 +527,15 @@ export function ListCardDetailed({
                   className="absolute left-2 top-2 z-10 gap-1.5"
                   pointerEvents="none"
                 >
-                  {!isOwnList ? (
-                    <PersonalityMatchPill
-                      variant="overlay"
-                      percent={personalityMatch}
-                    />
+                  {cityLabel ? (
+                    <View className="self-start rounded-full bg-black/40 px-2.5 py-1">
+                      <Text
+                        className="font-geist-medium text-[12px] text-white"
+                        numberOfLines={1}
+                      >
+                        {cityLabel}
+                      </Text>
+                    </View>
                   ) : null}
                   {showNewBadge ? (
                     <View className="self-start rounded-full bg-brand px-2.5 py-1">
@@ -545,7 +550,7 @@ export function ListCardDetailed({
 
                 <View
                   className={
-                    !heroImageUrl && (!isOwnList || showNewBadge)
+                    !heroImageUrl && (Boolean(cityLabel) || showNewBadge)
                       ? "px-4 pt-10"
                       : "px-4 pt-2.5"
                   }
@@ -638,7 +643,7 @@ export function ListCardDetailed({
                 {/* Like Comment and Bookmark */}
                 <ListEngagementRow
                   list={list}
-                  locationLabel={cityLabel}
+                  matchPercent={isOwnList ? undefined : personalityMatch}
                   className="px-4 pb-3 pt-1"
                   commentsOriginRef={cardRef}
                 />
