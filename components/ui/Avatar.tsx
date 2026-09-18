@@ -1,7 +1,9 @@
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import { Image, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import type { ViewOrigin } from "@/http/types";
+import { resolveViewOrigin } from "@/utils/viewTracking";
 
 type AvatarSize = "xs" | "sm" | "md" | "md2" | "lg" | "xl";
 
@@ -13,6 +15,7 @@ interface AvatarProps {
   color?: string;
   size?: AvatarSize;
   onPress?: () => void;
+  viewOrigin?: ViewOrigin;
   gradientStyle?: StyleProp<ViewStyle>;
   gradientColors?: string[];
 }
@@ -97,10 +100,18 @@ export function Avatar({
   color = "bg-brand",
   size = "sm",
   onPress,
+  viewOrigin,
   gradientStyle,
   gradientColors,
 }: AvatarProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { origin } = useLocalSearchParams<{ origin?: string }>();
+  const resolvedViewOrigin = resolveViewOrigin({
+    explicitOrigin: viewOrigin,
+    pathname,
+    queryOrigin: origin,
+  });
   const dimensionClass = sizeClasses[size];
   const innerSizePx = avatarInnerSizes[size];
   const hasGradientRing = Boolean(gradientColors && gradientColors.length > 0);
@@ -111,7 +122,9 @@ export function Avatar({
 
   const handlePress =
     onPress ??
-    (userId ? () => router.push(`/profile/${userId}`) : undefined);
+    (userId
+      ? () => router.push(`/profile/${userId}?origin=${resolvedViewOrigin}`)
+      : undefined);
 
   const wrapPressable = (content: React.ReactNode) => {
     if (!handlePress) return content;

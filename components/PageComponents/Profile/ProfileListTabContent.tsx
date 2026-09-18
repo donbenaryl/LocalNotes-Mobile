@@ -142,6 +142,7 @@ export function ProfileListTabContent({
           expanded={expandedListId === item.id}
           onExpand={() => setExpandedListId(item.id)}
           onCollapse={() => setExpandedListId(null)}
+          viewOrigin="profile"
         />
       ))}
     </View>

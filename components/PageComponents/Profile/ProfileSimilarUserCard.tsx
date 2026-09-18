@@ -24,7 +24,12 @@ export function ProfileSimilarUserCard({
     <WhiteBox>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-3 flex-1">
-          <Avatar name={name} size="sm" userId={id} />
+          <Avatar
+            name={name}
+            size="sm"
+            userId={id}
+            viewOrigin="recommendation"
+          />
           <View className="flex-1 min-w-0">
             <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">{name}</Text>
             <Text className="text-xs text-gray-500 dark:text-gray-400">

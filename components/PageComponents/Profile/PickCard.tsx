@@ -20,6 +20,7 @@ import { useToastStore } from "@/stores/useToastStore";
 import type { ListItemImage, ListItemPublic } from "@/http/list-api/types";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { isOthersCategoryName } from "@/utils/listCategories";
+import type { ViewOrigin } from "@/http/types";
 
 function formatCategoryName(
   category: string,
@@ -32,6 +33,7 @@ interface PickCardProps {
   data: ListItemPublic;
   onRefresh?: () => void;
   readOnly?: boolean;
+  viewOrigin?: ViewOrigin;
 }
 
 function PickCardCategoriesScroll({
@@ -214,6 +216,7 @@ export function PickCard({
   data,
   onRefresh,
   readOnly = false,
+  viewOrigin,
 }: PickCardProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -340,6 +343,7 @@ export function PickCard({
         visible={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         data={data}
+        viewOrigin={viewOrigin}
       />
 
       {canManage && (

@@ -32,6 +32,9 @@ import { mapNoteDaoToOfferItem } from "@/types/offer";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel, formatRelativeTime } from "@/utils/time";
+import { useLocalSearchParams, usePathname } from "expo-router";
+import type { ViewOrigin } from "@/http/types";
+import { resolveViewOrigin } from "@/utils/viewTracking";
 
 /** Modal drag handle (pt-3 pb-3) + sheet bottom padding (pb-10). */
 const SHEET_CHROME = 12 + 12 + 40;
@@ -131,13 +134,22 @@ interface OfferDetailsMainProps {
   noteId?: string;
   visible: boolean;
   onClose: () => void;
+  viewOrigin?: ViewOrigin;
 }
 
 export function OfferDetailsMain({
   noteId,
   visible,
   onClose,
+  viewOrigin,
 }: OfferDetailsMainProps) {
+  const pathname = usePathname();
+  const { origin } = useLocalSearchParams<{ origin?: string }>();
+  const resolvedViewOrigin = resolveViewOrigin({
+    explicitOrigin: viewOrigin,
+    pathname,
+    queryOrigin: origin,
+  });
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
@@ -169,9 +181,9 @@ export function OfferDetailsMain({
     viewedNoteIdRef.current = noteId;
     void notesService.viewNote(noteId, {
       source: "mobile",
-      origin: "other",
+      origin: resolvedViewOrigin,
     });
-  }, [noteId, note]);
+  }, [noteId, note, resolvedViewOrigin]);
 
   const offer = note ? mapNoteDaoToOfferItem(note) : null;
 

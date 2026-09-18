@@ -12,6 +12,7 @@ import {
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
 import { getPeopleMatchPercent } from "@/utils/matchScore";
+import { withViewOrigin } from "@/utils/viewTracking";
 
 interface PeopleCardProps {
   data: UnifiedSearchPersonDAO;
@@ -37,7 +38,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
       onPress();
       return;
     }
-    router.push(`/profile/${data.id}` as never);
+    router.push(withViewOrigin(`/profile/${data.id}`, "search") as never);
   };
 
   return (
@@ -52,6 +53,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
             name={data.name}
             src={avatarSrc}
             userId={data.id}
+            viewOrigin="search"
             size="md"
             gradientColors={gradientColors}
           />

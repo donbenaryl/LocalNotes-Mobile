@@ -143,6 +143,7 @@ export function ProfilePicksTab({
                   key={pick.id}
                   data={pick}
                   onRefresh={() => void refetch()}
+                  viewOrigin="profile"
                 />
               ))}
             </View>
@@ -152,6 +153,7 @@ export function ProfilePicksTab({
                   key={pick.id}
                   data={pick}
                   onRefresh={() => void refetch()}
+                  viewOrigin="profile"
                 />
               ))}
             </View>

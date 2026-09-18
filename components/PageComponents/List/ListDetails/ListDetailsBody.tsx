@@ -8,12 +8,14 @@ import {
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
+import type { ViewOrigin } from "@/http/types";
 
 interface ListDetailsBodyProps {
   list: ListItemDAO;
+  viewOrigin: ViewOrigin;
 }
 
-export function ListDetailsBody({ list }: ListDetailsBodyProps) {
+export function ListDetailsBody({ list, viewOrigin }: ListDetailsBodyProps) {
   const { t } = useTranslation();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const isOwnList = currentUserId === list.account.id;
@@ -67,6 +69,7 @@ export function ListDetailsBody({ list }: ListDetailsBodyProps) {
           visible={isPickDetailOpen}
           onClose={() => setIsPickDetailOpen(false)}
           data={selectedPick}
+          viewOrigin={viewOrigin}
         />
       ) : null}
     </>

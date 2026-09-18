@@ -74,6 +74,7 @@ export function ProfileOffersTab({ businessId }: ProfileOffersTabProps) {
         noteId={selectedOfferId ?? undefined}
         visible={selectedOfferId != null}
         onClose={() => setSelectedOfferId(null)}
+        viewOrigin="profile"
       />
     </View>
   );

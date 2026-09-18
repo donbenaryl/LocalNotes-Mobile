@@ -25,6 +25,7 @@ import listService from '@/http/list-api/list.service';
 import type { notificationItemDAO } from '@/http/account-api/types';
 import type { ListItemPublic } from '@/http/list-api/types';
 import { hydrateUserProfile } from '@/services/authBootstrap';
+import { withViewOrigin } from '@/utils/viewTracking';
 
 const FILTERS: { id: NotificationFilter; labelKey: string }[] = [
   { id: 'all', labelKey: 'notifications.chips.all' },
@@ -107,7 +108,12 @@ export default function NotificationsFeed() {
       } catch (error) {
         console.error('Failed to load pick from notification:', error);
         if (item.related_account?.id) {
-          router.push(`/profile/${item.related_account.id}` as never);
+          router.push(
+            withViewOrigin(
+              `/profile/${item.related_account.id}`,
+              'notification',
+            ) as never,
+          );
         }
       } finally {
         setIsOpeningPick(false);
@@ -116,7 +122,12 @@ export default function NotificationsFeed() {
     }
 
     if (item.related_account?.id) {
-      router.push(`/profile/${item.related_account.id}` as never);
+      router.push(
+        withViewOrigin(
+          `/profile/${item.related_account.id}`,
+          'notification',
+        ) as never,
+      );
     }
   };
 
@@ -240,6 +251,7 @@ export default function NotificationsFeed() {
         visible={Boolean(listModalId)}
         onClose={() => setListModalId(null)}
         listId={listModalId}
+        viewOrigin="notification"
       />
 
       {pickDetail ? (
@@ -247,6 +259,7 @@ export default function NotificationsFeed() {
           visible={Boolean(pickDetail)}
           onClose={() => setPickDetail(null)}
           data={pickDetail}
+          viewOrigin="notification"
         />
       ) : null}
     </View>

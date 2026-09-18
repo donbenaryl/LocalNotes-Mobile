@@ -37,6 +37,7 @@ import {
   isCreatedWithinHours,
 } from "@/utils/time";
 import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
+import type { ViewOrigin } from "@/http/types";
 import { WhiteBox } from "./WhiteBox";
 
 interface ListCardDetailedProps {
@@ -48,6 +49,7 @@ interface ListCardDetailedProps {
   expanded?: boolean;
   onExpand?: () => void;
   onCollapse?: () => void;
+  viewOrigin?: ViewOrigin;
 }
 
 function stripHtml(html: string): string {
@@ -261,17 +263,21 @@ function ListCardCollapsedBanner({
 
 export function ListCardDetailed({
   list,
+  variant = "default",
   onDeleted,
   collapsible = false,
   expanded = true,
   onExpand,
   onCollapse,
+  viewOrigin: viewOriginProp,
 }: ListCardDetailedProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const viewOrigin =
+    viewOriginProp ?? (variant === "forYou" ? "recommendation" : undefined);
 
   const isOwnList = user?.id === list.account.id;
   const picksCount = list.items?.length ?? 0;
@@ -676,6 +682,7 @@ export function ListCardDetailed({
           visible={isPickDetailOpen}
           onClose={() => setIsPickDetailOpen(false)}
           data={selectedPick}
+          viewOrigin={viewOrigin}
         />
       ) : null}
 
@@ -699,6 +706,7 @@ export function ListCardDetailed({
         visible={isDetailOpen}
         listId={list.id}
         onClose={() => setIsDetailOpen(false)}
+        viewOrigin={viewOrigin}
       />
     </>
   );

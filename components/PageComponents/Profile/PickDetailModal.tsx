@@ -19,7 +19,7 @@ import {
   X,
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
@@ -38,11 +38,14 @@ import { Badge } from "@/components/ui/Badge";
 import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { isBusinessAccountType } from "@/utils/businessAccount";
+import type { ViewOrigin } from "@/http/types";
+import { resolveViewOrigin } from "@/utils/viewTracking";
 
 interface PickDetailModalProps {
   visible: boolean;
   onClose: () => void;
   data: ListItemPublic;
+  viewOrigin?: ViewOrigin;
 }
 
 const GRADIENT_FILL = {
@@ -140,9 +143,17 @@ export function PickDetailModal({
   visible,
   onClose,
   data,
+  viewOrigin,
 }: PickDetailModalProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const pathname = usePathname();
+  const { origin } = useLocalSearchParams<{ origin?: string }>();
+  const resolvedViewOrigin = resolveViewOrigin({
+    explicitOrigin: viewOrigin,
+    pathname,
+    queryOrigin: origin,
+  });
   const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const { colorScheme } = useColorScheme();
   const { height, width } = useWindowDimensions();
@@ -181,9 +192,9 @@ export function PickDetailModal({
     viewedPickIdRef.current = data.id;
     void listService.viewListItem(data.id, {
       source: "mobile",
-      origin: "other",
+      origin: resolvedViewOrigin,
     });
-  }, [visible, data.id]);
+  }, [visible, data.id, resolvedViewOrigin]);
 
   const title = data.business_name?.trim() || t("profile.picks.untitled");
   const canClaimBusiness =
@@ -663,6 +674,7 @@ export function PickDetailModal({
       <ListDetailModal
         visible={isListDetailOpen}
         listId={selectedListId}
+        viewOrigin={resolvedViewOrigin}
         onClose={() => {
           setIsListDetailOpen(false);
           setSelectedListId(null);

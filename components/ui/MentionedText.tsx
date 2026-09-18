@@ -1,6 +1,7 @@
 import { Text } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import type { Account } from "@/http/list-api/types";
+import { resolveViewOrigin, withViewOrigin } from "@/utils/viewTracking";
 
 interface MentionedTextProps {
   content: string;
@@ -18,6 +19,8 @@ export function MentionedText({
   className,
 }: MentionedTextProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const { origin } = useLocalSearchParams<{ origin?: string }>();
 
   if (mentionedAccounts.length === 0) {
     return <Text className={className}>{content}</Text>;
@@ -42,7 +45,15 @@ export function MentionedText({
           <Text
             key={index}
             onPress={
-              account ? () => router.push(`/profile/${account.id}`) : undefined
+              account
+                ? () =>
+                    router.push(
+                      withViewOrigin(
+                        `/profile/${account.id}`,
+                        resolveViewOrigin({ pathname, queryOrigin: origin }),
+                      ) as never,
+                    )
+                : undefined
             }
             className="font-geist-semibold text-brand"
           >

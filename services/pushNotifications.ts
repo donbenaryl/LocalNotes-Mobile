@@ -11,6 +11,7 @@ import listService from '@/http/list-api/list.service';
 import { hydrateUserProfile } from '@/services/authBootstrap';
 import { useListDetailModalStore } from '@/stores/useListDetailModalStore';
 import { parseRichPushData, type RichPushData } from '@/types/pushNotification';
+import { withViewOrigin } from '@/utils/viewTracking';
 
 let categoriesRegistered = false;
 let responseListener: Notifications.EventSubscription | null = null;
@@ -105,7 +106,7 @@ function resolveDeepLink(data: RichPushData): Href | null {
   if (link.startsWith('/profile/')) {
     const userId = link.replace('/profile/', '').split('/')[0];
     if (userId) {
-      return `/profile/${userId}` as Href;
+      return withViewOrigin(`/profile/${userId}`, 'notification') as Href;
     }
   }
   if (link === '/home/spotlight' || link.startsWith('/home/spotlight')) {
@@ -147,7 +148,7 @@ export function navigateFromPushData(data: RichPushData): void {
   const listId = extractListIdFromDeepLink(link);
   if (listId) {
     router.push('/(app)/(tabs)/home' as Href);
-    useListDetailModalStore.getState().open(listId);
+    useListDetailModalStore.getState().open(listId, 'notification');
     return;
   }
 
@@ -161,7 +162,7 @@ export function navigateFromPushData(data: RichPushData): void {
 
 function navigateToList(listId: string): void {
   router.push('/(app)/(tabs)/home' as Href);
-  useListDetailModalStore.getState().open(listId);
+  useListDetailModalStore.getState().open(listId, 'notification');
 }
 
 /** Like the list (best-effort), then open it. Used by React push action. */

@@ -104,7 +104,7 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
       >
         <View className="gap-4">
           {followingList.map((card) => (
-            <ListCardDetailed key={card.id} list={card} />
+            <ListCardDetailed key={card.id} list={card} viewOrigin="profile" />
           ))}
         </View>
       </ActivitySection>

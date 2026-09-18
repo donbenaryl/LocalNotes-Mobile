@@ -29,6 +29,7 @@ import {
   type TimeOfDayPeriod,
 } from "@/utils/time";
 import { cn } from "@/utils/cn";
+import type { ViewOrigin } from "@/http/types";
 
 function formatCityLabel(location: GeoLocation): string {
   if (location.street_address?.trim()) {
@@ -91,9 +92,11 @@ function HomeSection({
 function HomePicksGrid({
   picks,
   onRefresh,
+  viewOrigin,
 }: {
   picks: ListItemPublic[];
   onRefresh: () => void;
+  viewOrigin?: ViewOrigin;
 }) {
   const { leftColumn, rightColumn } = useMemo(() => {
     const left = picks.filter((_, index) => index % 2 === 0);
@@ -111,6 +114,7 @@ function HomePicksGrid({
             data={pick}
             readOnly
             onRefresh={onRefresh}
+            viewOrigin={viewOrigin}
           />
         ))}
       </View>
@@ -121,6 +125,7 @@ function HomePicksGrid({
             data={pick}
             readOnly
             onRefresh={onRefresh}
+            viewOrigin={viewOrigin}
           />
         ))}
       </View>
@@ -436,7 +441,11 @@ export function HomeTab() {
               {showNearYouSection ? (
                 <HomeSection title={t("home.newNearYou")}>
                   {sortedNearYouLists.map((list) => (
-                    <ListCardDetailed key={list.id} list={list} />
+                    <ListCardDetailed
+                      key={list.id}
+                      list={list}
+                      viewOrigin="discovery"
+                    />
                   ))}
                 </HomeSection>
               ) : null}
@@ -444,7 +453,11 @@ export function HomeTab() {
               {sortedDiscoverLists.length > 0 ? (
                 <HomeSection>
                   {sortedDiscoverLists.map((list) => (
-                    <ListCardDetailed key={list.id} list={list} />
+                    <ListCardDetailed
+                      key={list.id}
+                      list={list}
+                      viewOrigin="discovery"
+                    />
                   ))}
                 </HomeSection>
               ) : null}
@@ -466,6 +479,7 @@ export function HomeTab() {
                   <HomePicksGrid
                     picks={sortedForYouPicks}
                     onRefresh={() => void refetch()}
+                    viewOrigin="discovery"
                   />
                 </View>
               ) : null}
@@ -475,6 +489,7 @@ export function HomeTab() {
                   <HomePicksGrid
                     picks={sortedNearYouPicks}
                     onRefresh={() => void refetch()}
+                    viewOrigin="discovery"
                   />
                 </HomeSection>
               ) : null}
@@ -484,6 +499,7 @@ export function HomeTab() {
                   <HomePicksGrid
                     picks={sortedDiscoverPicks}
                     onRefresh={() => void refetch()}
+                    viewOrigin="discovery"
                   />
                 </HomeSection>
               ) : null}

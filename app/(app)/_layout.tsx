@@ -13,6 +13,7 @@ export default function AppLayout() {
   const user = useAuthStore((s) => s.user);
   const [isHydrating, setIsHydrating] = useState(isAuthenticated && !user);
   const listModalId = useListDetailModalStore((s) => s.listId);
+  const listModalViewOrigin = useListDetailModalStore((s) => s.viewOrigin);
   const closeListModal = useListDetailModalStore((s) => s.close);
   usePushNotifications();
 
@@ -61,6 +62,7 @@ export default function AppLayout() {
         visible={Boolean(listModalId)}
         listId={listModalId}
         onClose={closeListModal}
+        viewOrigin={listModalViewOrigin ?? undefined}
       />
     </>
   );

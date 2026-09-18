@@ -20,6 +20,8 @@ import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useColorScheme } from "nativewind";
+import type { ViewOrigin } from "@/http/types";
+import { withViewOrigin } from "@/utils/viewTracking";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
   SectionPager,
@@ -80,6 +82,7 @@ const PROFILE_CHROME_REVEAL_THRESHOLD = 300;
 
 interface MainProfileProps {
   userId?: string;
+  viewOrigin?: ViewOrigin;
 }
 
 interface MainProfileContentProps {
@@ -342,7 +345,10 @@ function MainProfileContent({
     const username = profile?.username ? `@${profile.username}` : displayName;
     try {
       await Share.share({
-        message: `${username} on LocalNotes\n/profile/${profileUserId}`,
+        message: `${username} on LocalNotes\n${withViewOrigin(
+          `/profile/${profileUserId}`,
+          "share_link",
+        )}`,
       });
     } catch {
       // User dismissed share sheet.
@@ -498,7 +504,10 @@ function MainProfileContent({
   );
 }
 
-export default function MainProfile({ userId }: MainProfileProps) {
+export default function MainProfile({
+  userId,
+  viewOrigin = "other",
+}: MainProfileProps) {
   const router = useRouter();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const isOwnProfile = !userId || userId === currentUserId;
@@ -542,9 +551,9 @@ export default function MainProfile({ userId }: MainProfileProps) {
     viewedProfileIdRef.current = profile.id;
     void accountService.viewProfile(profile.id, {
       source: "mobile",
-      origin: "profile",
+      origin: viewOrigin,
     });
-  }, [isOwnProfile, profile?.id]);
+  }, [isOwnProfile, profile?.id, viewOrigin]);
 
   if (userId && currentUserId && userId === currentUserId) {
     return null;

@@ -6,6 +6,7 @@ import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import type { SpotlightCuratorEntityDAO } from "@/http/spotlight-api/type";
+import { withViewOrigin } from "@/utils/viewTracking";
 
 interface SpotlightCuratorWatchCardProps {
   curator: SpotlightCuratorEntityDAO;
@@ -27,7 +28,9 @@ export function SpotlightCuratorWatchCard({ curator }: SpotlightCuratorWatchCard
     if (curator.spotlight_item_id) {
       void spotlightService.logOpenEvent(curator.spotlight_item_id);
     }
-    router.push(`/profile/${curator.id}` as never);
+    router.push(
+      withViewOrigin(`/profile/${curator.id}`, "spotlight") as never,
+    );
   };
 
   return (
@@ -38,7 +41,13 @@ export function SpotlightCuratorWatchCard({ curator }: SpotlightCuratorWatchCard
         className="cursor-pointer"
       >
         <WhiteBox className="items-center gap-1.5 p-3">
-          <Avatar name={curator.name} src={curator.image ?? undefined} userId={curator.id} size="md" />
+          <Avatar
+            name={curator.name}
+            src={curator.image ?? undefined}
+            userId={curator.id}
+            size="md"
+            viewOrigin="spotlight"
+          />
           <View className="w-full items-center">
             <Text
               className="font-geist-semibold text-sm text-ink dark:text-gray-100"

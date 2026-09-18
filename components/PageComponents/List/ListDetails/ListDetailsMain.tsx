@@ -14,6 +14,7 @@ import { ListDetailsBody } from "./ListDetailsBody";
 import { ListDetailsMap } from "./ListDetailsMap";
 import { ListDetailsSkeleton } from "./ListDetailsSkeleton";
 import type { ListItemDAO } from "@/http/list-api/types";
+import type { ViewOrigin } from "@/http/types";
 
 /** Sheet wraps content; scroll when taller than this fraction of the window. */
 const SHEET_MAX_HEIGHT_RATIO = 0.55;
@@ -22,9 +23,14 @@ interface ListDetailsMainProps {
   listId?: string;
   /** When set (e.g. inside ListDetailModal), back dismisses instead of router.back(). */
   onClose?: () => void;
+  viewOrigin: ViewOrigin;
 }
 
-export function ListDetailsMain({ listId, onClose }: ListDetailsMainProps) {
+export function ListDetailsMain({
+  listId,
+  onClose,
+  viewOrigin,
+}: ListDetailsMainProps) {
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
   const sheetMaxHeight = height * SHEET_MAX_HEIGHT_RATIO;
@@ -55,9 +61,9 @@ export function ListDetailsMain({ listId, onClose }: ListDetailsMainProps) {
     viewedListIdRef.current = listId;
     void listService.viewList(listId, {
       source: "mobile",
-      origin: "other",
+      origin: viewOrigin,
     });
-  }, [listId, list]);
+  }, [listId, list, viewOrigin]);
 
   const mapPicksCount = list ? buildMapPicks(list).length : 0;
 
@@ -114,7 +120,7 @@ export function ListDetailsMain({ listId, onClose }: ListDetailsMainProps) {
         }
       >
         <ListDetailsHeader list={list} onClose={onClose} />
-        <ListDetailsBody list={list} />
+        <ListDetailsBody list={list} viewOrigin={viewOrigin} />
       </KeyboardAwareScrollView>
 
       {/* {mapPicksCount > 0 ? (

@@ -16,6 +16,7 @@ export type ViewOrigin =
   | "share_link"
   | "smart_pick"
   | "recommendation"
+  | "offer"
   | "other";
 
 export interface ViewTrackingDTO {

@@ -11,6 +11,7 @@ import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import type { SpotlightCuratorEntityDAO } from "@/http/spotlight-api/type";
+import { withViewOrigin } from "@/utils/viewTracking";
 
 interface SpotlightCuratorOfWeekCardProps {
   curator: SpotlightCuratorEntityDAO;
@@ -38,7 +39,8 @@ export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCa
   const router = useRouter();
   const impressionRef = useSpotlightImpressionTracking(curator.spotlight_item_id);
 
-  const goToProfile = () => router.push(`/profile/${curator.id}` as never);
+  const goToProfile = () =>
+    router.push(withViewOrigin(`/profile/${curator.id}`, "spotlight") as never);
 
   const handleOpen = () => {
     if (curator.spotlight_item_id) {
