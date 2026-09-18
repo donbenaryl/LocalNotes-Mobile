@@ -712,6 +712,7 @@ export function ListCardDetailed({
         listId={list.id}
         onClose={() => setIsDetailOpen(false)}
         viewOrigin={viewOrigin}
+        initialList={list}
       />
     </>
   );

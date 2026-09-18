@@ -355,7 +355,7 @@ export function PickDetailModal({
   const isPickSheetVisible =
     visible && !isImageViewerOpen && !isListDetailOpen && !reportOpen;
 
-  const sheetMaxHeight = height * 0.7;
+  const sheetMaxHeight = Math.max(height, 1) * 0.7;
   const appearsInCount =
     relatedLists.length > 0 ? relatedLists.length : data.list_usage_count;
   const shouldShowAppearsInSection =
@@ -371,10 +371,11 @@ export function PickDetailModal({
         onClose={onClose}
         position="bottom"
         withCloseIcon={false}
+        avoidKeyboard={false}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ maxHeight: sheetMaxHeight }}
+          style={{ maxHeight: sheetMaxHeight, minHeight: 120 }}
           className="-mx-8"
           contentContainerClassName="pb-6"
           refreshControl={
