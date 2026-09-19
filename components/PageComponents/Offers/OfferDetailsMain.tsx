@@ -12,7 +12,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { Calendar, Clock, Eye, Heart, Play, Share2, X } from "lucide-react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useColorScheme } from "nativewind";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,13 +28,38 @@ import { Badge } from "@/components/ui/Badge";
 import { usePlayableVideoUri } from "@/hooks/usePlayableVideoUri";
 import notesService from "@/http/notes-api/notes.service";
 import type { NoteDAO } from "@/http/notes-api/types";
-import { mapNoteDaoToOfferItem } from "@/types/offer";
+import { mapNoteDaoToOfferItem, type OfferCardItem } from "@/types/offer";
+import { cn } from "@/utils/cn";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel, formatRelativeTime } from "@/utils/time";
 import { useLocalSearchParams, usePathname } from "expo-router";
 import type { ViewOrigin } from "@/http/types";
 import { resolveViewOrigin } from "@/utils/viewTracking";
+
+function patchOfferListCaches(
+  queryClient: ReturnType<typeof useQueryClient>,
+  offerId: string,
+  patch: Pick<OfferCardItem, "isLiked" | "likes">,
+) {
+  const patchList = (previous: OfferCardItem[] | undefined) => {
+    if (!previous) return previous;
+    return previous.map((item) =>
+      item.id === offerId
+        ? { ...item, isLiked: patch.isLiked, likes: patch.likes }
+        : item,
+    );
+  };
+
+  queryClient.setQueriesData<OfferCardItem[]>(
+    { queryKey: ["offers-feed"] },
+    patchList,
+  );
+  queryClient.setQueriesData<OfferCardItem[]>(
+    { queryKey: ["business-offers"] },
+    patchList,
+  );
+}
 
 /** Modal drag handle (pt-3 pb-3) + sheet bottom padding (pb-10). */
 const SHEET_CHROME = 12 + 12 + 40;
@@ -152,6 +177,7 @@ export function OfferDetailsMain({
   });
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
+  const queryClient = useQueryClient();
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -174,7 +200,16 @@ export function OfferDetailsMain({
     },
   });
 
+  const [isLiked, setIsLiked] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [isLiking, setIsLiking] = useState(false);
+
   const viewedNoteIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setIsLiked(note?.is_liked ?? false);
+    setLikes(note?.like_count ?? 0);
+  }, [noteId, note?.is_liked, note?.like_count]);
 
   useEffect(() => {
     if (!noteId || !note) return;
@@ -237,7 +272,61 @@ export function OfferDetailsMain({
     [carouselWidth, mediaItems.length],
   );
 
-  const handleShare = async () => {
+  const applyLikePatch = useCallback(
+    (nextLiked: boolean, nextLikes: number) => {
+      if (!noteId) return;
+      patchOfferListCaches(queryClient, noteId, {
+        isLiked: nextLiked,
+        likes: nextLikes,
+      });
+      queryClient.setQueryData<NoteDAO | null>(
+        ["note-detail", noteId],
+        (previous) =>
+          previous
+            ? {
+                ...previous,
+                is_liked: nextLiked,
+                like_count: nextLikes,
+              }
+            : previous,
+      );
+    },
+    [noteId, queryClient],
+  );
+
+  const handleLike = useCallback(async () => {
+    if (!noteId || isLiking) return;
+
+    setIsLiking(true);
+    const previousLiked = isLiked;
+    const previousLikes = likes;
+    const nextLiked = !previousLiked;
+    const nextLikes = nextLiked
+      ? previousLikes + 1
+      : Math.max(0, previousLikes - 1);
+
+    setIsLiked(nextLiked);
+    setLikes(nextLikes);
+    applyLikePatch(nextLiked, nextLikes);
+
+    try {
+      const response = nextLiked
+        ? await notesService.likeNote(noteId)
+        : await notesService.unlikeNote(noteId);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+    } catch (error) {
+      console.error("Failed to toggle offer like:", error);
+      setIsLiked(previousLiked);
+      setLikes(previousLikes);
+      applyLikePatch(previousLiked, previousLikes);
+    } finally {
+      setIsLiking(false);
+    }
+  }, [noteId, isLiking, isLiked, likes, applyLikePatch]);
+
+  const handleShare = useCallback(async () => {
     if (!offer) return;
     try {
       const message = [offer.title, offer.content].filter(Boolean).join("\n");
@@ -245,7 +334,7 @@ export function OfferDetailsMain({
     } catch (error) {
       console.error("Failed to share offer:", error);
     }
-  };
+  }, [offer]);
 
   const categoriesSubtitle = offer?.categories?.length
     ? offer.categories
@@ -484,7 +573,7 @@ export function OfferDetailsMain({
                   {t("offers.detail.posted", { time: postedLabel })}
                 </Text>
 
-                <View className="flex-row flex-wrap items-center gap-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                <View className="flex-row items-center gap-3 border-t border-gray-100 pt-3 dark:border-gray-800">
                   <View className="flex-row items-center gap-1.5">
                     <Eye size={14} color={iconMuted} />
                     <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400">
@@ -492,21 +581,50 @@ export function OfferDetailsMain({
                     </Text>
                   </View>
 
-                  <View className="flex-row items-center gap-1.5">
-                    <Heart size={14} color={iconMuted} />
-                    <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400">
-                      {offer.likes}
+                  <Pressable
+                    onPress={() => void handleLike()}
+                    disabled={isLiking}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      isLiked ? t("listDetail.liked") : t("listDetail.like")
+                    }
+                    accessibilityState={{ disabled: isLiking, selected: isLiked }}
+                    className="cursor-pointer flex-row items-center gap-1.5"
+                    hitSlop={4}
+                  >
+                    <Heart
+                      size={14}
+                      color={isLiked ? "#FF6B1A" : iconMuted}
+                      fill={isLiked ? "#FF6B1A" : "transparent"}
+                    />
+                    <Text
+                      className={cn(
+                        "font-geist-semibold text-[13px]",
+                        isLiked
+                          ? "text-brand"
+                          : "text-gray-500 dark:text-gray-400",
+                      )}
+                    >
+                      {likes}
                     </Text>
-                  </View>
+                  </Pressable>
 
-                  <View className="flex-row items-center gap-1.5">
+                  <Pressable
+                    onPress={() => void handleShare()}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("listDetail.share")}
+                    className="cursor-pointer flex-row items-center gap-1.5"
+                    hitSlop={4}
+                  >
                     <Share2 size={14} color={iconMuted} />
                     <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400">
                       {offer.shares}
                     </Text>
-                  </View>
+                  </Pressable>
 
-                  <View className="flex-row items-center gap-1.5">
+                  <View className="flex-1" />
+
+                  <View className="max-w-[45%] flex-row items-center gap-1.5">
                     {isLessThanADay ? (
                       <Clock size={14} color="#de4f2d" />
                     ) : (
@@ -514,22 +632,16 @@ export function OfferDetailsMain({
                     )}
                     <Text
                       className={`font-geist-semibold text-[13px] ${
-                        isLessThanADay ? "text-[#de4f2d]" : "text-gray-500 dark:text-gray-400"
+                        isLessThanADay
+                          ? "text-[#de4f2d]"
+                          : "text-gray-500 dark:text-gray-400"
                       }`}
+                      numberOfLines={1}
                     >
                       {untilLabel || t("offers.noExpiration")}
                     </Text>
                   </View>
                 </View>
-
-                <LocalNotesButton
-                  label={t("listDetail.share")}
-                  onPress={() => void handleShare()}
-                  variant="ghost"
-                  size="sm"
-                  isWidthFull={false}
-                  className="mt-4 self-start"
-                />
               </View>
             </>
           )}

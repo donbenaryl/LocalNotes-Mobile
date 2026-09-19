@@ -19,6 +19,7 @@ export interface OfferCardItem {
   views: number;
   likes: number;
   shares: number;
+  isLiked?: boolean;
 }
 
 function formatBusinessLocation(location: BusinessLocation): string {
@@ -62,6 +63,7 @@ export function mapNoteDaoToOfferItem(note: NoteDAO): OfferCardItem {
     views: note.view_count ?? 0,
     likes: note.like_count ?? 0,
     shares: note.share_count ?? 0,
+    isLiked: note.is_liked ?? false,
     others_name: note.categories.find(
       (category) => category.name.toLowerCase() === "others",
     )?.others_name,

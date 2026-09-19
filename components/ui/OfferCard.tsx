@@ -1,5 +1,11 @@
-import type { ReactNode } from "react";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  Share,
+  Text,
+  View,
+} from "react-native";
 import {
   Calendar,
   Clock,
@@ -7,13 +13,17 @@ import {
   Heart,
   Share2,
 } from "lucide-react-native";
+import { useQueryClient } from "@tanstack/react-query";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
 import { CardHero } from "@/components/ui/CardHero";
 import { toast } from "@/components/ui/Toast";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
+import notesService from "@/http/notes-api/notes.service";
+import type { NoteDAO } from "@/http/notes-api/types";
 import type { OfferCardItem } from "@/types/offer";
+import { cn } from "@/utils/cn";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel } from "@/utils/time";
@@ -84,9 +94,34 @@ function BusinessFollowButton({
   );
 }
 
+function patchOfferListCaches(
+  queryClient: ReturnType<typeof useQueryClient>,
+  offerId: string,
+  patch: Pick<OfferCardItem, "isLiked" | "likes">,
+) {
+  const patchList = (previous: OfferCardItem[] | undefined) => {
+    if (!previous) return previous;
+    return previous.map((item) =>
+      item.id === offerId
+        ? { ...item, isLiked: patch.isLiked, likes: patch.likes }
+        : item,
+    );
+  };
+
+  queryClient.setQueriesData<OfferCardItem[]>(
+    { queryKey: ["offers-feed"] },
+    patchList,
+  );
+  queryClient.setQueriesData<OfferCardItem[]>(
+    { queryKey: ["business-offers"] },
+    patchList,
+  );
+}
+
 export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
+  const queryClient = useQueryClient();
 
   const imageSrc = offer.imageUrl ? resolveImageUrl(offer.imageUrl) : null;
   const videoSrc = offer.videoUrl ? resolveImageUrl(offer.videoUrl) : null;
@@ -100,11 +135,19 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
     offer.categories,
     offer.others_name,
   );
-  const showExpiryBadge = Boolean(offer.expiresAt && isLessThanADay);
+  const showLocationPill = Boolean(firstBranchLabel);
   const locationLabel = firstBranchLabel ?? t("offers.noLocation");
 
+  const [isLiked, setIsLiked] = useState(offer.isLiked ?? false);
+  const [likes, setLikes] = useState(offer.likes);
+  const [isLiking, setIsLiking] = useState(false);
+
+  useEffect(() => {
+    setIsLiked(offer.isLiked ?? false);
+    setLikes(offer.likes);
+  }, [offer.id, offer.isLiked, offer.likes]);
+
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
-  const iconDim = colorScheme === "dark" ? "#6B7280" : "#A8A29E";
 
   const handlePress = () => {
     if (onPress) {
@@ -115,6 +158,68 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
       title: t("alerts.comingSoon"),
     });
   };
+
+  const applyLikePatch = useCallback(
+    (nextLiked: boolean, nextLikes: number) => {
+      patchOfferListCaches(queryClient, offer.id, {
+        isLiked: nextLiked,
+        likes: nextLikes,
+      });
+      queryClient.setQueryData<NoteDAO | null>(
+        ["note-detail", offer.id],
+        (previous) =>
+          previous
+            ? {
+                ...previous,
+                is_liked: nextLiked,
+                like_count: nextLikes,
+              }
+            : previous,
+      );
+    },
+    [offer.id, queryClient],
+  );
+
+  const handleLike = useCallback(async () => {
+    if (isLiking) return;
+
+    setIsLiking(true);
+    const previousLiked = isLiked;
+    const previousLikes = likes;
+    const nextLiked = !previousLiked;
+    const nextLikes = nextLiked
+      ? previousLikes + 1
+      : Math.max(0, previousLikes - 1);
+
+    setIsLiked(nextLiked);
+    setLikes(nextLikes);
+    applyLikePatch(nextLiked, nextLikes);
+
+    try {
+      const response = nextLiked
+        ? await notesService.likeNote(offer.id)
+        : await notesService.unlikeNote(offer.id);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+    } catch (error) {
+      console.error("Failed to toggle offer like:", error);
+      setIsLiked(previousLiked);
+      setLikes(previousLikes);
+      applyLikePatch(previousLiked, previousLikes);
+    } finally {
+      setIsLiking(false);
+    }
+  }, [isLiking, isLiked, likes, offer.id, applyLikePatch]);
+
+  const handleShare = useCallback(async () => {
+    try {
+      const message = [offer.title, offer.content].filter(Boolean).join("\n");
+      await Share.share({ message, title: offer.title });
+    } catch (error) {
+      console.error("Failed to share offer:", error);
+    }
+  }, [offer.title, offer.content]);
 
   return (
     <Pressable onPress={handlePress} accessibilityRole="button">
@@ -129,14 +234,17 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
           />
         ) : null}
 
-        {showExpiryBadge ? (
+        {showLocationPill ? (
           <View
-            className="absolute left-2 top-2 z-10"
+            className="absolute left-2 top-2 z-10 gap-1.5"
             pointerEvents="none"
           >
-            <View className="self-start rounded-full bg-[#de4f2d] px-2.5 py-1">
-              <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
-                {untilLabel}
+            <View className="self-start rounded-full bg-black/40 px-2.5 py-1">
+              <Text
+                className="font-geist-medium text-[12px] text-white"
+                numberOfLines={1}
+              >
+                {firstBranchLabel}
               </Text>
             </View>
           </View>
@@ -144,7 +252,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
 
         <View
           className={
-            !hasHero && showExpiryBadge ? "px-4 pt-10" : "px-4 pt-2.5"
+            !hasHero && showLocationPill ? "px-4 pt-10" : "px-4 pt-2.5"
           }
         >
           <View className="mb-2 flex-row items-center gap-2.5">
@@ -210,21 +318,50 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
             </Text>
           </View>
 
-          <View className="flex-row items-center gap-1.5">
-            <Heart size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
-              {offer.likes}
+          <Pressable
+            onPress={() => void handleLike()}
+            disabled={isLiking}
+            accessibilityRole="button"
+            accessibilityLabel={
+              isLiked ? t("listDetail.liked") : t("listDetail.like")
+            }
+            accessibilityState={{ disabled: isLiking, selected: isLiked }}
+            className="cursor-pointer flex-row items-center gap-1.5"
+            hitSlop={4}
+          >
+            <Heart
+              size={13}
+              color={isLiked ? "#FF6B1A" : iconMuted}
+              fill={isLiked ? "#FF6B1A" : "transparent"}
+            />
+            <Text
+              className={cn(
+                "font-geist-semibold text-[12.5px]",
+                isLiked
+                  ? "text-brand"
+                  : "text-gray-500 dark:text-gray-400",
+              )}
+            >
+              {likes}
             </Text>
-          </View>
+          </Pressable>
 
-          <View className="flex-row items-center gap-1.5">
+          <Pressable
+            onPress={() => void handleShare()}
+            accessibilityRole="button"
+            accessibilityLabel={t("listDetail.share")}
+            className="cursor-pointer flex-row items-center gap-1.5"
+            hitSlop={4}
+          >
             <Share2 size={13} color={iconMuted} />
             <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
               {offer.shares}
             </Text>
-          </View>
+          </Pressable>
 
-          <View className="flex-row items-center gap-1.5">
+          <View className="flex-1" />
+
+          <View className="max-w-[45%] flex-row items-center gap-1.5">
             {isLessThanADay ? (
               <Clock size={13} color="#de4f2d" />
             ) : (
@@ -241,16 +378,6 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
               {untilLabel || t("offers.noExpiration")}
             </Text>
           </View>
-
-          <View className="flex-1" />
-
-          <Text
-            className="max-w-[45%] font-geist-medium text-[12.5px]"
-            numberOfLines={1}
-            style={{ color: iconDim }}
-          >
-            {locationLabel}
-          </Text>
         </View>
       </WhiteBox>
     </Pressable>
