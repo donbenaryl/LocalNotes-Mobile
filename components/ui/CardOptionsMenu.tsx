@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import {
   Edit,
-  MoreHorizontal,
   MoreVertical,
   Pin,
   Trash2,
@@ -182,7 +181,7 @@ export function CardOptionsMenu({
           ) : iconOrientation === "vertical" ? (
             <MoreVertical size={20} color="#6B7280" />
           ) : (
-            <MoreHorizontal size={20} color="#6B7280" />
+            <MoreVertical size={20} color="#6B7280" />
           )}
         </Pressable>
       </View>

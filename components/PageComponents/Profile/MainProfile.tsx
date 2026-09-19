@@ -12,7 +12,7 @@ import {
   Info,
   LayoutGrid,
   List,
-  MoreHorizontal,
+  MoreVertical,
   Tag,
 } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
@@ -435,7 +435,7 @@ function MainProfileContent({
       className="rounded-full p-1 active:opacity-70"
       hitSlop={8}
     >
-      <MoreHorizontal size={22} color={moreIconColor} strokeWidth={2} />
+      <MoreVertical size={22} color={moreIconColor} strokeWidth={2} />
     </Pressable>
   ) : null;
 

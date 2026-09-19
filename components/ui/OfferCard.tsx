@@ -62,11 +62,7 @@ function BusinessFollowButton({
       disabled={isToggling}
       accessibilityRole="button"
       accessibilityState={{ selected: isFollowed, busy: isToggling }}
-      className={`min-h-10 cursor-pointer items-center justify-center rounded-full px-4 ${
-        isFollowed
-          ? "border border-gray-200 bg-white dark:border-gray-700 dark:bg-ink"
-          : "border-[1.5px] border-ink bg-white dark:border-gray-100 dark:bg-ink"
-      }`}
+      className={`min-h-10 cursor-pointer items-center justify-center rounded-full`}
     >
       {isToggling ? (
         <ActivityIndicator

@@ -155,7 +155,8 @@ export function OfferDetailsMain({
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const scrollMaxHeight = height - insets.top - SHEET_CHROME;
+  // Guard against a 0/negative maxHeight on first Modal presentation.
+  const scrollMaxHeight = Math.max(height - insets.top - SHEET_CHROME, 120);
 
   const {
     data: note,
@@ -270,10 +271,11 @@ export function OfferDetailsMain({
         onClose={onClose}
         position="bottom"
         withCloseIcon={false}
+        avoidKeyboard={false}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={{ maxHeight: scrollMaxHeight }}
+          style={{ maxHeight: scrollMaxHeight, minHeight: 120 }}
           className="-mx-8"
           contentContainerClassName="pb-2"
           // RefreshControl blanks flex ScrollViews on Android.
@@ -303,7 +305,7 @@ export function OfferDetailsMain({
                 {t("offers.detail.error")}
               </Text>
             </View>
-          ) : isPending ? (
+          ) : isPending && !note ? (
             <OfferDetailsSkeleton />
           ) : isError || !offer || !note ? (
             <View className="relative items-center justify-center px-6 py-16">
