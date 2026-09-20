@@ -13,7 +13,9 @@ import MapView, {
 } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 import { MapPinMarker } from "@/components/ui/MapPinMarker";
+import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { SearchMapPinSheet } from "@/components/PageComponents/Search/SearchMapPinSheet";
+import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
@@ -256,12 +258,40 @@ export function SearchMap({
   // blanks Google Maps TextureView on Android even when the host has pixels.
   const clipLegalLabel = Platform.OS === "ios";
 
-  const pinSheet = (
-    <SearchMapPinSheet
-      visible={selectedMarker != null}
-      onClose={handleSheetClose}
-      marker={selectedMarker}
-    />
+  const singleList =
+    selectedMarker?.kind === "list" && selectedMarker.items.length === 1
+      ? selectedMarker.items[0]
+      : null;
+  const singlePick =
+    selectedMarker?.kind === "pick" && selectedMarker.items.length === 1
+      ? selectedMarker.items[0]
+      : null;
+  const showPinSheet =
+    selectedMarker != null && singleList == null && singlePick == null;
+
+  const pinOverlays = (
+    <>
+      <SearchMapPinSheet
+        visible={showPinSheet}
+        onClose={handleSheetClose}
+        marker={selectedMarker}
+      />
+      <ListDetailModal
+        visible={singleList != null}
+        onClose={handleSheetClose}
+        listId={singleList?.id ?? null}
+        initialList={singleList}
+        viewOrigin="search"
+      />
+      {singlePick ? (
+        <PickDetailModal
+          visible
+          onClose={handleSheetClose}
+          data={singlePick}
+          viewOrigin="search"
+        />
+      ) : null}
+    </>
   );
 
   const markerNodes = markers.map((marker) => (
@@ -313,7 +343,7 @@ export function SearchMap({
           </MapView>
           {emptyOverlay}
         </View>
-        {pinSheet}
+        {pinOverlays}
       </>
     );
   }
@@ -342,7 +372,7 @@ export function SearchMap({
         </MapView>
         {emptyOverlay}
       </View>
-      {pinSheet}
+      {pinOverlays}
     </>
   );
 }
