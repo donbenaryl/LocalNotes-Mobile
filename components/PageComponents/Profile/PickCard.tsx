@@ -40,16 +40,26 @@ function PickCardCategoriesScroll({
   categories,
   othersName,
   textClassName,
+  scrollable = true,
 }: {
   categories: string[];
   othersName: ListItemPublic["others_name"];
   textClassName: string;
+  scrollable?: boolean;
 }) {
   if (categories.length === 0) return null;
 
   const label = categories
     .map((category) => formatCategoryName(category, othersName))
     .join(" · ");
+
+  if (!scrollable) {
+    return (
+      <Text className={textClassName} numberOfLines={1}>
+        {label}
+      </Text>
+    );
+  }
 
   return (
     <ScrollView
@@ -158,22 +168,20 @@ function PickCardBody({
 
       <View className={bodyPaddingClass}>
         {showTitleInBody ? (
-          <Pressable onPress={onOpenDetail} className="cursor-pointer">
-            <View
-              className={
-                padForMatchOverlay
-                  ? "flex-row items-center gap-1.5"
-                  : "flex-row items-center gap-1.5 pr-16"
-              }
+          <View
+            className={
+              padForMatchOverlay
+                ? "flex-row items-center gap-1.5"
+                : "flex-row items-center gap-1.5 pr-16"
+            }
+          >
+            <Text
+              className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
+              numberOfLines={1}
             >
-              <Text
-                className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
-                numberOfLines={1}
-              >
-                {data.business_name}
-              </Text>
-            </View>
-          </Pressable>
+              {data.business_name}
+            </Text>
+          </View>
         ) : null}
 
         {showCategoriesInBody ? (
@@ -181,37 +189,36 @@ function PickCardBody({
             categories={data.categories}
             othersName={data.others_name}
             textClassName="text-xs text-gray-400 dark:text-gray-500"
+            scrollable={false}
           />
         ) : null}
 
-        <Pressable onPress={onOpenDetail} className="cursor-pointer">
-          <View className="gap-1">
-            {locationLabel && (
-              <Text className="text-xs text-gray-400 dark:text-gray-500" numberOfLines={1}>
-                {locationLabel}
-              </Text>
-            )}
+        <View className="gap-1">
+          {locationLabel && (
+            <Text className="text-xs text-gray-400 dark:text-gray-500" numberOfLines={1}>
+              {locationLabel}
+            </Text>
+          )}
 
-            {data.description ? (
-              <Text
-                className="font-geist text-xs italic leading-4 text-gray-500 dark:text-gray-400"
-                numberOfLines={1}
-              >
-                {data.description}
-              </Text>
-            ) : null}
+          {data.description ? (
+            <Text
+              className="font-geist text-xs italic leading-4 text-gray-500 dark:text-gray-400"
+              numberOfLines={1}
+            >
+              {data.description}
+            </Text>
+          ) : null}
 
-            {data.tags.length > 0 && (
-              <View className="flex-row flex-wrap items-center gap-1 mt-1">
-                {data.tags.map((tag) => (
-                  <Badge key={tag.id} label={tag.name} variant="primary" />
-                ))}
-              </View>
-            )}
+          {data.tags.length > 0 && (
+            <View className="flex-row flex-wrap items-center gap-1 mt-1">
+              {data.tags.map((tag) => (
+                <Badge key={tag.id} label={tag.name} variant="primary" />
+              ))}
+            </View>
+          )}
 
-            <PickCardOwnerRow data={data} />
-          </View>
-        </Pressable>
+          <PickCardOwnerRow data={data} />
+        </View>
       </View>
     </View>
   );
@@ -286,66 +293,73 @@ export function PickCard({
 
   return (
     <>
-      <WhiteBox className="p-0">
-        <PickCardBody
-          data={data}
-          thumbnails={thumbnails}
-          locationLabel={locationLabel}
-          padForMatchOverlay={showMatch}
-          onOpenDetail={() => setIsDetailOpen(true)}
-        />
+      <Pressable
+        onPress={() => setIsDetailOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel={data.business_name ?? data.description ?? undefined}
+        className="w-full cursor-pointer"
+      >
+        <WhiteBox className="p-0">
+          <PickCardBody
+            data={data}
+            thumbnails={thumbnails}
+            locationLabel={locationLabel}
+            padForMatchOverlay={showMatch}
+            onOpenDetail={() => setIsDetailOpen(true)}
+          />
 
-        {showMatch ? (
-          <View className="absolute left-2 top-2 z-10" pointerEvents="none">
-            <PersonalityMatchPill
-              variant="overlayCompact"
-              percent={personalityMatch}
-            />
-          </View>
-        ) : null}
-
-        <View className="absolute right-2 top-2 flex-row items-center gap-1">
-          {!data.is_owner && data.owner ? (
-            <ReportFlagButton
-              userId={data.owner.id}
-              displayName={data.owner.name}
-              contentType="pick"
-              contentId={data.id}
-              size={14}
-              className="rounded-full p-1.5 cursor-pointer"
-              style={actionIconBackingStyle}
-            />
-          ) : null}
-          {!canManage && (
-            <Pressable
-              onPress={() => void handleToggleFavorite()}
-              disabled={isTogglingFavorite}
-              className="rounded-full p-1.5 cursor-pointer"
-              style={actionIconBackingStyle}
-            >
-              <Bookmark
-                size={14}
-                color={isFavorite ? "#EF4444" : "#374151"}
-                fill={isFavorite ? "#EF4444" : "transparent"}
-              />
-            </Pressable>
-          )}
-          {data.is_verified ? (
-            <BadgeCheck size={14} color="#FF6B1A" />
-          ) : null}
-          {canManage && (
-            <View className="rounded-full" style={actionIconBackingStyle}>
-              <CardOptionsMenu
-                onPin={() => void handleToggleFavorite()}
-                pinIcon={Bookmark}
-                onEdit={() => setIsEditOpen(true)}
-                onDelete={() => setIsDeleteOpen(true)}
-                isDeleting={isDeleting}
+          {showMatch ? (
+            <View className="absolute left-2 top-2 z-10" pointerEvents="none">
+              <PersonalityMatchPill
+                variant="overlayCompact"
+                percent={personalityMatch}
               />
             </View>
-          )}
-        </View>
-      </WhiteBox>
+          ) : null}
+
+          <View className="absolute right-2 top-2 z-10 flex-row items-center gap-1">
+            {!data.is_owner && data.owner ? (
+              <ReportFlagButton
+                userId={data.owner.id}
+                displayName={data.owner.name}
+                contentType="pick"
+                contentId={data.id}
+                size={14}
+                className="rounded-full p-1.5 cursor-pointer"
+                style={actionIconBackingStyle}
+              />
+            ) : null}
+            {!canManage && (
+              <Pressable
+                onPress={() => void handleToggleFavorite()}
+                disabled={isTogglingFavorite}
+                className="rounded-full p-1.5 cursor-pointer"
+                style={actionIconBackingStyle}
+              >
+                <Bookmark
+                  size={14}
+                  color={isFavorite ? "#EF4444" : "#374151"}
+                  fill={isFavorite ? "#EF4444" : "transparent"}
+                />
+              </Pressable>
+            )}
+            {data.is_verified ? (
+              <BadgeCheck size={14} color="#FF6B1A" />
+            ) : null}
+            {canManage && (
+              <View className="rounded-full" style={actionIconBackingStyle}>
+                <CardOptionsMenu
+                  onPin={() => void handleToggleFavorite()}
+                  pinIcon={Bookmark}
+                  onEdit={() => setIsEditOpen(true)}
+                  onDelete={() => setIsDeleteOpen(true)}
+                  isDeleting={isDeleting}
+                />
+              </View>
+            )}
+          </View>
+        </WhiteBox>
+      </Pressable>
 
       <PickDetailModal
         visible={isDetailOpen}
