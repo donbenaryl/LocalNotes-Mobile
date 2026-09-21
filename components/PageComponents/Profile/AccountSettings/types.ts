@@ -32,6 +32,8 @@ export interface ConnectedProvider {
   connected: boolean;
   reviewCount?: number;
   lastSyncedAt?: string;
+  syncStatus?: 'idle' | 'syncing' | 'failed';
+  comingSoon?: boolean;
 }
 
 export interface AccountSettingsPrefs {
@@ -66,27 +68,12 @@ export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
   showLikesAndComments: false,
 };
 
+/** Unconnected defaults — live status comes from GET /api/reviews/connections. */
 export const DEFAULT_CONNECTED_PROVIDERS: ConnectedProvider[] = [
-  {
-    id: 'google',
-    connected: true,
-    reviewCount: 62,
-    lastSyncedAt: '2h ago',
-  },
-  {
-    id: 'yelp',
-    connected: true,
-    reviewCount: 19,
-    lastSyncedAt: '3h ago',
-  },
-  {
-    id: 'amazon',
-    connected: false,
-  },
-  {
-    id: 'tripadvisor',
-    connected: false,
-  },
+  { id: 'google', connected: false },
+  { id: 'yelp', connected: false, comingSoon: true },
+  { id: 'amazon', connected: false, comingSoon: true },
+  { id: 'tripadvisor', connected: false, comingSoon: true },
 ];
 
 export const DEFAULT_ACCOUNT_SETTINGS: AccountSettingsPrefs = {

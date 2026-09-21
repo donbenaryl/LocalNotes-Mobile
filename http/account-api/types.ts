@@ -50,6 +50,8 @@ export interface profileItemDAO {
   /** Present when account_type is business */
   primary_business_id?: string | null;
   primary_business_name?: string | null;
+  /** Mirrored third-party reviews on this profile (additive). */
+  review_count?: number;
 }
 
 export type profileDAO = {

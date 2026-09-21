@@ -2,6 +2,7 @@ import { ProfileListTabPanel } from "./ProfileListTabPanel";
 import { ProfilePicksTab } from "./ProfilePicksTab";
 import { ProfileAboutTab } from "./ProfileAboutTab";
 import { ProfileOffersTab } from "./ProfileOffersTab";
+import { ProfileReviewsTab } from "./ProfileReviewsTab";
 import { ComingSoon } from "@/components/ui/ComingSoon";
 import type { BusinessAuthorship, ProfileTabCategory } from "@/hooks/useProfileList";
 
@@ -13,6 +14,7 @@ export type ProfileListTabType =
   | "contributed"
   | "shared-with-me"
   | "picks"
+  | "reviews"
   | "about";
 
 interface ProfileTabPanelProps {
@@ -73,6 +75,10 @@ export function ProfileTabPanel({
         onBusinessAuthorshipChange={onBusinessAuthorshipChange}
       />
     );
+  }
+
+  if (tab === "reviews") {
+    return <ProfileReviewsTab userId={userId} isOwnProfile={isOwnProfile} />;
   }
 
   if (tab === "contributed") {

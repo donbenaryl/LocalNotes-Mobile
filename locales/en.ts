@@ -435,7 +435,11 @@ const en = {
       yelpHint: 'Mirror your Yelp reviews',
       howItWorksTitle: 'How this works.',
       howItWorksBody:
-        "We use OAuth to read your reviews — never your password. We pull your public reviews and show them on your profile with a source badge. We don't write reviews on your behalf, and we don't aggregate ratings into a LocalNotes score.",
+        'Google uses OAuth (Data Portability) to copy your Maps reviews — we never see your password. Yelp, Amazon, and TripAdvisor are coming soon. We show reviews on your profile with a source badge. We do not write reviews for you or compute a LocalNotes rating.',
+      comingSoon: 'Coming soon',
+      connectError: 'Could not connect Google. Try again.',
+      disconnectError: 'Could not disconnect. Try again.',
+      connectCancelled: 'Connection cancelled.',
     },
   },
   profile: {
@@ -475,11 +479,26 @@ const en = {
     tabs: {
       myLists: 'My Lists',
       picks: 'Picks',
+      reviews: 'Reviews',
       saved: 'Saved Lists',
       offers: 'Offers',
       contributed: 'Contributed Lists',
       sharedWithMe: 'Shared With Me',
       about: 'About',
+    },
+    reviews: {
+      emptyTitle: 'Bring your reviews here',
+      emptyDescription:
+        "Connect Google to mirror reviews you've already written. Manage connections in Settings — we never ask you to write a third review.",
+      connectCta: 'Connect accounts',
+      manageAccounts: 'Manage',
+      syncing: 'Syncing reviews from Google…',
+      noReviewsTitle: 'No reviews yet',
+      noReviewsOwnDescription:
+        'Your connected accounts have no reviews to show yet. Pull to refresh after writing one on Google.',
+      noReviewsOtherDescription: 'This person has not shared any reviews yet.',
+      helpfulCount: '{{count}} found this helpful',
+      editOn: 'Edit on {{provider}} →',
     },
     about: {
       loading: 'Loading business details…',

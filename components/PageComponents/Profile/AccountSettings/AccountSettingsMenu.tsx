@@ -31,6 +31,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useBiometricStore } from '@/stores/useBiometricStore';
 import { useLocaleStore } from '@/stores/useLocaleStore';
 import { useThemeStore } from '@/stores/useThemeStore';
+import { useReviewConnections } from '@/hooks/useProfileReviews';
 import { toast } from '@/components/ui/Toast';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import { AccountSettingsCard } from './AccountSettingsCard';
@@ -96,17 +97,16 @@ export default function AccountSettingsMenu() {
   const canClaimBusiness = isBusinessAccountType(accountType);
   const canConvertToBusiness = Boolean(accountType) && !canClaimBusiness;
   const canAddAnotherBusiness = canClaimBusiness;
-  const connectedSummary = useAccountSettingsStore((s) =>
-    s.connectedProviders
-      .filter((p) => p.connected)
-      .map((p) => {
-        if (p.id === 'google') return 'Google';
-        if (p.id === 'yelp') return 'Yelp';
-        if (p.id === 'amazon') return 'Amazon';
-        return 'TripAdvisor';
-      })
-      .join(', '),
-  );
+  const { data: reviewConnections = [] } = useReviewConnections();
+  const connectedSummary = reviewConnections
+    .filter((p) => p.connected)
+    .map((p) => {
+      if (p.provider === 'google') return 'Google';
+      if (p.provider === 'yelp') return 'Yelp';
+      if (p.provider === 'amazon') return 'Amazon';
+      return 'TripAdvisor';
+    })
+    .join(', ');
 
   const goEditProfile = () => {
     router.push('/(app)/(stack)/edit-profile');

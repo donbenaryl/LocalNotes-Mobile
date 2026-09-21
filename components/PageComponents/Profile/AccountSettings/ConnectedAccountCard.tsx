@@ -43,6 +43,8 @@ interface ConnectedAccountCardProps {
   connected: boolean;
   subtitle: string;
   onPress: () => void;
+  comingSoon?: boolean;
+  isLoading?: boolean;
 }
 
 export function ConnectedAccountCard({
@@ -50,9 +52,17 @@ export function ConnectedAccountCard({
   connected,
   subtitle,
   onPress,
+  comingSoon = false,
+  isLoading = false,
 }: ConnectedAccountCardProps) {
   const { t } = useTranslation();
   const visual = PROVIDER_VISUALS[providerId];
+
+  const label = comingSoon
+    ? t('accountSettings.connectedAccounts.comingSoon')
+    : connected
+      ? t('accountSettings.connectedAccounts.disconnect')
+      : t('accountSettings.connectedAccounts.connect');
 
   return (
     <WhiteBox className="mb-2 flex-row items-center gap-3 p-3.5">
@@ -72,16 +82,14 @@ export function ConnectedAccountCard({
         </Text>
       </View>
       <LocalNotesButton
-        label={
-          connected
-            ? t('accountSettings.connectedAccounts.disconnect')
-            : t('accountSettings.connectedAccounts.connect')
-        }
+        label={label}
         onPress={onPress}
-        variant={connected ? 'light' : 'dark'}
+        variant={connected && !comingSoon ? 'light' : 'dark'}
         size="xs"
         isRounded
         isWidthFull={false}
+        disabled={comingSoon || isLoading}
+        loading={isLoading}
         className="shrink-0 px-3.5"
       />
     </WhiteBox>

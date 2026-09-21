@@ -11,8 +11,8 @@ import {
 } from '@/http/account-api/types';
 import {
   DEFAULT_ACCOUNT_SETTINGS,
+  DEFAULT_CONNECTED_PROVIDERS,
   type AccountSettingsPrefs,
-  type ConnectedProviderId,
   type NotificationPrefs,
   type PrivacyPrefs,
 } from '@/components/PageComponents/Profile/AccountSettings/types';
@@ -31,7 +31,6 @@ interface AccountSettingsStore extends AccountSettingsPrefs {
     key: K,
     value: PrivacyPrefs[K],
   ) => void;
-  toggleConnectedProvider: (id: ConnectedProviderId) => void;
 }
 
 function deviceTimezone(): string {
@@ -43,12 +42,11 @@ function deviceTimezone(): string {
 }
 
 async function persistLocalCache(state: AccountSettingsPrefs) {
-  // Connected providers aren't backed by an API yet; privacy + notifications are
-  // cached here so the screen has something to show instantly while offline.
+  // Privacy + notifications only — connected providers come from the reviews API.
   const payload: AccountSettingsPrefs = {
     notifications: state.notifications,
     privacy: state.privacy,
-    connectedProviders: state.connectedProviders,
+    connectedProviders: DEFAULT_CONNECTED_PROVIDERS,
   };
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
 }
@@ -90,8 +88,7 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
             ...DEFAULT_ACCOUNT_SETTINGS.privacy,
             ...parsed.privacy,
           },
-          connectedProviders:
-            parsed.connectedProviders ?? DEFAULT_ACCOUNT_SETTINGS.connectedProviders,
+          connectedProviders: DEFAULT_CONNECTED_PROVIDERS,
         });
       }
     } catch {
@@ -147,28 +144,5 @@ export const useAccountSettingsStore = create<AccountSettingsStore>((set, get) =
     }));
     void persistLocalCache(get());
     void syncPrivacyPatch({ [key]: value } as Partial<PrivacyPrefs>);
-  },
-
-  toggleConnectedProvider: (id) => {
-    set((state) => ({
-      connectedProviders: state.connectedProviders.map((provider) => {
-        if (provider.id !== id) return provider;
-        if (provider.connected) {
-          return {
-            ...provider,
-            connected: false,
-            reviewCount: undefined,
-            lastSyncedAt: undefined,
-          };
-        }
-        return {
-          ...provider,
-          connected: true,
-          reviewCount: 0,
-          lastSyncedAt: 'just now',
-        };
-      }),
-    }));
-    void persistLocalCache(get());
   },
 }));

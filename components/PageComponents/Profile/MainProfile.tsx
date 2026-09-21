@@ -12,6 +12,7 @@ import {
   Info,
   LayoutGrid,
   List,
+  MessageSquareQuote,
   MoreVertical,
   Tag,
 } from "lucide-react-native";
@@ -68,6 +69,7 @@ const TAB_IDS: ProfileListTabType[] = [
   "collaborative",
   "shared-with-me",
   "picks",
+  "reviews",
   "about",
 ];
 
@@ -136,6 +138,11 @@ function ProfileScrollBody({
     void queryClient.invalidateQueries({
       queryKey: isOwnProfile ? ["profile"] : ["profile", profileUserId],
     });
+    void queryClient.invalidateQueries({ queryKey: ["reviews"] });
+    void queryClient.invalidateQueries({ queryKey: ["reviews-summary"] });
+    if (isOwnProfile) {
+      void queryClient.invalidateQueries({ queryKey: ["review-connections"] });
+    }
     if (isBusinessOwner) {
       void refreshBusinessInfo();
     }
@@ -260,6 +267,11 @@ function MainProfileContent({
   const ownProfileTabs: TabItem[] = useMemo(() => {
     const base: TabItem[] = [
       { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
+      {
+        id: "reviews",
+        label: t("profile.tabs.reviews"),
+        icon: MessageSquareQuote,
+      },
       { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
       { id: "saved", label: t("profile.tabs.saved"), icon: List },
     ];
@@ -280,6 +292,7 @@ function MainProfileContent({
     return ownProfileTabs.filter((tab) => {
       if (tab.id === "saved") return profile?.show_saved_list ?? false;
       if (tab.id === "shared-with-me") return profile?.show_shared_with_me ?? true;
+      if (tab.id === "reviews") return (profile?.review_count ?? 0) > 0;
       return true;
     });
   }, [
@@ -287,6 +300,7 @@ function MainProfileContent({
     ownProfileTabs,
     profile?.show_saved_list,
     profile?.show_shared_with_me,
+    profile?.review_count,
   ]);
 
   const visibleTabIds = useMemo(
