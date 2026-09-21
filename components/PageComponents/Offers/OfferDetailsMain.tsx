@@ -501,7 +501,7 @@ export function OfferDetailsMain({
                       </View>
                     ) : null}
 
-                    <Pressable
+                    {/* <Pressable
                       onPress={onClose}
                       accessibilityRole="button"
                       accessibilityLabel={t("offers.detail.closeDetails")}
@@ -511,13 +511,13 @@ export function OfferDetailsMain({
                       <View className="h-8 w-8 items-center justify-center rounded-full bg-white/90">
                         <X size={15} color="#57534E" strokeWidth={2.4} />
                       </View>
-                    </Pressable>
+                    </Pressable> */}
                   </View>
                 </View>
               ) : null}
 
               <View className={`px-8 pt-3.5 ${hasMedia ? "" : "relative"}`}>
-                {!hasMedia ? (
+                {/* {!hasMedia ? (
                   <Pressable
                     onPress={onClose}
                     accessibilityRole="button"
@@ -529,7 +529,7 @@ export function OfferDetailsMain({
                       <X size={15} color="#57534E" strokeWidth={2.4} />
                     </View>
                   </Pressable>
-                ) : null}
+                ) : null} */}
 
                 <View className={`mb-3 flex-row items-center gap-2.5 ${hasMedia ? "" : "pr-12"}`}>
                   <Avatar

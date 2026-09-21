@@ -319,7 +319,7 @@ export function Modal({
             <Text className="font-geist-bold text-xl text-gray-900 dark:text-gray-100 flex-1 pr-4">
               {title}
             </Text>
-            <Pressable
+            {/* <Pressable
               onPress={handleClose}
               accessibilityRole="button"
               accessibilityLabel={t('common.close')}
@@ -327,11 +327,11 @@ export function Modal({
               hitSlop={8}
             >
               <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
-            </Pressable>
+            </Pressable> */}
           </View>
         ) : withCloseIcon ? (
           <View className="mb-4 -mt-2 -mr-2 items-end pt-2">
-            <Pressable
+            {/* <Pressable
               onPress={handleClose}
               accessibilityRole="button"
               accessibilityLabel={t('common.close')}
@@ -339,7 +339,7 @@ export function Modal({
               hitSlop={8}
             >
               <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
-            </Pressable>
+            </Pressable> */}
           </View>
         ) : null}
 
@@ -363,7 +363,7 @@ export function Modal({
           <Text className="font-geist-bold text-xl text-gray-900 dark:text-gray-100 flex-1 pr-4">
             {title}
           </Text>
-          <Pressable
+          {/* <Pressable
             onPress={handleClose}
             accessibilityRole="button"
             accessibilityLabel={t('common.close')}
@@ -371,11 +371,11 @@ export function Modal({
             hitSlop={8}
           >
             <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
       ) : withCloseIcon ? (
         <View className="mb-4 items-end">
-          <Pressable
+          {/* <Pressable
             onPress={handleClose}
             accessibilityRole="button"
             accessibilityLabel={t('common.close')}
@@ -383,7 +383,7 @@ export function Modal({
             hitSlop={8}
           >
             <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
       ) : null}
       {children}

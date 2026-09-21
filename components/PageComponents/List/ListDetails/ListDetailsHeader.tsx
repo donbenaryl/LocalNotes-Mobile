@@ -221,7 +221,7 @@ export function ListDetailsHeader({
               />
             </View>
 
-            {onClose ? (
+            {/* {onClose ? (
               <Pressable
                 onPress={onClose}
                 accessibilityRole="button"
@@ -233,7 +233,7 @@ export function ListDetailsHeader({
                   <X size={15} color="#57534E" strokeWidth={2.4} />
                 </View>
               </Pressable>
-            ) : null}
+            ) : null} */}
           </View>
 
           <View className="mt-3 px-1.5">
@@ -249,7 +249,7 @@ export function ListDetailsHeader({
         </View>
       ) : (
         <View className="relative px-5 pt-1">
-          <View className="mt-8 mb-4">
+          <View className="mb-4">
             <ListAuthorRow
               account={list.account}
               personalityName={list.personality_name}
@@ -265,7 +265,7 @@ export function ListDetailsHeader({
             />
           </View>
 
-          {onClose ? (
+          {/* {onClose ? (
             <Pressable
               onPress={onClose}
               accessibilityRole="button"
@@ -277,7 +277,7 @@ export function ListDetailsHeader({
                 <X size={15} color="#57534E" strokeWidth={2.4} />
               </View>
             </Pressable>
-          ) : null}
+          ) : null} */}
 
           <Text className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-gray-100">
             {list.name}

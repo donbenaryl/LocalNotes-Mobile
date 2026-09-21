@@ -471,7 +471,7 @@ export function PickDetailModal({
                   </View>
                 ) : null}
 
-                <Pressable
+                {/* <Pressable
                   onPress={onClose}
                   accessibilityRole="button"
                   accessibilityLabel={t("profile.picks.closeDetails")}
@@ -481,7 +481,7 @@ export function PickDetailModal({
                   <View className="h-8 w-8 items-center justify-center rounded-full bg-white/90">
                     <X size={15} color="#57534E" strokeWidth={2.4} />
                   </View>
-                </Pressable>
+                </Pressable> */}
               </View>
 
               {locationLabel || showMatch ? (
@@ -510,7 +510,7 @@ export function PickDetailModal({
             </View>
           ) : (
             <View className="relative px-5 pt-1">
-              <Pressable
+              {/* <Pressable
                 onPress={onClose}
                 accessibilityRole="button"
                 accessibilityLabel={t("profile.picks.closeDetails")}
@@ -520,7 +520,7 @@ export function PickDetailModal({
                 <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-gray-800">
                   <X size={15} color="#57534E" strokeWidth={2.4} />
                 </View>
-              </Pressable>
+              </Pressable> */}
 
               <Text
                 className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-gray-100"
