@@ -5,6 +5,7 @@ import {
   Text,
   useWindowDimensions,
   View,
+  type NativeSyntheticEvent,
 } from "react-native";
 import MapView, {
   Marker,
@@ -48,6 +49,8 @@ interface SearchMapProps {
   mapHeight?: number;
   areaLabel?: string;
   bottomOverlayHeight?: number;
+  /** Fired when the user pans/pinches/rotates the map (not programmatic camera moves). */
+  onUserInteraction?: () => void;
 }
 
 const MAP_EDGE_PADDING = 24;
@@ -124,10 +127,16 @@ export function SearchMap({
   mapHeight: measuredMapHeight,
   areaLabel,
   bottomOverlayHeight = 0,
+  onUserInteraction,
 }: SearchMapProps) {
   const { t } = useTranslation();
   const { height: windowHeight } = useWindowDimensions();
   const mapRef = useRef<MapView>(null);
+  /** Skip `onRegionChangeStart` fired by our own animate/fit calls. */
+  const skipRegionStartRef = useRef(0);
+  /** After a user pan/pinch, ignore mapHeight-only re-fits that would steal the camera. */
+  const suppressFitAfterGestureRef = useRef(false);
+  const lastFitContentKeyRef = useRef<string | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [selectedMarker, setSelectedMarker] = useState<SearchMapMarker | null>(
     null,
@@ -179,6 +188,44 @@ export function SearchMap({
       ),
     [bottomOverlayHeight, mapHeight],
   );
+  const fitContentKey = useMemo(
+    () =>
+      JSON.stringify({
+        areaLabel: areaLabel ?? null,
+        fallbackCenter,
+        markerCoordinates,
+        region,
+      }),
+    [areaLabel, fallbackCenter, markerCoordinates, region],
+  );
+
+  const notifyUserInteraction = useCallback(() => {
+    suppressFitAfterGestureRef.current = true;
+    onUserInteraction?.();
+  }, [onUserInteraction]);
+
+  const handleRegionChangeStart = useCallback(
+    (event: NativeSyntheticEvent<{ isGesture?: boolean }>) => {
+      if (skipRegionStartRef.current > 0) {
+        skipRegionStartRef.current -= 1;
+        return;
+      }
+      // Only Google Maps reports isGesture. Apple Maps omits it on layout
+      // resize (sheet drag) — do not treat that as a user pan.
+      if (event.nativeEvent.isGesture !== true) return;
+      notifyUserInteraction();
+    },
+    [notifyUserInteraction],
+  );
+
+  const handlePanDrag = useCallback(() => {
+    notifyUserInteraction();
+  }, [notifyUserInteraction]);
+
+  // Settled collapse/expand changes mapHeight and can emit region-start noise.
+  useEffect(() => {
+    skipRegionStartRef.current += 1;
+  }, [mapHeight]);
 
   const handlePinPress = useCallback((marker: SearchMapMarker) => {
     setActiveId(marker.id);
@@ -191,8 +238,22 @@ export function SearchMap({
   }, []);
 
   useEffect(() => {
+    const contentChanged = lastFitContentKeyRef.current !== fitContentKey;
+    if (!contentChanged && suppressFitAfterGestureRef.current) {
+      return;
+    }
+    if (contentChanged) {
+      suppressFitAfterGestureRef.current = false;
+      lastFitContentKeyRef.current = fitContentKey;
+    }
+
+    const beginProgrammaticCamera = () => {
+      skipRegionStartRef.current += 1;
+    };
+
     if (markers.length === 0) {
       if (!fallbackCenter) return;
+      beginProgrammaticCamera();
       mapRef.current?.animateToRegion(region as Region, 350);
       return;
     }
@@ -206,6 +267,7 @@ export function SearchMap({
       const latitudeOffsetRatio = visibleCenterYOffset / mapHeight;
       const latitudeOffset = SINGLE_MARKER_LATITUDE_DELTA * latitudeOffsetRatio;
 
+      beginProgrammaticCamera();
       mapRef.current?.animateToRegion(
         {
           latitude: marker.latitude - latitudeOffset,
@@ -219,10 +281,12 @@ export function SearchMap({
     }
 
     if (areaLabel && fallbackCenter) {
+      beginProgrammaticCamera();
       mapRef.current?.animateToRegion(region as Region, 350);
       return;
     }
 
+    beginProgrammaticCamera();
     mapRef.current?.fitToCoordinates(markerCoordinates, {
       animated: true,
       edgePadding: {
@@ -236,6 +300,7 @@ export function SearchMap({
     areaLabel,
     bottomPadding,
     fallbackCenter,
+    fitContentKey,
     mapHeight,
     markerCoordinates,
     markers,
@@ -338,6 +403,8 @@ export function SearchMap({
             initialRegion={region as Region}
             showsUserLocation={false}
             showsMyLocationButton={false}
+            onRegionChangeStart={handleRegionChangeStart}
+            onPanDrag={handlePanDrag}
           >
             {markerNodes}
           </MapView>
@@ -367,6 +434,8 @@ export function SearchMap({
           initialRegion={region as Region}
           showsUserLocation={false}
           showsMyLocationButton={false}
+          onRegionChangeStart={handleRegionChangeStart}
+          onPanDrag={handlePanDrag}
         >
           {markerNodes}
         </MapView>

@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import {
   Gesture,
@@ -23,6 +30,10 @@ interface SearchResultsSheetProps {
   height?: SharedValue<number>;
 }
 
+export type SearchResultsSheetHandle = {
+  collapse: () => void;
+};
+
 const HEADER_HEIGHT = 26;
 export const SEARCH_RESULTS_SHEET_COLLAPSED_HEIGHT = 60;
 export const SEARCH_RESULTS_SHEET_EXPANDED_HEIGHT_RATIO = 0.5;
@@ -40,14 +51,20 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function SearchResultsSheet({
-  children,
-  expandedHeightRatio = SEARCH_RESULTS_SHEET_EXPANDED_HEIGHT_RATIO,
-  maxExpandedHeight,
-  collapsedLabel,
-  onCollapsedChange,
-  height,
-}: SearchResultsSheetProps) {
+export const SearchResultsSheet = forwardRef<
+  SearchResultsSheetHandle,
+  SearchResultsSheetProps
+>(function SearchResultsSheet(
+  {
+    children,
+    expandedHeightRatio = SEARCH_RESULTS_SHEET_EXPANDED_HEIGHT_RATIO,
+    maxExpandedHeight,
+    collapsedLabel,
+    onCollapsedChange,
+    height,
+  },
+  ref,
+) {
   const { height: windowHeight } = useWindowDimensions();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const expandedHeight = useMemo(
@@ -83,6 +100,22 @@ export function SearchResultsSheet({
   const sheetHeight = height ?? internalSheetHeight;
   const panStartHeight = useSharedValue(expandedHeight);
   const collapsedState = useSharedValue(isCollapsed);
+
+  useImperativeHandle(ref, () => ({
+    collapse: () => {
+      if (
+        sheetHeight.value <=
+        SEARCH_RESULTS_SHEET_COLLAPSED_HEIGHT + COLLAPSE_THRESHOLD
+      ) {
+        return;
+      }
+      collapsedState.value = true;
+      sheetHeight.value = withSpring(
+        SEARCH_RESULTS_SHEET_COLLAPSED_HEIGHT,
+        SPRING_CONFIG,
+      );
+    },
+  }));
 
   useEffect(() => {
     const nextHeight = collapsedState.value
@@ -155,7 +188,7 @@ export function SearchResultsSheet({
   return (
     <View style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
       <Animated.View
-        className="overflow-hidden rounded-t-2xl border-t border-gray-200 bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
+        className="overflow-hidden rounded-t-2xl border-t border-gray-200 border overflow-hidden bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
         style={[
           styles.sheetColumn,
           { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 16 },
@@ -177,7 +210,7 @@ export function SearchResultsSheet({
       </Animated.View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   sheetColumn: { flexDirection: "column" },

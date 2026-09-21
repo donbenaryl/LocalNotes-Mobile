@@ -29,6 +29,7 @@ import {
   SEARCH_RESULTS_SHEET_EXPANDED_HEIGHT_RATIO,
   SEARCH_RESULTS_SHEET_MIN_EXPANDED_HEIGHT,
   SearchResultsSheet,
+  type SearchResultsSheetHandle,
 } from "@/components/PageComponents/Search/SearchResultsSheet";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
@@ -101,6 +102,7 @@ export function SearchResultsLayout<T>({
   const [isSheetCollapsed, setIsSheetCollapsed] = useState(false);
   const [hostSize, setHostSize] = useState({ width: 0, height: 0 });
   const listRef = useRef<FlatList<T>>(null);
+  const sheetRef = useRef<SearchResultsSheetHandle>(null);
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(listRef);
   const filterHeaderBottom = useSearchChromeStore((s) => s.filterHeaderBottom);
   const maxExpandedHeight = useMemo(() => {
@@ -121,7 +123,8 @@ export function SearchResultsLayout<T>({
   );
   const sheetHeight = useSharedValue(defaultSheetHeight);
   const mapBandStyle = useAnimatedStyle(() => ({
-    marginBottom: sheetHeight.value,
+    // Android TextureView blanks if a sibling sheet overlaps the map.
+    marginBottom: Platform.OS === "android" ? sheetHeight.value : 0,
   }));
 
   /** Settled visible map height for camera fitting — not updated every drag frame. */
@@ -163,6 +166,7 @@ export function SearchResultsLayout<T>({
 
   return (
     <View
+      className="bg-transparent"
       style={styles.host}
       onLayout={(event) => {
         const { width, height } = event.nativeEvent.layout;
@@ -191,11 +195,13 @@ export function SearchResultsLayout<T>({
             mapWidth={hostSize.width}
             mapHeight={visibleMapHeight > 0 ? visibleMapHeight : undefined}
             bottomOverlayHeight={0}
+            onUserInteraction={() => sheetRef.current?.collapse()}
           />
         ) : null}
       </Animated.View>
 
       <SearchResultsSheet
+        ref={sheetRef}
         collapsedLabel={resultsLabel}
         onCollapsedChange={setIsSheetCollapsed}
         maxExpandedHeight={maxExpandedHeight}
@@ -293,15 +299,17 @@ export function SearchResultsLayout<T>({
 }
 
 const styles = StyleSheet.create({
-  host: { flex: 1, minHeight: 0 },
-  fill: { flex: 1, minHeight: 0 },
+  host: { flex: 1, minHeight: 0, backgroundColor: "transparent" },
+  fill: { flex: 1, minHeight: 0, backgroundColor: "transparent" },
   /**
-   * Flex band above the sheet (marginBottom = live sheet height). Overlapping a
-   * sibling sheet on the TextureView blanks the entire Android Google Map.
+   * Flex band above the sheet. On Android, live marginBottom keeps the sheet
+   * from overlapping the TextureView (that blanks the map). On iOS the map
+   * fills the host so the layout has no page-colored fill behind the sheet.
    */
   mapBand: {
     flex: 1,
     minHeight: 0,
     width: "100%",
+    backgroundColor: "transparent",
   },
 });
