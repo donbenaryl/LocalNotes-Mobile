@@ -529,25 +529,21 @@ export function PickDetailModal({
                 {title}
               </Text>
 
-              {locationLabel ? (
+              {locationLabel || showMatch ? (
                 <View className="mt-1 flex-row items-center gap-1.5">
-                  <MapPin size={14} color="#57534E" />
-                  <Text
-                    className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
-                    numberOfLines={2}
-                  >
-                    {locationLabel}
-                  </Text>
-                </View>
-              ) : null}
-
-              {categoryLabel || showMatch ? (
-                <View className="mt-1 flex-row items-center gap-1.5">
-                  {categoryLabel ? (
-                    <Text className="shrink font-geist-semibold text-[13px] text-gray-400">
-                      {categoryLabel}
-                    </Text>
-                  ) : null}
+                  {locationLabel ? (
+                    <>
+                      <MapPin size={14} color="#57534E" />
+                      <Text
+                        className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
+                        numberOfLines={2}
+                      >
+                        {locationLabel}
+                      </Text>
+                    </>
+                  ) : (
+                    <View className="flex-1" />
+                  )}
                   {showMatch ? (
                     <PersonalityMatchPill
                       percent={personalityMatch}
@@ -555,6 +551,12 @@ export function PickDetailModal({
                     />
                   ) : null}
                 </View>
+              ) : null}
+
+              {categoryLabel ? (
+                <Text className="mt-1 font-geist-semibold text-[13px] text-gray-400">
+                  {categoryLabel}
+                </Text>
               ) : null}
             </View>
           )}
