@@ -188,7 +188,7 @@ export const SearchResultsSheet = forwardRef<
   return (
     <View style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
       <Animated.View
-        className="overflow-hidden rounded-t-2xl border-t border-gray-200 border overflow-hidden bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
+        className="overflow-hidden rounded-t-2xl overflow-hidden bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
         style={[
           styles.sheetColumn,
           { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 16 },
