@@ -159,14 +159,19 @@ function PickCardBody({
       <View className={bodyPaddingClass}>
         {showTitleInBody ? (
           <Pressable onPress={onOpenDetail} className="cursor-pointer">
-            <View className="flex-row items-center gap-1.5">
+            <View
+              className={
+                padForMatchOverlay
+                  ? "flex-row items-center gap-1.5"
+                  : "flex-row items-center gap-1.5 pr-16"
+              }
+            >
               <Text
                 className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
                 numberOfLines={1}
               >
                 {data.business_name}
               </Text>
-              {data.is_verified && <BadgeCheck size={14} color="#FF6B1A" />}
             </View>
           </Pressable>
         ) : null}
@@ -325,6 +330,9 @@ export function PickCard({
               />
             </Pressable>
           )}
+          {data.is_verified ? (
+            <BadgeCheck size={14} color="#FF6B1A" />
+          ) : null}
           {canManage && (
             <View className="rounded-full" style={actionIconBackingStyle}>
               <CardOptionsMenu
