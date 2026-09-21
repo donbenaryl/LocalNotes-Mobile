@@ -83,6 +83,11 @@ interface SectionPagerProps {
   onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
   /** Forward active-page scroll Y for scroll-to-top visibility. */
   onScrollY?: (y: number) => void;
+  /**
+   * Rendered as the first child of each page ScrollView (scrollable mode).
+   * Use a render function so every page mounts its own copy (e.g. header + tabs).
+   */
+  scrollHeader?: () => ReactNode;
 }
 
 /** Stable boundary so feed trees bail out when only `isActive` changes. */
@@ -120,12 +125,14 @@ function SectionScrollablePage({
   isActive,
   onActiveScrollRef,
   onScrollY,
+  scrollHeader,
   children,
 }: {
   pageId: string;
   isActive: boolean;
   onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
   onScrollY?: (y: number) => void;
+  scrollHeader?: () => ReactNode;
   children: ReactNode;
 }) {
   const scrollRef = useRef<ScrollView>(null);
@@ -183,6 +190,7 @@ function SectionScrollablePage({
           />
         }
       >
+        {scrollHeader?.()}
         {children}
       </ScrollView>
     </View>
@@ -209,6 +217,7 @@ export function SectionPager({
   lazy = false,
   onActiveScrollRef,
   onScrollY,
+  scrollHeader,
 }: SectionPagerProps) {
   const { height: screenHeight } = useWindowDimensions();
   const pagerRef = useRef<PagerView>(null);
@@ -488,6 +497,7 @@ export function SectionPager({
               isActive={id === activeId}
               onActiveScrollRef={onActiveScrollRef}
               onScrollY={onScrollY}
+              scrollHeader={scrollHeader}
             >
               {content}
             </SectionScrollablePage>
@@ -523,6 +533,7 @@ export function SectionPager({
       onActiveScrollRef,
       onScrollY,
       pageContents,
+      scrollHeader,
       scrollable,
     ],
   );
@@ -590,6 +601,7 @@ export function SectionPager({
             isActive
             onActiveScrollRef={onActiveScrollRef}
             onScrollY={onScrollY}
+            scrollHeader={scrollHeader}
           >
             {content}
           </SectionScrollablePage>
