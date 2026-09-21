@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Platform,
   ScrollView,
@@ -19,7 +19,14 @@ import type { ListItemDAO } from "@/http/list-api/types";
 import type { ViewOrigin } from "@/http/types";
 
 /** Sheet wraps content; scroll when taller than this fraction of the window. */
-const SHEET_MAX_HEIGHT_RATIO = 0.55;
+const SHEET_MAX_HEIGHT_RATIO = 0.95;
+/**
+ * Chrome outside the scroll body, so the full sheet (not just the scroller)
+ * stays within SHEET_MAX_HEIGHT_RATIO.
+ * Modal drag handle `pt-3 pb-3` (24) + ListDetailModal `pb-10` (40).
+ */
+const SHEET_CHROME = 24 + 40;
+const SCROLL_MIN_HEIGHT = 120;
 
 interface ListDetailsMainProps {
   listId?: string;
@@ -42,9 +49,24 @@ export function ListDetailsMain({
   const { t } = useTranslation();
   const { height } = useWindowDimensions();
   // Guard against a 0 window size on first Modal presentation.
-  const sheetMaxHeight = Math.max(height, 1) * SHEET_MAX_HEIGHT_RATIO;
+  const scrollMaxHeight = Math.max(
+    Math.max(height, 1) * SHEET_MAX_HEIGHT_RATIO - SHEET_CHROME,
+    SCROLL_MIN_HEIGHT,
+  );
+  const [contentHeight, setContentHeight] = useState(0);
   const [mapVisible, setMapVisible] = useState(false);
   const mapInitialIndex = 0;
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
+  // Reset before paint when the sheet closes or the list changes, so a short
+  // list does not keep a previous tall measurement. Not an effect: an effect
+  // would run after onContentSizeChange and wipe the new height.
+  const measureKey = `${visible ? "open" : "closed"}:${listId ?? ""}`;
+  const [contentMeasureKey, setContentMeasureKey] = useState(measureKey);
+  if (contentMeasureKey !== measureKey) {
+    setContentMeasureKey(measureKey);
+    setContentHeight(0);
+  }
 
   const placeholderList =
     initialList && listId && initialList.id === listId ? initialList : undefined;
@@ -78,14 +100,35 @@ export function ListDetailsMain({
     });
   }, [visible, listId, list, viewOrigin]);
 
+  const handleContentSizeChange = useCallback(
+    (_width: number, nextHeight: number) => {
+      if (!visibleRef.current || nextHeight <= 0) return;
+      setContentHeight((prev) =>
+        Math.abs(prev - nextHeight) < 1 ? prev : nextHeight,
+      );
+    },
+    [],
+  );
+
+  const scrollHeight =
+    contentHeight > 0
+      ? Math.min(Math.max(contentHeight, SCROLL_MIN_HEIGHT), scrollMaxHeight)
+      : undefined;
+
   // Keep one ScrollView mounted for the whole open so skeleton → content
   // does not remount the sheet body (which collapses wrap-content Modals).
   return (
     <>
       <ScrollView
+        key={measureKey}
         showsVerticalScrollIndicator={false}
-        style={{ maxHeight: sheetMaxHeight, minHeight: 120 }}
+        style={{
+          height: scrollHeight,
+          maxHeight: scrollMaxHeight,
+          minHeight: SCROLL_MIN_HEIGHT,
+        }}
         contentContainerStyle={{ paddingBottom: 12 }}
+        onContentSizeChange={handleContentSizeChange}
         // RefreshControl blanks flex ScrollViews on Android.
         refreshControl={
           Platform.OS === "android" ? undefined : (

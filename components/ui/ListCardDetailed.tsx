@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import {
   ChevronDown,
+  ChevronUp,
   Edit,
   Flag,
   Pin,
@@ -23,6 +24,7 @@ import { ListEngagementRow } from "@/components/ui/ListEngagementRow";
 import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { PickPreviewImage } from "@/components/ui/PickPreviewImage";
+import { ScrollableContainer } from "@/components/ui/ScrollableContainer";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -303,19 +305,31 @@ export function ListCardDetailed({
   const [isPickDetailOpen, setIsPickDetailOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [picksExpanded, setPicksExpanded] = useState(false);
   const cardRef = useRef<View>(null);
 
-  const featuredPick =
-    allItems.find((item) => getPickName(item) && getPickImageUrl(item)) ??
-    allItems.find((item) => getPickName(item)) ??
-    null;
+  const namedPicks = useMemo(() => {
+    const items = list.items ?? [];
+    const named = items.filter((item) => Boolean(getPickName(item)));
+    const withImage: Item[] = [];
+    const withoutImage: Item[] = [];
+    for (const item of named) {
+      if (getPickImageUrl(item)) {
+        withImage.push(item);
+      } else {
+        withoutImage.push(item);
+      }
+    }
+    return [...withImage, ...withoutImage];
+  }, [list.items]);
+  const featuredPick = namedPicks[0] ?? null;
   const featuredPickImageUrl = featuredPick
     ? getPickImageUrl(featuredPick)
     : null;
   const featuredPickSubtitle = featuredPick
     ? formatPickSubtitle(featuredPick, cityLabel)
     : "";
-  const extraPickCount = Math.max(0, picksCount - 1);
+  const extraPickCount = Math.max(0, namedPicks.length - 1);
 
   useEffect(() => {
     setIsPinned(list.is_pinned);
@@ -324,6 +338,16 @@ export function ListCardDetailed({
   useEffect(() => {
     setIsFollowed(list.account_is_followed);
   }, [list.id, list.account_is_followed]);
+
+  useEffect(() => {
+    setPicksExpanded(false);
+  }, [list.id]);
+
+  useEffect(() => {
+    if (collapsible && !expanded) {
+      setPicksExpanded(false);
+    }
+  }, [collapsible, expanded]);
 
   const handleEdit = useCallback(() => {
     useListFormStore.getState().clearEditHydration();
@@ -478,6 +502,7 @@ export function ListCardDetailed({
 
   const isDark = theme === "dark";
   const iconDim = isDark ? "#6B7280" : "#A8A29E";
+  const showLessIconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const isCollapsed = collapsible && !expanded;
   const whereLabel = cityLabel || list.account.name;
@@ -505,12 +530,12 @@ export function ListCardDetailed({
           />
         ) : (
           <>
-            <Pressable
-              onPress={() => setIsDetailOpen(true)}
-              accessibilityRole="button"
-              accessibilityLabel={list.name}
-            >
-              <WhiteBox className="overflow-hidden p-0">
+            <WhiteBox className="overflow-hidden p-0">
+              <Pressable
+                onPress={() => setIsDetailOpen(true)}
+                accessibilityRole="button"
+                accessibilityLabel={list.name}
+              >
                 {heroImageUrl ? (
                   <CardHero
                     imageUrl={heroImageUrl}
@@ -583,9 +608,55 @@ export function ListCardDetailed({
                       {stripHtml(list.notes)}
                     </Text>
                   ) : null}
+                </View>
+              </Pressable>
 
-                  {featuredPick ? (
-                    <View className="mb-3 flex-row items-center gap-3 rounded-2xl bg-soft p-3 dark:bg-gray-800">
+              {featuredPick ? (
+                <View
+                  className={`mx-4 mb-3 rounded-2xl bg-soft px-3 pt-3 dark:bg-gray-800 ${
+                    picksExpanded && extraPickCount > 0 ? "pb-1" : "pb-3"
+                  }`}
+                >
+                  {picksExpanded && extraPickCount > 0 ? (
+                    <>
+                      <ScrollableContainer className="max-h-48">
+                        {namedPicks.map((item, index) => (
+                          <View
+                            key={item.id}
+                            className={
+                              index > 0
+                                ? "border-t border-gray-200/60 dark:border-gray-700/60"
+                                : undefined
+                            }
+                          >
+                            <PickPreviewRow
+                              item={item}
+                              index={index}
+                              personalityColor={
+                                list.account.personality_color
+                              }
+                              onPress={() => handlePickPress(item)}
+                            />
+                          </View>
+                        ))}
+                      </ScrollableContainer>
+
+                      <Pressable
+                        onPress={() => setPicksExpanded(false)}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("home.showLessPicks")}
+                        accessibilityState={{ expanded: true }}
+                        className="mt-1 cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-200/80 pt-2.5 pb-1.5 dark:border-gray-700"
+                        hitSlop={4}
+                      >
+                        <ChevronUp size={15} color={showLessIconColor} />
+                        <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-gray-300">
+                          {t("home.showLessPicks")}
+                        </Text>
+                      </Pressable>
+                    </>
+                  ) : (
+                    <View className="flex-row items-center gap-3">
                       <Pressable
                         onPress={() => handlePickPress(featuredPick)}
                         accessibilityRole="button"
@@ -630,11 +701,12 @@ export function ListCardDetailed({
                       {/* Additional Picks Counter */}
                       {extraPickCount > 0 ? (
                         <Pressable
-                          onPress={() => setIsDetailOpen(true)}
+                          onPress={() => setPicksExpanded(true)}
                           accessibilityRole="button"
-                          accessibilityLabel={t("home.morePicksBadge", {
+                          accessibilityLabel={t("home.seeMorePicks", {
                             count: extraPickCount,
                           })}
+                          accessibilityState={{ expanded: false }}
                           className="h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white dark:bg-gray-900"
                         >
                           <Text className="text-lg text-ink dark:text-gray-100">
@@ -645,18 +717,18 @@ export function ListCardDetailed({
                         </Pressable>
                       ) : null}
                     </View>
-                  ) : null}
+                  )}
                 </View>
+              ) : null}
 
-                {/* Like Comment and Bookmark */}
-                <ListEngagementRow
-                  list={list}
-                  matchPercent={isOwnList ? undefined : personalityMatch}
-                  className="px-4 pb-3 pt-1"
-                  commentsOriginRef={cardRef}
-                />
-              </WhiteBox>
-            </Pressable>
+              {/* Like Comment and Bookmark */}
+              <ListEngagementRow
+                list={list}
+                matchPercent={isOwnList ? undefined : personalityMatch}
+                className="px-4 pb-3 pt-1"
+                commentsOriginRef={cardRef}
+              />
+            </WhiteBox>
 
             {collapsible ? (
               <Pressable
