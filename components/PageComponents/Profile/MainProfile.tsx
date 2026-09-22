@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   InteractionManager,
   Platform,
-  Pressable,
   Share,
   Text,
   View,
@@ -13,14 +12,12 @@ import {
   LayoutGrid,
   List,
   MessageSquareQuote,
-  MoreVertical,
   Tag,
 } from "lucide-react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useColorScheme } from "nativewind";
 import type { ViewOrigin } from "@/http/types";
 import { withViewOrigin } from "@/utils/viewTracking";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
@@ -31,7 +28,6 @@ import {
 import { ProfileChromeScrollView } from "@/components/ui/ProfileChromeScrollView";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ProfileInfo } from "./ProfileInfo";
-import { ProfileHeader } from "./ProfileHeader";
 import { ProfileInfoSkeleton } from "./ProfileInfoSkeleton";
 import { ProfileList } from "./ProfileList";
 import { ProfilePicksTabSkeleton } from "./ProfilePicksTabSkeleton";
@@ -44,6 +40,7 @@ import {
   ProfileActionsSheet,
   type ProfileActionKey,
 } from "./ProfileActionsSheet";
+import { ProfileTopActions } from "./ProfileTopActions";
 import { BlockUserModal } from "./BlockUserModal";
 import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import {
@@ -52,11 +49,12 @@ import {
 } from "./ProfilePullToRefreshContext";
 import type { ProfileListTabType } from "./ProfileTabPanel";
 import { useContentBottomInset } from "@/hooks/useContentBottomInset";
+import { useBusinessFollow } from "@/hooks/useBusinessFollow";
+import { useUserFollow } from "@/hooks/useUserFollow";
 import accountService from "@/http/account-api/account.services";
 import businessService from "@/http/business-api/business.service";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import { HOME_HREF } from "@/constants/swipeNavigation";
-import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from "@/constants/colors";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import { useToastStore } from "@/stores/useToastStore";
@@ -116,8 +114,6 @@ interface ProfileScrollBodyProps {
   activeTab: ProfileListTabType;
   pages: SectionPagerPage[];
   onTabChange: (tabId: string) => void;
-  onEditPress: () => void;
-  onSharePress: () => void;
   onProfileInfoLayout: (height: number) => void;
 }
 
@@ -134,8 +130,6 @@ function ProfileScrollBody({
   activeTab,
   pages,
   onTabChange,
-  onEditPress,
-  onSharePress,
   onProfileInfoLayout,
 }: ProfileScrollBodyProps) {
   const queryClient = useQueryClient();
@@ -228,8 +222,6 @@ function ProfileScrollBody({
               profile={profile}
               business={business}
               isOwnProfile={isOwnProfile}
-              onEditPress={onEditPress}
-              onSharePress={onSharePress}
             />
           </View>
           <View className="px-4 pt-4">
@@ -268,7 +260,6 @@ function MainProfileContent({
   const router = useRouter();
   const queryClient = useQueryClient();
   const showToast = useToastStore((s) => s.show);
-  const { colorScheme } = useColorScheme();
   const params = useLocalSearchParams<{ tab?: string }>();
   const isFocused = useIsFocused();
   const isFocusedRef = useRef(isFocused);
@@ -304,6 +295,26 @@ function MainProfileContent({
   const primaryBusinessId = isBusinessPage
     ? businessId ?? business?.id
     : profile?.primary_business_id ?? undefined;
+
+  const {
+    isFollowed: isUserFollowed,
+    isLoading: isUserFollowLoading,
+    toggle: toggleUserFollow,
+  } = useUserFollow(profileUserId, Boolean(profile?.is_followed));
+
+  const {
+    isFollowed: isBusinessFollowed,
+    isToggling: isBusinessFollowToggling,
+    toggle: toggleBusinessFollow,
+  } = useBusinessFollow(
+    primaryBusinessId,
+    Boolean(business?.is_followed),
+  );
+
+  const isFollowed = isBusinessPage ? isBusinessFollowed : isUserFollowed;
+  const isFollowBusy = isBusinessPage
+    ? isBusinessFollowToggling
+    : isUserFollowLoading;
 
   const ownProfileTabs: TabItem[] = useMemo(() => {
     if (isBusinessPage) {
@@ -466,9 +477,13 @@ function MainProfileContent({
 
   const handleAction = useCallback(
     (action: ProfileActionKey) => {
-      if (action === "share") {
+      if (action === "follow") {
         setActionsOpen(false);
-        void handleShare();
+        if (isBusinessPage) {
+          void toggleBusinessFollow();
+        } else {
+          void toggleUserFollow();
+        }
         return;
       }
       if (action === "report") {
@@ -481,7 +496,7 @@ function MainProfileContent({
         setBlockOpen(true);
       }
     },
-    [handleShare],
+    [isBusinessPage, toggleBusinessFollow, toggleUserFollow],
   );
 
   const pages: SectionPagerPage[] = useMemo(
@@ -518,32 +533,31 @@ function MainProfileContent({
     ],
   );
 
-  const moreIconColor =
-    colorScheme === "dark" ? ICON_COLOR_DARK : ICON_COLOR_LIGHT;
-
-  const otherProfileMenu =
-    !isOwnProfile && !isBusinessPage ? (
-      <Pressable
-        onPress={() => setActionsOpen(true)}
-        accessibilityRole="button"
-        accessibilityLabel={t("common.more")}
-        className="rounded-full p-1 active:opacity-70"
-        hitSlop={8}
-      >
-        <MoreVertical size={22} color={moreIconColor} strokeWidth={2} />
-      </Pressable>
-    ) : null;
-
   const loadErrorMessage = isBusinessPage
     ? t("profile.info.businessLoadError")
     : t("profile.info.loadError");
+
+  const showOtherActionsSheet = !isOwnProfile;
+  const showSafetyActions = !isOwnProfile && !isBusinessPage;
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <ProfileChromeHeader
         onBack={handleBack}
         rightChild={
-          isOwnProfile && !isBusinessPage ? <ProfileHeader /> : otherProfileMenu
+          <ProfileTopActions
+            isOwnProfile={isOwnProfile}
+            isBusinessPage={isBusinessPage}
+            onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
+            onSharePress={() => {
+              void handleShare();
+            }}
+            onMorePress={
+              showOtherActionsSheet
+                ? () => setActionsOpen(true)
+                : undefined
+            }
+          />
         }
         profile={isBusinessPage ? undefined : profile}
         business={isBusinessPage ? business : undefined}
@@ -573,23 +587,26 @@ function MainProfileContent({
             activeTab={activeTab}
             pages={pages}
             onTabChange={handleTabChange}
-            onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
-            onSharePress={() => {
-              void handleShare();
-            }}
             onProfileInfoLayout={onProfileInfoLayout}
           />
         </ProfilePullToRefreshProvider>
       )}
 
-      {!isOwnProfile && !isBusinessPage && profileUserId ? (
+      {showOtherActionsSheet ? (
+        <ProfileActionsSheet
+          visible={actionsOpen}
+          onClose={() => setActionsOpen(false)}
+          displayName={displayName}
+          onAction={handleAction}
+          busyAction={isFollowBusy ? "follow" : null}
+          showFollow
+          isFollowed={isFollowed}
+          showSafetyActions={showSafetyActions}
+        />
+      ) : null}
+
+      {showSafetyActions && profileUserId ? (
         <>
-          <ProfileActionsSheet
-            visible={actionsOpen}
-            onClose={() => setActionsOpen(false)}
-            displayName={displayName}
-            onAction={handleAction}
-          />
           <BlockUserModal
             visible={blockOpen}
             onClose={() => setBlockOpen(false)}

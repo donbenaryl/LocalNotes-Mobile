@@ -1,16 +1,13 @@
 import { useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
-import { MapPin, Upload } from 'lucide-react-native';
+import { Calendar, MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/ui/Avatar';
-import { FollowButton } from '@/components/ui/FollowButton';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
-import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { StatsSection } from '@/components/ui/StatsSection';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
 import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
-import { useBusinessFollow } from '@/hooks/useBusinessFollow';
 import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfileInsights';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSimilarScores } from '@/hooks/useSimilarScores';
@@ -27,14 +24,14 @@ interface ProfileInfoProps {
   profile?: profileItemDAO | null;
   business?: BusinessItemDAO | null;
   isOwnProfile?: boolean;
-  onEditPress: () => void;
-  onSharePress: () => void;
 }
 
 interface StatItem {
   value: string;
   label: string;
 }
+
+const BIO_COLLAPSE_LINES = 3;
 
 function formatStatCount(value: number | string | undefined): string {
   const n = typeof value === 'string' ? Number(value) : (value ?? 0);
@@ -72,29 +69,53 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function ExpandableBio({ bio }: { bio: string }) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(false);
+  const [truncated, setTruncated] = useState(false);
+
+  return (
+    <View className="mt-3">
+      <Text
+        className="font-geist text-sm leading-[1.45] text-gray-600 dark:text-gray-300"
+        numberOfLines={expanded ? undefined : BIO_COLLAPSE_LINES}
+        onTextLayout={(event) => {
+          if (expanded || truncated) return;
+          if (event.nativeEvent.lines.length >= BIO_COLLAPSE_LINES) {
+            setTruncated(true);
+          }
+        }}
+      >
+        {bio}
+      </Text>
+      {truncated ? (
+        <Pressable
+          onPress={() => setExpanded((prev) => !prev)}
+          accessibilityRole="button"
+          hitSlop={6}
+          className="mt-0.5 self-start active:opacity-70"
+        >
+          <Text className="font-geist-bold text-sm text-ink dark:text-gray-100">
+            {expanded ? t('profile.info.bioLess') : t('profile.info.bioMore')}
+          </Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 function BusinessProfileInfo({
   business,
-  isOwnBusiness,
-  onEditPress,
-  onSharePress,
 }: {
   business: BusinessItemDAO;
-  isOwnBusiness: boolean;
-  onEditPress: () => void;
-  onSharePress: () => void;
 }) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
   const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
-  const shareIconColor = isDark ? '#F3F4F6' : '#1C1917';
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const avatarImageUri = resolveImageUrl(business.logo);
-  const { isFollowed, isToggling, toggle } = useBusinessFollow(
-    business.id,
-    business.is_followed ?? false,
-  );
 
   const locationLabel = formatLocationLabel(
     business.branches?.[0]?.location ?? business.location,
@@ -120,12 +141,12 @@ function BusinessProfileInfo({
 
   return (
     <>
-      <View className="relative px-4 pb-1 pt-5">
-        <View className="relative items-center px-2 -mt-4">
+      <View className="relative px-4 pb-1 pt-2">
+        <View className="flex-row items-center gap-3.5">
           <Avatar
             name={business.name}
             src={business.logo}
-            size="xl"
+            size="md2"
             onPress={
               avatarImageUri
                 ? () => setIsAvatarFullScreenVisible(true)
@@ -133,76 +154,40 @@ function BusinessProfileInfo({
             }
           />
 
-          <Text
-            className="mt-3 text-center font-geist-extrabold text-[23px] leading-7 tracking-tight text-ink dark:text-gray-100"
-            numberOfLines={2}
-          >
-            {business.name}
-          </Text>
-
-          {business.business_type ? (
+          <View className="min-w-0 flex-1">
             <Text
-              className="mt-0.5 text-center font-fraunces text-base italic text-gray-500 dark:text-gray-400"
-              numberOfLines={1}
+              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-gray-100"
+              numberOfLines={2}
             >
-              {business.business_type}
+              {business.name}
             </Text>
-          ) : null}
 
-          {business.bio ? (
-            <Text className="mt-2 max-w-[300px] text-center font-geist text-sm leading-[1.45] text-gray-600 dark:text-gray-400">
-              {business.bio}
-            </Text>
-          ) : null}
-
-          {locationLabel ? (
-            <View className="mt-1.5 flex-row items-center gap-1">
-              <MapPin size={12} color={mutedIconColor} />
+            {business.business_type ? (
               <Text
-                className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+                className="mt-0.5 font-fraunces text-[15px] italic text-gray-500 dark:text-gray-400"
                 numberOfLines={1}
               >
-                {locationLabel}
+                {business.business_type}
               </Text>
-            </View>
-          ) : null}
+            ) : null}
+          </View>
         </View>
+
+        {business.bio ? <ExpandableBio bio={business.bio} /> : null}
+
+        {locationLabel ? (
+          <View className="mt-2 flex-row items-center gap-1.5">
+            <MapPin size={12} color={mutedIconColor} />
+            <Text
+              className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+              numberOfLines={1}
+            >
+              {locationLabel}
+            </Text>
+          </View>
+        ) : null}
 
         <StatsSection items={stats} className="mt-4" />
-
-        <View className="mt-3.5 flex-row items-center gap-2.5 px-0 pb-1">
-          {isOwnBusiness ? (
-            <LocalNotesButton
-              label={t('profile.info.editBusiness')}
-              onPress={onEditPress}
-              variant="dark"
-              isRounded
-              isWidthFull={false}
-              className="flex-1 justify-center"
-            />
-          ) : (
-            <View className="min-h-[46px] flex-1 justify-center">
-              <FollowButton
-                userId={business.id}
-                initialIsFollowed={Boolean(business.is_followed)}
-                isFollowed={isFollowed}
-                onToggle={toggle}
-                loading={isToggling}
-                useButton
-                isButtonFull
-              />
-            </View>
-          )}
-
-          <LocalNotesButton
-            label=""
-            onPress={onSharePress}
-            variant="light"
-            isRounded
-            isWidthFull={false}
-            leftIcon={<Upload size={17} color={shareIconColor} strokeWidth={2.2} />}
-          />
-        </View>
       </View>
 
       {avatarImageUri ? (
@@ -219,13 +204,9 @@ function BusinessProfileInfo({
 function UserProfileInfo({
   profile,
   isOwnProfile,
-  onEditPress,
-  onSharePress,
 }: {
   profile: profileItemDAO;
   isOwnProfile: boolean;
-  onEditPress: () => void;
-  onSharePress: () => void;
 }) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -235,7 +216,6 @@ function UserProfileInfo({
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
   const accentColor = getDominantPersonalityColor(profile.personality_color);
   const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
-  const shareIconColor = isDark ? '#F3F4F6' : '#1C1917';
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const avatarImageUri = resolveImageUrl(profile.profile_image_url);
@@ -254,18 +234,6 @@ function UserProfileInfo({
 
   const locationLabel = formatLocationLabel(profile.location);
   const joinedYear = formatJoinedYear(profile.created_at);
-
-  const locationLine = useMemo(() => {
-    if (locationLabel && joinedYear) {
-      return t('profile.info.locationJoined', {
-        location: locationLabel,
-        year: joinedYear,
-      });
-    }
-    if (locationLabel) return locationLabel;
-    if (joinedYear) return t('profile.info.joined', { year: joinedYear });
-    return '';
-  }, [joinedYear, locationLabel, t]);
 
   const stats: StatItem[] = useMemo(
     () => [
@@ -297,12 +265,12 @@ function UserProfileInfo({
 
   return (
     <>
-      <View className="relative px-4 pb-1 pt-5">
-        <View className="relative items-center px-2 -mt-4">
+      <View className="relative px-4 pb-1 pt-2">
+        <View className="flex-row items-center gap-3.5">
           <Avatar
             name={profile.name}
             src={profile.profile_image_url}
-            size="xl"
+            size="md2"
             gradientColors={gradientColors}
             onPress={
               avatarImageUri
@@ -311,76 +279,53 @@ function UserProfileInfo({
             }
           />
 
-          <Text
-            className="mt-3 text-center font-geist-extrabold text-[23px] leading-7 tracking-tight text-ink dark:text-gray-100"
-            numberOfLines={2}
-          >
-            {profile.name}
-          </Text>
-
-          {profile.personality_name ? (
+          <View className="min-w-0 flex-1">
             <Text
-              className="mt-0.5 text-center font-fraunces text-base italic"
-              style={{ color: accentColor }}
-              numberOfLines={1}
+              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-gray-100"
+              numberOfLines={2}
             >
-              {profile.personality_name}
+              {profile.name}
             </Text>
-          ) : null}
 
-          {profile.bio ? (
-            <Text className="mt-2 max-w-[300px] text-center font-geist text-sm leading-[1.45] text-gray-600 dark:text-gray-400">
-              {profile.bio}
-            </Text>
-          ) : null}
-
-          {locationLine ? (
-            <View className="mt-1.5 flex-row items-center gap-1">
-              <MapPin size={12} color={mutedIconColor} />
+            {profile.personality_name ? (
               <Text
-                className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+                className="mt-0.5 font-fraunces text-[15px] italic"
+                style={{ color: accentColor }}
                 numberOfLines={1}
               >
-                {locationLine}
+                {profile.personality_name}
               </Text>
-            </View>
-          ) : null}
+            ) : null}
+          </View>
         </View>
+
+        {profile.bio ? <ExpandableBio bio={profile.bio} /> : null}
+
+        {joinedYear || locationLabel ? (
+          <View className="mt-2 gap-1">
+            {joinedYear ? (
+              <View className="flex-row items-center gap-1.5">
+                <Calendar size={12} color={mutedIconColor} />
+                <Text className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500">
+                  {t('profile.info.joined', { year: joinedYear })}
+                </Text>
+              </View>
+            ) : null}
+            {locationLabel ? (
+              <View className="flex-row items-center gap-1.5">
+                <MapPin size={12} color={mutedIconColor} />
+                <Text
+                  className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+                  numberOfLines={1}
+                >
+                  {locationLabel}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
 
         <StatsSection items={stats} className="mt-4" />
-
-        <View className="mt-3.5 flex-row items-center gap-2.5 px-0 pb-1">
-          {isOwnProfile ? (
-            <LocalNotesButton
-              label={t('profile.info.editProfile')}
-              onPress={onEditPress}
-              variant="dark"
-              isRounded
-              isWidthFull={false}
-              className="flex-1 justify-center"
-            />
-          ) : profile.id ? (
-            <View className="min-h-[46px] flex-1 justify-center">
-              <FollowButton
-                userId={profile.id}
-                initialIsFollowed={Boolean(profile.is_followed)}
-                useButton
-                isButtonFull
-              />
-            </View>
-          ) : (
-            <View className="flex-1" />
-          )}
-
-          <LocalNotesButton
-            label=""
-            onPress={onSharePress}
-            variant="light"
-            isRounded
-            isWidthFull={false}
-            leftIcon={<Upload size={17} color={shareIconColor} strokeWidth={2.2} />}
-          />
-        </View>
 
         {showBusinessSections ? (
           <>
@@ -435,18 +380,9 @@ export function ProfileInfo({
   profile,
   business,
   isOwnProfile = true,
-  onEditPress,
-  onSharePress,
 }: ProfileInfoProps) {
   if (business) {
-    return (
-      <BusinessProfileInfo
-        business={business}
-        isOwnBusiness={isOwnProfile}
-        onEditPress={onEditPress}
-        onSharePress={onSharePress}
-      />
-    );
+    return <BusinessProfileInfo business={business} />;
   }
 
   if (!profile) return null;
@@ -455,8 +391,6 @@ export function ProfileInfo({
     <UserProfileInfo
       profile={profile}
       isOwnProfile={isOwnProfile}
-      onEditPress={onEditPress}
-      onSharePress={onSharePress}
     />
   );
 }
