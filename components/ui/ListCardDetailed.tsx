@@ -553,7 +553,7 @@ export function ListCardDetailed({
                   className="absolute left-2 top-2 z-10 gap-1.5"
                   pointerEvents="none"
                 >
-                  {cityLabel ? (
+                  {/* {cityLabel ? (
                     <View className="self-start rounded-full bg-black/40 px-2.5 py-1">
                       <Text
                         className="font-geist-medium text-[12px] text-white"
@@ -562,7 +562,7 @@ export function ListCardDetailed({
                         {cityLabel}
                       </Text>
                     </View>
-                  ) : null}
+                  ) : null} */}
                   {showNewBadge ? (
                     <View className="self-start rounded-full bg-brand px-2.5 py-1">
                       <Text className="font-geist-semibold text-[10px] tracking-wide text-white">
@@ -577,7 +577,7 @@ export function ListCardDetailed({
                 <View
                   className={
                     !heroImageUrl && (Boolean(cityLabel) || showNewBadge)
-                      ? "px-4 pt-10"
+                      ? "px-4 pt-4"
                       : "px-4 pt-2.5"
                   }
                 >

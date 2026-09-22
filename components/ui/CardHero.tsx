@@ -124,7 +124,7 @@ export function CardHero({
   subtitleNode,
   subtitleExtra,
   aspectClassName = "aspect-[16/12]",
-  titleSize = "text-4xl",
+  titleSize = "text-3xl",
   subtitleSize = "text-md",
   topLeft,
   topRight,
