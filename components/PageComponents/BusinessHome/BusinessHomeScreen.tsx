@@ -29,9 +29,12 @@ import {
 } from './sections/MonthlyReportSection';
 import { BusinessHomeSheets } from './sheets/BusinessHomeSheets';
 import type { BusinessHomeSheetId } from './sheets/types';
+import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { useTranslation } from 'react-i18next';
 
 export default function BusinessHomeScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const {
     businessName,
@@ -98,6 +101,17 @@ export default function BusinessHomeScreen() {
           }
         >
           <BusinessHomeShortcuts />
+          <View className="px-4 pt-2">
+            <LocalNotesButton
+              label={t('businessHome.buttons.redeemTool')}
+              onPress={() =>
+                router.push('/(app)/(stack)/redeem-offer' as never)
+              }
+              variant="dark"
+              size="sm"
+              isRounded
+            />
+          </View>
           <BusinessHomeTopline {...topline} />
           <InsightSummarySection isPaidMember={isPaidMember} />
           <ThisWeekSection isPaidMember={isPaidMember} />

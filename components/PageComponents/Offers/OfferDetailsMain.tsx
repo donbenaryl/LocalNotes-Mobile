@@ -18,6 +18,9 @@ import { useColorScheme } from "nativewind";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ScrollView } from "react-native";
 import { useVideoPlayer, VideoView } from "expo-video";
+import QRCode from "react-native-qrcode-svg";
+import { captureRef } from "react-native-view-shot";
+import * as Sharing from "expo-sharing";
 import { Modal } from "@/components/ui/Modal";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
@@ -36,6 +39,9 @@ import { getTimeLeftLabel, formatRelativeTime } from "@/utils/time";
 import { useLocalSearchParams, usePathname } from "expo-router";
 import type { ViewOrigin } from "@/http/types";
 import { resolveViewOrigin } from "@/utils/viewTracking";
+import { useBusinessStore } from "@/stores/useBusinessStore";
+import { toast } from "@/components/ui/Toast";
+import { RedeemQrShareCard } from "./RedeemQrShareCard";
 
 function patchOfferListCaches(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -178,6 +184,7 @@ export function OfferDetailsMain({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const queryClient = useQueryClient();
+  const businessId = useBusinessStore((s) => s.businessId);
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -203,6 +210,9 @@ export function OfferDetailsMain({
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isLiking, setIsLiking] = useState(false);
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const [isDownloadingQr, setIsDownloadingQr] = useState(false);
+  const qrShareCardRef = useRef<View>(null);
 
   const viewedNoteIdRef = useRef<string | null>(null);
 
@@ -335,6 +345,86 @@ export function OfferDetailsMain({
       console.error("Failed to share offer:", error);
     }
   }, [offer]);
+
+  const canManageOffer =
+    Boolean(note?.business?.id) &&
+    Boolean(businessId) &&
+    note?.business?.id === businessId;
+  const showRedeem = Boolean(note?.is_redeemable) && !canManageOffer;
+  const myRedemption = note?.my_redemption ?? null;
+
+  const handleRedeem = useCallback(async () => {
+    if (!noteId || isRedeeming) return;
+    setIsRedeeming(true);
+    try {
+      const response = await notesService.redeemNote(noteId);
+      if (response.error) {
+        toast.error(response.error.message || t("offers.detail.redeemFailed"));
+        return;
+      }
+      const redemption = response.data?.data;
+      if (redemption) {
+        queryClient.setQueryData<NoteDAO | null>(
+          ["note-detail", noteId],
+          (previous) =>
+            previous
+              ? {
+                  ...previous,
+                  my_redemption: {
+                    id: redemption.id,
+                    code: redemption.code,
+                    used_at: redemption.used_at,
+                  },
+                }
+              : previous,
+        );
+        toast.success(t("offers.detail.redeemSuccess"));
+      }
+    } catch (error) {
+      console.error("Failed to redeem offer:", error);
+      toast.error(t("offers.detail.redeemFailed"));
+    } finally {
+      setIsRedeeming(false);
+    }
+  }, [noteId, isRedeeming, queryClient, t]);
+
+  const handleShareCode = useCallback(async () => {
+    if (!myRedemption?.code) return;
+    try {
+      await Share.share({ message: myRedemption.code });
+    } catch (error) {
+      console.error("Failed to share redeem code:", error);
+    }
+  }, [myRedemption?.code]);
+
+  const handleDownloadQr = useCallback(async () => {
+    if (!myRedemption?.code || !offer || isDownloadingQr) return;
+    setIsDownloadingQr(true);
+    try {
+      const canShare = await Sharing.isAvailableAsync();
+      if (!canShare || !qrShareCardRef.current) {
+        toast.error(t("offers.detail.downloadQrFailed"));
+        return;
+      }
+      const uri = await captureRef(qrShareCardRef, {
+        format: "png",
+        quality: 1,
+        result: "tmpfile",
+      });
+      const shareUri = uri.startsWith("file://") ? uri : `file://${uri}`;
+      await Sharing.shareAsync(shareUri, {
+        mimeType: "image/png",
+        dialogTitle: t("offers.detail.downloadQr"),
+        UTI: "public.png",
+      });
+      toast.success(t("offers.detail.downloadQrSuccess"));
+    } catch (error) {
+      console.error("Failed to download redeem QR:", error);
+      toast.error(t("offers.detail.downloadQrFailed"));
+    } finally {
+      setIsDownloadingQr(false);
+    }
+  }, [myRedemption?.code, offer, isDownloadingQr, t]);
 
   const categoriesSubtitle = offer?.categories?.length
     ? offer.categories
@@ -569,6 +659,80 @@ export function OfferDetailsMain({
                   {offer.content ?? t("offers.noDetails")}
                 </Text>
 
+                {showRedeem ? (
+                  <View className="mb-4 rounded-xl border border-brand/30 bg-orange-50 px-4 py-3 dark:border-brand/40 dark:bg-gray-800">
+                    {myRedemption?.used_at ? (
+                      <Text className="font-geist text-sm text-gray-700 dark:text-gray-300">
+                        {t("offers.detail.alreadyUsed")}
+                        {myRedemption.code
+                          ? ` (${myRedemption.code})`
+                          : ""}
+                      </Text>
+                    ) : myRedemption?.code ? (
+                      <View className="gap-3">
+                        <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+                          {t("offers.detail.yourCode")}
+                        </Text>
+                        <View className="items-center gap-3">
+                          <View className="rounded-xl border border-brand/20 bg-white p-3 dark:border-brand/30 dark:bg-gray-900">
+                            <QRCode
+                              value={myRedemption.code}
+                              size={168}
+                              backgroundColor="#FFFFFF"
+                              color="#1C1917"
+                            />
+                          </View>
+                          <Text className="font-geist-extrabold text-xl tracking-widest text-ink dark:text-gray-100">
+                            {myRedemption.code}
+                          </Text>
+                        </View>
+                        <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+                          {t("offers.detail.showAtCounter")}
+                        </Text>
+                        <View className="flex-row flex-wrap gap-2">
+                          <LocalNotesButton
+                            label={t("offers.detail.copyCode")}
+                            onPress={() => void handleShareCode()}
+                            variant="light"
+                            size="xs"
+                            isWidthFull={false}
+                          />
+                          <LocalNotesButton
+                            label={
+                              isDownloadingQr
+                                ? t("offers.detail.downloadingQr")
+                                : t("offers.detail.downloadQr")
+                            }
+                            onPress={() => void handleDownloadQr()}
+                            variant="brand"
+                            size="xs"
+                            isWidthFull={false}
+                            loading={isDownloadingQr}
+                          />
+                        </View>
+                      </View>
+                    ) : (
+                      <View className="gap-2">
+                        <Text className="font-geist text-sm text-gray-700 dark:text-gray-300">
+                          {t("offers.detail.redeemPrompt")}
+                        </Text>
+                        <LocalNotesButton
+                          label={
+                            isRedeeming
+                              ? t("offers.detail.redeeming")
+                              : t("offers.detail.redeem")
+                          }
+                          onPress={() => void handleRedeem()}
+                          variant="brand"
+                          size="sm"
+                          isWidthFull={false}
+                          loading={isRedeeming}
+                        />
+                      </View>
+                    )}
+                  </View>
+                ) : null}
+
                 <Text className="mb-4 font-geist text-xs text-gray-400 dark:text-gray-500">
                   {t("offers.detail.posted", { time: postedLabel })}
                 </Text>
@@ -654,6 +818,28 @@ export function OfferDetailsMain({
         visible={isPreviewOpen}
         onClose={() => setIsPreviewVisible(false)}
       />
+
+      {myRedemption?.code && !myRedemption.used_at && offer ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            left: -9999,
+            top: 0,
+            opacity: 0,
+          }}
+        >
+          <RedeemQrShareCard
+            ref={qrShareCardRef}
+            code={myRedemption.code}
+            offerTitle={offer.title || t("offers.detail.title")}
+            businessName={offer.businessName}
+            expiresLabel={untilLabel || null}
+            redeemCodeLabel={t("offers.detail.yourCode")}
+            showAtCounterLabel={t("offers.detail.showAtCounter")}
+          />
+        </View>
+      ) : null}
     </>
   );
 }

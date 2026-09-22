@@ -20,6 +20,12 @@ export type NoteStatus = "draft" | "published";
 
 export type ExpireAfter = "1h" | "24h" | "7d" | "30d" | "never";
 
+export interface NoteRedemptionDAO {
+  id: string;
+  code: string;
+  used_at: string | null;
+}
+
 export interface NoteDAO {
   id: string;
   title: string;
@@ -29,6 +35,7 @@ export interface NoteDAO {
   visibility: Visibility;
   status?: NoteStatus;
   billing_status?: "active" | "past_due" | "canceled";
+  is_redeemable?: boolean;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -40,6 +47,7 @@ export interface NoteDAO {
   is_liked?: boolean;
   is_shared?: boolean;
   is_viewed?: boolean;
+  my_redemption?: NoteRedemptionDAO | null;
   business: BusinessItemDAO;
   others_name?: string | null;
 }
@@ -55,4 +63,25 @@ export interface UpsertNoteDTO {
   expire_after?: ExpireAfter;
   payment_intent_id?: string;
   status?: NoteStatus;
+  is_redeemable?: boolean;
+}
+
+export interface RedeemCodeLookupDAO {
+  id: string;
+  code: string;
+  used_at: string | null;
+  note_id: string;
+  note_title: string;
+  customer: {
+    id: string;
+    username: string;
+    first_name: string;
+  };
+}
+
+export interface RedeemNoteResultDAO {
+  id: string;
+  code: string;
+  used_at: string | null;
+  created_at?: string;
 }

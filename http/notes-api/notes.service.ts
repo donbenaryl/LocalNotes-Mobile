@@ -4,6 +4,8 @@ import type {
   NoteDAO,
   NoteCategoryDAO,
   UpsertNoteDTO,
+  RedeemCodeLookupDAO,
+  RedeemNoteResultDAO,
 } from "./types";
 
 class NotesService extends AppHttpService {
@@ -65,6 +67,37 @@ class NotesService extends AppHttpService {
     return await this.SendRequest<null>({
       method: "post",
       path: `/${noteId}/like`,
+    });
+  }
+
+  async redeemNote(noteId: string) {
+    return await this.SendRequest<RedeemNoteResultDAO>({
+      method: "post",
+      path: `/${noteId}/redeem`,
+    });
+  }
+
+  async validateRedeemCode(code: string) {
+    return await this.SendRequest<RedeemCodeLookupDAO>({
+      method: "get",
+      path: "/redeem-codes/validate",
+      query: { code },
+    });
+  }
+
+  async useRedeemCode(code: string) {
+    return await this.SendRequest<RedeemCodeLookupDAO>({
+      method: "post",
+      path: "/redeem-codes/use",
+      body: { code } as never,
+    });
+  }
+
+  async fetchRedeemedCodes(query?: { page?: number; business_id?: string }) {
+    return await this.SendRequest<RedeemCodeLookupDAO[]>({
+      method: "get",
+      path: "/redeem-codes",
+      query: query && Object.keys(query).length > 0 ? query : undefined,
     });
   }
 
