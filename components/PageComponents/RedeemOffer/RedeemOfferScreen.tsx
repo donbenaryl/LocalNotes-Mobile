@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { CameraView, scanFromURLAsync, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
@@ -24,10 +24,48 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import notesService from '@/http/notes-api/notes.service';
+import businessService from '@/http/business-api/business.service';
 import type { RedeemCodeLookupDAO } from '@/http/notes-api/types';
+import type { ThankYouRedeemLookupDAO } from '@/http/business-api/types';
 import { formatRelativeTime } from '@/utils/time';
 
 const REDEEMED_CODES_QUERY_KEY = 'redeemed-codes';
+const THANK_YOU_REDEEMED_QUERY_KEY = 'thank-you-redeemed-codes';
+
+type UnifiedRedeemLookup = {
+  id: string;
+  code: string;
+  used_at: string | null;
+  title: string;
+  kind: 'offer' | 'thank_you';
+  customer: {
+    id: string;
+    username: string;
+    first_name: string;
+  };
+};
+
+function fromOfferLookup(data: RedeemCodeLookupDAO): UnifiedRedeemLookup {
+  return {
+    id: data.id,
+    code: data.code,
+    used_at: data.used_at,
+    title: data.note_title,
+    kind: 'offer',
+    customer: data.customer,
+  };
+}
+
+function fromThankYouLookup(data: ThankYouRedeemLookupDAO): UnifiedRedeemLookup {
+  return {
+    id: data.id,
+    code: data.code,
+    used_at: data.used_at,
+    title: data.reward_title,
+    kind: 'thank_you',
+    customer: data.customer,
+  };
+}
 
 export default function RedeemOfferScreen() {
   const { t } = useTranslation();
@@ -38,7 +76,7 @@ export default function RedeemOfferScreen() {
   const businessId = useBusinessStore((s) => s.businessId);
 
   const [code, setCode] = useState('');
-  const [result, setResult] = useState<RedeemCodeLookupDAO | null>(null);
+  const [result, setResult] = useState<UnifiedRedeemLookup | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isUploadingQr, setIsUploadingQr] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
@@ -50,9 +88,11 @@ export default function RedeemOfferScreen() {
     }
   }, [accountType, router]);
 
+  const isBusiness = isBusinessAccountType(accountType ?? undefined);
+
   const redeemedQuery = useInfiniteQuery({
     queryKey: [REDEEMED_CODES_QUERY_KEY, businessId],
-    enabled: isBusinessAccountType(accountType ?? undefined) && Boolean(businessId),
+    enabled: isBusiness && Boolean(businessId),
     queryFn: async ({ pageParam }) => {
       const response = await notesService.fetchRedeemedCodes({
         page: pageParam,
@@ -62,7 +102,7 @@ export default function RedeemOfferScreen() {
         throw new Error(response.error.message || t('redeemOffer.historyError'));
       }
       return {
-        items: response.data?.data ?? [],
+        items: (response.data?.data ?? []).map(fromOfferLookup),
         next: response.data?.pagination?.next ?? null,
       };
     },
@@ -70,18 +110,45 @@ export default function RedeemOfferScreen() {
     getNextPageParam: (last) => last.next ?? undefined,
   });
 
-  const redeemedItems = useMemo(
-    () => redeemedQuery.data?.pages.flatMap((page) => page.items) ?? [],
-    [redeemedQuery.data?.pages],
-  );
+  const thankYouRedeemedQuery = useQuery({
+    queryKey: [THANK_YOU_REDEEMED_QUERY_KEY, businessId],
+    enabled: isBusiness && Boolean(businessId),
+    queryFn: async () => {
+      const response = await businessService.fetchThankYouRedeemedCodes({
+        business_id: businessId || undefined,
+      });
+      if (response.error) {
+        throw new Error(response.error.message || t('redeemOffer.historyError'));
+      }
+      return (response.data?.data ?? []).map(fromThankYouLookup);
+    },
+  });
+
+  const redeemedItems = useMemo(() => {
+    const offers = redeemedQuery.data?.pages.flatMap((page) => page.items) ?? [];
+    const thankYous = thankYouRedeemedQuery.data ?? [];
+    return [...offers, ...thankYous].sort((a, b) => {
+      const aTime = a.used_at ? Date.parse(a.used_at) : 0;
+      const bTime = b.used_at ? Date.parse(b.used_at) : 0;
+      return bTime - aTime;
+    });
+  }, [redeemedQuery.data?.pages, thankYouRedeemedQuery.data]);
 
   const validateMutation = useMutation({
     mutationFn: async (raw: string) => {
-      const response = await notesService.validateRedeemCode(raw);
-      if (response.error) {
-        throw new Error(response.error.message || t('redeemOffer.validateFailed'));
+      const offerResponse = await notesService.validateRedeemCode(raw);
+      if (!offerResponse.error && offerResponse.data?.data) {
+        return fromOfferLookup(offerResponse.data.data);
       }
-      return response.data?.data ?? null;
+      const thankYouResponse = await businessService.validateThankYouRedeemCode(raw);
+      if (thankYouResponse.error || !thankYouResponse.data?.data) {
+        throw new Error(
+          thankYouResponse.error?.message ||
+            offerResponse.error?.message ||
+            t('redeemOffer.validateFailed'),
+        );
+      }
+      return fromThankYouLookup(thankYouResponse.data.data);
     },
     onSuccess: (data) => {
       setResult(data);
@@ -93,18 +160,28 @@ export default function RedeemOfferScreen() {
   });
 
   const useMutationMark = useMutation({
-    mutationFn: async (raw: string) => {
-      const response = await notesService.useRedeemCode(raw);
-      if (response.error) {
-        throw new Error(response.error.message || t('redeemOffer.useFailed'));
+    mutationFn: async (payload: { code: string; kind: 'offer' | 'thank_you' }) => {
+      if (payload.kind === 'thank_you') {
+        const response = await businessService.useThankYouRedeemCode(payload.code);
+        if (response.error || !response.data?.data) {
+          throw new Error(response.error?.message || t('redeemOffer.useFailed'));
+        }
+        return fromThankYouLookup(response.data.data);
       }
-      return response.data?.data ?? null;
+      const response = await notesService.useRedeemCode(payload.code);
+      if (response.error || !response.data?.data) {
+        throw new Error(response.error?.message || t('redeemOffer.useFailed'));
+      }
+      return fromOfferLookup(response.data.data);
     },
     onSuccess: (data) => {
       if (data) setResult(data);
       toast.success(t('redeemOffer.useSuccess'));
       void queryClient.invalidateQueries({
         queryKey: [REDEEMED_CODES_QUERY_KEY, businessId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [THANK_YOU_REDEEMED_QUERY_KEY, businessId],
       });
     },
     onError: (error: Error) => {
@@ -199,7 +276,7 @@ export default function RedeemOfferScreen() {
 
   const handleMarkUsed = () => {
     if (!result || isUsed) return;
-    useMutationMark.mutate(result.code);
+    useMutationMark.mutate({ code: result.code, kind: result.kind });
   };
 
   const uploadQrLabel = isUploadingQr
@@ -267,7 +344,7 @@ export default function RedeemOfferScreen() {
                 {t('redeemOffer.offerLabel')}
               </Text>
               <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
-                {result.note_title}
+                {result.title}
               </Text>
             </View>
 
@@ -363,7 +440,7 @@ export default function RedeemOfferScreen() {
                 return (
                   <WhiteBox key={item.id} className="gap-1.5 p-4">
                     <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
-                      {item.note_title}
+                      {item.title}
                     </Text>
                     <Text className="font-geist-extrabold text-sm tracking-widest text-ink dark:text-gray-100">
                       {item.code}

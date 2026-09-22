@@ -1281,6 +1281,7 @@ const en = {
     buttons: {
       createOffer: 'Create Offer',
       redeemTool: 'Redeem tool',
+      thankYou: 'Thank-You Rewards',
       supportingData: 'Supporting data',
       assign: 'Assign',
       confirmHours: 'Confirm Hours',
@@ -1455,6 +1456,74 @@ const en = {
           'Morning-focused customers respond ~3.7× better for you. The audiences barely overlap: the morning campaign converted your study-list savers; the afternoon one reached mostly new viewers who saved but didn\'t redeem.',
       },
     },
+  },
+  thankYou: {
+    title: 'Thank-You Rewards',
+    heroTitle_zero: 'No one to thank yet',
+    heroTitle_one: '{{count}} person is eligible for a Thank-You Reward',
+    heroTitle_other: '{{count}} people are eligible for a Thank-You Reward',
+    heroSubtitle:
+      'They independently picked you or added you to a list recently.',
+    heroSubtitleEmpty:
+      'People who pick you or add you to a list will show up here. Each person can receive one thank-you from your business.',
+    heroLoading: 'Checking who to thank…',
+    config: {
+      title: 'Your thank-you',
+      summary: '{{percent}}% off their next visit · valid {{days}} days',
+      percent10: '10%',
+      percent20: '20%',
+      percent30: '30%',
+      percent40: '40%',
+      custom: 'Custom',
+      customLabel: 'Custom discount',
+      customPlaceholder: '1–100',
+      customHint: 'Enter a percentage up to 100%.',
+      validityLabel: 'Validity',
+      validityPlaceholder: '30',
+      validityHint: 'Days the reward stays valid after it is sent.',
+      validitySuffix: 'days',
+      helper:
+        'Custom discounts can go up to 100%. One thank-you per person per business, platform-enforced. Wording adapts per business — "service," "class," "purchase," "visit" — and quote-based businesses can use fixed amounts (e.g. "$50 off your next booked service") instead of percentages.',
+    },
+    preview: {
+      title: 'Preview: what customers receive',
+      body:
+        'A private reward in their LocalNotes — redeemable at your counter (staff scan the QR or type the code) or online (they enter the code at your site\'s checkout, if you take orders online).',
+      rewardTitle: '{{percent}}% off your next visit',
+      expiresLabel: 'Valid {{days}} days',
+      previewCode: 'PREVIEW',
+      fallbackBusinessName: 'Your business',
+    },
+    who: {
+      title: 'Who gets thanked',
+      queued: 'Queued',
+      emptyTitle: 'Nobody queued yet',
+      empty:
+        'When someone picks your business or adds you to a list, they’ll appear here — ready for a thank-you.',
+      loadError: 'Could not load eligible recipients. Pull to refresh or try again later.',
+      footnote:
+        "Everyone who mentioned you gets thanked — that's the point. Rewards are sentiment-blind; a business that only thanks its fans is buying praise.",
+      actions: {
+        pickedYou: 'picked you',
+        addedToList: 'added you to a list',
+        pickedYouMentioned: 'picked you, mentioned something',
+        pickedYouMentionedWithText: 'picked you, mentioned {{mention}}',
+      },
+      relative: {
+        daysAgo: '{{count}}d ago',
+      },
+    },
+    send: 'Send Thank-You Rewards',
+    sending: 'Sending…',
+    sendUnavailable:
+      'You’ll be able to send once someone picks you or adds you to a list.',
+    sendConfirmTitle: 'Send thank-you rewards?',
+    sendConfirmBody_one:
+      'Send a thank-you reward to {{count}} eligible person?',
+    sendConfirmBody_other:
+      'Send a thank-you reward to {{count}} eligible people?',
+    sendSuccess: 'Thank-you rewards sent.',
+    sendFailed: 'Could not send thank-you rewards. Try again.',
   },
   redeemOffer: {
     title: 'Redeem tool',

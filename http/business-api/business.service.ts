@@ -26,6 +26,11 @@ import type {
     ClaimEmailOtpStartDAO,
     ClaimPhoneOtpStartDAO,
     BusinessTypeDAO,
+    ThankYouEligibleDAO,
+    ThankYouSendDTO,
+    ThankYouSendResultDAO,
+    ThankYouRedeemLookupDAO,
+    ThankYouReceivedDAO,
 } from "./types";
 import type { NoteDAO } from "../notes-api/types";
 
@@ -317,6 +322,57 @@ class BusinessService extends AppHttpService{
             query,
         });
     }
+
+    async getThankYouEligible(query?: { page?: number }) {
+        return await this.SendRequest<ThankYouEligibleDAO>({
+            method: "get",
+            path: "/thank-you/eligible",
+            query: query && Object.keys(query).length > 0 ? query : undefined,
+        });
+    }
+
+    async sendThankYouRewards(dto: ThankYouSendDTO) {
+        return await this.SendRequest<ThankYouSendResultDAO, ThankYouSendDTO>({
+            method: "post",
+            path: "/thank-you/send",
+            body: dto,
+        });
+    }
+
+    async validateThankYouRedeemCode(code: string) {
+        return await this.SendRequest<ThankYouRedeemLookupDAO>({
+            method: "get",
+            path: "/thank-you/redeem-codes/validate",
+            query: { code },
+        });
+    }
+
+    async useThankYouRedeemCode(code: string) {
+        return await this.SendRequest<ThankYouRedeemLookupDAO>({
+            method: "post",
+            path: "/thank-you/redeem-codes/use",
+            body: { code } as never,
+        });
+    }
+
+    async fetchThankYouRedeemedCodes(query?: {
+        page?: number;
+        business_id?: string;
+    }) {
+        return await this.SendRequest<ThankYouRedeemLookupDAO[]>({
+            method: "get",
+            path: "/thank-you/redeem-codes",
+            query: query && Object.keys(query).length > 0 ? query : undefined,
+        });
+    }
+
+    async fetchThankYouReceived() {
+        return await this.SendRequest<ThankYouReceivedDAO[]>({
+            method: "get",
+            path: "/thank-you/received",
+        });
+    }
+
 }
 
 export default new BusinessService()

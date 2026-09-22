@@ -101,13 +101,22 @@ export default function BusinessHomeScreen() {
           }
         >
           <BusinessHomeShortcuts />
-          <View className="px-4 pt-2">
+          <View className="gap-2 px-4 pt-2">
             <LocalNotesButton
               label={t('businessHome.buttons.redeemTool')}
               onPress={() =>
                 router.push('/(app)/(stack)/redeem-offer' as never)
               }
               variant="dark"
+              size="sm"
+              isRounded
+            />
+            <LocalNotesButton
+              label={t('businessHome.buttons.thankYou')}
+              onPress={() =>
+                router.push('/(app)/(stack)/thank-you' as never)
+              }
+              variant="light"
               size="sm"
               isRounded
             />

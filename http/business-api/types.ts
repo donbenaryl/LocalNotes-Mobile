@@ -258,3 +258,63 @@ export type ClaimPhoneOtpStartDAO = {
   masked_phone: string;
   expires_at: string;
 };
+
+export type ThankYouRecipientAction =
+  | "pickedYou"
+  | "addedToList"
+  | "pickedYouMentioned";
+
+export type ThankYouRecipientDAO = {
+  id: string;
+  name: string;
+  action: ThankYouRecipientAction;
+  days_ago?: number | null;
+  mention?: string | null;
+};
+
+export type ThankYouEligibleDAO = {
+  count: number;
+  recipients: ThankYouRecipientDAO[];
+};
+
+export type ThankYouSendDTO = {
+  percent: number;
+  validity_days: number;
+};
+
+export type ThankYouSendResultDAO = {
+  sent_count: number;
+  percent: number;
+  validity_days: number;
+};
+
+export type ThankYouRedeemLookupDAO = {
+  id: string;
+  code: string;
+  used_at: string | null;
+  percent: number;
+  expires_at: string;
+  reward_title: string;
+  customer: {
+    id: string;
+    username: string;
+    first_name: string;
+  };
+  kind: "thank_you";
+};
+
+export type ThankYouReceivedDAO = {
+  id: string;
+  code: string;
+  percent: number;
+  validity_days: number;
+  expires_at: string;
+  used_at: string | null;
+  created_at: string;
+  reward_title: string;
+  business: {
+    id: string;
+    name: string;
+    logo: string | null;
+  };
+};
