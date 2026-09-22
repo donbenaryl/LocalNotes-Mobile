@@ -6,13 +6,14 @@ import {
   View,
 } from "react-native";
 import { Bookmark } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { WhiteBox } from "@/components/ui/WhiteBox";
-import { toast } from "@/components/ui/Toast";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { withViewOrigin } from "@/utils/viewTracking";
 
 interface BusinessCardProps {
   data: BusinessItemDAO;
@@ -35,6 +36,7 @@ export function BusinessCard({
   onFollowChange,
 }: BusinessCardProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === "dark" ? "#D1D5DB" : "#6B7280";
   const { isFollowed, isToggling, toggle } = useBusinessFollow(
@@ -53,9 +55,7 @@ export function BusinessCard({
       onPress();
       return;
     }
-    toast.info(t("alerts.comingSoonMessage"), {
-      title: t("alerts.comingSoon"),
-    });
+    router.push(withViewOrigin(`/business/${data.id}`, "search") as never);
   };
 
   return (

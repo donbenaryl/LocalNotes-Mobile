@@ -53,6 +53,8 @@ import {
 import type { ProfileListTabType } from "./ProfileTabPanel";
 import { useContentBottomInset } from "@/hooks/useContentBottomInset";
 import accountService from "@/http/account-api/account.services";
+import businessService from "@/http/business-api/business.service";
+import type { BusinessItemDAO } from "@/http/business-api/types";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from "@/constants/colors";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -74,6 +76,7 @@ const TAB_IDS: ProfileListTabType[] = [
 ];
 
 const PROFILE_HREF = "/(app)/(stack)/profile" as Href;
+const BUSINESS_HREF = "/(app)/(stack)/business/[businessId]" as Href;
 
 function isTabType(value: string | null | undefined): value is ProfileListTabType {
   return value !== null && value !== undefined && TAB_IDS.includes(value as ProfileListTabType);
@@ -84,13 +87,17 @@ const PROFILE_CHROME_REVEAL_THRESHOLD = 300;
 
 interface MainProfileProps {
   userId?: string;
+  businessId?: string;
   viewOrigin?: ViewOrigin;
 }
 
 interface MainProfileContentProps {
   userId?: string;
+  businessId?: string;
   isOwnProfile: boolean;
+  isBusinessPage: boolean;
   profile: profileItemDAO | null | undefined;
+  business: BusinessItemDAO | null | undefined;
   isPending: boolean;
   isError: boolean;
   onProfileInfoLayout: (height: number) => void;
@@ -99,7 +106,9 @@ interface MainProfileContentProps {
 interface ProfileScrollBodyProps {
   isOwnProfile: boolean;
   isBusinessOwner: boolean;
+  isBusinessPage: boolean;
   profile: profileItemDAO | null | undefined;
+  business: BusinessItemDAO | null | undefined;
   isPending: boolean;
   profileUserId: string;
   primaryBusinessId?: string;
@@ -115,7 +124,9 @@ interface ProfileScrollBodyProps {
 function ProfileScrollBody({
   isOwnProfile,
   isBusinessOwner,
+  isBusinessPage,
   profile,
+  business,
   isPending,
   profileUserId,
   primaryBusinessId,
@@ -135,6 +146,15 @@ function ProfileScrollBody({
 
   const handleRefresh = useCallback(() => {
     handler?.onRefresh();
+    if (isBusinessPage && primaryBusinessId) {
+      void queryClient.invalidateQueries({
+        queryKey: ["business", primaryBusinessId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ["business-offers", primaryBusinessId],
+      });
+      return;
+    }
     void queryClient.invalidateQueries({
       queryKey: isOwnProfile ? ["profile"] : ["profile", profileUserId],
     });
@@ -155,11 +175,14 @@ function ProfileScrollBody({
     handler,
     queryClient,
     isOwnProfile,
+    isBusinessPage,
     profileUserId,
     isBusinessOwner,
     refreshBusinessInfo,
     primaryBusinessId,
   ]);
+
+  const hasEntity = isBusinessPage ? Boolean(business) : Boolean(profile);
 
   return (
     <ProfileChromeScrollView
@@ -180,7 +203,7 @@ function ProfileScrollBody({
       {isPending ? (
         <>
           <ProfileInfoSkeleton />
-          {isOwnProfile ? (
+          {isOwnProfile || isBusinessPage ? (
             <View className="px-4 pt-4">
               <Tabs
                 tabs={tabs}
@@ -194,7 +217,7 @@ function ProfileScrollBody({
             <ProfilePicksTabSkeleton />
           </View>
         </>
-      ) : profile ? (
+      ) : hasEntity ? (
         <>
           <View
             onLayout={(event) => {
@@ -203,6 +226,7 @@ function ProfileScrollBody({
           >
             <ProfileInfo
               profile={profile}
+              business={business}
               isOwnProfile={isOwnProfile}
               onEditPress={onEditPress}
               onSharePress={onSharePress}
@@ -231,8 +255,11 @@ function ProfileScrollBody({
 
 function MainProfileContent({
   userId,
+  businessId,
   isOwnProfile,
+  isBusinessPage,
   profile,
+  business,
   isPending,
   isError,
   onProfileInfoLayout,
@@ -248,23 +275,46 @@ function MainProfileContent({
   isFocusedRef.current = isFocused;
   const { resetChrome } = useProfileChrome();
   const authAccountType = useAuthStore((s) => s.accountType);
+  const currentUserId = useAuthStore((s) => s.user?.id);
 
   const [activeTab, setActiveTab] = useState<ProfileListTabType>(() => {
-    return isTabType(params.tab) ? params.tab : "picks";
+    if (isTabType(params.tab)) return params.tab;
+    return "picks";
   });
   const [actionsOpen, setActionsOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
-  const displayName = profile?.name?.trim() || t("common.user");
+  const displayName =
+    (isBusinessPage ? business?.name : profile?.name)?.trim() ||
+    t("common.user");
   const profileUserId = profile?.id ?? userId ?? "";
+  // Business page About/By: always scope "By" to the business primary owner account.
+  const ownerAccountId = business?.owner_account_id?.trim() || "";
+  const listUserId = isBusinessPage ? ownerAccountId : profileUserId;
+  const listIsOwnProfile = isBusinessPage
+    ? Boolean(ownerAccountId) && ownerAccountId === currentUserId
+    : isOwnProfile;
   const accountType = profile?.account_type ?? authAccountType ?? undefined;
-  const isBusinessProfile = isBusinessAccountType(accountType ?? undefined);
-  const isBusinessOwner = isOwnProfile && isBusinessProfile;
+  const isBusinessProfile =
+    isBusinessPage || isBusinessAccountType(accountType ?? undefined);
+  const isBusinessOwner =
+    isOwnProfile && (isBusinessPage || isBusinessProfile);
 
-  const primaryBusinessId = profile?.primary_business_id ?? undefined;
+  const primaryBusinessId = isBusinessPage
+    ? businessId ?? business?.id
+    : profile?.primary_business_id ?? undefined;
 
   const ownProfileTabs: TabItem[] = useMemo(() => {
+    if (isBusinessPage) {
+      return [
+        { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
+        { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
+        { id: "offers", label: t("profile.tabs.offers"), icon: Tag },
+        { id: "about", label: t("profile.tabs.about"), icon: Info },
+      ];
+    }
+
     const base: TabItem[] = [
       { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
       {
@@ -282,10 +332,10 @@ function MainProfileContent({
     }
 
     return base;
-  }, [isBusinessProfile, primaryBusinessId, t]);
+  }, [isBusinessPage, isBusinessProfile, primaryBusinessId, t]);
 
   const tabs = useMemo(() => {
-    if (isOwnProfile) {
+    if (isBusinessPage || isOwnProfile) {
       return ownProfileTabs;
     }
 
@@ -296,6 +346,7 @@ function MainProfileContent({
       return true;
     });
   }, [
+    isBusinessPage,
     isOwnProfile,
     ownProfileTabs,
     profile?.show_saved_list,
@@ -325,7 +376,7 @@ function MainProfileContent({
     if (!isFocusedRef.current) return;
     const task = InteractionManager.runAfterInteractions(() => {
       if (!isFocusedRef.current) return;
-      if (activeTab === "my-lists") {
+      if (!isBusinessPage && activeTab === "my-lists") {
         if (params.tab === undefined) return;
         router.setParams({ tab: undefined });
         return;
@@ -334,7 +385,7 @@ function MainProfileContent({
       router.setParams({ tab: activeTab });
     });
     return () => task.cancel();
-  }, [activeTab, isFocused, params.tab, router]);
+  }, [activeTab, isFocused, isBusinessPage, params.tab, router]);
 
   const handleTabChange = useCallback(
     (tabId: string) => {
@@ -355,6 +406,21 @@ function MainProfileContent({
   }, [router]);
 
   const handleShare = useCallback(async () => {
+    if (isBusinessPage) {
+      if (!primaryBusinessId) return;
+      try {
+        await Share.share({
+          message: `${displayName} on LocalNotes\n${withViewOrigin(
+            `/businesses/${primaryBusinessId}`,
+            "share_link",
+          )}`,
+        });
+      } catch {
+        // User dismissed share sheet.
+      }
+      return;
+    }
+
     if (!profileUserId) return;
     const username = profile?.username ? `@${profile.username}` : displayName;
     try {
@@ -367,7 +433,13 @@ function MainProfileContent({
     } catch {
       // User dismissed share sheet.
     }
-  }, [displayName, profile?.username, profileUserId]);
+  }, [
+    displayName,
+    isBusinessPage,
+    primaryBusinessId,
+    profile?.username,
+    profileUserId,
+  ]);
 
   const blockMutation = useMutation({
     mutationFn: () => accountService.blockUser(profileUserId),
@@ -416,24 +488,32 @@ function MainProfileContent({
     () =>
       tabs.map((tab) => ({
         id: tab.id,
-        href: PROFILE_HREF,
+        href: isBusinessPage ? BUSINESS_HREF : PROFILE_HREF,
         render: () => (
           <ProfileList
-            userId={profileUserId}
-            isOwnProfile={isOwnProfile}
+            userId={listUserId}
+            isOwnProfile={listIsOwnProfile}
             tab={tab.id as ProfileListTabType}
             isBusinessProfile={isBusinessProfile}
-            businessId={profile?.primary_business_id ?? undefined}
-            businessName={profile?.primary_business_name ?? undefined}
+            isBusinessPage={isBusinessPage}
+            businessId={primaryBusinessId}
+            businessName={
+              isBusinessPage
+                ? business?.name
+                : profile?.primary_business_name ?? undefined
+            }
+            business={isBusinessPage ? business : undefined}
           />
         ),
       })),
     [
-      isOwnProfile,
+      listIsOwnProfile,
+      isBusinessPage,
       isBusinessProfile,
-      profile?.primary_business_id,
+      primaryBusinessId,
+      business,
       profile?.primary_business_name,
-      profileUserId,
+      listUserId,
       tabs,
     ],
   );
@@ -441,31 +521,41 @@ function MainProfileContent({
   const moreIconColor =
     colorScheme === "dark" ? ICON_COLOR_DARK : ICON_COLOR_LIGHT;
 
-  const otherProfileMenu = !isOwnProfile ? (
-    <Pressable
-      onPress={() => setActionsOpen(true)}
-      accessibilityRole="button"
-      accessibilityLabel={t("common.more")}
-      className="rounded-full p-1 active:opacity-70"
-      hitSlop={8}
-    >
-      <MoreVertical size={22} color={moreIconColor} strokeWidth={2} />
-    </Pressable>
-  ) : null;
+  const otherProfileMenu =
+    !isOwnProfile && !isBusinessPage ? (
+      <Pressable
+        onPress={() => setActionsOpen(true)}
+        accessibilityRole="button"
+        accessibilityLabel={t("common.more")}
+        className="rounded-full p-1 active:opacity-70"
+        hitSlop={8}
+      >
+        <MoreVertical size={22} color={moreIconColor} strokeWidth={2} />
+      </Pressable>
+    ) : null;
+
+  const loadErrorMessage = isBusinessPage
+    ? t("profile.info.businessLoadError")
+    : t("profile.info.loadError");
 
   return (
     <View className="flex-1 bg-page dark:bg-gray-900">
       <ProfileChromeHeader
         onBack={handleBack}
-        rightChild={isOwnProfile ? <ProfileHeader /> : otherProfileMenu}
-        profile={profile}
+        rightChild={
+          isOwnProfile && !isBusinessPage ? <ProfileHeader /> : otherProfileMenu
+        }
+        profile={isBusinessPage ? undefined : profile}
+        business={isBusinessPage ? business : undefined}
         isOwnProfile={isOwnProfile}
         isPending={isPending}
       />
-      {isError || (!isPending && !profile) ? (
+      {isError ||
+      (!isPending &&
+        !(isBusinessPage ? business : profile)) ? (
         <View className="flex-1 items-center justify-center py-20">
           <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
-            Failed to load profile.
+            {loadErrorMessage}
           </Text>
         </View>
       ) : (
@@ -473,7 +563,9 @@ function MainProfileContent({
           <ProfileScrollBody
             isOwnProfile={isOwnProfile}
             isBusinessOwner={isBusinessOwner}
+            isBusinessPage={isBusinessPage}
             profile={profile}
+            business={business}
             isPending={isPending}
             profileUserId={profileUserId}
             primaryBusinessId={primaryBusinessId}
@@ -490,7 +582,7 @@ function MainProfileContent({
         </ProfilePullToRefreshProvider>
       )}
 
-      {!isOwnProfile && profileUserId ? (
+      {!isOwnProfile && !isBusinessPage && profileUserId ? (
         <>
           <ProfileActionsSheet
             visible={actionsOpen}
@@ -520,11 +612,25 @@ function MainProfileContent({
 
 export default function MainProfile({
   userId,
+  businessId,
   viewOrigin = "other",
 }: MainProfileProps) {
   const router = useRouter();
   const currentUserId = useAuthStore((s) => s.user?.id);
-  const isOwnProfile = !userId || userId === currentUserId;
+  const storeBusinessId = useBusinessStore((s) => s.businessId);
+  const ownedBusinesses = useBusinessStore((s) => s.ownedBusinesses);
+  const isBusinessPage = Boolean(businessId);
+
+  const isOwnBusiness =
+    isBusinessPage &&
+    Boolean(businessId) &&
+    (storeBusinessId === businessId ||
+      ownedBusinesses.some((b) => b.id === businessId));
+
+  const isOwnProfile = isBusinessPage
+    ? isOwnBusiness
+    : !userId || userId === currentUserId;
+
   const [profileInfoHeight, setProfileInfoHeight] = useState(
     PROFILE_CHROME_REVEAL_THRESHOLD,
   );
@@ -536,45 +642,75 @@ export default function MainProfile({
   }, []);
 
   useEffect(() => {
+    if (isBusinessPage) return;
     if (userId && currentUserId && userId === currentUserId) {
       router.replace("/profile");
     }
-  }, [userId, currentUserId, router]);
+  }, [userId, currentUserId, router, isBusinessPage]);
 
   const {
     data: profile,
-    isPending,
-    isError,
+    isPending: isProfilePending,
+    isError: isProfileError,
   } = useQuery({
-    queryKey: isOwnProfile ? ["profile"] : ["profile", userId],
+    queryKey: isOwnProfile && !isBusinessPage ? ["profile"] : ["profile", userId],
     queryFn: async () => {
-      const response = isOwnProfile
-        ? await accountService.fetchUser()
-        : await accountService.fetchOtherUser(userId!);
+      const response =
+        !userId || userId === currentUserId
+          ? await accountService.fetchUser()
+          : await accountService.fetchOtherUser(userId!);
       return response.data?.data ?? null;
     },
-    enabled: isOwnProfile || Boolean(userId),
+    enabled: !isBusinessPage && (isOwnProfile || Boolean(userId)),
+    staleTime: FEED_STALE_TIME_MS,
+  });
+
+  const {
+    data: business,
+    isPending: isBusinessPending,
+    isError: isBusinessError,
+  } = useQuery({
+    queryKey: ["business", businessId],
+    queryFn: async () => {
+      const response = await businessService.getBusinessById(businessId!);
+      return response.data?.data ?? null;
+    },
+    enabled: isBusinessPage && Boolean(businessId),
     staleTime: FEED_STALE_TIME_MS,
   });
 
   const viewedProfileIdRef = useRef<string | null>(null);
+  const viewedBusinessIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (isOwnProfile || !profile?.id) return;
+    if (isBusinessPage || isOwnProfile || !profile?.id) return;
     if (viewedProfileIdRef.current === profile.id) return;
     viewedProfileIdRef.current = profile.id;
     void accountService.viewProfile(profile.id, {
       source: "mobile",
       origin: viewOrigin,
     });
-  }, [isOwnProfile, profile?.id, viewOrigin]);
+  }, [isBusinessPage, isOwnProfile, profile?.id, viewOrigin]);
 
-  if (userId && currentUserId && userId === currentUserId) {
+  useEffect(() => {
+    if (!isBusinessPage || !business?.id) return;
+    if (viewedBusinessIdRef.current === business.id) return;
+    viewedBusinessIdRef.current = business.id;
+    void businessService.recordView(business.id, {
+      source: "mobile",
+      origin: viewOrigin,
+    });
+  }, [isBusinessPage, business?.id, viewOrigin]);
+
+  if (!isBusinessPage && userId && currentUserId && userId === currentUserId) {
     return null;
   }
 
   const revealThreshold = profileInfoHeight * 0.5;
   const hideThreshold = Math.max(0, revealThreshold - 40);
+
+  const isPending = isBusinessPage ? isBusinessPending : isProfilePending;
+  const isError = isBusinessPage ? isBusinessError : isProfileError;
 
   return (
     <ProfileChromeProvider
@@ -583,8 +719,11 @@ export default function MainProfile({
     >
       <MainProfileContent
         userId={userId}
+        businessId={businessId}
         isOwnProfile={isOwnProfile}
-        profile={profile}
+        isBusinessPage={isBusinessPage}
+        profile={isBusinessPage ? undefined : profile}
+        business={isBusinessPage ? business : undefined}
         isPending={isPending}
         isError={isError}
         onProfileInfoLayout={handleProfileInfoLayout}

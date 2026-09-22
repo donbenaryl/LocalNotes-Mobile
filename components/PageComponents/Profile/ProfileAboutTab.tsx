@@ -18,22 +18,9 @@ import { BranchLocationCard } from '@/components/PageComponents/Profile/BranchLo
 import { WhiteBox } from '@/components/ui/WhiteBox';
 import { useUserCoordinates } from '@/hooks/useUserCoordinates';
 import { useBusinessStore } from '@/stores/useBusinessStore';
+import type { BusinessItemDAO } from '@/http/business-api/types';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from '@/constants/colors';
-
-function formatStatCount(value: number | undefined): string {
-  const n = value ?? 0;
-  if (!Number.isFinite(n)) return '0';
-  if (n >= 1_000_000) {
-    const millions = n / 1_000_000;
-    return `${millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1)}M`;
-  }
-  if (n >= 1_000) {
-    const thousands = n / 1_000;
-    return `${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(1)}K`;
-  }
-  return String(Math.round(n));
-}
 
 interface AboutRowProps {
   icon: ReactNode;
@@ -101,51 +88,16 @@ function ProfileAboutTabSkeleton() {
   );
 }
 
-export function ProfileAboutTab() {
+interface ProfileAboutTabProps {
+  /** When provided (public business page), render this business instead of the store. */
+  business?: BusinessItemDAO | null;
+}
+
+function AboutBusinessContent({ businessInfo }: { businessInfo: BusinessItemDAO }) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? ICON_COLOR_DARK : ICON_COLOR_LIGHT;
   const { coordinates: userCoordinates } = useUserCoordinates();
-
-  const businessInfo = useBusinessStore((s) => s.businessInfo);
-  const isFetching = useBusinessStore((s) => s.isFetching);
-  const hasFetched = useBusinessStore((s) => s.hasFetched);
-  const loadBusinessInfo = useBusinessStore((s) => s.loadBusinessInfo);
-
-  useEffect(() => {
-    if (!hasFetched) {
-      void loadBusinessInfo();
-    }
-  }, [hasFetched, loadBusinessInfo]);
-
-  if (isFetching && !businessInfo) {
-    return (
-      <View className="px-4 pt-4">
-        <ProfileAboutTabSkeleton />
-      </View>
-    );
-  }
-
-  if (hasFetched && !businessInfo) {
-    return (
-      <View className="items-center px-4 py-12">
-        <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
-          {t('profile.about.empty')}
-        </Text>
-      </View>
-    );
-  }
-
-  if (!businessInfo) {
-    return (
-      <View className="items-center px-4 py-12">
-        <ActivityIndicator size="small" color="#FF6B1A" />
-        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
-          {t('profile.about.loading')}
-        </Text>
-      </View>
-    );
-  }
 
   const logoUri = businessInfo.logo
     ? resolveImageUrl(businessInfo.logo) ?? businessInfo.logo
@@ -154,21 +106,6 @@ export function ProfileAboutTab() {
   const openUrl = (url: string) => {
     void Linking.openURL(url);
   };
-
-  const stats = [
-    {
-      value: formatStatCount(businessInfo.follower_count),
-      label: t('profile.info.stats.followers'),
-    },
-    {
-      value: formatStatCount(businessInfo.list_count),
-      label: t('profile.info.stats.lists'),
-    },
-    {
-      value: formatStatCount(businessInfo.share_count),
-      label: t('profile.about.shares'),
-    },
-  ];
 
   const hasContact =
     Boolean(businessInfo.contact_email) ||
@@ -214,24 +151,6 @@ export function ProfileAboutTab() {
             {businessInfo.bio}
           </Text>
         ) : null}
-
-        {/* <View className="mt-4 flex-row rounded-xl bg-soft py-3 dark:bg-gray-900">
-          {stats.map((stat, index) => (
-            <View
-              key={stat.label}
-              className={`flex-1 items-center ${
-                index > 0 ? 'border-l border-gray-200 dark:border-gray-700' : ''
-              }`}
-            >
-              <Text className="font-geist-extrabold text-[16px] text-ink dark:text-gray-100">
-                {stat.value}
-              </Text>
-              <Text className="mt-0.5 font-geist-semibold text-[10.5px] uppercase text-gray-400 dark:text-gray-500">
-                {stat.label}
-              </Text>
-            </View>
-          ))}
-        </View> */}
       </WhiteBox>
 
       {businessInfo.branches?.map((branch) => (
@@ -282,4 +201,66 @@ export function ProfileAboutTab() {
       ) : null}
     </View>
   );
+}
+
+export function ProfileAboutTab({ business }: ProfileAboutTabProps) {
+  const { t } = useTranslation();
+
+  const storeBusinessInfo = useBusinessStore((s) => s.businessInfo);
+  const isFetching = useBusinessStore((s) => s.isFetching);
+  const hasFetched = useBusinessStore((s) => s.hasFetched);
+  const loadBusinessInfo = useBusinessStore((s) => s.loadBusinessInfo);
+
+  const useStore = business === undefined;
+
+  useEffect(() => {
+    if (!useStore) return;
+    if (!hasFetched) {
+      void loadBusinessInfo();
+    }
+  }, [useStore, hasFetched, loadBusinessInfo]);
+
+  if (!useStore) {
+    if (!business) {
+      return (
+        <View className="items-center px-4 py-12">
+          <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            {t('profile.about.empty')}
+          </Text>
+        </View>
+      );
+    }
+    return <AboutBusinessContent businessInfo={business} />;
+  }
+
+  if (isFetching && !storeBusinessInfo) {
+    return (
+      <View className="px-4 pt-4">
+        <ProfileAboutTabSkeleton />
+      </View>
+    );
+  }
+
+  if (hasFetched && !storeBusinessInfo) {
+    return (
+      <View className="items-center px-4 py-12">
+        <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+          {t('profile.about.empty')}
+        </Text>
+      </View>
+    );
+  }
+
+  if (!storeBusinessInfo) {
+    return (
+      <View className="items-center px-4 py-12">
+        <ActivityIndicator size="small" color="#FF6B1A" />
+        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
+          {t('profile.about.loading')}
+        </Text>
+      </View>
+    );
+  }
+
+  return <AboutBusinessContent businessInfo={storeBusinessInfo} />;
 }

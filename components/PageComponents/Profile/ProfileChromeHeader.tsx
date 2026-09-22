@@ -10,11 +10,13 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { ProfileVitalBar } from "./ProfileVitalBar";
 import { useProfileChrome } from "./ProfileChromeProvider";
 import type { profileItemDAO } from "@/http/account-api/types";
+import type { BusinessItemDAO } from "@/http/business-api/types";
 
 interface ProfileChromeHeaderProps {
   onBack: () => void;
   rightChild?: ReactNode;
-  profile: profileItemDAO | null | undefined;
+  profile?: profileItemDAO | null;
+  business?: BusinessItemDAO | null;
   isOwnProfile: boolean;
   isPending: boolean;
 }
@@ -23,6 +25,7 @@ export function ProfileChromeHeader({
   onBack,
   rightChild,
   profile,
+  business,
   isOwnProfile,
   isPending,
 }: ProfileChromeHeaderProps) {
@@ -45,6 +48,8 @@ export function ProfileChromeHeader({
     ],
   }));
 
+  const hasEntity = Boolean(business) || Boolean(profile);
+
   return (
     <View className="relative z-10">
       <Animated.View
@@ -57,13 +62,17 @@ export function ProfileChromeHeader({
       >
         <PageHeader onBack={onBack} borderless rightChild={rightChild} />
       </Animated.View>
-      {!isPending && profile ? (
+      {!isPending && hasEntity ? (
         <View
           style={StyleSheet.absoluteFillObject}
           pointerEvents="box-none"
           className="z-20"
         >
-          <ProfileVitalBar profile={profile} isOwnProfile={isOwnProfile} />
+          <ProfileVitalBar
+            profile={profile}
+            business={business}
+            isOwnProfile={isOwnProfile}
+          />
         </View>
       ) : null}
     </View>

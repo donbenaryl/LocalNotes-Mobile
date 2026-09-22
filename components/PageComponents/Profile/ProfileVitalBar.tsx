@@ -12,6 +12,7 @@ import { useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { useProfileChrome } from "./ProfileChromeProvider";
+import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import { useSimilarScores } from "@/hooks/useSimilarScores";
 import {
   getDominantPersonalityColor,
@@ -19,9 +20,11 @@ import {
 } from "@/utils/personalityRing";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 import type { profileItemDAO } from "@/http/account-api/types";
+import type { BusinessItemDAO } from "@/http/business-api/types";
 
 interface ProfileVitalBarProps {
-  profile: profileItemDAO;
+  profile?: profileItemDAO | null;
+  business?: BusinessItemDAO | null;
   isOwnProfile?: boolean;
 }
 
@@ -36,6 +39,7 @@ function hexToRgba(hex: string, alpha: number): string {
 
 export function ProfileVitalBar({
   profile,
+  business,
   isOwnProfile = true,
 }: ProfileVitalBarProps) {
   const { t } = useTranslation();
@@ -45,17 +49,33 @@ export function ProfileVitalBar({
   const { hideProgress } = useProfileChrome();
   const [interactive, setInteractive] = useState(false);
 
-  const gradientColors = getPersonalityGradientColors(profile.personality_color);
-  const accentColor = getDominantPersonalityColor(profile.personality_color);
+  const isBusinessMode = Boolean(business);
+  const displayName = business?.name ?? profile?.name ?? "";
+  const displayImage = business?.logo ?? profile?.profile_image_url;
+  const subtitle = isBusinessMode
+    ? business?.business_type
+    : profile?.personality_name;
+
+  const gradientColors = isBusinessMode
+    ? undefined
+    : getPersonalityGradientColors(profile?.personality_color);
+  const accentColor = isBusinessMode
+    ? "#FF6B1A"
+    : getDominantPersonalityColor(profile?.personality_color);
   const accentSoftBorder = hexToRgba(accentColor, isDark ? 0.35 : 0.22);
 
   const { matchPercent, isLoading: isMatchLoading } = useSimilarScores(
-    profile.id ?? "",
-    !isOwnProfile && Boolean(profile.id),
+    profile?.id ?? "",
+    !isOwnProfile && !isBusinessMode && Boolean(profile?.id),
   );
-  const showMatch = !isOwnProfile && !isMatchLoading;
+  const showMatch = !isOwnProfile && !isBusinessMode && !isMatchLoading;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);
   const clampedMatch = clampPercent(matchPercent ?? 0);
+
+  const { isFollowed, isToggling, toggle } = useBusinessFollow(
+    business?.id,
+    business?.is_followed ?? false,
+  );
 
   useAnimatedReaction(
     () => hideProgress.value > 0.01,
@@ -72,6 +92,8 @@ export function ProfileVitalBar({
       { translateY: interpolate(hideProgress.value, [0, 1], [-8, 0]) },
     ],
   }));
+
+  if (!business && !profile) return null;
 
   return (
     <View
@@ -95,8 +117,8 @@ export function ProfileVitalBar({
       >
         <View className="flex-row items-center gap-2.5 border-b border-black/10 px-3.5 py-[7px] dark:border-white/10">
           <Avatar
-            name={profile.name}
-            src={profile.profile_image_url}
+            name={displayName}
+            src={displayImage}
             size="sm"
             gradientColors={gradientColors}
           />
@@ -106,20 +128,24 @@ export function ProfileVitalBar({
               className="font-geist-bold text-[13.5px] text-ink dark:text-gray-100"
               numberOfLines={1}
             >
-              {profile.name}
+              {displayName}
             </Text>
-            {profile.personality_name ? (
+            {subtitle ? (
               <Text
-                className="font-fraunces text-[11.5px] italic"
-                style={{ color: accentColor }}
+                className={
+                  isBusinessMode
+                    ? "font-geist text-[11.5px] text-gray-500 dark:text-gray-400"
+                    : "font-fraunces text-[11.5px] italic"
+                }
+                style={isBusinessMode ? undefined : { color: accentColor }}
                 numberOfLines={1}
               >
-                {profile.personality_name}
+                {subtitle}
               </Text>
             ) : null}
           </View>
 
-          {!isOwnProfile && profile.id ? (
+          {!isOwnProfile ? (
             <View className="shrink-0 flex-row items-center gap-2">
               {showMatch ? (
                 <View
@@ -146,13 +172,26 @@ export function ProfileVitalBar({
                 </View>
               ) : null}
 
-              <FollowButton
-                userId={profile.id}
-                initialIsFollowed={Boolean(profile.is_followed)}
-                useButton
-                isButtonFull={false}
-                buttonSize="xs"
-              />
+              {isBusinessMode && business ? (
+                <FollowButton
+                  userId={business.id}
+                  initialIsFollowed={Boolean(business.is_followed)}
+                  isFollowed={isFollowed}
+                  onToggle={toggle}
+                  loading={isToggling}
+                  useButton
+                  isButtonFull={false}
+                  buttonSize="xs"
+                />
+              ) : profile?.id ? (
+                <FollowButton
+                  userId={profile.id}
+                  initialIsFollowed={Boolean(profile.is_followed)}
+                  useButton
+                  isButtonFull={false}
+                  buttonSize="xs"
+                />
+              ) : null}
             </View>
           ) : null}
         </View>

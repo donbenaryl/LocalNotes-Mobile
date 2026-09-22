@@ -10,6 +10,7 @@ import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { StatsSection } from '@/components/ui/StatsSection';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
 import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
+import { useBusinessFollow } from '@/hooks/useBusinessFollow';
 import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfileInsights';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSimilarScores } from '@/hooks/useSimilarScores';
@@ -20,9 +21,11 @@ import {
 import { getMatchPercentColor } from '@/utils/matchScore';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
+import type { BusinessItemDAO, BusinessLocation } from '@/http/business-api/types';
 
 interface ProfileInfoProps {
-  profile: profileItemDAO;
+  profile?: profileItemDAO | null;
+  business?: BusinessItemDAO | null;
   isOwnProfile?: boolean;
   onEditPress: () => void;
   onSharePress: () => void;
@@ -53,7 +56,9 @@ function formatJoinedYear(createdAt?: string): string | null {
   return Number.isFinite(year) ? String(year) : null;
 }
 
-function formatLocationLabel(location: AccountLocationDTO | null | undefined): string {
+function formatLocationLabel(
+  location: AccountLocationDTO | BusinessLocation | null | undefined,
+): string {
   if (!location) return '';
   return location.city || location.region || location.country || '';
 }
@@ -67,12 +72,161 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export function ProfileInfo({
-  profile,
-  isOwnProfile = true,
+function BusinessProfileInfo({
+  business,
+  isOwnBusiness,
   onEditPress,
   onSharePress,
-}: ProfileInfoProps) {
+}: {
+  business: BusinessItemDAO;
+  isOwnBusiness: boolean;
+  onEditPress: () => void;
+  onSharePress: () => void;
+}) {
+  const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
+  const shareIconColor = isDark ? '#F3F4F6' : '#1C1917';
+  const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
+    useState(false);
+  const avatarImageUri = resolveImageUrl(business.logo);
+  const { isFollowed, isToggling, toggle } = useBusinessFollow(
+    business.id,
+    business.is_followed ?? false,
+  );
+
+  const locationLabel = formatLocationLabel(
+    business.branches?.[0]?.location ?? business.location,
+  );
+
+  const stats: StatItem[] = useMemo(
+    () => [
+      {
+        value: formatStatCount(business.list_count),
+        label: t('profile.info.stats.lists'),
+      },
+      {
+        value: formatStatCount(business.follower_count),
+        label: t('profile.info.stats.followers'),
+      },
+      {
+        value: formatStatCount(business.share_count),
+        label: t('profile.info.stats.shares'),
+      },
+    ],
+    [business.follower_count, business.list_count, business.share_count, t],
+  );
+
+  return (
+    <>
+      <View className="relative px-4 pb-1 pt-5">
+        <View className="relative items-center px-2 -mt-4">
+          <Avatar
+            name={business.name}
+            src={business.logo}
+            size="xl"
+            onPress={
+              avatarImageUri
+                ? () => setIsAvatarFullScreenVisible(true)
+                : undefined
+            }
+          />
+
+          <Text
+            className="mt-3 text-center font-geist-extrabold text-[23px] leading-7 tracking-tight text-ink dark:text-gray-100"
+            numberOfLines={2}
+          >
+            {business.name}
+          </Text>
+
+          {business.business_type ? (
+            <Text
+              className="mt-0.5 text-center font-fraunces text-base italic text-gray-500 dark:text-gray-400"
+              numberOfLines={1}
+            >
+              {business.business_type}
+            </Text>
+          ) : null}
+
+          {business.bio ? (
+            <Text className="mt-2 max-w-[300px] text-center font-geist text-sm leading-[1.45] text-gray-600 dark:text-gray-400">
+              {business.bio}
+            </Text>
+          ) : null}
+
+          {locationLabel ? (
+            <View className="mt-1.5 flex-row items-center gap-1">
+              <MapPin size={12} color={mutedIconColor} />
+              <Text
+                className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+                numberOfLines={1}
+              >
+                {locationLabel}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+
+        <StatsSection items={stats} className="mt-4" />
+
+        <View className="mt-3.5 flex-row items-center gap-2.5 px-0 pb-1">
+          {isOwnBusiness ? (
+            <LocalNotesButton
+              label={t('profile.info.editBusiness')}
+              onPress={onEditPress}
+              variant="dark"
+              isRounded
+              isWidthFull={false}
+              className="flex-1 justify-center"
+            />
+          ) : (
+            <View className="min-h-[46px] flex-1 justify-center">
+              <FollowButton
+                userId={business.id}
+                initialIsFollowed={Boolean(business.is_followed)}
+                isFollowed={isFollowed}
+                onToggle={toggle}
+                loading={isToggling}
+                useButton
+                isButtonFull
+              />
+            </View>
+          )}
+
+          <LocalNotesButton
+            label=""
+            onPress={onSharePress}
+            variant="light"
+            isRounded
+            isWidthFull={false}
+            leftIcon={<Upload size={17} color={shareIconColor} strokeWidth={2.2} />}
+          />
+        </View>
+      </View>
+
+      {avatarImageUri ? (
+        <ImageFullScreen
+          uri={avatarImageUri}
+          visible={isAvatarFullScreenVisible}
+          onClose={() => setIsAvatarFullScreenVisible(false)}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function UserProfileInfo({
+  profile,
+  isOwnProfile,
+  onEditPress,
+  onSharePress,
+}: {
+  profile: profileItemDAO;
+  isOwnProfile: boolean;
+  onEditPress: () => void;
+  onSharePress: () => void;
+}) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const authAccountType = useAuthStore((s) => s.accountType);
@@ -95,7 +249,6 @@ export function ProfileInfo({
     monthDelta,
     topTypes,
   } = useBusinessOwnerProfileInsights(isOwnProfile, accountType);
-  // Held back only while fetching — a resolved-but-absent score shows as 0%.
   const showTasteMatch = !isOwnProfile && !isMatchLoading;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);
 
@@ -275,5 +428,35 @@ export function ProfileInfo({
         />
       ) : null}
     </>
+  );
+}
+
+export function ProfileInfo({
+  profile,
+  business,
+  isOwnProfile = true,
+  onEditPress,
+  onSharePress,
+}: ProfileInfoProps) {
+  if (business) {
+    return (
+      <BusinessProfileInfo
+        business={business}
+        isOwnBusiness={isOwnProfile}
+        onEditPress={onEditPress}
+        onSharePress={onSharePress}
+      />
+    );
+  }
+
+  if (!profile) return null;
+
+  return (
+    <UserProfileInfo
+      profile={profile}
+      isOwnProfile={isOwnProfile}
+      onEditPress={onEditPress}
+      onSharePress={onSharePress}
+    />
   );
 }

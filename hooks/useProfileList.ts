@@ -50,7 +50,7 @@ export function useProfile({
     Boolean(businessId) &&
     category === "my-lists";
 
-  const { data, isPending, isError, isRefetching, refetch } = useQuery({
+  const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: isAboutBusinessLists
       ? [
           "profile-business-lists",
@@ -122,7 +122,8 @@ export function useProfile({
 
   return {
     list: data ?? [],
-    isPending: isPending && data === undefined,
+    // isLoading = isPending && isFetching — disabled queries must not spin forever.
+    isPending: isLoading,
     isError,
     isRefetching,
     refetch,
@@ -144,8 +145,11 @@ export function useProfilePicks(
   const locationKey = location ? `${location.latitude},${location.longitude}` : "";
   const isAboutBusinessPicks =
     businessAuthorship === "about" && Boolean(businessId);
+  // "By" authorship must never fall through to the unscoped favorites path.
+  const isByAuthorship = businessAuthorship === "by";
+  const byRequiresUserId = isByAuthorship && Boolean(businessId);
 
-  const { data, isPending, isError, isRefetching, refetch } = useQuery({
+  const { data, isLoading, isError, isRefetching, refetch } = useQuery({
     queryKey: isAboutBusinessPicks
       ? [
           "profile-business-picks",
@@ -178,9 +182,11 @@ export function useProfilePicks(
       enabled &&
       (isAboutBusinessPicks
         ? Boolean(businessId)
-        : viewedUserId
+        : byRequiresUserId
           ? Boolean(viewedUserId)
-          : true),
+          : viewedUserId
+            ? Boolean(viewedUserId)
+            : true),
     staleTime: FEED_STALE_TIME_MS,
     queryFn: async () => {
       const params = {
@@ -200,6 +206,10 @@ export function useProfilePicks(
         return response.data?.data ?? [];
       }
 
+      if (byRequiresUserId && !viewedUserId) {
+        return [];
+      }
+
       const response = await listService.fetchListItems(
         viewedUserId ? { ...params, user_id: viewedUserId } : params,
       );
@@ -209,7 +219,8 @@ export function useProfilePicks(
 
   return {
     picks: data ?? [],
-    isPending: isPending && data === undefined,
+    // isLoading = isPending && isFetching — disabled queries must not spin forever.
+    isPending: isLoading,
     isError,
     isRefetching,
     refetch,

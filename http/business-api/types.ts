@@ -51,6 +51,8 @@ export type BusinessItemDAO = {
   list_count: number;
   share_count?: number;
   follower_count?: number;
+  /** Primary owner account id for About/By authorship on the business page. */
+  owner_account_id?: string | null;
 };
 
 export type BusinessDAO= {

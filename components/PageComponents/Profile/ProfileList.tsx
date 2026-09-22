@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { View } from "react-native";
+import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { BusinessAuthorship } from "@/hooks/useProfileList";
 import { ProfileTabPanel, type ProfileListTabType } from "./ProfileTabPanel";
 
@@ -8,8 +9,12 @@ interface ProfileListProps {
   isOwnProfile?: boolean;
   tab: ProfileListTabType;
   isBusinessProfile?: boolean;
+  /** Public `/business/[id]` page. */
+  isBusinessPage?: boolean;
   businessId?: string;
   businessName?: string;
+  /** When set (public business page), About tab uses this payload instead of the store. */
+  business?: BusinessItemDAO | null;
 }
 
 export function ProfileList({
@@ -17,8 +22,10 @@ export function ProfileList({
   isOwnProfile = true,
   tab,
   isBusinessProfile = false,
+  isBusinessPage = false,
   businessId,
   businessName,
+  business,
 }: ProfileListProps) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("Published");
@@ -49,8 +56,10 @@ export function ProfileList({
         sortOptions={sortOptions}
         favoriteOptions={favoriteOptions}
         isBusinessProfile={isBusinessProfile}
+        isBusinessPage={isBusinessPage}
         businessId={businessId}
         businessName={businessName}
+        business={business}
         businessAuthorship={businessAuthorship}
         onBusinessAuthorshipChange={setBusinessAuthorship}
       />

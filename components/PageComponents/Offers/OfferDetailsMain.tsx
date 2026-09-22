@@ -26,7 +26,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ImageFullScreen, type MediaItem } from "@/components/ui/ImageFullScreen";
-import { Avatar } from "@/components/ui/Avatar";
+import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { Badge } from "@/components/ui/Badge";
 import { usePlayableVideoUri } from "@/hooks/usePlayableVideoUri";
 import notesService from "@/http/notes-api/notes.service";
@@ -36,9 +36,9 @@ import { cn } from "@/utils/cn";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getTimeLeftLabel, formatRelativeTime } from "@/utils/time";
-import { useLocalSearchParams, usePathname } from "expo-router";
+import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import type { ViewOrigin } from "@/http/types";
-import { resolveViewOrigin } from "@/utils/viewTracking";
+import { resolveViewOrigin, withViewOrigin } from "@/utils/viewTracking";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import { toast } from "@/components/ui/Toast";
 import { RedeemQrShareCard } from "./RedeemQrShareCard";
@@ -184,6 +184,7 @@ export function OfferDetailsMain({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const queryClient = useQueryClient();
+  const router = useRouter();
   const businessId = useBusinessStore((s) => s.businessId);
   const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
   const { width, height } = useWindowDimensions();
@@ -345,6 +346,14 @@ export function OfferDetailsMain({
       console.error("Failed to share offer:", error);
     }
   }, [offer]);
+
+  const handleBusinessPress = useCallback(() => {
+    if (!offer?.businessId) return;
+    onClose();
+    router.push(
+      withViewOrigin(`/business/${offer.businessId}`, "offer") as never,
+    );
+  }, [offer?.businessId, onClose, router]);
 
   const canManageOffer =
     Boolean(note?.business?.id) &&
@@ -621,26 +630,32 @@ export function OfferDetailsMain({
                   </Pressable>
                 ) : null} */}
 
-                <View className={`mb-3 flex-row items-center gap-2.5 ${hasMedia ? "" : "pr-12"}`}>
-                  <Avatar
-                    name={offer.businessName}
-                    src={offer.businessLogoUrl}
-                    size="md"
-                  />
-                  <View className="min-w-0 flex-1">
+                <View className={`mb-3 ${hasMedia ? "" : "pr-12"}`}>
+                  {offer.businessId ? (
+                    <ListAuthorRow
+                      account={{
+                        id: offer.businessId,
+                        name: offer.businessName,
+                        profile_image: offer.businessLogoUrl,
+                      }}
+                      subtitle={locationLabel}
+                      isOwnList
+                      initialIsFollowed={false}
+                      isFollowed={false}
+                      onFollowToggle={() => undefined}
+                      onPress={handleBusinessPress}
+                      avatarSize="md"
+                      disableAvatarNavigation
+                      className="flex-row items-center gap-2.5"
+                    />
+                  ) : (
                     <Text
                       className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
                       numberOfLines={1}
                     >
                       {offer.businessName}
                     </Text>
-                    <Text
-                      className="font-geist text-[13px] text-gray-500 dark:text-gray-400"
-                      numberOfLines={1}
-                    >
-                      {locationLabel}
-                    </Text>
-                  </View>
+                  )}
                 </View>
 
                 {offer.title ? (

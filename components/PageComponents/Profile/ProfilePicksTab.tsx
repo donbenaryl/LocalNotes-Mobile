@@ -19,6 +19,7 @@ interface ProfilePicksTabProps {
   onFavoriteFilterChange: (value: string) => void;
   favoriteOptions: string[];
   isBusinessProfile?: boolean;
+  isBusinessPage?: boolean;
   businessId?: string;
   businessName?: string;
   businessAuthorship?: BusinessAuthorship;
@@ -32,6 +33,7 @@ export function ProfilePicksTab({
   onFavoriteFilterChange,
   favoriteOptions,
   isBusinessProfile = false,
+  isBusinessPage = false,
   businessId,
   businessName,
   businessAuthorship = "about",
@@ -40,19 +42,28 @@ export function ProfilePicksTab({
   const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const picksUserId = userId || undefined;
+  const inBusinessContext =
+    (isBusinessProfile || isBusinessPage) && Boolean(businessId);
+  const useAboutBusiness =
+    inBusinessContext && businessAuthorship === "about";
   const showBusinessToggle =
-    isBusinessProfile && Boolean(businessId) && Boolean(businessName);
+    inBusinessContext && Boolean(businessName);
+  // Business page "By" without an owner userId must not fall through to the
+  // session user's picks (useProfilePicks enables that path when user_id is omitted).
+  const picksEnabled =
+    !inBusinessContext || useAboutBusiness || Boolean(picksUserId);
 
   const { picks, isPending, isRefetching, refetch } = useProfilePicks(
     favoriteFilter,
-    true,
+    picksEnabled,
     picksUserId,
     selectedCategory === "All" ? [] : [selectedCategory],
     undefined,
     undefined,
     undefined,
-    showBusinessToggle ? businessAuthorship : "by",
-    showBusinessToggle ? businessId : undefined,
+    useAboutBusiness ? "about" : "by",
+    // Keep businessId for "by" so the hook can refuse the unscoped favorites path.
+    inBusinessContext ? businessId : undefined,
   );
 
   const handleRefresh = useCallback(() => {
@@ -79,7 +90,7 @@ export function ProfilePicksTab({
   }, [sortedPicks]);
 
   const emptyTitle =
-    showBusinessToggle && businessAuthorship === "about" && businessName
+    useAboutBusiness && businessName
       ? t("profile.businessAuthorship.picksEmptyAbout", { name: businessName })
       : t("profile.picks.emptyTitle");
 
@@ -109,8 +120,8 @@ export function ProfilePicksTab({
           statusOptions={[]}
           sortOptions={[]}
           favoriteOptions={favoriteOptions}
-          businessAuthorship={showBusinessToggle ? businessAuthorship : "by"}
-          businessId={showBusinessToggle ? businessId : undefined}
+          businessAuthorship={useAboutBusiness ? "about" : "by"}
+          businessId={useAboutBusiness ? businessId : undefined}
         />
 
         {!isPending && picks.length > 0 && (

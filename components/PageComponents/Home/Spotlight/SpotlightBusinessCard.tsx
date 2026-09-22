@@ -1,7 +1,7 @@
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import { BadgeCheck } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/components/ui/Toast";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
@@ -9,6 +9,7 @@ import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTr
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import type { SpotlightBusinessEntityDAO } from "@/http/spotlight-api/type";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { withViewOrigin } from "@/utils/viewTracking";
 import { SpotlightFallbackGradient } from "./SpotlightFallbackGradient";
 import { FollowButton } from "@/components/ui/FollowButton";
 
@@ -23,6 +24,7 @@ export function SpotlightBusinessCard({
   business,
 }: SpotlightBusinessCardProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const imageUrl = resolveImageUrl(business.image);
   const { showFallback, onError } = useSpotlightImageFallback(imageUrl);
   const { isFollowed, isToggling, toggle } = useBusinessFollow(
@@ -33,17 +35,13 @@ export function SpotlightBusinessCard({
     business.spotlight_item_id,
   );
 
-  // No business detail route exists anywhere in the app yet — `BusinessCard.tsx`
-  // itself falls back to this same "coming soon" toast when tapped without an
-  // `onPress` override, so this mirrors that existing precedent rather than
-  // inventing a Spotlight-specific destination.
   const handleOpen = () => {
     if (business.spotlight_item_id) {
       void spotlightService.logOpenEvent(business.spotlight_item_id);
     }
-    toast.info(t("alerts.comingSoonMessage"), {
-      title: t("alerts.comingSoon"),
-    });
+    router.push(
+      withViewOrigin(`/business/${business.id}`, "spotlight") as never,
+    );
   };
 
   return (

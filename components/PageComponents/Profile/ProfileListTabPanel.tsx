@@ -20,6 +20,7 @@ interface ProfileListTabPanelProps {
   sortOptions: string[];
   favoriteOptions: string[];
   isBusinessProfile?: boolean;
+  isBusinessPage?: boolean;
   businessId?: string;
   businessName?: string;
   businessAuthorship?: BusinessAuthorship;
@@ -42,16 +43,25 @@ export function ProfileListTabPanel({
   sortOptions,
   favoriteOptions,
   isBusinessProfile = false,
+  isBusinessPage = false,
   businessId,
   businessName,
   businessAuthorship = "about",
   onBusinessAuthorshipChange,
 }: ProfileListTabPanelProps) {
-  const showBusinessToggle =
+  const inBusinessContext =
     tab === "my-lists" &&
-    isBusinessProfile &&
-    Boolean(businessId) &&
-    Boolean(businessName);
+    (isBusinessProfile || isBusinessPage) &&
+    Boolean(businessId);
+  const useAboutBusiness =
+    inBusinessContext && businessAuthorship === "about";
+  const showBusinessToggle = inBusinessContext && Boolean(businessName);
+
+  const resolvedAuthorship: BusinessAuthorship = useAboutBusiness
+    ? "about"
+    : "by";
+  const resolvedBusinessId = useAboutBusiness ? businessId : undefined;
+  const resolvedBusinessName = inBusinessContext ? businessName : undefined;
 
   return (
     <View className="px-4">
@@ -78,8 +88,8 @@ export function ProfileListTabPanel({
         statusOptions={statusOptions}
         sortOptions={sortOptions}
         favoriteOptions={favoriteOptions}
-        businessAuthorship={showBusinessToggle ? businessAuthorship : "by"}
-        businessId={showBusinessToggle ? businessId : undefined}
+        businessAuthorship={resolvedAuthorship}
+        businessId={resolvedBusinessId}
       />
       <ProfileListTabContent
         category={tab}
@@ -87,9 +97,9 @@ export function ProfileListTabPanel({
         isOwnProfile={isOwnProfile}
         selectedCategory={selectedCategory}
         selectedStatus={selectedStatus}
-        businessAuthorship={showBusinessToggle ? businessAuthorship : "by"}
-        businessId={showBusinessToggle ? businessId : undefined}
-        businessName={showBusinessToggle ? businessName : undefined}
+        businessAuthorship={resolvedAuthorship}
+        businessId={resolvedBusinessId}
+        businessName={resolvedBusinessName}
       />
     </View>
   );

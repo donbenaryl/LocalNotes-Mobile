@@ -31,12 +31,18 @@ export function ProfileListTabContent({
 }: ProfileListTabContentProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  // Business "By" must always fetch by owner user_id (never session unscoped lists).
+  const forceByUserId =
+    businessAuthorship === "by" && Boolean(userId) && Boolean(businessId);
+  const queryAsOwnProfile = forceByUserId ? false : isOwnProfile;
+  const viewedUserId = queryAsOwnProfile ? undefined : userId || undefined;
+
   const { list, isPending, isError, isRefetching, refetch } = useProfile({
     category,
     dto: { status: selectedStatus },
     selectedCategory,
-    viewedUserId: isOwnProfile ? undefined : userId,
-    isOwnProfile,
+    viewedUserId,
+    isOwnProfile: queryAsOwnProfile,
     businessAuthorship,
     businessId,
   });

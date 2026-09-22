@@ -4,6 +4,7 @@ import { ProfileAboutTab } from "./ProfileAboutTab";
 import { ProfileOffersTab } from "./ProfileOffersTab";
 import { ProfileReviewsTab } from "./ProfileReviewsTab";
 import { ComingSoon } from "@/components/ui/ComingSoon";
+import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { BusinessAuthorship, ProfileTabCategory } from "@/hooks/useProfileList";
 
 export type ProfileListTabType =
@@ -33,8 +34,10 @@ interface ProfileTabPanelProps {
   sortOptions: string[];
   favoriteOptions: string[];
   isBusinessProfile?: boolean;
+  isBusinessPage?: boolean;
   businessId?: string;
   businessName?: string;
+  business?: BusinessItemDAO | null;
   businessAuthorship?: BusinessAuthorship;
   onBusinessAuthorshipChange?: (value: BusinessAuthorship) => void;
 }
@@ -55,8 +58,10 @@ export function ProfileTabPanel({
   sortOptions,
   favoriteOptions,
   isBusinessProfile = false,
+  isBusinessPage = false,
   businessId,
   businessName,
+  business,
   businessAuthorship = "about",
   onBusinessAuthorshipChange,
 }: ProfileTabPanelProps) {
@@ -69,6 +74,7 @@ export function ProfileTabPanel({
         onFavoriteFilterChange={onPickFavoriteFilterChange}
         favoriteOptions={favoriteOptions}
         isBusinessProfile={isBusinessProfile}
+        isBusinessPage={isBusinessPage}
         businessId={businessId}
         businessName={businessName}
         businessAuthorship={businessAuthorship}
@@ -86,7 +92,7 @@ export function ProfileTabPanel({
   }
 
   if (tab === "about") {
-    return <ProfileAboutTab />;
+    return <ProfileAboutTab business={business} />;
   }
 
   if (tab === "offers") {
@@ -113,6 +119,7 @@ export function ProfileTabPanel({
       sortOptions={sortOptions}
       favoriteOptions={favoriteOptions}
       isBusinessProfile={isBusinessProfile}
+      isBusinessPage={isBusinessPage}
       businessId={businessId}
       businessName={businessName}
       businessAuthorship={businessAuthorship}

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
-  ActivityIndicator,
   Pressable,
   Share,
   Text,
@@ -13,19 +12,22 @@ import {
   Heart,
   Share2,
 } from "lucide-react-native";
+import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@/components/ui/Avatar";
 import { CardHero } from "@/components/ui/CardHero";
+import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { toast } from "@/components/ui/Toast";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import notesService from "@/http/notes-api/notes.service";
 import type { NoteDAO } from "@/http/notes-api/types";
+import { useBusinessStore } from "@/stores/useBusinessStore";
 import type { OfferCardItem } from "@/types/offer";
 import { cn } from "@/utils/cn";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { withViewOrigin } from "@/utils/viewTracking";
 import { getTimeLeftLabel } from "@/utils/time";
 import { WhiteBox } from "./WhiteBox";
 
@@ -33,11 +35,6 @@ interface OfferCardProps {
   offer: OfferCardItem;
   badge?: ReactNode;
   onPress?: () => void;
-}
-
-interface BusinessFollowButtonProps {
-  businessId?: string;
-  initialIsFollowed: boolean;
 }
 
 function formatOfferCategoriesSubtitle(
@@ -50,48 +47,6 @@ function formatOfferCategoriesSubtitle(
       isOthersCategoryName(category) ? (othersName ?? category) : category,
     )
     .join(" · ");
-}
-
-function BusinessFollowButton({
-  businessId,
-  initialIsFollowed,
-}: BusinessFollowButtonProps) {
-  const { t } = useTranslation();
-  const { isFollowed, isToggling, toggle } = useBusinessFollow(
-    businessId,
-    initialIsFollowed,
-  );
-
-  if (!businessId) return null;
-
-  return (
-    <Pressable
-      onPress={() => {
-        void toggle();
-      }}
-      disabled={isToggling}
-      accessibilityRole="button"
-      accessibilityState={{ selected: isFollowed, busy: isToggling }}
-      className={`min-h-10 cursor-pointer items-center justify-center rounded-full`}
-    >
-      {isToggling ? (
-        <ActivityIndicator
-          size="small"
-          color={isFollowed ? "#6B7280" : "#141413"}
-        />
-      ) : (
-        <Text
-          className={`font-geist-bold text-[13px] ${
-            isFollowed
-              ? "text-gray-500 dark:text-gray-400"
-              : "text-ink dark:text-gray-100"
-          }`}
-        >
-          {isFollowed ? t("offers.following") : t("offers.follow")}
-        </Text>
-      )}
-    </Pressable>
-  );
 }
 
 function patchOfferListCaches(
@@ -122,6 +77,9 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const ownedBusinessId = useBusinessStore((s) => s.businessId);
+  const ownedBusinesses = useBusinessStore((s) => s.ownedBusinesses);
 
   const imageSrc = offer.imageUrl ? resolveImageUrl(offer.imageUrl) : null;
   const videoSrc = offer.videoUrl ? resolveImageUrl(offer.videoUrl) : null;
@@ -137,6 +95,20 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
   );
   const showLocationPill = Boolean(firstBranchLabel);
   const locationLabel = firstBranchLabel ?? t("offers.noLocation");
+  const businessSubtitle =
+    moreBranchCount > 0
+      ? `${locationLabel} ${t("offers.moreBranches", { count: moreBranchCount })}`
+      : locationLabel;
+
+  const isOwnBusiness =
+    Boolean(offer.businessId) &&
+    (ownedBusinessId === offer.businessId ||
+      ownedBusinesses.some((b) => b.id === offer.businessId));
+
+  const { isFollowed, isToggling, toggle } = useBusinessFollow(
+    offer.businessId,
+    offer.isBusinessFollowed ?? false,
+  );
 
   const [isLiked, setIsLiked] = useState(offer.isLiked ?? false);
   const [likes, setLikes] = useState(offer.likes);
@@ -158,6 +130,13 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
       title: t("alerts.comingSoon"),
     });
   };
+
+  const handleBusinessPress = useCallback(() => {
+    if (!offer.businessId) return;
+    router.push(
+      withViewOrigin(`/business/${offer.businessId}`, "offer") as never,
+    );
+  }, [offer.businessId, router]);
 
   const applyLikePatch = useCallback(
     (nextLiked: boolean, nextLikes: number) => {
@@ -252,38 +231,35 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
 
         <View
           className={
-            !hasHero && showLocationPill ? "px-4 pt-10" : "px-4 pt-2.5"
+            !hasHero && showLocationPill ? "pl-4 pt-10" : "pl-4 pt-2.5"
           }
         >
-          <View className="mb-2 flex-row items-center gap-2.5">
-            <Avatar
-              name={offer.businessName}
-              src={offer.businessLogoUrl}
-              size="sm"
+          {offer.businessId ? (
+            <ListAuthorRow
+              account={{
+                id: offer.businessId,
+                name: offer.businessName,
+                profile_image: offer.businessLogoUrl,
+              }}
+              subtitle={businessSubtitle}
+              isOwnList={isOwnBusiness}
+              initialIsFollowed={offer.isBusinessFollowed ?? false}
+              isFollowed={isFollowed}
+              onFollowToggle={toggle}
+              followLoading={isToggling}
+              onPress={handleBusinessPress}
+              disableAvatarNavigation
             />
-            <View className="min-w-0 flex-1">
+          ) : (
+            <View className="mb-2 flex-row items-center gap-2.5">
               <Text
                 className="font-geist-semibold text-[14.5px] text-ink dark:text-gray-100"
                 numberOfLines={1}
               >
                 {offer.businessName}
               </Text>
-              <Text
-                className="font-geist text-[13px] text-gray-500 dark:text-gray-400"
-                numberOfLines={1}
-              >
-                {locationLabel}
-                {moreBranchCount > 0
-                  ? ` ${t("offers.moreBranches", { count: moreBranchCount })}`
-                  : ""}
-              </Text>
             </View>
-
-            <BusinessFollowButton
-              businessId={offer.businessId}
-              initialIsFollowed={offer.isBusinessFollowed ?? false}
-            />
-          </View>
+          )}
 
           {badge ? <View className="mb-3">{badge}</View> : null}
 
@@ -383,3 +359,4 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
     </Pressable>
   );
 }
+
