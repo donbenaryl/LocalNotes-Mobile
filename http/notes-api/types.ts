@@ -16,12 +16,18 @@ export interface NoteCategoryDAO {
 
 export type Visibility = "Public" | "Friends" | "Private" | "Specific People";
 
+export type NoteStatus = "draft" | "published";
+
+export type ExpireAfter = "1h" | "24h" | "7d" | "30d" | "never";
+
 export interface NoteDAO {
   id: string;
   title: string;
   description: string | null;
   expires_at: string | null;
+  expire_after?: ExpireAfter | null;
   visibility: Visibility;
+  status?: NoteStatus;
   billing_status?: "active" | "past_due" | "canceled";
   created_at: string;
   updated_at: string;
@@ -46,5 +52,7 @@ export interface UpsertNoteDTO {
   business_id: string;
   category_ids?: string[];
   others_name?: string;
-  expire_after?: "1h" | "24h" | "7d" | "30d" | "never";
+  expire_after?: ExpireAfter;
+  payment_intent_id?: string;
+  status?: NoteStatus;
 }
