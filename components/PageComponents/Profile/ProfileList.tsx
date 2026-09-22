@@ -46,13 +46,13 @@ export function ProfileList({
         isOwnProfile={isOwnProfile}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
-        selectedStatus={selectedStatus}
+        selectedStatus={isOwnProfile ? selectedStatus : "Published"}
         onStatusChange={setSelectedStatus}
         selectedSort={selectedSort}
         onSortChange={setSelectedSort}
         pickFavoriteFilter={pickFavoriteFilter}
         onPickFavoriteFilterChange={setPickFavoriteFilter}
-        statusOptions={statusOpts}
+        statusOptions={isOwnProfile ? statusOpts : []}
         sortOptions={sortOptions}
         favoriteOptions={favoriteOptions}
         isBusinessProfile={isBusinessProfile}

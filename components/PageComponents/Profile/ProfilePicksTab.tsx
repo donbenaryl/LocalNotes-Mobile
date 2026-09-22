@@ -54,7 +54,7 @@ export function ProfilePicksTab({
     !inBusinessContext || useAboutBusiness || Boolean(picksUserId);
 
   const { picks, isPending, isRefetching, refetch } = useProfilePicks(
-    favoriteFilter,
+    isOwnProfile ? favoriteFilter : "All",
     picksEnabled,
     picksUserId,
     selectedCategory === "All" ? [] : [selectedCategory],
@@ -119,7 +119,7 @@ export function ProfilePicksTab({
           onPickFavoriteFilterChange={onFavoriteFilterChange}
           statusOptions={[]}
           sortOptions={[]}
-          favoriteOptions={favoriteOptions}
+          favoriteOptions={isOwnProfile ? favoriteOptions : []}
           businessAuthorship={useAboutBusiness ? "about" : "by"}
           businessId={useAboutBusiness ? businessId : undefined}
         />

@@ -80,7 +80,7 @@ export function ProfileTabFilters({
         sortOptions={[]}
         showCategory
         showSort={false}
-        showFavorite
+        showFavorite={isOwnProfile}
         selectedFavorite={pickFavoriteFilter}
         onFavoriteChange={onPickFavoriteFilterChange}
         favoriteOptions={favoriteOptions}
@@ -99,7 +99,7 @@ export function ProfileTabFilters({
       selectedStatus={selectedStatus}
       onStatusChange={onStatusChange}
       statusOptions={statusOptions}
-      showStatus={tab !== "saved"}
+      showStatus={tab !== "saved" && isOwnProfile}
     />
   );
 }
