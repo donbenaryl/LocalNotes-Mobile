@@ -1,13 +1,33 @@
 import * as AuthSession from "expo-auth-session";
-import { getGoogleWebClientId } from "@/constants/googleAuth";
+import { Platform } from "react-native";
+import {
+  getGoogleIosClientId,
+  getGoogleIosUrlScheme,
+} from "@/constants/googleAuth";
 
 const MAPS_REVIEWS_SCOPE =
   "https://www.googleapis.com/auth/dataportability.maps.reviews";
 
+function getReviewsOAuthClientId(): string {
+  if (Platform.OS !== "ios") {
+    throw new Error(
+      "Google reviews connect currently supports iOS only.",
+    );
+  }
+  return getGoogleIosClientId();
+}
+
 export function getReviewsOAuthRedirectUri(): string {
+  const scheme = getGoogleIosUrlScheme();
+  if (!scheme) {
+    throw new Error(
+      "Google OAuth is not configured. Set EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID.",
+    );
+  }
+  // Google iOS clients require the reversed client ID and a single slash
+  // (not localnotes://oauth, which Web clients and Google's policy reject).
   return AuthSession.makeRedirectUri({
-    scheme: "localnotes",
-    path: "oauth",
+    native: `${scheme}:/oauth2redirect`,
   });
 }
 
@@ -22,10 +42,10 @@ export interface GoogleReviewsAuthResult {
  * Returns the auth code for the backend to exchange — never stores tokens on device.
  */
 export async function authorizeGoogleReviews(): Promise<GoogleReviewsAuthResult> {
-  const clientId = getGoogleWebClientId();
+  const clientId = getReviewsOAuthClientId();
   if (!clientId) {
     throw new Error(
-      "Google OAuth is not configured. Set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID.",
+      "Google OAuth is not configured. Set EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID.",
     );
   }
 
@@ -40,7 +60,6 @@ export async function authorizeGoogleReviews(): Promise<GoogleReviewsAuthResult>
     extraParams: {
       access_type: "offline",
       prompt: "consent",
-      include_granted_scopes: "true",
     },
   });
 
