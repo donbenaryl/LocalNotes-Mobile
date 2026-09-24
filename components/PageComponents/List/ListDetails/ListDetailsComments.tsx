@@ -203,91 +203,101 @@ export function ListDetailsComments({
             size="xs"
             gradientColors={gradientColors}
           />
-          <View className="min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 py-2.5 dark:border-gray-700 dark:bg-gray-800">
-            <View className="flex-row flex-wrap items-center gap-1.5">
-              <Text className="font-geist-bold text-[12.5px] text-ink dark:text-gray-100">
-                {comment.account.name}
-              </Text>
-              <Text className="font-geist text-[11px] text-gray-400">
-                {formatRelativeTime(comment.created_at)}
-              </Text>
+          <View className="min-w-0 flex-1 rounded-xl pb-2.5">
+            <View className="flex-row items-center gap-1.5">
+              <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
+                <Text
+                  numberOfLines={1}
+                  className="shrink font-geist-bold text-[12.5px] text-ink dark:text-gray-100"
+                >
+                  {comment.account.name}
+                </Text>
+                <Text className="shrink-0 font-geist text-[11px] text-gray-400">
+                  {formatRelativeTime(comment.created_at)}
+                </Text>
+              </View>
+              <View className="shrink-0 flex-row items-center gap-2">
+                <Pressable
+                  onPress={() => void handleLikeComment(comment.id)}
+                  disabled={commentLoading === comment.id}
+                  accessibilityRole="button"
+                  className="cursor-pointer flex-row items-center gap-1"
+                >
+                  {commentLoading === comment.id ? (
+                    <ActivityIndicator size="small" color="#EF4444" />
+                  ) : (
+                    <Heart
+                      size={14}
+                      color={
+                        likedComments.has(comment.id) || comment.likes_count > 0
+                          ? "#EF4444"
+                          : "#9CA3AF"
+                      }
+                      fill={
+                        likedComments.has(comment.id) || comment.likes_count > 0
+                          ? "#EF4444"
+                          : "transparent"
+                      }
+                    />
+                  )}
+                  <Text
+                    className={`font-geist text-xs ${
+                      likedComments.has(comment.id)
+                        ? "text-red-500"
+                        : "text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    {comment.likes_count}
+                  </Text>
+                </Pressable>
+                {comment.account.id !== currentUserId ? (
+                  <ReportFlagButton
+                    userId={comment.account.id}
+                    displayName={comment.account.name}
+                    contentType="comment"
+                    contentId={comment.id}
+                    size={14}
+                    onReported={({ contentId }) => {
+                      if (contentId) hideReportedComment(contentId);
+                    }}
+                  />
+                ) : null}
+              </View>
             </View>
             <MentionedText
               content={comment.content}
               mentionedAccounts={comment.mentioned_accounts}
               className="mt-1 font-geist text-[13px] leading-5 text-gray-800 dark:text-gray-200"
             />
-            <View className="mt-2 flex-row flex-wrap items-center gap-3">
-              {!isReply && list.others_can_comment ? (
-                <Pressable
-                  onPress={() => setReplyTo(comment)}
-                  className="cursor-pointer"
-                >
-                  <Text className="font-geist-medium text-xs text-gray-500 dark:text-gray-400">
-                    {t("listDetail.reply")}
-                  </Text>
-                </Pressable>
-              ) : null}
-              {!isReply && comment.replies_count > 0 ? (
-                <Pressable
-                  onPress={() => void toggleReplies(comment.id)}
-                  className="cursor-pointer"
-                >
-                  <Text className="font-geist-semibold text-xs text-brand">
-                    {isExpanded
-                      ? t("listDetail.hideReplies")
-                      : t("listDetail.viewReplies", {
-                          count: comment.replies_count,
-                        })}
-                  </Text>
-                </Pressable>
-              ) : null}
-              <Pressable
-                onPress={() => void handleLikeComment(comment.id)}
-                disabled={commentLoading === comment.id}
-                accessibilityRole="button"
-                className="cursor-pointer flex-row items-center gap-1"
-              >
-                {commentLoading === comment.id ? (
-                  <ActivityIndicator size="small" color="#EF4444" />
-                ) : (
-                  <Heart
-                    size={14}
-                    color={
-                      likedComments.has(comment.id) || comment.likes_count > 0
-                        ? "#EF4444"
-                        : "#9CA3AF"
-                    }
-                    fill={
-                      likedComments.has(comment.id) || comment.likes_count > 0
-                        ? "#EF4444"
-                        : "transparent"
-                    }
-                  />
-                )}
-                <Text
-                  className={`font-geist text-xs ${
-                    likedComments.has(comment.id)
-                      ? "text-red-500"
-                      : "text-gray-500 dark:text-gray-400"
-                  }`}
-                >
-                  {comment.likes_count}
-                </Text>
-              </Pressable>
-              {comment.account.id !== currentUserId ? (
-                <ReportFlagButton
-                  userId={comment.account.id}
-                  displayName={comment.account.name}
-                  contentType="comment"
-                  contentId={comment.id}
-                  size={14}
-                  onReported={({ contentId }) => {
-                    if (contentId) hideReportedComment(contentId);
-                  }}
-                />
-              ) : null}
-            </View>
+            {!isReply &&
+            (list.others_can_comment || comment.replies_count > 0) ? (
+              <View className="mt-2 flex-row flex-wrap items-center gap-3">
+                {list.others_can_comment ? (
+                  <Pressable
+                    onPress={() => setReplyTo(comment)}
+                    className="cursor-pointer"
+                  >
+                    <Text className="font-geist-medium text-xs text-gray-500 dark:text-gray-400">
+                      {t("listDetail.reply")}
+                    </Text>
+                  </Pressable>
+                ) : null}
+                {comment.replies_count > 0 ? (
+                  <Pressable
+                    onPress={() => void toggleReplies(comment.id)}
+                    className="cursor-pointer"
+                  >
+                    <Text className="font-geist-semibold text-xs text-brand">
+                      {isExpanded
+                        ? t("listDetail.hideReplies")
+                        : t("listDetail.viewReplies", {
+                            count: comment.replies_count,
+                          })}
+                    </Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            ) : null}
           </View>
         </View>
 
