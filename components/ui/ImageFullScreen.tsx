@@ -400,7 +400,7 @@ export function ImageFullScreen({
   const canSwipe = !isZoomed && items.length > 1;
 
   return (
-    <Modal visible={visible} onClose={onClose} position="fullscreen">
+    <Modal visible={visible} onClose={onClose} position="fullscreen" withCloseIcon>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 items-center justify-center">
           {items.length > 0 ? (

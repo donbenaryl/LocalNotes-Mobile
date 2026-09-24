@@ -330,6 +330,15 @@ export interface BlockedAccountDAO {
   profile_image_url?: string | null;
 }
 
+export interface FollowListUserDAO {
+  id: string;
+  name: string;
+  username?: string | null;
+  profile_image_url?: string | null;
+  followers_count: number;
+  is_followed: boolean;
+}
+
 export function mapNotificationSettingsDAOToPrefs(
   dao: NotificationSettingsDAO,
 ): NotificationPrefs {

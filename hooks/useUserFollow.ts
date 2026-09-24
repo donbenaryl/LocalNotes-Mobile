@@ -27,6 +27,11 @@ function patchProfileFollowCache(
   );
 }
 
+function invalidateFollowLists(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({ queryKey: ["followers"] });
+  void queryClient.invalidateQueries({ queryKey: ["following"] });
+}
+
 export function useUserFollow(userId: string, initialIsFollowed: boolean) {
   const queryClient = useQueryClient();
   const [isFollowed, setIsFollowed] = useState(initialIsFollowed);
@@ -56,6 +61,7 @@ export function useUserFollow(userId: string, initialIsFollowed: boolean) {
       } else {
         await accountService.followUser(userId);
       }
+      invalidateFollowLists(queryClient);
     } catch (error) {
       console.error(`Failed to toggle follow for user ${userId}:`, error);
       setIsFollowed(previousIsFollowed);

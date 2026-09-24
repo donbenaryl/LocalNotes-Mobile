@@ -480,6 +480,13 @@ const en = {
         typeSuffix: ' types.',
       },
     },
+    followList: {
+      followBack: '+ Follow Back',
+      follow: '+ Follow',
+      emptyFollowers: 'No followers yet.',
+      emptyFollowing: 'Not following anyone yet.',
+      loadError: 'Failed to load users.',
+    },
     vitalBar: {
       match: '{{percent}}% match',
     },

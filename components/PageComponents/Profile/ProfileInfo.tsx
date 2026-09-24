@@ -5,10 +5,15 @@ import { Calendar, MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/ui/Avatar';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
-import { StatsSection } from '@/components/ui/StatsSection';
+import {
+  StatsSection,
+  type StatsSectionItem,
+} from '@/components/ui/StatsSection';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
 import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
+import { FollowersFollowingModal } from '@/components/PageComponents/Profile/FollowersFollowingModal';
 import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfileInsights';
+import type { FollowListTab } from '@/hooks/useFollowList';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSimilarScores } from '@/hooks/useSimilarScores';
 import {
@@ -24,11 +29,6 @@ interface ProfileInfoProps {
   profile?: profileItemDAO | null;
   business?: BusinessItemDAO | null;
   isOwnProfile?: boolean;
-}
-
-interface StatItem {
-  value: string;
-  label: string;
 }
 
 const BIO_COLLAPSE_LINES = 3;
@@ -121,7 +121,7 @@ function BusinessProfileInfo({
     business.branches?.[0]?.location ?? business.location,
   );
 
-  const stats: StatItem[] = useMemo(
+  const stats: StatsSectionItem[] = useMemo(
     () => [
       {
         value: formatStatCount(business.list_count),
@@ -218,6 +218,9 @@ function UserProfileInfo({
   const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
+  const [followModalVisible, setFollowModalVisible] = useState(false);
+  const [followModalTab, setFollowModalTab] =
+    useState<FollowListTab>('followers');
   const avatarImageUri = resolveImageUrl(profile.profile_image_url);
   const { matchPercent, isLoading: isMatchLoading } = useSimilarScores(
     profile.id ?? '',
@@ -235,7 +238,7 @@ function UserProfileInfo({
   const locationLabel = formatLocationLabel(profile.location);
   const joinedYear = formatJoinedYear(profile.created_at);
 
-  const stats: StatItem[] = useMemo(
+  const stats: StatsSectionItem[] = useMemo(
     () => [
       {
         value: formatStatCount(profile.list_count),
@@ -244,10 +247,22 @@ function UserProfileInfo({
       {
         value: formatStatCount(profile.followers_count),
         label: t('profile.info.stats.followers'),
+        onPress: profile.id
+          ? () => {
+              setFollowModalTab('followers');
+              setFollowModalVisible(true);
+            }
+          : undefined,
       },
       {
         value: formatStatCount(profile.followed_count),
         label: t('profile.info.stats.following'),
+        onPress: profile.id
+          ? () => {
+              setFollowModalTab('following');
+              setFollowModalVisible(true);
+            }
+          : undefined,
       },
       {
         value: formatStatCount(profile.total_likes),
@@ -257,6 +272,7 @@ function UserProfileInfo({
     [
       profile.followed_count,
       profile.followers_count,
+      profile.id,
       profile.list_count,
       profile.total_likes,
       t,
@@ -370,6 +386,16 @@ function UserProfileInfo({
           uri={avatarImageUri}
           visible={isAvatarFullScreenVisible}
           onClose={() => setIsAvatarFullScreenVisible(false)}
+        />
+      ) : null}
+
+      {profile.id ? (
+        <FollowersFollowingModal
+          visible={followModalVisible}
+          onClose={() => setFollowModalVisible(false)}
+          userId={profile.id}
+          initialTab={followModalTab}
+          isOwnProfile={isOwnProfile}
         />
       ) : null}
     </>

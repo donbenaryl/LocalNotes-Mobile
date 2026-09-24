@@ -27,6 +27,7 @@ import type {
   RegisterNotificationTokenDTO,
   ReportUserDTO,
   BlockedAccountDAO,
+  FollowListUserDAO,
 } from "./types";
 import type { UnifiedSearchPersonDAO } from "../search-api/type";
 
@@ -209,6 +210,20 @@ class AccountService extends AppHttpService {
     return await this.SendRequest({
       method: "delete",
       path: `/${userId}/follow`,
+    });
+  }
+  async fetchFollowers(userId: string, page = 1, pageSize = 20) {
+    return await this.SendRequest<FollowListUserDAO[]>({
+      method: "get",
+      path: `/${userId}/followers`,
+      query: { page, page_size: pageSize },
+    });
+  }
+  async fetchFollowing(userId: string, page = 1, pageSize = 20) {
+    return await this.SendRequest<FollowListUserDAO[]>({
+      method: "get",
+      path: `/${userId}/following`,
+      query: { page, page_size: pageSize },
     });
   }
   async blockUser(userId: string) {

@@ -293,16 +293,18 @@ export function Modal({
         >
           <View className="flex-1">{children}</View>
 
-          <Pressable
-            onPress={handleClose}
-            accessibilityRole="button"
-            accessibilityLabel={t('common.close')}
-            className="absolute z-10 h-10 w-10 items-center justify-center rounded-full bg-white/15 cursor-pointer"
-            style={{ top: insets.top + 8, right: 16 }}
-            hitSlop={8}
-          >
-            <Text className="text-base leading-none text-white">✕</Text>
-          </Pressable>
+          {withCloseIcon ? (
+            <Pressable
+              onPress={handleClose}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.close')}
+              className="absolute z-10 h-10 w-10 items-center justify-center rounded-full bg-white/15 cursor-pointer"
+              style={{ top: insets.top + 8, right: 16 }}
+              hitSlop={8}
+            >
+              <Text className="text-base leading-none text-white">✕</Text>
+            </Pressable>
+          ) : null}
         </Animated.View>
         {visible ? (
           <View pointerEvents="box-none" style={styles.toastHost}>
