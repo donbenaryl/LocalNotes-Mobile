@@ -92,16 +92,6 @@ export function Modal({
     return () => popModalHost();
   }, [visible, pushModalHost, popModalHost]);
 
-  const fadeOut = (onDone?: () => void) => {
-    Animated.timing(backdropOpacity, {
-      toValue: 0,
-      duration: 220,
-      useNativeDriver: true,
-    }).start(() => {
-      onDone?.();
-    });
-  };
-
   const slideDown = (onDone?: () => void) => {
     Animated.parallel([
       Animated.timing(translateY, {
@@ -133,22 +123,16 @@ export function Modal({
       backdropOpacity.stopAnimation();
       topProgress.stopAnimation();
 
-      if (!isFullscreen) {
-        translateY.setValue(height);
-      }
+      translateY.setValue(height);
       backdropOpacity.setValue(0);
       topProgress.setValue(0);
       Animated.parallel([
-        ...(isFullscreen
-          ? []
-          : [
-              Animated.spring(translateY, {
-                toValue: 0,
-                useNativeDriver: true,
-                bounciness: 0,
-                speed: 20,
-              }),
-            ]),
+        Animated.spring(translateY, {
+          toValue: 0,
+          useNativeDriver: true,
+          bounciness: 0,
+          speed: 20,
+        }),
         Animated.timing(backdropOpacity, {
           toValue: 1,
           duration: 250,
@@ -167,19 +151,13 @@ export function Modal({
       translateY.stopAnimation();
       backdropOpacity.stopAnimation();
       topProgress.stopAnimation();
-      if (!isFullscreen) {
-        translateY.setValue(height);
-      }
+      translateY.setValue(height);
       backdropOpacity.setValue(0);
       topProgress.setValue(0);
     }
-  }, [visible, height, translateY, backdropOpacity, topProgress, isFullscreen]);
+  }, [visible, height, translateY, backdropOpacity, topProgress]);
 
   const handleClose = () => {
-    if (isFullscreen) {
-      fadeOut(onClose);
-      return;
-    }
     slideDown(onClose);
   };
 
@@ -288,7 +266,7 @@ export function Modal({
         onRequestClose={handleClose}
       >
         <Animated.View
-          style={[{ opacity: backdropOpacity }]}
+          style={[{ transform: [{ translateY }] }]}
           className="flex-1 bg-ink"
         >
           <View className="flex-1">{children}</View>
