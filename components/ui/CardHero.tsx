@@ -186,7 +186,6 @@ export function CardHero({
                   "font-geist-bold capitalize text-white",
                   titleSize,
                 )}
-                numberOfLines={2}
               >
                 {title}
               </Text>
@@ -197,7 +196,6 @@ export function CardHero({
                 "font-geist-bold capitalize text-white",
                 titleSize,
               )}
-              numberOfLines={2}
             >
               {title}
             </Text>

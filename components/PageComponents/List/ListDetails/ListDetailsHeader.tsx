@@ -1,21 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Image,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import { Edit, Flag, MapPin, Trash2, X } from "lucide-react-native";
+import { Text, View } from "react-native";
+import { Edit, Flag, Trash2 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { CardHero } from "@/components/ui/CardHero";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import type { CardOptionsMenuItem } from "@/components/ui/CardOptionsMenu";
 import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
-import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
-import { ListEngagementRow } from "@/components/ui/ListEngagementRow";
-import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import accountService from "@/http/account-api/account.services";
 import listService from "@/http/list-api/list.service";
@@ -23,9 +15,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useListFormStore } from "@/stores/useListFormStore";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { isOthersCategoryName } from "@/utils/listCategories";
-import { formatListLocation } from "@/utils/listUi";
-import { getListMatchPercent } from "@/utils/matchScore";
-import { getDominantPersonalityColor } from "@/utils/personalityRing";
 import type { ListItemDAO } from "@/http/list-api/types";
 
 interface ListDetailsHeaderProps {
@@ -71,19 +60,13 @@ export function ListDetailsHeader({
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { width } = useWindowDimensions();
   const currentUserId = useAuthStore((s) => s.user?.id);
   const isOwnList = currentUserId === list.account.id;
   const coverImageUrl = getListCoverImageUrl(list);
-  const locationLabel = formatListLocation(list.location);
   const categoryLabel = formatListCategoriesSubtitle(
     list.categories,
     list.others_name,
   );
-  const accentColor = getDominantPersonalityColor(
-    list.account.personality_color,
-  );
-  const personalityMatch = getListMatchPercent(list) ?? 0;
   const notesText = list.notes ? stripHtml(list.notes).trim() : "";
 
   const [isFollowed, setIsFollowed] = useState(list.account_is_followed);
@@ -193,148 +176,31 @@ export function ListDetailsHeader({
     ];
   }, [t, isOwnList, handleEdit]);
 
-  const heroWidth = width - 28;
-
   return (
     <>
       {coverImageUrl ? (
-        <View className="mx-3.5 mt-1">
-          <View className="relative overflow-hidden rounded-[18px]">
-            <Pressable
-              onPress={() => setIsImageFullScreenVisible(true)}
-              accessibilityRole="imagebutton"
-              accessibilityLabel={t("profile.picks.viewPhoto", {
-                current: 1,
-                total: 1,
-              })}
-              className="cursor-pointer"
-              style={{ width: heroWidth, aspectRatio: 16 / 9 }}
-            >
-              <Image
-                source={{ uri: coverImageUrl }}
-                className="h-full w-full"
-                resizeMode="cover"
-              />
-            </Pressable>
-
-            <View className="mt-3.5">
-              <ListAuthorRow
-                account={list.account}
-                personalityName={list.personality_name}
-                accentColor={accentColor}
-                isOwnList={isOwnList}
-                initialIsFollowed={list.account_is_followed}
-                isFollowed={isFollowed}
-                onFollowToggle={handleFollowToggle}
-                followLoading={isFollowLoading}
-                menuItems={menuItems}
-                isDeleting={isDeleting}
-                className="flex-row items-center gap-2.5"
-              />
-            </View>
-
-            {/* {onClose ? (
-              <Pressable
-                onPress={onClose}
-                accessibilityRole="button"
-                accessibilityLabel={t("profile.picks.closeDetails")}
-                className="absolute right-2.5 top-2.5 z-[3] h-11 w-11 cursor-pointer items-center justify-center"
-                hitSlop={4}
-              >
-                <View className="h-8 w-8 items-center justify-center rounded-full bg-white/90">
-                  <X size={15} color="#57534E" strokeWidth={2.4} />
-                </View>
-              </Pressable>
-            ) : null} */}
-          </View>
-
-          <View className="mt-3 px-1.5">
-            <Text className="font-geist-extrabold text-xl leading-7 text-ink dark:text-gray-100">
-              {list.name}
-            </Text>
-            {categoryLabel ? (
-              <Text className="mt-1 font-geist-semibold text-[13px] text-gray-400">
-                {categoryLabel}
-              </Text>
-            ) : null}
-          </View>
+        <View className="mx-3.5 mt-1 overflow-hidden rounded-[18px]">
+          <CardHero
+            imageUrl={coverImageUrl}
+            title={list.name}
+            subtitle={categoryLabel}
+            aspectClassName="aspect-[16/10.5]"
+            onPress={() => setIsImageFullScreenVisible(true)}
+          />
         </View>
       ) : (
         <View className="relative px-5 pt-1">
-          <View className="mb-4">
-            <ListAuthorRow
-              account={list.account}
-              personalityName={list.personality_name}
-              accentColor={accentColor}
-              isOwnList={isOwnList}
-              initialIsFollowed={list.account_is_followed}
-              isFollowed={isFollowed}
-              onFollowToggle={handleFollowToggle}
-              followLoading={isFollowLoading}
-              menuItems={menuItems}
-              isDeleting={isDeleting}
-              className="flex-row items-center gap-2.5"
-            />
-          </View>
-
-          {/* {onClose ? (
-            <Pressable
-              onPress={onClose}
-              accessibilityRole="button"
-              accessibilityLabel={t("profile.picks.closeDetails")}
-              className="absolute right-3 top-0 z-[3] h-11 w-11 cursor-pointer items-center justify-center"
-              hitSlop={4}
-            >
-              <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-gray-800">
-                <X size={15} color="#57534E" strokeWidth={2.4} />
-              </View>
-            </Pressable>
-          ) : null} */}
-
           <Text className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-gray-100">
             {list.name}
           </Text>
 
-          {categoryLabel || !isOwnList ? (
-            <View className="mt-1 flex-row items-center gap-1.5">
-              {categoryLabel ? (
-                <Text className="shrink font-geist-semibold text-[13px] text-gray-400">
-                  {categoryLabel}
-                </Text>
-              ) : null}
-            </View>
+          {categoryLabel ? (
+            <Text className="mt-1 font-geist-semibold text-[13px] text-gray-400">
+              {categoryLabel}
+            </Text>
           ) : null}
         </View>
       )}
-
-      <View className="px-2">
-        {locationLabel || !isOwnList ? (
-          <View className="mt-3 flex-row items-center gap-1.5 px-1.5">
-            {locationLabel ? (
-              <>
-                <MapPin size={14} color="#57534E" />
-                <Text
-                  className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
-                  numberOfLines={2}
-                >
-                  {locationLabel}
-                </Text>
-              </>
-            ) : (
-              <View className="flex-1" />
-            )}
-            {!isOwnList ? (
-              <PersonalityMatchPill
-                percent={personalityMatch}
-                personalityColor={list.account.personality_color}
-              />
-            ) : null}
-          </View>
-        ) : null}
-      </View>
-
-      {/* Like Comment and Bookmark */}
-      <ListEngagementRow list={list} className="mt-3 px-4" />
 
       {notesText ? (
         <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-gray-800">
