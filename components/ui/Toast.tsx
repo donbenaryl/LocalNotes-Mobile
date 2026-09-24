@@ -16,6 +16,7 @@ import {
   XCircle,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { useModalHostStore } from '../../stores/useModalHostStore';
 import {
   useToastStore,
   type ShowToastInput,
@@ -258,10 +259,22 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
   );
 }
 
-export function ToastViewport() {
+interface ToastViewportProps {
+  /** When true, host lives inside a shared Modal RNModal window. */
+  embedded?: boolean;
+}
+
+export function ToastViewport({ embedded = false }: ToastViewportProps) {
   const insets = useSafeAreaInsets();
   const toasts = useToastStore((state) => state.toasts);
   const dismiss = useToastStore((state) => state.dismiss);
+  const modalDepth = useModalHostStore((state) => state.depth);
+
+  // Root host sits under native Modal; suppress it while a Modal is open so
+  // the embedded host (same window as the sheet) is the only visible one.
+  if (!embedded && modalDepth > 0) {
+    return null;
+  }
 
   return (
     <View

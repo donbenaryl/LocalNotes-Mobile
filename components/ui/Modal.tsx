@@ -23,6 +23,8 @@ import Reanimated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { BottomWrapper } from '@/components/ui/BottomWrapper';
+import { ToastViewport } from '@/components/ui/Toast';
+import { useModalHostStore } from '@/stores/useModalHostStore';
 import { cn } from '@/utils/cn';
 
 /** Drives the enter/exit choreography of `topContent`: 0 = closed, 1 = fully open. */
@@ -80,6 +82,15 @@ export function Modal({
   useEffect(() => {
     keyboardLiftEnabled.value = !avoidKeyboard && visible && isBottom ? 1 : 0;
   }, [avoidKeyboard, visible, isBottom, keyboardLiftEnabled]);
+
+  const pushModalHost = useModalHostStore((s) => s.push);
+  const popModalHost = useModalHostStore((s) => s.pop);
+
+  useEffect(() => {
+    if (!visible) return;
+    pushModalHost();
+    return () => popModalHost();
+  }, [visible, pushModalHost, popModalHost]);
 
   const fadeOut = (onDone?: () => void) => {
     Animated.timing(backdropOpacity, {
@@ -293,6 +304,11 @@ export function Modal({
             <Text className="text-base leading-none text-white">✕</Text>
           </Pressable>
         </Animated.View>
+        {visible ? (
+          <View pointerEvents="box-none" style={styles.toastHost}>
+            <ToastViewport embedded />
+          </View>
+        ) : null}
       </RNModal>
     );
   }
@@ -453,6 +469,11 @@ export function Modal({
           {sheetContent}
         </Reanimated.View>
       )}
+      {visible ? (
+        <View pointerEvents="box-none" style={styles.toastHost}>
+          <ToastViewport embedded />
+        </View>
+      ) : null}
     </RNModal>
   );
 }
@@ -477,5 +498,9 @@ const styles = StyleSheet.create({
     zIndex: 30,
     flex: 1,
     justifyContent: 'flex-end',
+  },
+  toastHost: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 100,
   },
 });
