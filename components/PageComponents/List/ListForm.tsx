@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { CategoryChip } from "@/components/ui/CategoryChip";
-import { hasOthersCategory } from "@/utils/listCategories";
+import {
+  hasOthersCategory,
+  MAX_SELECTED_CATEGORIES,
+} from "@/utils/listCategories";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -266,6 +269,18 @@ export function ListForm({ step, listId }: ListFormProps) {
 
   const toggleCategory = (category: ListFormCategory) => {
     const isSelected = selectedCategories.some((c) => c.id === category.id);
+    if (
+      !isSelected &&
+      selectedCategories.length >= MAX_SELECTED_CATEGORIES
+    ) {
+      showToast({
+        type: "error",
+        message: t("listForm.validation.categoryMax", {
+          max: MAX_SELECTED_CATEGORIES,
+        }),
+      });
+      return;
+    }
     const next = isSelected
       ? selectedCategories.filter((c) => c.id !== category.id)
       : [...selectedCategories, category];

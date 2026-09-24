@@ -32,7 +32,10 @@ import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { useToastStore } from "@/stores/useToastStore";
 import { useCategories } from "@/hooks/useProfileList";
-import { hasOthersCategory } from "@/utils/listCategories";
+import {
+  hasOthersCategory,
+  MAX_SELECTED_CATEGORIES,
+} from "@/utils/listCategories";
 import type { BusinessItemDAO, BusinessLocation } from "@/http/business-api/types";
 import type { Location } from "@/http/list-api/types";
 import type { RNFile } from "@/http/types";
@@ -541,6 +544,18 @@ export function ListItemForm({
                     isSelected={selectedCategoryIds.includes(category.id)}
                     onPress={() => {
                       const isSelected = selectedCategoryIds.includes(category.id);
+                      if (
+                        !isSelected &&
+                        selectedCategoryIds.length >= MAX_SELECTED_CATEGORIES
+                      ) {
+                        showToast({
+                          type: "error",
+                          message: t("profile.picks.categoryMax", {
+                            max: MAX_SELECTED_CATEGORIES,
+                          }),
+                        });
+                        return;
+                      }
                       const next = isSelected
                         ? selectedCategoryIds.filter((id) => id !== category.id)
                         : [...selectedCategoryIds, category.id];

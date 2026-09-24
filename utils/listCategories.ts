@@ -1,6 +1,7 @@
 import type { ListFormCategory } from "@/types/listForm";
 
 export const OTHERS_CATEGORY_NAME = "Others";
+export const MAX_SELECTED_CATEGORIES = 3;
 
 export function hasOthersCategory(categories: ListFormCategory[]): boolean {
   return categories.some(

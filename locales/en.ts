@@ -624,6 +624,7 @@ const en = {
       businessRequired: 'Business name is required',
       categoryLabel: 'Category',
       categoryRequired: 'Please select at least one category',
+      categoryMax: 'You can select up to {{max}} categories',
       othersCategoryLabel: 'Specify other category',
       othersCategoryPlaceholder: 'e.g. Hidden gems',
       othersNameRequired: "Please specify the 'Others' category name",
@@ -970,6 +971,7 @@ const en = {
     validation: {
       nameRequired: 'Please enter a list name',
       categoryRequired: 'Please select a category',
+      categoryMax: 'You can select up to {{max}} categories',
       othersNameRequired: "Please specify the 'Others' category name",
       notesRequired: 'Please add an intro note',
       picksRequired: 'Please add at least one pick',
