@@ -12,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import type { CardOptionsMenuItem } from "@/components/ui/CardOptionsMenu";
+import { ImageFullScreen } from "@/components/ui/ImageFullScreen";
 import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { ListEngagementRow } from "@/components/ui/ListEngagementRow";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
@@ -90,6 +91,8 @@ export function ListDetailsHeader({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [isImageFullScreenVisible, setIsImageFullScreenVisible] =
+    useState(false);
 
   useEffect(() => {
     setIsFollowed(list.account_is_followed);
@@ -197,13 +200,22 @@ export function ListDetailsHeader({
       {coverImageUrl ? (
         <View className="mx-3.5 mt-1">
           <View className="relative overflow-hidden rounded-[18px]">
-            <View style={{ width: heroWidth, aspectRatio: 16 / 9 }}>
+            <Pressable
+              onPress={() => setIsImageFullScreenVisible(true)}
+              accessibilityRole="imagebutton"
+              accessibilityLabel={t("profile.picks.viewPhoto", {
+                current: 1,
+                total: 1,
+              })}
+              className="cursor-pointer"
+              style={{ width: heroWidth, aspectRatio: 16 / 9 }}
+            >
               <Image
                 source={{ uri: coverImageUrl }}
                 className="h-full w-full"
                 resizeMode="cover"
               />
-            </View>
+            </Pressable>
 
             <View className="mt-3.5">
               <ListAuthorRow
@@ -338,6 +350,14 @@ export function ListDetailsHeader({
         onConfirm={() => void handleConfirmDelete()}
         isLoading={isDeleting}
       />
+
+      {coverImageUrl ? (
+        <ImageFullScreen
+          uri={coverImageUrl}
+          visible={isImageFullScreenVisible}
+          onClose={() => setIsImageFullScreenVisible(false)}
+        />
+      ) : null}
 
       {!isOwnList ? (
         <ReportUserSheet
