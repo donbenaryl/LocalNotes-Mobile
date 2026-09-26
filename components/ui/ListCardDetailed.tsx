@@ -162,14 +162,14 @@ export function PickPreviewRow({
 
       <View className="min-w-0 flex-1 justify-center">
         <Text
-          className="font-geist-semibold text-[14.5px] text-ink dark:text-gray-100"
+          className="font-geist-semibold text-md text-ink dark:text-gray-100"
           numberOfLines={1}
         >
           {name}
         </Text>
         {item.description ? (
           <Text
-            className="mt-0.5 font-geist text-[13px] text-gray-500 dark:text-gray-400"
+            className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
             numberOfLines={1}
           >
             {item.description}
@@ -619,7 +619,7 @@ export function ListCardDetailed({
                 >
                   {picksExpanded && extraPickCount > 0 ? (
                     <>
-                      <ScrollableContainer className="max-h-48">
+                      <ScrollableContainer className="max-h-44">
                         {namedPicks.map((item, index) => (
                           <View
                             key={item.id}
@@ -668,13 +668,13 @@ export function ListCardDetailed({
                         {featuredPickImageUrl ? (
                           <Image
                             source={{ uri: featuredPickImageUrl }}
-                            className="h-12 w-12 shrink-0 rounded-xl"
+                            className="h-9 w-9 shrink-0 rounded-xl"
                             resizeMode="cover"
                           />
                         ) : (
                           <NoImage
                             personalityColor={list.account.personality_color}
-                            size="sm"
+                            size="xs"
                             appearance="flat"
                             innerClassName="dark:!bg-gray-900 !bg-white"
                           />
@@ -682,14 +682,14 @@ export function ListCardDetailed({
 
                         <View className="min-w-0 flex-1 justify-center">
                           <Text
-                            className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
+                            className="font-geist-semibold text-md text-ink dark:text-gray-100"
                             numberOfLines={1}
                           >
                             {getPickName(featuredPick)}
                           </Text>
                           {featuredPickSubtitle ? (
                             <Text
-                              className="mt-1 font-geist text-[13px] text-gray-500 dark:text-gray-400"
+                              className="font-geist text-xs text-gray-500 dark:text-gray-400"
                               numberOfLines={1}
                             >
                               {featuredPickSubtitle}
@@ -707,9 +707,9 @@ export function ListCardDetailed({
                             count: extraPickCount,
                           })}
                           accessibilityState={{ expanded: false }}
-                          className="h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-white dark:bg-gray-900"
+                          className="h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white dark:bg-gray-900"
                         >
-                          <Text className="text-lg text-ink dark:text-gray-100">
+                          <Text className="text-md text-ink dark:text-gray-100">
                             {t("home.morePicksBadge", {
                               count: extraPickCount,
                             })}

@@ -24,7 +24,7 @@ export function PickPreviewImage({
   const gradientRgb = useImageGradientColor(imageUrl);
 
   return (
-    <View className="relative h-11 w-11 rounded-lg shrink-0 overflow-hidden  bg-gray-100 dark:bg-gray-800">
+    <View className="relative h-9 w-9 rounded-lg shrink-0 overflow-hidden  bg-gray-100 dark:bg-gray-800">
       {imageUrl ? (
         <Image
           source={{ uri: imageUrl }}
@@ -34,7 +34,7 @@ export function PickPreviewImage({
       ) : (
         <NoImage
           personalityColor={personalityColor}
-          size="sm"
+          size="xs"
           appearance="flat"
           outerClassName="h-full w-full !bg-white !rounded-0"
           innerClassName="bg-white dark:bg-gray-800 rounded-0!"

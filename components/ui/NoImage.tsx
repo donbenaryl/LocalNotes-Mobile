@@ -1,6 +1,6 @@
-import { ImageIcon } from "lucide-react-native";
+import { List } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { getDominantPersonalityColor } from "@/utils/personalityRing";
 
 type NoImageSize = "xs" | "sm" | "md" | "lg" | "full";
@@ -26,31 +26,31 @@ const SIZE_CONFIG: Record<
   xs: {
     outerClassName: "h-8 w-8 rounded-lg",
     innerClassName: "rounded-[5px]",
-    iconSize: 14,
+    iconSize: 18,
     labelClassName: "text-[5px]",
   },
   sm: {
     outerClassName: "h-12 w-12 rounded-lg",
     innerClassName: "rounded-[7px]",
-    iconSize: 18,
+    iconSize: 26,
     labelClassName: "text-[7px]",
   },
   md: {
     outerClassName: "h-14 w-14 rounded-xl",
     innerClassName: "rounded-[11px]",
-    iconSize: 20,
+    iconSize: 30,
     labelClassName: "text-[8px]",
   },
   lg: {
     outerClassName: "w-full aspect-square rounded-t-4xl",
     innerClassName: "rounded-t-lg",
-    iconSize: 32,
+    iconSize: 40,
     labelClassName: "text-[10px]",
   },
   full: {
     outerClassName: "h-full w-full",
     innerClassName: "",
-    iconSize: 28,
+    iconSize: 36,
     labelClassName: "text-[9px]",
   },
 };
@@ -78,15 +78,10 @@ export function NoImage({
       style={{ padding: outerPadding, backgroundColor: appearance === "gradient" ? color : undefined }}
     >
       <View className={containerClassName}>
-        <View className="items-center justify-center">
-          <ImageIcon size={config.iconSize} color={color} />
-          <Text
-            className={`font-geist-medium ${config.labelClassName}`}
-            style={{ color }}
-          >
-            {label}
-          </Text>
-        </View>
+        <List
+          size={config.iconSize}
+          style={{ alignSelf: "center" }}
+        />
       </View>
     </View>
   );
