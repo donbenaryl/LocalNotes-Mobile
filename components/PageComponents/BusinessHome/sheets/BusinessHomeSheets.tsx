@@ -66,7 +66,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
                 onPress={showComingSoon}
                 variant="dark"
                 size="xs"
-                isRounded
                 isWidthFull={false}
               />
               <LocalNotesButton
@@ -74,7 +73,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
                 onPress={showComingSoon}
                 variant="light"
                 size="xs"
-                isRounded
                 isWidthFull={false}
               />
             </View>
@@ -119,7 +117,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
               onPress={showComingSoon}
               variant="dark"
               size="xs"
-              isRounded
               isWidthFull={false}
               className="mt-2 self-start"
             />
@@ -140,7 +137,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
                 onPress={showComingSoon}
                 variant="dark"
                 size="xs"
-                isRounded
                 isWidthFull={false}
               />
               <LocalNotesButton
@@ -148,7 +144,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
                 onPress={showComingSoon}
                 variant="light"
                 size="xs"
-                isRounded
                 isWidthFull={false}
               />
             </View>
@@ -176,7 +171,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
               onPress={showComingSoon}
               variant="dark"
               size="xs"
-              isRounded
               isWidthFull={false}
               className="mt-2 self-start"
             />
@@ -213,7 +207,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
               onPress={() => void openCreateOfferOnWeb()}
               variant="dark"
               size="xs"
-              isRounded
               isWidthFull={false}
               className="mt-2 self-start"
             />

@@ -285,6 +285,7 @@ const en = {
     lightMode: 'Light Mode',
     recentActivityFeed: 'Recent Activity Feed',
     accountSettings: 'Account Settings',
+    redeemTool: 'Redeem Tool',
     retakePersonalityTest: 'Retake Personality Test',
     logout: 'Log Out',
     language: 'Language',
@@ -1217,6 +1218,75 @@ const en = {
     managingAs: 'Managing as {{name}} · {{role}}',
     comingSoonTitle: 'Coming soon',
     comingSoonMessage: 'This feature is not available yet.',
+    openFullInsights: 'Open full insights',
+    tabs: {
+      insights: 'Insights',
+      campaigns: 'Campaigns',
+      alerts: 'Alerts',
+      thankYou: 'Thank-You Rewards',
+      overview: 'Overview',
+      promote: 'Promote',
+      analytics: 'Analytics',
+    },
+    pages: {
+      insights: 'Insights',
+      howPeopleFindYou: 'How people find you',
+      locations: 'Across your locations',
+      customers: 'Customer insights',
+      membership: 'Membership',
+      campaign: 'Campaign',
+      spotlight: 'Spotlight',
+    },
+    details: {
+      section: 'Details',
+      howPeopleFindYou: 'How people find you',
+      howPeopleFindYouPreview: 'Top channel',
+      locations: 'Across your locations',
+      locationsPreview: 'Leading',
+      customers: 'Customer insights',
+      customersPreview: 'Savers with taste profiles',
+      membership: 'All analytics are free, always',
+      membershipPreview:
+        'Membership adds the why, what matters, and what to do next',
+    },
+    campaignsTab: {
+      active: 'Active',
+      activeEmpty: 'No campaign is running right now.',
+      past: 'Past',
+    },
+    promoteTab: {
+      currentlyPromoting: 'Currently promoting',
+      promoteNote: 'Every dollar you put behind a listing or offer shows up here.',
+      spotlight: 'Spotlight',
+      spotlightNote:
+        'Spotlight placements open from time to time. When one is open, the highest bid wins the feature slot.',
+      spotlightTitle: 'Open spotlight · Roosevelt Row weekend feature',
+      spotlightMeta: 'Closes in 2 days',
+      spotlightBid: 'Highest bid $85',
+    },
+    analyticsTab: {
+      empty:
+        'Analytics is where your numbers turn into trends: views, saves, and redemptions charted over time, plus how you compare to similar businesses nearby. Choose a date range above to see how a specific period looked.',
+    },
+    spotlightPage: {
+      status: 'Closes in 2 days',
+      title: 'Roosevelt Row weekend feature slot',
+      body: 'This is an open bidding window, not something you can create yourself. The highest bid when it closes wins the placement.',
+      highestBid: 'Current highest bid',
+      highestBidValue: '$85',
+      yourBid: 'Your bid',
+      bidPlaceholder: 'Enter an amount above $85',
+      placeBid: 'Place bid',
+    },
+    membershipPage: {
+      currentPlan: 'Current plan',
+      freePlan: 'Free',
+      freeBody:
+        'All your Views, Saves, Redeemed, and Lists analytics are included, always.',
+      upgradeNote:
+        'Upgrading unlocks the Business Copilot, weekly briefs, and alerts. Manage it from the web dashboard.',
+      upgradeOnWeb: 'Upgrade on web',
+    },
     switcher: {
       yourBusinesses: 'Your businesses',
       locations: 'Locations',
@@ -1239,10 +1309,10 @@ const en = {
       analytics: 'Explore analytics',
     },
     stats: {
-      views: 'VIEWS',
-      saves: 'SAVES',
-      redeemed: 'REDEEMED ✓',
-      lists: 'LISTS',
+      views: 'Views',
+      saves: 'Saves',
+      redeemed: 'Redeemed',
+      lists: 'Lists',
     },
     insight: {
       paidBody:
@@ -1279,6 +1349,9 @@ const en = {
     alert: {
       saturday: 'Saturday',
       sunday: 'Sunday',
+      membersOnlyTitle: 'Members only',
+      membersOnlyBody:
+        'Smart alerts and automatic opportunity detection are part of Business Insights membership. Continue on the web to upgrade.',
     },
     action: {
       priority: 'Priority',

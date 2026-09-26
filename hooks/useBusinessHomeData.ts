@@ -162,6 +162,7 @@ export function useBusinessHomeData() {
     activeOwned?.branches?.[0];
 
   const businessName = businessInfo?.name ?? activeOwned?.name ?? '';
+  const businessLogo = businessInfo?.logo ?? null;
   const locationName =
     selectedBranch?.name?.trim() ||
     selectedBranch?.location?.city ||
@@ -192,6 +193,7 @@ export function useBusinessHomeData() {
 
   return {
     businessName,
+    businessLogo,
     locationName,
     managerName,
     roleLabel,

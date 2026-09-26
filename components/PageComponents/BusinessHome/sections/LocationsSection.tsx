@@ -59,13 +59,12 @@ export function LocationsSection({ locationRows, isPaidMember }: LocationsSectio
             {t('businessHome.locations.paidNote')}
           </Text>
         </MembershipGate>
-        <View className="mt-2.5 flex-row flex-wrap gap-1.5">
+        <View className="mt-2.5 flex-row flex-wrap gap-1.5 self-end">
           <LocalNotesButton
             label={t('businessHome.buttons.compareLocations')}
             onPress={showComingSoon}
             variant="light"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
           <LocalNotesButton
@@ -73,7 +72,6 @@ export function LocationsSection({ locationRows, isPaidMember }: LocationsSectio
             onPress={showComingSoon}
             variant="ghost"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
         </View>

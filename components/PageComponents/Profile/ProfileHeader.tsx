@@ -1,7 +1,13 @@
 import { useMemo } from "react";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Moon, Settings, Sparkles, Sun, Tv } from "lucide-react-native";
+import {
+  LogOut,
+  ScanLine,
+  Settings,
+  Sparkles,
+  Tv,
+} from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import {
@@ -10,15 +16,18 @@ import {
 } from "@/components/ui/CardOptionsMenu";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useThemeStore } from "@/stores/useThemeStore";
+import { isBusinessAccountType } from "@/utils/businessAccount";
 
 export function ProfileHeader() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const setTheme = useThemeStore((s) => s.setTheme);
   const { colorScheme } = useColorScheme();
   const { t } = useTranslation();
   const isDark = colorScheme === "dark";
+  const isBusiness = isBusinessAccountType(accountType ?? undefined);
 
   const themeLabel = isDark ? t("settings.darkMode") : t("settings.lightMode");
 
@@ -33,6 +42,19 @@ export function ProfileHeader() {
           router.push("/(app)/(stack)/profile/account-settings");
         },
       },
+      ...(isBusiness
+        ? [
+            {
+              kind: "action" as const,
+              key: "redeem-tool",
+              label: t("settings.redeemTool"),
+              icon: ScanLine,
+              onPress: () => {
+                router.push("/(app)/(stack)/redeem-offer");
+              },
+            },
+          ]
+        : []),
       {
         kind: "action",
         key: "retake-personality-test",
@@ -67,7 +89,16 @@ export function ProfileHeader() {
         },
       },
     ],
-    [clearAuth, isDark, queryClient, router, setTheme, t, themeLabel],
+    [
+      clearAuth,
+      isBusiness,
+      isDark,
+      queryClient,
+      router,
+      setTheme,
+      t,
+      themeLabel,
+    ],
   );
 
   return <CardOptionsMenu items={items} />;

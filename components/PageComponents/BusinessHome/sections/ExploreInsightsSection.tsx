@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import {
   BUSINESS_HOME_DEMAND_ROWS,
@@ -9,6 +9,7 @@ import {
 } from '@/constants/businessHomeMock';
 import type { BusinessHomePersonalityRow } from '@/hooks/useBusinessHomeData';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
+import { Tabs, type TabItem } from '@/components/ui/Tabs';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { SectionHeading } from '../ui/SectionHeading';
@@ -19,6 +20,10 @@ type ExploreTab = 'customers' | 'demand' | 'performance';
 interface ExploreInsightsSectionProps {
   personalityRows: BusinessHomePersonalityRow[];
   isPaidMember: boolean;
+  /** Controlled tab when parent owns the Tabs strip. */
+  activeTab?: ExploreTab;
+  hideTabs?: boolean;
+  hideHeading?: boolean;
 }
 
 function ChipRow({
@@ -52,10 +57,14 @@ function ChipRow({
 export function ExploreInsightsSection({
   personalityRows,
   isPaidMember,
+  activeTab: controlledTab,
+  hideTabs = false,
+  hideHeading = false,
 }: ExploreInsightsSectionProps) {
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
-  const [tab, setTab] = useState<ExploreTab>('customers');
+  const [internalTab, setInternalTab] = useState<ExploreTab>('customers');
+  const tab = controlledTab ?? internalTab;
 
   const showComingSoon = () => {
     Alert.alert(
@@ -64,41 +73,25 @@ export function ExploreInsightsSection({
     );
   };
 
-  const tabs: { id: ExploreTab; labelKey: string }[] = [
-    { id: 'customers', labelKey: 'businessHome.explore.customers' },
-    { id: 'demand', labelKey: 'businessHome.explore.demand' },
-    { id: 'performance', labelKey: 'businessHome.explore.performance' },
+  const tabs: TabItem[] = [
+    { id: 'customers', label: t('businessHome.explore.customers') },
+    { id: 'demand', label: t('businessHome.explore.demand') },
+    { id: 'performance', label: t('businessHome.explore.performance') },
   ];
 
   return (
     <>
-      <SectionHeading title={t('businessHome.sections.exploreInsights')} />
-      <View className="flex-row gap-1.5 px-4">
-        {tabs.map((item) => {
-          const selected = tab === item.id;
-          return (
-            <Pressable
-              key={item.id}
-              onPress={() => setTab(item.id)}
-              accessibilityRole="tab"
-              accessibilityState={{ selected }}
-              className={`min-h-10 flex-1 items-center justify-center rounded-full border ${
-                selected
-                  ? 'border-ink bg-ink dark:border-gray-100 dark:bg-gray-100'
-                  : 'border-gray-200 bg-paper dark:border-gray-600 dark:bg-gray-800'
-              }`}
-            >
-              <Text
-                className={`font-geist-bold text-[12.5px] ${
-                  selected ? 'text-white dark:text-ink' : 'text-gray-600 dark:text-gray-400'
-                }`}
-              >
-                {t(item.labelKey)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+      {!hideHeading ? (
+        <SectionHeading title={t('businessHome.sections.exploreInsights')} />
+      ) : null}
+      {!hideTabs ? (
+        <Tabs
+          tabs={tabs}
+          activeTab={tab}
+          onTabChange={(id) => setInternalTab(id as ExploreTab)}
+          className="mx-4"
+        />
+      ) : null}
 
       {tab === 'customers' ? (
         <View className="mt-2.5">
@@ -204,9 +197,8 @@ export function ExploreInsightsSection({
             onPress={() => void openCreateOfferOnWeb()}
             variant="brand"
             size="xs"
-            isRounded
             isWidthFull={false}
-            className="mt-2 self-start"
+            className="mt-2 self-end"
           />
           <View className="mt-2 px-0">
             <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
@@ -214,22 +206,26 @@ export function ExploreInsightsSection({
             </Text>
             <View className="mt-1">
               <View className="flex-row justify-between py-1">
-                <Text className="text-xs text-gray-600">{t('businessHome.explore.strongest')}</Text>
-                <Text className="font-geist-bold text-xs">7–10 AM</Text>
+                <Text className="text-xs text-gray-600 dark:text-gray-400">
+                  {t('businessHome.explore.strongest')}
+                </Text>
+                <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">7–10 AM</Text>
               </View>
               <View className="flex-row justify-between py-1">
-                <Text className="text-xs text-gray-600">{t('businessHome.explore.quietest')}</Text>
-                <Text className="font-geist-bold text-xs">2–5 PM</Text>
+                <Text className="text-xs text-gray-600 dark:text-gray-400">
+                  {t('businessHome.explore.quietest')}
+                </Text>
+                <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">2–5 PM</Text>
               </View>
             </View>
+       
             <LocalNotesButton
               label={t('businessHome.buttons.createMorningOffer')}
               onPress={showComingSoon}
               variant="light"
               size="xs"
-              isRounded
               isWidthFull={false}
-              className="mt-1 self-start"
+              className="mt-1 self-end"
             />
           </View>
         </BusinessHomeCard>
@@ -247,7 +243,9 @@ export function ExploreInsightsSection({
               <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
                 {row.title}
               </Text>
-              <Text className="font-geist-semibold text-xs text-gray-500">{row.meta}</Text>
+              <Text className="font-geist-semibold text-xs text-gray-500">
+                {row.meta}
+              </Text>
             </View>
           ))}
           <Text className="font-geist-semibold text-[11px] text-gray-500">

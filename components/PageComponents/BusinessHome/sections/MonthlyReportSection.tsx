@@ -5,6 +5,7 @@ import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { SectionHeading } from '../ui/SectionHeading';
 import { MembershipGate } from '../ui/MembershipGate';
 import type { BusinessHomeSheetId } from '../sheets/types';
+import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 
 interface MonthlyReportSectionProps {
   isPaidMember: boolean;
@@ -109,15 +110,14 @@ export function UpsellSection({ isPaidMember }: { isPaidMember: boolean }) {
             </View>
           ))}
         </View>
-        <Pressable
+        <LocalNotesButton
+          label={t('businessHome.upsell.continueOnWeb')}
           onPress={() => void openBusinessInsightsOnWeb()}
-          accessibilityRole="button"
-          className="mt-3 min-h-12 items-center justify-center rounded-full bg-brand"
-        >
-          <Text className="font-geist-extrabold text-[14.5px] text-white">
-            {t('businessHome.upsell.continueOnWeb')}
-          </Text>
-        </Pressable>
+          variant="brand"
+          size="sm"
+          className="mt-3 justify-center"
+        />
+  
       </BusinessHomeCard>
     </MembershipGate>
   );

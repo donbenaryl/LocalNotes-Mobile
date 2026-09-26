@@ -42,11 +42,9 @@ export function InsightSummarySection({ isPaidMember }: InsightSummarySectionPro
           <LocalNotesButton
             label={t('businessHome.insight.seeInsights')}
             onPress={showComingSoon}
-            variant="light"
             size="xs"
-            isRounded
             isWidthFull={false}
-            className="mt-2.5 self-start"
+            className="mt-2.5 self-end"
           />
         </BusinessHomeCard>
       </MembershipGate>

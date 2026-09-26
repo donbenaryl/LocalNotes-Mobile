@@ -118,7 +118,7 @@ export function DateRangePicker({
         onPress={() => setVisible(true)}
         accessibilityRole="button"
         accessibilityLabel={t('businessHome.dateRangePicker.title')}
-        className="min-h-[38px] flex-row items-center gap-1 rounded-full border border-gray-200 bg-paper px-3 dark:border-gray-600 dark:bg-gray-800 cursor-pointer"
+        className="min-h-[30px] flex-row items-center gap-1 rounded-xl border border-gray-200 bg-paper px-3 dark:border-gray-600 dark:bg-gray-800 cursor-pointer"
       >
         <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
           {shownValue}
@@ -153,7 +153,6 @@ export function DateRangePicker({
             onPress={close}
             variant="light"
             size="sm"
-            isRounded
             className="flex-1"
           />
           <LocalNotesButton
@@ -161,7 +160,6 @@ export function DateRangePicker({
             onPress={apply}
             variant="brand"
             size="sm"
-            isRounded
             disabled={!canApply}
             className={cn('flex-1', !canApply && 'opacity-50')}
           />

@@ -54,7 +54,6 @@ export function ThisWeekSection({ isPaidMember }: ThisWeekSectionProps) {
             onPress={() => void openCreateOfferOnWeb()}
             variant="brand"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
           <LocalNotesButton
@@ -62,7 +61,6 @@ export function ThisWeekSection({ isPaidMember }: ThisWeekSectionProps) {
             onPress={showComingSoon}
             variant="light"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
           <LocalNotesButton
@@ -70,7 +68,6 @@ export function ThisWeekSection({ isPaidMember }: ThisWeekSectionProps) {
             onPress={() => setShowAssign((v) => !v)}
             variant="ghost"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
         </View>
@@ -84,7 +81,6 @@ export function ThisWeekSection({ isPaidMember }: ThisWeekSectionProps) {
               onPress={() => setAssigned(true)}
               variant="dark"
               size="xs"
-              isRounded
               isWidthFull={false}
             />
           </View>

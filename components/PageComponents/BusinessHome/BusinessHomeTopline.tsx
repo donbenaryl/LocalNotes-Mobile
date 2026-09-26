@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { StatsSection } from '@/components/ui/StatsSection';
+import { BusinessHomeStatsGrid } from './ui/BusinessHomeStatsGrid';
 
 interface BusinessHomeToplineProps {
   views: string;
@@ -17,11 +17,11 @@ export function BusinessHomeTopline({
   const { t } = useTranslation();
 
   const stats = [
-    { value: views, label: t('businessHome.stats.views') },
-    { value: saves, label: t('businessHome.stats.saves') },
-    { value: redeemed, label: t('businessHome.stats.redeemed') },
-    { value: lists, label: t('businessHome.stats.lists') },
+    { value: views, label: t('businessHome.stats.views'), change: 18 },
+    { value: saves, label: t('businessHome.stats.saves'), change: 6 },
+    { value: redeemed, label: t('businessHome.stats.redeemed'), change: 0 },
+    { value: lists, label: t('businessHome.stats.lists'), change: 0 },
   ];
 
-  return <StatsSection items={stats} className="mx-4 mt-2" />;
+  return <BusinessHomeStatsGrid items={stats} className="mx-4 mt-2" />;
 }

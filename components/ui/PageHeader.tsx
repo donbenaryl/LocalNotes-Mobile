@@ -15,6 +15,8 @@ interface PageHeaderProps {
   borderless?: boolean;
   /** When false, skip safe-area top padding (e.g. inside tabs shell that already pads). */
   includeSafeArea?: boolean;
+  /** Align back control to the top of taller children (default: vertically centered). */
+  alignStart?: boolean;
 }
 
 export function PageHeader({
@@ -26,6 +28,7 @@ export function PageHeader({
   rightChild,
   borderless = false,
   includeSafeArea = true,
+  alignStart = false,
 }: PageHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -55,7 +58,9 @@ export function PageHeader({
     >
       <View className="min-h-10 justify-center">
         {children ? (
-          <View className="w-full flex-row items-center gap-2">
+          <View
+            className={`w-full flex-row gap-2 ${alignStart ? 'items-start' : 'items-center'}`}
+          >
             <View className="shrink-0">{backControl}</View>
             <View className="min-w-0 flex-1">{children}</View>
             {rightChild ? (

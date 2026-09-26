@@ -1,43 +1,27 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ActivityIndicator, BackHandler, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppScrollView } from '@/components/ui/AppScrollView';
-import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import { useBusinessHomeData } from '@/hooks/useBusinessHomeData';
-import { BusinessHomeHeader } from './BusinessHomeHeader';
-import { BusinessHomeShortcuts } from './BusinessHomeShortcuts';
-import { BusinessHomeTopline } from './BusinessHomeTopline';
-import { InsightSummarySection } from './sections/InsightSummarySection';
-import { ThisWeekSection } from './sections/ThisWeekSection';
-import { AlertsSection } from './sections/AlertsSection';
-import { NextActionsSection } from './sections/NextActionsSection';
-import { InsightsToolsSection } from './sections/InsightsToolsSection';
-import { HowPeopleFindYouSection } from './sections/HowPeopleFindYouSection';
-import { CampaignResultsSection } from './sections/CampaignResultsSection';
-import {
-  ProfileHealthSection,
-  RunAnotherCampaignSection,
-} from './sections/FreeCampaignSections';
-import { LocationsSection } from './sections/LocationsSection';
-import { ExploreInsightsSection } from './sections/ExploreInsightsSection';
-import {
-  FooterNoteSection,
-  MonthlyReportSection,
-  UpsellSection,
-} from './sections/MonthlyReportSection';
+import { useBusinessHomeNav } from './navigation';
 import { BusinessHomeSheets } from './sheets/BusinessHomeSheets';
 import type { BusinessHomeSheetId } from './sheets/types';
-import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
-import { useTranslation } from 'react-i18next';
+import { BusinessHomeProfilePage } from './pages/BusinessHomeProfilePage';
+import { BusinessHomeOverviewPage } from './pages/BusinessHomeOverviewPage';
+import { BusinessHomeFindYouPage } from './pages/BusinessHomeFindYouPage';
+import { BusinessHomeLocationsPage } from './pages/BusinessHomeLocationsPage';
+import { BusinessHomeCustomersPage } from './pages/BusinessHomeCustomersPage';
+import { BusinessHomeMembershipPage } from './pages/BusinessHomeMembershipPage';
+import { BusinessHomeCampaignPage } from './pages/BusinessHomeCampaignPage';
+import { BusinessHomeSpotlightPage } from './pages/BusinessHomeSpotlightPage';
 
 export default function BusinessHomeScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
   const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const {
     businessName,
+    businessLogo,
     locationName,
     managerName,
     roleLabel,
@@ -55,7 +39,10 @@ export default function BusinessHomeScreen() {
     refetchAll,
   } = useBusinessHomeData();
 
-  const [activeSheet, setActiveSheet] = useState<BusinessHomeSheetId | null>(null);
+  const { page, push, pop, canPop } = useBusinessHomeNav('profile');
+  const [activeSheet, setActiveSheet] = useState<BusinessHomeSheetId | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!isBusinessAccountType(accountType ?? undefined)) {
@@ -63,85 +50,146 @@ export default function BusinessHomeScreen() {
     }
   }, [accountType, router]);
 
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (activeSheet) {
+        setActiveSheet(null);
+        return true;
+      }
+      if (canPop) {
+        pop();
+        return true;
+      }
+      return false;
+    });
+    return () => sub.remove();
+  }, [activeSheet, canPop, pop]);
+
   const openSheet = (id: BusinessHomeSheetId) => setActiveSheet(id);
+
+  const handleRootBack = () => {
+    if (canPop) {
+      pop();
+      return;
+    }
+    router.back();
+  };
 
   if (!isBusinessAccountType(accountType ?? undefined)) {
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <View
+        style={styles.root}
+        className="items-center justify-center bg-page dark:bg-gray-900"
+      >
+        <ActivityIndicator size="large" color="#FF6B1A" />
+      </View>
+    );
+  }
+
+  let content: ReactNode = null;
+
+  switch (page) {
+    case 'profile':
+      content = (
+        <BusinessHomeProfilePage
+          businessName={businessName}
+          businessLogo={businessLogo}
+          locationName={locationName}
+          managerName={managerName}
+          roleLabel={roleLabel}
+          topline={topline}
+          periodLabel={periodLabel}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateRangeChange={onDateRangeChange}
+          isPaidMember={isPaidMember}
+          isRefetching={isRefetching}
+          onRefresh={refetchAll}
+          onBack={handleRootBack}
+          onToggleMembership={togglePaidMember}
+          onOpenSheet={openSheet}
+          onOpenFullInsights={() => push('overview')}
+          onOpenCampaign={() => push('campaign')}
+        />
+      );
+      break;
+    case 'overview':
+      content = (
+        <BusinessHomeOverviewPage
+          topline={topline}
+          periodLabel={periodLabel}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onDateRangeChange={onDateRangeChange}
+          isPaidMember={isPaidMember}
+          isRefetching={isRefetching}
+          onRefresh={refetchAll}
+          onBack={pop}
+          onOpenSheet={openSheet}
+          onOpenFindYou={() => push('findyou')}
+          onOpenLocations={() => push('locations')}
+          onOpenCustomers={() => push('customers')}
+          onOpenMembership={() => push('membership')}
+          onOpenCampaign={() => push('campaign')}
+          onOpenSpotlight={() => push('spotlight')}
+          leadingLocationName={locationRows[0]?.name}
+        />
+      );
+      break;
+    case 'findyou':
+      content = (
+        <BusinessHomeFindYouPage onBack={pop} periodLabel={periodLabel} />
+      );
+      break;
+    case 'locations':
+      content = (
+        <BusinessHomeLocationsPage
+          locationRows={locationRows}
+          isPaidMember={isPaidMember}
+          onBack={pop}
+        />
+      );
+      break;
+    case 'customers':
+      content = (
+        <BusinessHomeCustomersPage
+          personalityRows={personalityRows}
+          isPaidMember={isPaidMember}
+          onBack={pop}
+        />
+      );
+      break;
+    case 'membership':
+      content = (
+        <BusinessHomeMembershipPage
+          isPaidMember={isPaidMember}
+          onBack={pop}
+        />
+      );
+      break;
+    case 'campaign':
+      content = (
+        <BusinessHomeCampaignPage
+          isPaidMember={isPaidMember}
+          onBack={pop}
+          onOpenSheet={openSheet}
+        />
+      );
+      break;
+    case 'spotlight':
+      content = <BusinessHomeSpotlightPage onBack={pop} />;
+      break;
+    default:
+      content = null;
+  }
+
   return (
     <View style={styles.root} className="bg-page dark:bg-gray-900">
-      <BusinessHomeHeader
-        businessName={businessName}
-        locationName={locationName}
-        managerName={managerName}
-        roleLabel={roleLabel}
-        periodLabel={periodLabel}
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        onDateRangeChange={onDateRangeChange}
-        onBack={() => router.back()}
-        onToggleMembership={togglePaidMember}
-      />
-
-      {isLoading ? (
-        <View style={styles.fill} className="items-center justify-center">
-          <ActivityIndicator size="large" color="#FF6B1A" />
-        </View>
-      ) : (
-        <AppScrollView
-          style={styles.fill}
-          showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-4"
-          // RefreshControl blanks flex ScrollViews on Android (same as Profile/Home).
-          refreshControl={
-            Platform.OS === 'android' ? undefined : (
-              <AppRefreshControl refreshing={isRefetching} onRefresh={refetchAll} />
-            )
-          }
-        >
-          <BusinessHomeShortcuts />
-          <View className="gap-2 px-4 pt-2">
-            <LocalNotesButton
-              label={t('businessHome.buttons.redeemTool')}
-              onPress={() =>
-                router.push('/(app)/(stack)/redeem-offer' as never)
-              }
-              variant="dark"
-              size="sm"
-              isRounded
-            />
-            <LocalNotesButton
-              label={t('businessHome.buttons.thankYou')}
-              onPress={() =>
-                router.push('/(app)/(stack)/thank-you' as never)
-              }
-              variant="light"
-              size="sm"
-              isRounded
-            />
-          </View>
-          <BusinessHomeTopline {...topline} />
-          <InsightSummarySection isPaidMember={isPaidMember} />
-          <ThisWeekSection isPaidMember={isPaidMember} />
-          <AlertsSection isPaidMember={isPaidMember} />
-          <NextActionsSection isPaidMember={isPaidMember} onOpenSheet={openSheet} />
-          <InsightsToolsSection isPaidMember={isPaidMember} onOpenSheet={openSheet} />
-          <HowPeopleFindYouSection />
-          <CampaignResultsSection isPaidMember={isPaidMember} onOpenSheet={openSheet} />
-          <RunAnotherCampaignSection isPaidMember={isPaidMember} />
-          <ProfileHealthSection isPaidMember={isPaidMember} />
-          <LocationsSection locationRows={locationRows} isPaidMember={isPaidMember} />
-          <ExploreInsightsSection
-            personalityRows={personalityRows}
-            isPaidMember={isPaidMember}
-          />
-          <MonthlyReportSection isPaidMember={isPaidMember} onOpenSheet={openSheet} />
-          <UpsellSection isPaidMember={isPaidMember} />
-          <FooterNoteSection />
-        </AppScrollView>
-      )}
-
+      {content}
       <BusinessHomeSheets
         activeSheet={activeSheet}
         onClose={() => setActiveSheet(null)}
@@ -152,5 +200,4 @@ export default function BusinessHomeScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  fill: { flex: 1 },
 });

@@ -120,7 +120,6 @@ export function BusinessSwitcherSheet({
               onPress={() => void loadOwnedBusinesses()}
               variant="light"
               size="xs"
-              isRounded
               isWidthFull={false}
             />
           </View>

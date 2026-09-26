@@ -16,11 +16,27 @@ export function toDateType(iso: string): Date {
   return parseIsoDate(iso);
 }
 
+const SHORT_MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+] as const;
+
 export function formatPeriodLabel(dateFrom: string, dateTo: string): string {
-  const from = new Date(`${dateFrom}T00:00:00`);
-  const to = new Date(`${dateTo}T00:00:00`);
-  const fromMonth = from.toLocaleString('en-US', { month: 'short' });
-  const toMonth = to.toLocaleString('en-US', { month: 'short' });
+  // Avoid Date.toLocaleString — Hermes can recurse until stack overflow.
+  const from = parseIsoDate(dateFrom);
+  const to = parseIsoDate(dateTo);
+  const fromMonth = SHORT_MONTHS[from.getMonth()];
+  const toMonth = SHORT_MONTHS[to.getMonth()];
 
   if (fromMonth === toMonth) {
     return `${fromMonth} ${from.getDate()}–${to.getDate()}`;

@@ -49,7 +49,6 @@ export function NextActionsSection({
           onPress={() => onOpenSheet('plans')}
           variant="light"
           size="xs"
-          isRounded
           isWidthFull={false}
         />
       </BusinessHomeCard>
@@ -97,7 +96,6 @@ export function NextActionsSection({
               onPress={showComingSoon}
               variant="dark"
               size="xs"
-              isRounded
               isWidthFull={false}
             />
           </View>
@@ -128,7 +126,6 @@ export function NextActionsSection({
                 onPress={showComingSoon}
                 variant="dark"
                 size="sm"
-                isRounded
                 isWidthFull={false}
               />
               <LocalNotesButton
@@ -136,7 +133,6 @@ export function NextActionsSection({
                 onPress={showComingSoon}
                 variant="light"
                 size="sm"
-                isRounded
                 isWidthFull={false}
               />
             </View>

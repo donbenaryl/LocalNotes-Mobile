@@ -63,7 +63,6 @@ export function CampaignResultsSection({
             onPress={showComingSoon}
             variant="dark"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
           <LocalNotesButton
@@ -71,7 +70,6 @@ export function CampaignResultsSection({
             onPress={showComingSoon}
             variant="light"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
           <LocalNotesButton
@@ -79,7 +77,6 @@ export function CampaignResultsSection({
             onPress={showComingSoon}
             variant="light"
             size="sm"
-            isRounded
             isWidthFull={false}
           />
         </View>
@@ -90,7 +87,6 @@ export function CampaignResultsSection({
               onPress={showComingSoon}
               variant="ghost"
               size="sm"
-              isRounded
               isWidthFull={false}
             />
             <LocalNotesButton
@@ -98,7 +94,6 @@ export function CampaignResultsSection({
               onPress={showComingSoon}
               variant="ghost"
               size="sm"
-              isRounded
               isWidthFull={false}
             />
           </View>
