@@ -4,7 +4,7 @@ module.exports = {
   name: 'LocalNotesNotificationContent',
   displayName: 'LocalNotes Notifications',
   deploymentTarget: '15.1',
-  bundleIdentifier: '.notification-content',
+  bundleIdentifier: '.notificationcontent',
   frameworks: ['UserNotifications', 'UserNotificationsUI', 'UIKit'],
   icon: '../../assets/icon.png',
   images: {

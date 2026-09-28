@@ -4,6 +4,6 @@ module.exports = {
   name: 'LocalNotesNotificationService',
   displayName: 'LocalNotes Notification Service',
   deploymentTarget: '15.1',
-  bundleIdentifier: '.notification-service',
+  bundleIdentifier: '.notificationservice',
   frameworks: ['UserNotifications'],
 };
