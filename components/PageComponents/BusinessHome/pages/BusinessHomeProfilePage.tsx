@@ -18,7 +18,7 @@ import { Tabs, type TabItem } from '@/components/ui/Tabs';
 import { AppScrollView } from '@/components/ui/AppScrollView';
 import { AppRefreshControl } from '@/components/ui/AppRefreshControl';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
-import { BusinessHomeTopline } from '../BusinessHomeTopline';
+import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessHomeTopline';
 import { BusinessSwitcherSheet } from '../sheets/BusinessSwitcherSheet';
 import { AlertsSection } from '../sections/AlertsSection';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
@@ -43,12 +43,7 @@ interface BusinessHomeProfilePageProps {
   locationName: string;
   managerName: string;
   roleLabel: string;
-  topline: {
-    views: string;
-    saves: string;
-    redeemed: string;
-    lists: string;
-  };
+  topline: BusinessHomeToplineProps;
   periodLabel: string;
   dateFrom: string;
   dateTo: string;

@@ -6,7 +6,7 @@ import { DateRangePicker } from '../ui/DateRangePicker';
 import { DetailNavRow } from '../ui/DetailNavRow';
 import { SectionHeading } from '../ui/SectionHeading';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
-import { BusinessHomeTopline } from '../BusinessHomeTopline';
+import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessHomeTopline';
 import { BusinessInsightsSections } from '../sections/BusinessInsightsSections';
 import { InsightsToolsSection } from '../sections/InsightsToolsSection';
 import { RunAnotherCampaignSection } from '../sections/FreeCampaignSections';
@@ -23,12 +23,7 @@ import { ThisWeekSection } from '../sections/ThisWeekSection';
 import { NextActionsSection } from '../sections/NextActionsSection';
 
 interface BusinessHomeOverviewPageProps {
-  topline: {
-    views: string;
-    saves: string;
-    redeemed: string;
-    lists: string;
-  };
+  topline: BusinessHomeToplineProps;
   periodLabel: string;
   dateFrom: string;
   dateTo: string;

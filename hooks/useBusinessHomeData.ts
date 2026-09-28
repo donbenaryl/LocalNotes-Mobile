@@ -9,7 +9,57 @@ import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { getBusinessPersonalityLabel } from '@/utils/businessPersonalityLabels';
-import { formatIsoDate, formatPeriodLabel } from '@/utils/dateIso';
+import { formatIsoDate, formatPeriodLabel, parseIsoDate } from '@/utils/dateIso';
+import type { StatsDateRangeParams } from '@/http/business-api/types';
+
+type ToplineCounts = {
+  views: number;
+  saves: number;
+  redeemed: number;
+  lists: number;
+};
+
+const EMPTY_TOPLINE_COUNTS: ToplineCounts = { views: 0, saves: 0, redeemed: 0, lists: 0 };
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function getPreviousPeriod(dateFrom: string, dateTo: string): StatsDateRangeParams {
+  const from = parseIsoDate(dateFrom);
+  const to = parseIsoDate(dateTo);
+  const lengthDays = Math.round((to.getTime() - from.getTime()) / MS_PER_DAY) + 1;
+  const prevTo = new Date(from.getFullYear(), from.getMonth(), from.getDate() - 1);
+  const prevFrom = new Date(
+    prevTo.getFullYear(),
+    prevTo.getMonth(),
+    prevTo.getDate() - lengthDays + 1,
+  );
+  return { date_from: formatIsoDate(prevFrom), date_to: formatIsoDate(prevTo) };
+}
+
+function percentChange(current: number, previous: number): number {
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+async function fetchToplineCounts(
+  businessId: string,
+  range: StatsDateRangeParams,
+): Promise<ToplineCounts> {
+  const [views, saves, redeems, mentions] = await Promise.all([
+    businessService.getViewsStats(businessId, range),
+    businessService.getTotalListSavesStats(businessId, range),
+    businessService.getRedeemStats(businessId, range),
+    businessService.getMentionsStats(businessId, range),
+  ]);
+  const error = views.error ?? saves.error ?? redeems.error ?? mentions.error;
+  if (error) throw new Error(error.message);
+  return {
+    views: views.data?.data?.total_views ?? 0,
+    saves: saves.data?.data?.total_saves ?? 0,
+    redeemed: redeems.data?.data?.total_redeems ?? 0,
+    lists: mentions.data?.data?.total_mentions ?? 0,
+  };
+}
 
 function pickDisplayName(fullName?: string | null): string {
   const trimmed = fullName?.trim();
@@ -72,34 +122,21 @@ export function useBusinessHomeData() {
     setDateTo(range.dateTo);
   };
 
-  const viewsQuery = useQuery({
-    queryKey: ['business-home-views', businessId, dateRange],
+  const previousDateRange = useMemo(
+    () => getPreviousPeriod(dateFrom, dateTo),
+    [dateFrom, dateTo],
+  );
+
+  const toplineQuery = useQuery({
+    queryKey: ['business-home-topline', businessId, dateRange],
     enabled: Boolean(businessId),
-    queryFn: async () => {
-      const response = await businessService.getViewsStats(businessId, dateRange);
-      if (response.error) throw new Error(response.error.message);
-      return response.data?.data?.total_views ?? 0;
-    },
+    queryFn: () => fetchToplineCounts(businessId, dateRange),
   });
 
-  const savesQuery = useQuery({
-    queryKey: ['business-home-saves', businessId, dateRange],
+  const previousToplineQuery = useQuery({
+    queryKey: ['business-home-topline', businessId, previousDateRange],
     enabled: Boolean(businessId),
-    queryFn: async () => {
-      const response = await businessService.getTotalListSavesStats(businessId, dateRange);
-      if (response.error) throw new Error(response.error.message);
-      return response.data?.data?.total_list_saves ?? 0;
-    },
-  });
-
-  const listsQuery = useQuery({
-    queryKey: ['business-home-lists', businessId, dateRange],
-    enabled: Boolean(businessId),
-    queryFn: async () => {
-      const response = await businessService.getListsStats(businessId, dateRange);
-      if (response.error) throw new Error(response.error.message);
-      return response.data?.pagination?.total ?? response.data?.data?.length ?? 0;
-    },
+    queryFn: () => fetchToplineCounts(businessId, previousDateRange),
   });
 
   const personalityQuery = useQuery({
@@ -112,12 +149,20 @@ export function useBusinessHomeData() {
     },
   });
 
-  const topline = useMemo(() => ({
-    views: formatCompactNumber(viewsQuery.data ?? 0),
-    saves: formatCompactNumber(savesQuery.data ?? 0),
-    redeemed: '0',
-    lists: formatCompactNumber(listsQuery.data ?? 0),
-  }), [viewsQuery.data, savesQuery.data, listsQuery.data]);
+  const topline = useMemo(() => {
+    const current = toplineQuery.data ?? EMPTY_TOPLINE_COUNTS;
+    const previous = previousToplineQuery.data ?? EMPTY_TOPLINE_COUNTS;
+    return {
+      views: formatCompactNumber(current.views),
+      saves: formatCompactNumber(current.saves),
+      redeemed: formatCompactNumber(current.redeemed),
+      lists: formatCompactNumber(current.lists),
+      viewsChange: percentChange(current.views, previous.views),
+      savesChange: percentChange(current.saves, previous.saves),
+      redeemedChange: percentChange(current.redeemed, previous.redeemed),
+      listsChange: percentChange(current.lists, previous.lists),
+    };
+  }, [toplineQuery.data, previousToplineQuery.data]);
 
   const personalityRows: BusinessHomePersonalityRow[] = useMemo(() => {
     const rows = personalityQuery.data ?? [];
@@ -173,18 +218,16 @@ export function useBusinessHomeData() {
   const isLoading =
     !hasFetched ||
     (Boolean(businessId) &&
-      (viewsQuery.isPending ||
-        savesQuery.isPending ||
-        listsQuery.isPending ||
+      (toplineQuery.isPending ||
+        previousToplineQuery.isPending ||
         personalityQuery.isPending));
 
   const refetchAll = async () => {
     await refreshBusinessInfo();
     await loadOwnedBusinesses();
     await Promise.all([
-      viewsQuery.refetch(),
-      savesQuery.refetch(),
-      listsQuery.refetch(),
+      toplineQuery.refetch(),
+      previousToplineQuery.refetch(),
       personalityQuery.refetch(),
     ]);
   };
@@ -208,9 +251,8 @@ export function useBusinessHomeData() {
     togglePaidMember,
     isLoading,
     isRefetching:
-      viewsQuery.isRefetching ||
-      savesQuery.isRefetching ||
-      listsQuery.isRefetching ||
+      toplineQuery.isRefetching ||
+      previousToplineQuery.isRefetching ||
       personalityQuery.isRefetching,
     refetchAll,
   };

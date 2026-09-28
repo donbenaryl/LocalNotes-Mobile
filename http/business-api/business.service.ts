@@ -14,6 +14,7 @@ import type {
     BusinessPersonalityColorStatItemDAO,
     BusinessUniqueUsersReachedStatsDAO,
     BusinessTotalListSavesStatsDAO,
+    BusinessRedeemsStatsDAO,
     OwnedBusinessDAO,
     StatsDateRangeParams,
     BusinessClaimDAO,
@@ -219,6 +220,13 @@ class BusinessService extends AppHttpService{
         return await this.SendRequest<BusinessTotalListSavesStatsDAO, Record<string, unknown>, StatsDateRangeParams>({
             method: "get",
             path: `/${businessId}/stats/total-list-saves`,
+            query: params,
+        });
+    }
+    async getRedeemStats(businessId: string, params?: StatsDateRangeParams) {
+        return await this.SendRequest<BusinessRedeemsStatsDAO, Record<string, unknown>, StatsDateRangeParams>({
+            method: "get",
+            path: `/${businessId}/stats/redeems`,
             query: params,
         });
     }

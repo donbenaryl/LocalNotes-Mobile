@@ -143,6 +143,14 @@ export type BusinessUniqueUsersReachedStatsDAO = {
 
 export type BusinessTotalListSavesStatsDAO = {
   total_list_saves: number;
+  total_pick_favorites: number;
+  total_saves: number;
+};
+
+export type BusinessRedeemsStatsDAO = {
+  total_offer_redeems: number;
+  total_thank_you_redeems: number;
+  total_redeems: number;
 };
 
 export type OwnedBusinessDAO = {
