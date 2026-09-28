@@ -148,6 +148,7 @@ export default function BusinessHomeScreen() {
           onBack={pop}
           periodLabel={periodLabel}
           discovery={discovery}
+          onOpenSpotlight={() => push('spotlight')}
         />
       );
       break;

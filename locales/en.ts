@@ -1401,6 +1401,21 @@ const en = {
       viewsCount: '{{value}} views',
       insight: '{{channel}} is currently your strongest discovery channel.',
       insightEmpty: 'No views recorded for this period yet.',
+      reachMore: {
+        title: 'Reach more people through {{channel}}',
+        search:
+          'People searching nearby found you most. Complete profiles surface better in search, and fixing gaps is always free.',
+        discover:
+          'People browsing Discover found you most. Spotlight is the featured slot in that feed, and the highest bid wins it.',
+        lists:
+          'Curators added you to lists, and people found you there most. An offer gives them something new to save and share.',
+        picks:
+          'Curators picked you, and people found you there most. An offer gives them something new to save and share.',
+        actionSearch: 'Improve profile',
+        actionDiscover: 'See Spotlight',
+        actionOffer: 'Create offer on web',
+        cancel: 'Not now',
+      },
     },
     campaign: {
       spend: 'SPEND',

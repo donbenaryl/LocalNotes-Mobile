@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import type { BusinessHomeDiscovery } from '@/hooks/useBusinessHomeData';
+import type {
+  BusinessHomeDiscovery,
+  BusinessHomeDiscoveryChannelKey,
+} from '@/hooks/useBusinessHomeData';
+import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
+import { Modal } from '@/components/ui/Modal';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { KeyValueRow } from '../ui/KeyValueRow';
@@ -11,6 +17,7 @@ import { SectionHeading } from '../ui/SectionHeading';
 interface HowPeopleFindYouSectionProps {
   periodLabel: string;
   discovery: BusinessHomeDiscovery;
+  onOpenSpotlight: () => void;
 }
 
 function DiscoveryProgressRow({
@@ -40,18 +47,41 @@ function DiscoveryProgressRow({
   );
 }
 
+const REACH_MORE_ACTION_LABEL: Record<BusinessHomeDiscoveryChannelKey, string> = {
+  search: 'businessHome.discovery.reachMore.actionSearch',
+  discover: 'businessHome.discovery.reachMore.actionDiscover',
+  lists: 'businessHome.discovery.reachMore.actionOffer',
+  picks: 'businessHome.discovery.reachMore.actionOffer',
+};
+
 export function HowPeopleFindYouSection({
   periodLabel,
   discovery,
+  onOpenSpotlight,
 }: HowPeopleFindYouSectionProps) {
   const { t } = useTranslation();
+  const router = useRouter();
+  const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const [expanded, setExpanded] = useState(false);
+  const [reachMoreOpen, setReachMoreOpen] = useState(false);
 
-  const showComingSoon = () => {
-    Alert.alert(
-      t('businessHome.comingSoonTitle'),
-      t('businessHome.comingSoonMessage'),
-    );
+  const leading = discovery.leading;
+
+  const handleReachMoreAction = () => {
+    if (!leading) return;
+    setReachMoreOpen(false);
+    switch (leading.key) {
+      case 'search':
+        router.push('/edit-profile');
+        break;
+      case 'discover':
+        onOpenSpotlight();
+        break;
+      case 'lists':
+      case 'picks':
+        void openCreateOfferOnWeb();
+        break;
+    }
   };
 
   return (
@@ -85,23 +115,53 @@ export function HowPeopleFindYouSection({
               />
             ))}
             <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {discovery.leading
+              {leading
                 ? t('businessHome.discovery.insight', {
-                    channel: t(`businessHome.discovery.${discovery.leading.key}`),
+                    channel: t(`businessHome.discovery.${leading.key}`),
                   })
                 : t('businessHome.discovery.insightEmpty')}
             </Text>
-            <LocalNotesButton
-              label={t('businessHome.buttons.reachMore')}
-              onPress={showComingSoon}
-              variant="brand"
-              size="xs"
-              isWidthFull={false}
-              className="mt-4 self-end"
-            />
+            {leading ? (
+              <LocalNotesButton
+                label={t('businessHome.buttons.reachMore')}
+                onPress={() => setReachMoreOpen(true)}
+                variant="brand"
+                size="xs"
+                isWidthFull={false}
+                className="mt-4 self-end"
+              />
+            ) : null}
           </>
         ) : null}
       </BusinessHomeCard>
+
+      {leading ? (
+        <Modal
+          visible={reachMoreOpen}
+          onClose={() => setReachMoreOpen(false)}
+          title={t('businessHome.discovery.reachMore.title', {
+            channel: t(`businessHome.discovery.${leading.key}`),
+          })}
+        >
+          <Text className="font-geist text-sm leading-[1.55] text-gray-600 dark:text-gray-400">
+            {t(`businessHome.discovery.reachMore.${leading.key}`)}
+          </Text>
+          <View className="mt-5 gap-2">
+            <LocalNotesButton
+              label={t(REACH_MORE_ACTION_LABEL[leading.key])}
+              onPress={handleReachMoreAction}
+              variant="brand"
+              size="sm"
+            />
+            <LocalNotesButton
+              label={t('businessHome.discovery.reachMore.cancel')}
+              onPress={() => setReachMoreOpen(false)}
+              variant="light"
+              size="sm"
+            />
+          </View>
+        </Modal>
+      ) : null}
     </>
   );
 }

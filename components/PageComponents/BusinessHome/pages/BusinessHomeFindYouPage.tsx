@@ -7,12 +7,14 @@ interface BusinessHomeFindYouPageProps {
   onBack: () => void;
   periodLabel: string;
   discovery: BusinessHomeDiscovery;
+  onOpenSpotlight: () => void;
 }
 
 export function BusinessHomeFindYouPage({
   onBack,
   periodLabel,
   discovery,
+  onOpenSpotlight,
 }: BusinessHomeFindYouPageProps) {
   const { t } = useTranslation();
 
@@ -21,7 +23,11 @@ export function BusinessHomeFindYouPage({
       title={t('businessHome.pages.howPeopleFindYou')}
       onBack={onBack}
     >
-      <HowPeopleFindYouSection periodLabel={periodLabel} discovery={discovery} />
+      <HowPeopleFindYouSection
+        periodLabel={periodLabel}
+        discovery={discovery}
+        onOpenSpotlight={onOpenSpotlight}
+      />
     </BusinessHomeDetailShell>
   );
 }
