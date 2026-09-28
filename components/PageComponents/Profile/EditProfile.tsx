@@ -40,11 +40,14 @@ import type {
   BusinessItemDAO,
   BusinessLocation,
   OpeningHours,
+  ProfileDetails,
 } from "@/http/business-api/types";
 import {
   isUsernameBlocking,
   type UsernameAvailabilityStatus,
 } from "@/hooks/useUsernameAvailability";
+import { useBusinessTypes } from "@/hooks/useBusinessTypes";
+import { findBusinessType } from "@/utils/businessTypes";
 
 const BIO_MAX_LENGTH = 160;
 const EDIT_PROFILE_FOOTER_OFFSET = 120;
@@ -179,14 +182,7 @@ export default function EditProfile() {
     enabled: isBusiness,
   });
 
-  const { data: businessTypes = [] } = useQuery({
-    queryKey: ["business-types"],
-    queryFn: async () => {
-      const res = await businessService.fetchBusinessTypes();
-      return res.data?.data ?? [];
-    },
-    enabled: isBusiness,
-  });
+  const { data: businessTypes = [] } = useBusinessTypes({ enabled: isBusiness });
 
   const businessTypeOptions = useMemo(
     () => businessTypes.map((item) => ({ value: item.name, label: item.name })),
@@ -209,6 +205,7 @@ export default function EditProfile() {
 
   const [businessForm, setBusinessForm] =
     useState<BusinessProfileFormValues>(EMPTY_BUSINESS_FORM);
+  const [profileDetails, setProfileDetails] = useState<ProfileDetails>({});
   const [typePickerOpen, setTypePickerOpen] = useState(false);
   const [addBranchVisible, setAddBranchVisible] = useState(false);
   const [editingHoursBranchId, setEditingHoursBranchId] = useState<
@@ -276,6 +273,7 @@ export default function EditProfile() {
       logoDeleted: false,
       branches: mapBranchesFromApi(info),
     });
+    setProfileDetails({ ...(info.profile_details ?? {}) });
     setSeededBusinessId(info.id);
   }
 
@@ -306,10 +304,24 @@ export default function EditProfile() {
     urlInstagram.trim() !== (profile?.url_instagram ?? "").trim() ||
     isLocationDirty;
 
+  const typeRequirements = useMemo(
+    () => findBusinessType(businessTypes, businessForm.businessType)?.requirements ?? [],
+    [businessTypes, businessForm.businessType],
+  );
+
+  const isProfileDetailsDirty =
+    !!businessInfo &&
+    typeRequirements.some(
+      ({ key }) =>
+        (profileDetails[key] ?? "").trim() !==
+        (businessInfo.profile_details?.[key] ?? "").trim(),
+    );
+
   const isBusinessDirty =
     isBusiness &&
     !!businessInfo &&
-    (businessForm.businessName.trim() !== (businessInfo.name ?? "").trim() ||
+    (isProfileDetailsDirty ||
+      businessForm.businessName.trim() !== (businessInfo.name ?? "").trim() ||
       businessForm.businessType.trim() !==
         (businessInfo.business_type ?? "").trim() ||
       businessForm.businessBio.trim() !== (businessInfo.bio ?? "").trim() ||
@@ -479,6 +491,11 @@ export default function EditProfile() {
           contact_email: businessForm.contactEmail.trim(),
           phone_number: businessForm.phoneNumber.trim(),
           website: websiteVal,
+          ...(typeRequirements.length > 0 && {
+            profile_details: Object.fromEntries(
+              typeRequirements.map(({ key }) => [key, (profileDetails[key] ?? "").trim()]),
+            ),
+          }),
         });
         if (updateRes.error) {
           throw new Error(
@@ -809,6 +826,9 @@ export default function EditProfile() {
             onRemoveBranch={(branchId) => setPendingDeleteBranchId(branchId)}
             onEditBranchHours={(branchId) => setEditingHoursBranchId(branchId)}
             addBranchIconColor={addBranchIconColor}
+            requirements={typeRequirements}
+            profileDetails={profileDetails}
+            onChangeProfileDetails={setProfileDetails}
             header={
               canSwitchBusiness ? (
                 <Pressable

@@ -1417,6 +1417,22 @@ const en = {
     profileHealth: {
       title: 'Profile health · {{score}}/100',
       freeBadge: 'FREE',
+      gaps_one:
+        '{{count}} gap: {{list}}. Complete profiles surface better in search — fixing them is always free, no AI needed.',
+      gaps_other:
+        '{{count}} gaps: {{list}}. Complete profiles surface better in search — fixing them is always free, no AI needed.',
+      complete: 'Your profile is complete. Complete profiles surface better in search.',
+      gap: {
+        businessInfo: 'add a business description',
+        businessType: 'choose a business type',
+        contact: 'add a phone number or email',
+        website: 'add your website',
+        hours: 'set opening hours',
+        location: 'add a location',
+        photo: 'add a photo',
+        importantInfo: 'add {{items}}',
+        importantInfoMany: 'add {{count}} {{type}} details',
+      },
     },
     locations: {
       viewing: 'viewing',
@@ -1697,6 +1713,8 @@ const en = {
         saturday: 'Saturday',
         sunday: 'Sunday',
       },
+      importantInfoSection: 'Important info',
+      importantInfoHelper: 'Details customers look for in a {{type}}',
       branchesSection: 'Branch locations',
       branchesHelper: 'Manage all your business locations',
       noBranches: 'No branch locations added yet.',

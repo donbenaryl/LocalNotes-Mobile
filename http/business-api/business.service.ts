@@ -97,6 +97,9 @@ class BusinessService extends AppHttpService{
         if (dto.phone_number !== undefined) formData.append("phone_number", dto.phone_number);
         if (dto.website !== undefined) formData.append("website", dto.website);
         if (dto.bio !== undefined) formData.append("bio", dto.bio);
+        if (dto.profile_details !== undefined) {
+          formData.append("profile_details", JSON.stringify(dto.profile_details));
+        }
         return await this.SendRequest<BusinessItemDAO, FormData>({
             method:"patch",
             path:"/update-business",

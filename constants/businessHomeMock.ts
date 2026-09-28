@@ -144,8 +144,3 @@ export const BUSINESS_HOME_PERFORMANCE_ROWS: BusinessHomePerformanceRow[] = [
 
 export const BUSINESS_HOME_USAGE =
   'This month: 41/60 Copilot questions · 3/12 campaign drafts · shared across your team · we\'ll warn you at 80%, never silently charge';
-
-export const BUSINESS_HOME_PROFILE_HEALTH = {
-  score: 82,
-  gaps: '2 gaps: confirm weekend hours · add an exterior photo. Complete profiles surface better in search — fixing them is always free, no AI needed.',
-};

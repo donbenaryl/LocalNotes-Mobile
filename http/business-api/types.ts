@@ -53,7 +53,11 @@ export type BusinessItemDAO = {
   follower_count?: number;
   /** Primary owner account id for About/By authorship on the business page. */
   owner_account_id?: string | null;
+  /** Answers to the business type's requirements, keyed by requirement key. */
+  profile_details?: ProfileDetails;
 };
+
+export type ProfileDetails = Record<string, string>;
 
 export type BusinessDAO= {
     data:BusinessItemDAO[]
@@ -84,11 +88,20 @@ export interface UpdateBusinessDTO {
   phone_number?: string;
   website?: string;
   bio?: string;
+  /** Merged server-side; an empty string clears that key. */
+  profile_details?: ProfileDetails;
 }
+
+export type BusinessTypeRequirementDAO = {
+  key: string;
+  label: string;
+  help_text: string;
+};
 
 export type BusinessTypeDAO = {
   id: string;
   name: string;
+  requirements?: BusinessTypeRequirementDAO[];
 };
 
 export interface AddBranchDTO {

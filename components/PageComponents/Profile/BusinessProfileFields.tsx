@@ -15,7 +15,11 @@ import {
   type UploadedImageFile,
 } from "@/components/ui/ImageUploadField";
 import { cn } from "@/utils/cn";
-import type { BusinessLocation } from "@/http/business-api/types";
+import type {
+  BusinessLocation,
+  BusinessTypeRequirementDAO,
+  ProfileDetails,
+} from "@/http/business-api/types";
 import {
   WEEKDAY_KEYS,
   dateFromHhmm,
@@ -58,6 +62,10 @@ interface BusinessProfileFieldsProps {
   /** Optional content rendered above the business fields (e.g. contact name). */
   header?: ReactNode;
   contactEmailHint?: string;
+  /** Type-specific details for the selected business type; hidden when empty. */
+  requirements?: BusinessTypeRequirementDAO[];
+  profileDetails?: ProfileDetails;
+  onChangeProfileDetails?: (next: ProfileDetails) => void;
 }
 
 function formatBranchAddress(location: BusinessLocation): string {
@@ -246,6 +254,9 @@ export function BusinessProfileFields({
   addBranchIconColor = "#6B7280",
   header,
   contactEmailHint,
+  requirements = [],
+  profileDetails = {},
+  onChangeProfileDetails,
 }: BusinessProfileFieldsProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -381,6 +392,42 @@ export function BusinessProfileFields({
           onRemoveNewAt={() => patch("logoFiles", [])}
         />
       </View>
+
+      {requirements.length > 0 && onChangeProfileDetails ? (
+        <>
+          <View className="px-6 pt-6 pb-2">
+            <Text className="font-geist-medium text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+              {t("editProfile.business.importantInfoSection")}
+            </Text>
+            <Text className="mt-1 font-geist text-xs text-gray-400 dark:text-gray-500">
+              {t("editProfile.business.importantInfoHelper", {
+                type: values.businessType.toLowerCase(),
+              })}
+            </Text>
+          </View>
+          <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
+            {requirements.map((requirement) => (
+              <TextInput
+                key={requirement.key}
+                label={requirement.label}
+                value={profileDetails[requirement.key] ?? ""}
+                onChangeText={(value) =>
+                  onChangeProfileDetails({
+                    ...profileDetails,
+                    [requirement.key]: value,
+                  })
+                }
+                placeholder={requirement.help_text}
+                placeholderTextColor={placeholderColor}
+                maxLength={500}
+                autoCapitalize={requirement.key === "menu_url" ? "none" : "sentences"}
+                keyboardType={requirement.key === "menu_url" ? "url" : "default"}
+                editable={editable}
+              />
+            ))}
+          </View>
+        </>
+      ) : null}
 
       <View className="px-6 pt-6 pb-2 flex-row items-start justify-between">
         <View className="flex-1 pr-3">
