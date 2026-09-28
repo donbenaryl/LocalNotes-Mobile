@@ -1,17 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Pressable, Text, TouchableOpacity, View } from "react-native";
+import { Alert, BackHandler, Pressable, Text, View } from "react-native";
 import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, ChevronRight } from "lucide-react-native";
+import { ChevronDown } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { UploadAvatar } from "@/components/ui/UploadAvatar";
-import { DateField } from "@/components/ui/DateField";
-import { TextInput } from "@/components/ui/TextInput";
-import { UsernameField } from "@/components/ui/UsernameField";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { BottomWrapper } from "@/components/ui/BottomWrapper";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
@@ -26,6 +22,15 @@ import {
   type BusinessProfileFormValues,
 } from "@/components/PageComponents/Profile/BusinessProfileFields";
 import { EditBranchHoursModal } from "@/components/PageComponents/Profile/EditBranchHoursModal";
+import { EditProfileHub } from "@/components/PageComponents/Profile/EditProfileHub";
+import {
+  EditProfilePersonalFields,
+  type EditProfilePersonalValues,
+} from "@/components/PageComponents/Profile/EditProfilePersonalFields";
+import {
+  EditProfileSocialFields,
+  type EditProfileSocialValues,
+} from "@/components/PageComponents/Profile/EditProfileSocialFields";
 import { useToastStore } from "@/stores/useToastStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useBusinessStore } from "@/stores/useBusinessStore";
@@ -34,7 +39,10 @@ import businessService from "@/http/business-api/business.service";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { isBusinessAccountType } from "@/utils/businessAccount";
 import { normalizeOpeningHours } from "@/utils/openingHours";
-import type { updateAccountDTO } from "@/http/account-api/types";
+import type {
+  profileItemDAO,
+  updateAccountDTO,
+} from "@/http/account-api/types";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import type {
   BusinessItemDAO,
@@ -52,6 +60,9 @@ import { findBusinessType } from "@/utils/businessTypes";
 const BIO_MAX_LENGTH = 160;
 const EDIT_PROFILE_FOOTER_OFFSET = 120;
 
+type EditorView = "hub" | "personal" | "social" | "business";
+type EditorSection = Exclude<EditorView, "hub">;
+
 const EMPTY_BUSINESS_FORM: BusinessProfileFormValues = {
   businessName: "",
   businessType: "",
@@ -65,69 +76,38 @@ const EMPTY_BUSINESS_FORM: BusinessProfileFormValues = {
   branches: [],
 };
 
-function SectionLabel({ label }: { label: string }) {
-  return (
-    <Text className="px-6 pt-6 pb-2 font-geist-medium text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-      {label}
-    </Text>
-  );
+const EMPTY_PERSONAL: EditProfilePersonalValues = {
+  firstName: "",
+  lastName: "",
+  name: "",
+  dateOfBirth: "",
+  username: "",
+  bio: "",
+};
+
+const EMPTY_SOCIAL: EditProfileSocialValues = {
+  urlLinkedin: "",
+  urlFacebook: "",
+  urlInstagram: "",
+};
+
+function personalFromProfile(profile: profileItemDAO): EditProfilePersonalValues {
+  return {
+    firstName: profile.first_name ?? "",
+    lastName: profile.last_name ?? "",
+    name: profile.name ?? "",
+    dateOfBirth: profile.date_of_birth ?? "",
+    username: profile.username ?? "",
+    bio: profile.bio ?? "",
+  };
 }
 
-interface ProfileRowProps {
-  title: string;
-  subtitle?: string;
-  value?: string;
-  showAddPlaceholder?: boolean;
-  onPress?: () => void;
-  isReadOnly?: boolean;
-}
-
-function ProfileRow({
-  title,
-  subtitle,
-  value,
-  showAddPlaceholder = false,
-  onPress,
-  isReadOnly = false,
-}: ProfileRowProps) {
-  const inner = (
-    <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-      <View className="flex-1 gap-0.5 pr-3">
-        <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
-          {title}
-        </Text>
-        {subtitle ? (
-          <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
-            {subtitle}
-          </Text>
-        ) : null}
-      </View>
-      <View className="flex-row items-center gap-2">
-        {value ? (
-          <Text className="font-geist-medium text-xs text-gray-500 dark:text-gray-400">
-            {value}
-          </Text>
-        ) : showAddPlaceholder ? (
-          <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
-            Add
-          </Text>
-        ) : null}
-        {!isReadOnly ? <ChevronRight size={16} color="#9CA3AF" /> : null}
-      </View>
-    </View>
-  );
-
-  if (isReadOnly) return inner;
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.7}
-      className="cursor-pointer"
-    >
-      {inner}
-    </TouchableOpacity>
-  );
+function socialFromProfile(profile: profileItemDAO): EditProfileSocialValues {
+  return {
+    urlLinkedin: profile.url_linkedin ?? "",
+    urlFacebook: profile.url_facebook ?? "",
+    urlInstagram: profile.url_instagram ?? "",
+  };
 }
 
 export default function EditProfile() {
@@ -189,18 +169,12 @@ export default function EditProfile() {
     [businessTypes],
   );
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [name, setName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [username, setUsername] = useState("");
+  const [view, setView] = useState<EditorView>("hub");
+  const [personal, setPersonal] =
+    useState<EditProfilePersonalValues>(EMPTY_PERSONAL);
+  const [social, setSocial] = useState<EditProfileSocialValues>(EMPTY_SOCIAL);
   const [usernameStatus, setUsernameStatus] =
     useState<UsernameAvailabilityStatus>("idle");
-  const [bio, setBio] = useState("");
-  const [urlLinkedin, setUrlLinkedin] = useState("");
-  const [urlFacebook, setUrlFacebook] = useState("");
-  const [urlInstagram, setUrlInstagram] = useState("");
-  const [location, setLocation] = useState<GeoLocation | null>(null);
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
 
   const [businessForm, setBusinessForm] =
@@ -225,30 +199,27 @@ export default function EditProfile() {
     [],
   );
 
+  const updatePersonal = useCallback(
+    <K extends keyof EditProfilePersonalValues>(
+      key: K,
+      value: EditProfilePersonalValues[K],
+    ) => {
+      setPersonal((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
+
+  const updateSocial = useCallback(
+    (key: keyof EditProfileSocialValues, value: string) => {
+      setSocial((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!profile) return;
-    setFirstName(profile.first_name ?? "");
-    setLastName(profile.last_name ?? "");
-    setName(profile.name ?? "");
-    setDateOfBirth(profile.date_of_birth ?? "");
-    setUsername(profile.username ?? "");
-    setBio(profile.bio ?? "");
-    setUrlLinkedin(profile.url_linkedin ?? "");
-    setUrlFacebook(profile.url_facebook ?? "");
-    setUrlInstagram(profile.url_instagram ?? "");
-    setLocation(
-      profile.location
-        ? {
-            city: profile.location.city,
-            region: profile.location.region ?? "",
-            country: profile.location.country,
-            latitude: profile.location.latitude ?? 0,
-            longitude: profile.location.longitude ?? 0,
-            street_address: profile.location.street_address ?? null,
-            postal_code: profile.location.postal_code ?? null,
-          }
-        : null,
-    );
+    setPersonal(personalFromProfile(profile));
+    setSocial(socialFromProfile(profile));
   }, [profile]);
 
   function mapBranchesFromApi(info: BusinessItemDAO) {
@@ -283,26 +254,19 @@ export default function EditProfile() {
     seedBusinessForm(businessInfo);
   }, [businessInfo, seededBusinessId]);
 
-  const isLocationDirty =
-    (location?.city ?? "") !== (profile?.location?.city ?? "") ||
-    (location?.region ?? "") !== (profile?.location?.region ?? "") ||
-    (location?.country ?? "") !== (profile?.location?.country ?? "") ||
-    (location?.street_address ?? "") !==
-      (profile?.location?.street_address ?? "") ||
-    (location?.postal_code ?? "") !== (profile?.location?.postal_code ?? "");
-
-  const isProfileDirty =
-    firstName.trim() !== (profile?.first_name ?? "").trim() ||
-    lastName.trim() !== (profile?.last_name ?? "").trim() ||
-    name.trim() !== (profile?.name ?? "").trim() ||
-    dateOfBirth.trim() !== (profile?.date_of_birth ?? "").trim() ||
-    username.trim().toLowerCase() !==
+  const isPersonalDirty =
+    personal.firstName.trim() !== (profile?.first_name ?? "").trim() ||
+    personal.lastName.trim() !== (profile?.last_name ?? "").trim() ||
+    personal.name.trim() !== (profile?.name ?? "").trim() ||
+    personal.dateOfBirth.trim() !== (profile?.date_of_birth ?? "").trim() ||
+    personal.username.trim().toLowerCase() !==
       (profile?.username ?? "").trim().toLowerCase() ||
-    bio.trim() !== (profile?.bio ?? "").trim() ||
-    urlLinkedin.trim() !== (profile?.url_linkedin ?? "").trim() ||
-    urlFacebook.trim() !== (profile?.url_facebook ?? "").trim() ||
-    urlInstagram.trim() !== (profile?.url_instagram ?? "").trim() ||
-    isLocationDirty;
+    personal.bio.trim() !== (profile?.bio ?? "").trim();
+
+  const isSocialDirty =
+    social.urlLinkedin.trim() !== (profile?.url_linkedin ?? "").trim() ||
+    social.urlFacebook.trim() !== (profile?.url_facebook ?? "").trim() ||
+    social.urlInstagram.trim() !== (profile?.url_instagram ?? "").trim();
 
   const typeRequirements = useMemo(
     () => findBusinessType(businessTypes, businessForm.businessType)?.requirements ?? [],
@@ -334,11 +298,62 @@ export default function EditProfile() {
       businessForm.logoFiles.length > 0 ||
       businessForm.logoDeleted);
 
-  const isDirty = isProfileDirty || isBusinessDirty;
-  const bioOverLimit = bio.length > BIO_MAX_LENGTH;
+  const isViewDirty =
+    view === "personal"
+      ? isPersonalDirty
+      : view === "social"
+        ? isSocialDirty
+        : view === "business"
+          ? isBusinessDirty
+          : false;
+
+  const bioOverLimit = personal.bio.length > BIO_MAX_LENGTH;
   const usernameBlocking = isUsernameBlocking(usernameStatus);
   const canSwitchBusiness = ownedBusinesses.length > 1;
   const activeBusinessId = businessInfo?.id ?? storeBusinessId;
+
+  const discardViewChanges = useCallback(() => {
+    if (view === "personal" && profile) {
+      setPersonal(personalFromProfile(profile));
+    } else if (view === "social" && profile) {
+      setSocial(socialFromProfile(profile));
+    } else if (view === "business" && businessInfo) {
+      seedBusinessForm(businessInfo);
+    }
+    setView("hub");
+  }, [view, profile, businessInfo]);
+
+  const handleBack = useCallback(() => {
+    if (view === "hub") {
+      router.back();
+      return;
+    }
+    if (!isViewDirty) {
+      setView("hub");
+      return;
+    }
+    Alert.alert(
+      t("editProfile.discardTitle"),
+      t("editProfile.discardMessage"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("editProfile.discardConfirm"),
+          style: "destructive",
+          onPress: discardViewChanges,
+        },
+      ],
+    );
+  }, [view, isViewDirty, router, t, discardViewChanges]);
+
+  useEffect(() => {
+    if (view === "hub") return;
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      handleBack();
+      return true;
+    });
+    return () => sub.remove();
+  }, [view, handleBack]);
 
   const switchToBusiness = useCallback(
     async (businessId: string) => {
@@ -379,7 +394,7 @@ export default function EditProfile() {
         setBusinessPickerVisible(false);
         return;
       }
-      if (!isDirty) {
+      if (!isBusinessDirty) {
         void switchToBusiness(businessId);
         return;
       }
@@ -396,160 +411,150 @@ export default function EditProfile() {
         ],
       );
     },
-    [activeBusinessId, isDirty, switchToBusiness, t],
+    [activeBusinessId, isBusinessDirty, switchToBusiness, t],
   );
 
-  const { mutate: saveProfile, isPending: isSaving } = useMutation({
-    mutationFn: async () => {
-      if (!name.trim()) throw new Error("Display name is required.");
-      const usernameTrimmed = username.trim().toLowerCase();
-      if (!usernameTrimmed) throw new Error("Username is required.");
-      if (usernameBlocking) {
-        throw new Error("Please choose a valid, available username.");
-      }
-      if (bioOverLimit)
-        throw new Error(`Bio must be ${BIO_MAX_LENGTH} characters or fewer.`);
+  async function savePersonal() {
+    const name = personal.name.trim();
+    if (!name) throw new Error(t("editProfile.validation.displayNameRequired"));
+    const username = personal.username.trim().toLowerCase();
+    if (!username) throw new Error(t("editProfile.validation.usernameRequired"));
+    if (usernameBlocking) {
+      throw new Error(t("editProfile.validation.usernameUnavailable"));
+    }
+    if (bioOverLimit) {
+      throw new Error(
+        t("editProfile.validation.bioTooLong", { max: BIO_MAX_LENGTH }),
+      );
+    }
 
-      const dobVal = dateOfBirth.trim();
-      if (dobVal) {
-        const dobDate = new Date(dobVal);
-        if (Number.isNaN(dobDate.getTime()) || dobDate >= new Date()) {
-          throw new Error(t("validation.dateOfBirthPast"));
-        }
+    const dobVal = personal.dateOfBirth.trim();
+    if (dobVal) {
+      const dobDate = new Date(dobVal);
+      if (Number.isNaN(dobDate.getTime()) || dobDate >= new Date()) {
+        throw new Error(t("validation.dateOfBirthPast"));
       }
+    }
 
-      const linkedinVal = urlLinkedin.trim();
-      if (
-        linkedinVal &&
-        !linkedinVal.match(/^https?:\/\/(www\.)?linkedin\.com\//)
-      ) {
+    const dto: updateAccountDTO = {
+      first_name: personal.firstName.trim() || undefined,
+      last_name: personal.lastName.trim() || undefined,
+      name,
+      username,
+      date_of_birth: dobVal || null,
+      bio: personal.bio.trim(),
+    };
+    const res = await accountService.updateAccount(dto);
+    if (res.error) {
+      throw new Error(res.error.message ?? t("editProfile.saveFailed"));
+    }
+  }
+
+  async function saveSocial() {
+    const linkedinVal = social.urlLinkedin.trim();
+    if (
+      linkedinVal &&
+      !linkedinVal.match(/^https?:\/\/(www\.)?linkedin\.com\//)
+    ) {
+      throw new Error(t("editProfile.validation.linkedinInvalid"));
+    }
+    const facebookVal = social.urlFacebook.trim();
+    if (
+      facebookVal &&
+      !facebookVal.match(/^https?:\/\/(www\.)?facebook\.com\//)
+    ) {
+      throw new Error(t("editProfile.validation.facebookInvalid"));
+    }
+    const instagramVal = social.urlInstagram.trim();
+    if (
+      instagramVal &&
+      !instagramVal.match(/^https?:\/\/(www\.)?instagram\.com\//)
+    ) {
+      throw new Error(t("editProfile.validation.instagramInvalid"));
+    }
+
+    const res = await accountService.updateAccount({
+      url_linkedin: linkedinVal || null,
+      url_facebook: facebookVal || null,
+      url_instagram: instagramVal || null,
+    });
+    if (res.error) {
+      throw new Error(res.error.message ?? t("editProfile.saveFailed"));
+    }
+  }
+
+  async function saveBusiness() {
+    if (!businessForm.businessName.trim()) {
+      throw new Error(t("editProfile.business.nameRequired"));
+    }
+    if (!businessForm.contactEmail.trim()) {
+      throw new Error(t("editProfile.business.emailRequired"));
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessForm.contactEmail.trim())) {
+      throw new Error(t("editProfile.business.emailInvalid"));
+    }
+    if (!businessForm.phoneNumber.trim()) {
+      throw new Error(t("editProfile.business.phoneRequired"));
+    }
+    const websiteVal = businessForm.businessWebsite.trim();
+    if (websiteVal && !/^https?:\/\/.+/i.test(websiteVal)) {
+      throw new Error(t("editProfile.business.websiteInvalid"));
+    }
+
+    if (businessForm.logoDeleted && !businessForm.logoFiles[0]) {
+      const deleteRes = await businessService.deleteLogo();
+      if (deleteRes.error) {
         throw new Error(
-          "LinkedIn URL must start with https://linkedin.com/in/username.",
+          deleteRes.error.message ?? t("editProfile.business.saveFailed"),
         );
       }
-      const facebookVal = urlFacebook.trim();
-      if (
-        facebookVal &&
-        !facebookVal.match(/^https?:\/\/(www\.)?facebook\.com\//)
-      ) {
+    } else if (businessForm.logoFiles[0]) {
+      const uploadRes = await businessService.uploadLogo(
+        businessForm.logoFiles[0].file,
+      );
+      if (uploadRes.error) {
         throw new Error(
-          "Facebook URL must start with https://facebook.com/username.",
+          uploadRes.error.message ?? t("editProfile.business.saveFailed"),
         );
       }
-      const instagramVal = urlInstagram.trim();
-      if (
-        instagramVal &&
-        !instagramVal.match(/^https?:\/\/(www\.)?instagram\.com\//)
-      ) {
-        throw new Error(
-          "Instagram URL must start with https://instagram.com/username.",
-        );
-      }
+    }
 
-      if (isBusinessDirty) {
-        if (!businessForm.businessName.trim()) {
-          throw new Error(t("editProfile.business.nameRequired"));
-        }
-        if (!businessForm.contactEmail.trim()) {
-          throw new Error(t("editProfile.business.emailRequired"));
-        }
-        if (
-          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(businessForm.contactEmail.trim())
-        ) {
-          throw new Error(t("editProfile.business.emailInvalid"));
-        }
-        if (!businessForm.phoneNumber.trim()) {
-          throw new Error(t("editProfile.business.phoneRequired"));
-        }
-        const websiteVal = businessForm.businessWebsite.trim();
-        if (websiteVal && !/^https?:\/\/.+/i.test(websiteVal)) {
-          throw new Error(t("editProfile.business.websiteInvalid"));
-        }
+    const updateRes = await businessService.updateBusiness({
+      name: businessForm.businessName.trim(),
+      business_type: businessForm.businessType.trim(),
+      bio: businessForm.businessBio.trim(),
+      contact_email: businessForm.contactEmail.trim(),
+      phone_number: businessForm.phoneNumber.trim(),
+      website: websiteVal,
+      ...(typeRequirements.length > 0 && {
+        profile_details: Object.fromEntries(
+          typeRequirements.map(({ key }) => [key, (profileDetails[key] ?? "").trim()]),
+        ),
+      }),
+    });
+    if (updateRes.error) {
+      throw new Error(
+        updateRes.error.message ?? t("editProfile.business.saveFailed"),
+      );
+    }
+  }
 
-        if (businessForm.logoDeleted && !businessForm.logoFiles[0]) {
-          const deleteRes = await businessService.deleteLogo();
-          if (deleteRes.error) {
-            throw new Error(
-              deleteRes.error.message ?? t("editProfile.business.saveFailed"),
-            );
-          }
-        } else if (businessForm.logoFiles[0]) {
-          const uploadRes = await businessService.uploadLogo(
-            businessForm.logoFiles[0].file,
-          );
-          if (uploadRes.error) {
-            throw new Error(
-              uploadRes.error.message ?? t("editProfile.business.saveFailed"),
-            );
-          }
-        }
-
-        const updateRes = await businessService.updateBusiness({
-          name: businessForm.businessName.trim(),
-          business_type: businessForm.businessType.trim(),
-          bio: businessForm.businessBio.trim(),
-          contact_email: businessForm.contactEmail.trim(),
-          phone_number: businessForm.phoneNumber.trim(),
-          website: websiteVal,
-          ...(typeRequirements.length > 0 && {
-            profile_details: Object.fromEntries(
-              typeRequirements.map(({ key }) => [key, (profileDetails[key] ?? "").trim()]),
-            ),
-          }),
-        });
-        if (updateRes.error) {
-          throw new Error(
-            updateRes.error.message ?? t("editProfile.business.saveFailed"),
-          );
-        }
-      }
-
-      if (isProfileDirty) {
-        const dto: updateAccountDTO = {
-          first_name: firstName.trim() || undefined,
-          last_name: lastName.trim() || undefined,
-          name: name.trim(),
-          username: usernameTrimmed,
-          date_of_birth: dobVal || null,
-          bio: bio.trim(),
-          url_linkedin: linkedinVal || null,
-          url_facebook: facebookVal || null,
-          url_instagram: instagramVal || null,
-          ...(isLocationDirty && {
-            location: location
-              ? {
-                  city: location.city,
-                  region: location.region,
-                  country: location.country,
-                  latitude: location.latitude,
-                  longitude: location.longitude,
-                  street_address: location.street_address ?? null,
-                  postal_code: location.postal_code ?? null,
-                }
-              : null,
-          }),
-        };
-
-        const res = await accountService.updateAccount(dto);
-        if (res.error) {
-          throw new Error(
-            res.error.message ?? "Failed to update profile. Please try again.",
-          );
-        }
-        return res.data?.data;
-      }
-
-      return null;
+  const { mutate: saveSection, isPending: isSaving } = useMutation({
+    mutationFn: async (section: EditorSection) => {
+      if (section === "personal") return savePersonal();
+      if (section === "social") return saveSocial();
+      return saveBusiness();
     },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      if (isBusiness) {
-        queryClient.invalidateQueries({ queryKey: ["business-info"] });
+    onSuccess: async (_data, section) => {
+      if (section === "business") {
+        await queryClient.invalidateQueries({ queryKey: ["business-info"] });
         await refreshBusinessInfo();
         setSeededBusinessId(null);
+      } else {
+        await queryClient.invalidateQueries({ queryKey: ["profile"] });
       }
-      showToast({ type: "success", message: "Profile updated successfully." });
-      router.back();
+      showToast({ type: "success", message: t("editProfile.saved") });
+      setView("hub");
     },
     onError: (err: unknown) => {
       const apiErr = err as {
@@ -560,9 +565,7 @@ export default function EditProfile() {
         type: "error",
         message:
           apiErr.response?.data?.message ??
-          (err instanceof Error
-            ? err.message
-            : "Failed to update profile. Please try again."),
+          (err instanceof Error ? err.message : t("editProfile.saveFailed")),
       });
     },
   });
@@ -691,7 +694,7 @@ export default function EditProfile() {
     return (
       <View className="flex-1 bg-page dark:bg-gray-900 items-center justify-center">
         <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
-          Failed to load profile.
+          {t("editProfile.loadFailed")}
         </Text>
       </View>
     );
@@ -710,117 +713,125 @@ export default function EditProfile() {
   const gradientColors = getPersonalityGradientColors(
     profile.personality_color,
   );
-  const isSaveDisabled =
-    !isDirty || bioOverLimit || isSaving || usernameBlocking;
 
-  const placeholderColor = "#6B7280";
-
-  const locationValue = location
-    ? [location.city, location.region].filter(Boolean).join(", ")
+  const homeLocation: GeoLocation | null = profile.location
+    ? {
+        city: profile.location.city,
+        region: profile.location.region ?? "",
+        country: profile.location.country,
+        latitude: profile.location.latitude ?? 0,
+        longitude: profile.location.longitude ?? 0,
+        street_address: profile.location.street_address ?? null,
+        postal_code: profile.location.postal_code ?? null,
+      }
+    : null;
+  const homeCityValue = homeLocation
+    ? [homeLocation.city, homeLocation.region].filter(Boolean).join(", ")
     : undefined;
+
+  const socialSummary = [
+    social.urlLinkedin.trim() ? t("editProfile.social.linkedin") : null,
+    social.urlFacebook.trim() ? t("editProfile.social.facebook") : null,
+    social.urlInstagram.trim() ? t("editProfile.social.instagram") : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const isSaveDisabled =
+    !isViewDirty ||
+    isSaving ||
+    (view === "personal" && (bioOverLimit || usernameBlocking));
+
+  const headerTitle =
+    view === "personal"
+      ? t("editProfile.personal.title")
+      : view === "social"
+        ? t("editProfile.social.title")
+        : view === "business"
+          ? t("editProfile.businessEditor.title")
+          : t("editProfile.title");
+
+  const isEditor = view !== "hub";
 
   return (
     <SafeAreaView
       edges={["bottom"]}
       className="flex-1 bg-page dark:bg-gray-900"
     >
-      <PageHeader title="Edit profile" />
+      <Stack.Screen options={{ gestureEnabled: !isEditor }} />
+      <PageHeader title={headerTitle} onBack={handleBack} />
 
       <KeyboardAwareScrollView
+        key={view}
         className="flex-1"
-        bottomOffset={EDIT_PROFILE_FOOTER_OFFSET}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        bottomOffset={isEditor ? EDIT_PROFILE_FOOTER_OFFSET : 0}
+        contentContainerStyle={{ paddingTop: 16, paddingBottom: isEditor ? 120 : 40 }}
       >
-        <View className="items-center pt-4 pb-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
-          <UploadAvatar
-            name={profile.name}
-            src={profile.profile_image_url}
+        {view === "hub" ? (
+          <EditProfileHub
+            avatarName={profile.name}
+            avatarSrc={profile.profile_image_url ?? undefined}
             gradientColors={gradientColors}
+            displayName={personal.name}
+            username={personal.username}
+            socialSummary={socialSummary}
+            homeCity={homeCityValue}
+            personalityName={profile.personality_name ?? undefined}
+            email={profile.email}
+            business={
+              isBusiness
+                ? {
+                    name: businessForm.businessName,
+                    type: businessForm.businessType,
+                    branchCount: businessForm.branches.length,
+                  }
+                : undefined
+            }
+            onOpenBusiness={() => setView("business")}
+            onOpenPersonal={() => setView("personal")}
+            onOpenSocial={() => setView("social")}
+            onOpenHomeCity={() => setIsLocationModalVisible(true)}
+            onOpenPersonality={() =>
+              router.push({
+                pathname: "/personality",
+                params: { isRetake: "true" },
+              })
+            }
+            onPressPhone={() =>
+              showToast({
+                type: "info",
+                message: t("editProfile.hub.phoneComingSoon"),
+                title: t("editProfile.hub.phoneComingSoonTitle"),
+              })
+            }
           />
-        </View>
+        ) : null}
 
-        <SectionLabel label="Identity" />
-        <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
-          <View className="flex-row gap-3">
-            <View className="flex-1">
-              <TextInput
-                label="FIRST NAME"
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="First"
-                placeholderTextColor={placeholderColor}
-                autoCapitalize="words"
-                maxLength={250}
-                returnKeyType="next"
-                editable={!isSaving}
-              />
-            </View>
-            <View className="flex-1">
-              <TextInput
-                label="LAST NAME"
-                value={lastName}
-                onChangeText={setLastName}
-                placeholder="Last"
-                placeholderTextColor={placeholderColor}
-                autoCapitalize="words"
-                maxLength={250}
-                returnKeyType="next"
-                editable={!isSaving}
-              />
-            </View>
-          </View>
-
-          <TextInput
-            label="DISPLAY NAME"
-            value={name}
-            onChangeText={setName}
-            placeholder="Your display name"
-            placeholderTextColor={placeholderColor}
-            autoCapitalize="words"
-            returnKeyType="next"
+        {view === "personal" ? (
+          <EditProfilePersonalFields
+            values={personal}
+            onChange={updatePersonal}
+            currentUsername={profile.username}
+            onUsernameStatusChange={handleUsernameStatusChange}
+            bioMaxLength={BIO_MAX_LENGTH}
             editable={!isSaving}
           />
+        ) : null}
 
-          <DateField
-            label={t("auth.onboarding.dateOfBirthLabel")}
-            placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
-            value={dateOfBirth}
-            onChange={setDateOfBirth}
+        {view === "social" ? (
+          <EditProfileSocialFields
+            values={social}
+            onChange={updateSocial}
+            editable={!isSaving}
           />
+        ) : null}
 
-          <UsernameField
-            value={username}
-            onChangeText={setUsername}
-            currentUsername={profile.username}
-            onStatusChange={handleUsernameStatusChange}
-          />
-
-          <View>
-            <TextInput
-              label="BIO"
-              value={bio}
-              onChangeText={setBio}
-              placeholder="Tell others about yourself..."
-              placeholderTextColor={placeholderColor}
-              multiline
-              maxLength={BIO_MAX_LENGTH}
-              numberOfLines={4}
-              textAlignVertical="top"
-              editable={!isSaving}
-              error={
-                bioOverLimit
-                  ? `Bio must be ${BIO_MAX_LENGTH} characters or fewer.`
-                  : undefined
-              }
-            />
-          </View>
-        </View>
-
-        {isBusiness ? (
+        {view === "business" ? (
           <BusinessProfileFields
             values={businessForm}
             onChange={setBusinessForm}
             editable={!isSaving}
+            showSectionLabel={false}
             onPressBusinessType={() => setTypePickerOpen(true)}
             onAddBranch={() => setAddBranchVisible(true)}
             onRemoveBranch={(branchId) => setPendingDeleteBranchId(branchId)}
@@ -853,99 +864,27 @@ export default function EditProfile() {
             }
           />
         ) : null}
-
-        <SectionLabel label="Social Links" />
-        <View className="px-6 gap-4">
-          <TextInput
-            label="LINKEDIN"
-            value={urlLinkedin}
-            onChangeText={setUrlLinkedin}
-            placeholder="https://linkedin.com/in/username"
-            placeholderTextColor={placeholderColor}
-            keyboardType="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="next"
-            editable={!isSaving}
-          />
-          <TextInput
-            label="FACEBOOK"
-            value={urlFacebook}
-            onChangeText={setUrlFacebook}
-            placeholder="https://facebook.com/username"
-            placeholderTextColor={placeholderColor}
-            keyboardType="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="next"
-            editable={!isSaving}
-          />
-          <TextInput
-            label="INSTAGRAM"
-            value={urlInstagram}
-            onChangeText={setUrlInstagram}
-            placeholder="https://instagram.com/username"
-            placeholderTextColor={placeholderColor}
-            keyboardType="url"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="done"
-            editable={!isSaving}
-          />
-        </View>
-
-        <SectionLabel label="Location & Taste" />
-        <View className="border-t border-gray-100 dark:border-gray-800">
-          <ProfileRow
-            title="Home City"
-            subtitle="Default location for Search, Home, and Offers"
-            value={locationValue}
-            onPress={() => setIsLocationModalVisible(true)}
-          />
-          <ProfileRow
-            title="Personality"
-            subtitle="Retake the quiz to refresh your blend"
-            value={profile.personality_name ?? undefined}
-            onPress={() => router.push("/personality")}
-          />
-        </View>
-
-        <SectionLabel label="Account" />
-        <View className="border-t border-gray-100 dark:border-gray-800">
-          <ProfileRow title="Email" value={profile.email} isReadOnly />
-          <ProfileRow
-            title="Phone"
-            subtitle="Optional · for account recovery"
-            showAddPlaceholder
-            onPress={() =>
-              showToast({
-                type: "info",
-                message: "Phone setup coming soon.",
-                title: "Feature Coming Soon",
-              })
-            }
-          />
-        </View>
       </KeyboardAwareScrollView>
 
-      <KeyboardStickyView
-        style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
-      >
-        <BottomWrapper style={{ position: "relative" }}>
-          <LocalNotesButton
-            label={isSaving ? "Saving…" : "Save changes"}
-            onPress={() => saveProfile()}
-            variant="dark"
-            disabled={isSaveDisabled}
-          />
-        </BottomWrapper>
-      </KeyboardStickyView>
+      {isEditor ? (
+        <KeyboardStickyView
+          style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
+        >
+          <BottomWrapper style={{ position: "relative" }}>
+            <LocalNotesButton
+              label={isSaving ? t("editProfile.saving") : t("editProfile.save")}
+              onPress={() => saveSection(view)}
+              variant="dark"
+              disabled={isSaveDisabled}
+            />
+          </BottomWrapper>
+        </KeyboardStickyView>
+      ) : null}
 
       <HomeLocationFormModal
         visible={isLocationModalVisible}
         onClose={() => setIsLocationModalVisible(false)}
-        initialLocation={location}
-        onSaved={setLocation}
+        initialLocation={homeLocation}
       />
 
       {isBusiness ? (
