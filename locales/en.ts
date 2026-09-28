@@ -1398,6 +1398,9 @@ const en = {
       picks: 'Picks',
       discover: 'Discover',
       seeDetails: 'See details',
+      viewsCount: '{{value}} views',
+      insight: '{{channel}} is currently your strongest discovery channel.',
+      insightEmpty: 'No views recorded for this period yet.',
     },
     campaign: {
       spend: 'SPEND',

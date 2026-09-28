@@ -15,7 +15,8 @@ import {
   MonthlyReportSection,
 } from '../sections/MonthlyReportSection';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
-import { BUSINESS_HOME_CAMPAIGN, BUSINESS_HOME_DISCOVERY } from '@/constants/businessHomeMock';
+import { BUSINESS_HOME_CAMPAIGN } from '@/constants/businessHomeMock';
+import type { BusinessHomeDiscovery } from '@/hooks/useBusinessHomeData';
 import type { BusinessHomeOverviewTabId } from '../navigation';
 import type { BusinessHomeSheetId } from '../sheets/types';
 import { BusinessHomeDetailShell } from './BusinessHomeDetailShell';
@@ -24,6 +25,7 @@ import { NextActionsSection } from '../sections/NextActionsSection';
 
 interface BusinessHomeOverviewPageProps {
   topline: BusinessHomeToplineProps;
+  discovery: BusinessHomeDiscovery;
   periodLabel: string;
   dateFrom: string;
   dateTo: string;
@@ -44,6 +46,7 @@ interface BusinessHomeOverviewPageProps {
 
 export function BusinessHomeOverviewPage({
   topline,
+  discovery,
   periodLabel,
   dateFrom,
   dateTo,
@@ -114,7 +117,11 @@ export function BusinessHomeOverviewPage({
           <DetailNavRow
             title={t('businessHome.details.howPeopleFindYou')}
             previewLabel={t('businessHome.details.howPeopleFindYouPreview')}
-            previewValue={`Search · ${BUSINESS_HOME_DISCOVERY.search}`}
+            previewValue={
+              discovery.leading
+                ? `${t(`businessHome.discovery.${discovery.leading.key}`)} · ${discovery.leading.percent}%`
+                : undefined
+            }
             onPress={onOpenFindYou}
             className="mb-2.5"
           />

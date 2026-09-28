@@ -30,6 +30,7 @@ export default function BusinessHomeScreen() {
     dateTo,
     onDateRangeChange,
     topline,
+    discovery,
     personalityRows,
     locationRows,
     isPaidMember,
@@ -121,6 +122,7 @@ export default function BusinessHomeScreen() {
       content = (
         <BusinessHomeOverviewPage
           topline={topline}
+          discovery={discovery}
           periodLabel={periodLabel}
           dateFrom={dateFrom}
           dateTo={dateTo}
@@ -142,7 +144,11 @@ export default function BusinessHomeScreen() {
       break;
     case 'findyou':
       content = (
-        <BusinessHomeFindYouPage onBack={pop} periodLabel={periodLabel} />
+        <BusinessHomeFindYouPage
+          onBack={pop}
+          periodLabel={periodLabel}
+          discovery={discovery}
+        />
       );
       break;
     case 'locations':

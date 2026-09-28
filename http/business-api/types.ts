@@ -166,6 +166,13 @@ export type BusinessRedeemsStatsDAO = {
   total_redeems: number;
 };
 
+export type BusinessDiscoveryStatsDAO = {
+  search: number;
+  lists: number;
+  picks: number;
+  discover: number;
+};
+
 export type OwnedBusinessDAO = {
   id: string;
   name: string;

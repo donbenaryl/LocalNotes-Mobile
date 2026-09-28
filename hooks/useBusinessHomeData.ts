@@ -10,7 +10,10 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { getBusinessPersonalityLabel } from '@/utils/businessPersonalityLabels';
 import { formatIsoDate, formatPeriodLabel, parseIsoDate } from '@/utils/dateIso';
-import type { StatsDateRangeParams } from '@/http/business-api/types';
+import type {
+  BusinessDiscoveryStatsDAO,
+  StatsDateRangeParams,
+} from '@/http/business-api/types';
 
 type ToplineCounts = {
   views: number;
@@ -72,6 +75,64 @@ export type BusinessHomePersonalityRow = {
   color: string;
   percentage: number;
 };
+
+export type BusinessHomeDiscoveryChannelKey = keyof BusinessDiscoveryStatsDAO;
+
+export type BusinessHomeDiscoveryChannel = {
+  key: BusinessHomeDiscoveryChannelKey;
+  count: number;
+  percent: number;
+};
+
+export type BusinessHomeDiscovery = {
+  channels: BusinessHomeDiscoveryChannel[];
+  leading: BusinessHomeDiscoveryChannel | null;
+};
+
+const DISCOVERY_CHANNEL_ORDER: BusinessHomeDiscoveryChannelKey[] = [
+  'search',
+  'lists',
+  'picks',
+  'discover',
+];
+
+const EMPTY_DISCOVERY_STATS: BusinessDiscoveryStatsDAO = {
+  search: 0,
+  lists: 0,
+  picks: 0,
+  discover: 0,
+};
+
+/** Largest-remainder rounding so shares sum to exactly 100 when total > 0. */
+function buildDiscovery(stats: BusinessDiscoveryStatsDAO): BusinessHomeDiscovery {
+  const counts = DISCOVERY_CHANNEL_ORDER.map((key) => Math.max(0, stats[key] ?? 0));
+  const total = counts.reduce((sum, n) => sum + n, 0);
+
+  const percents = counts.map((n) => (total > 0 ? Math.floor((n / total) * 100) : 0));
+  if (total > 0) {
+    let remaining = 100 - percents.reduce((sum, n) => sum + n, 0);
+    const byRemainder = counts
+      .map((n, index) => ({ index, remainder: (n / total) * 100 - percents[index] }))
+      .sort((a, b) => b.remainder - a.remainder || a.index - b.index);
+    for (const { index } of byRemainder) {
+      if (remaining <= 0) break;
+      percents[index] += 1;
+      remaining -= 1;
+    }
+  }
+
+  const channels = DISCOVERY_CHANNEL_ORDER.map((key, index) => ({
+    key,
+    count: counts[index],
+    percent: percents[index],
+  }));
+  const leading =
+    total > 0
+      ? channels.reduce((best, channel) => (channel.count > best.count ? channel : best))
+      : null;
+
+  return { channels, leading };
+}
 
 export function useBusinessHomeData() {
   const user = useAuthStore((s) => s.user);
@@ -149,6 +210,21 @@ export function useBusinessHomeData() {
     },
   });
 
+  const discoveryQuery = useQuery({
+    queryKey: ['business-home-discovery', businessId, dateRange],
+    enabled: Boolean(businessId),
+    queryFn: async () => {
+      const response = await businessService.getDiscoveryStats(businessId, dateRange);
+      if (response.error) throw new Error(response.error.message);
+      return response.data?.data ?? EMPTY_DISCOVERY_STATS;
+    },
+  });
+
+  const discovery = useMemo(
+    () => buildDiscovery(discoveryQuery.data ?? EMPTY_DISCOVERY_STATS),
+    [discoveryQuery.data],
+  );
+
   const topline = useMemo(() => {
     const current = toplineQuery.data ?? EMPTY_TOPLINE_COUNTS;
     const previous = previousToplineQuery.data ?? EMPTY_TOPLINE_COUNTS;
@@ -220,7 +296,8 @@ export function useBusinessHomeData() {
     (Boolean(businessId) &&
       (toplineQuery.isPending ||
         previousToplineQuery.isPending ||
-        personalityQuery.isPending));
+        personalityQuery.isPending ||
+        discoveryQuery.isPending));
 
   const refetchAll = async () => {
     await refreshBusinessInfo();
@@ -229,6 +306,7 @@ export function useBusinessHomeData() {
       toplineQuery.refetch(),
       previousToplineQuery.refetch(),
       personalityQuery.refetch(),
+      discoveryQuery.refetch(),
     ]);
   };
 
@@ -245,6 +323,7 @@ export function useBusinessHomeData() {
     dateTo,
     onDateRangeChange,
     topline,
+    discovery,
     personalityRows,
     locationRows,
     isPaidMember,
@@ -253,7 +332,8 @@ export function useBusinessHomeData() {
     isRefetching:
       toplineQuery.isRefetching ||
       previousToplineQuery.isRefetching ||
-      personalityQuery.isRefetching,
+      personalityQuery.isRefetching ||
+      discoveryQuery.isRefetching,
     refetchAll,
   };
 }

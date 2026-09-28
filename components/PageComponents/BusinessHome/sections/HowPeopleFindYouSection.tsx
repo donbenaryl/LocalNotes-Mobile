@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { BUSINESS_HOME_DISCOVERY } from '@/constants/businessHomeMock';
+import type { BusinessHomeDiscovery } from '@/hooks/useBusinessHomeData';
+import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { KeyValueRow } from '../ui/KeyValueRow';
@@ -9,34 +10,17 @@ import { SectionHeading } from '../ui/SectionHeading';
 
 interface HowPeopleFindYouSectionProps {
   periodLabel: string;
-}
-
-type DiscoveryChannel = {
-  labelKey: 'search' | 'lists' | 'picks' | 'discover';
-  value: string;
-};
-
-const CHANNELS: DiscoveryChannel[] = [
-  { labelKey: 'search', value: BUSINESS_HOME_DISCOVERY.search },
-  { labelKey: 'lists', value: BUSINESS_HOME_DISCOVERY.lists },
-  { labelKey: 'picks', value: BUSINESS_HOME_DISCOVERY.picks },
-  { labelKey: 'discover', value: BUSINESS_HOME_DISCOVERY.discover },
-];
-
-function parsePercent(value: string): number {
-  const n = Number.parseInt(value, 10);
-  if (Number.isNaN(n)) return 0;
-  return Math.min(100, Math.max(0, n));
+  discovery: BusinessHomeDiscovery;
 }
 
 function DiscoveryProgressRow({
   label,
-  value,
+  percent,
 }: {
   label: string;
-  value: string;
+  percent: number;
 }) {
-  const percent = parsePercent(value);
+  const width = Math.min(100, Math.max(0, percent));
 
   return (
     <View className="py-2">
@@ -44,19 +28,22 @@ function DiscoveryProgressRow({
         <Text className="font-geist-bold text-[13px] text-ink dark:text-gray-100">
           {label}
         </Text>
-        <Text className="font-geist-bold text-[13px] text-brand">{value}</Text>
+        <Text className="font-geist-bold text-[13px] text-brand">{`${percent}%`}</Text>
       </View>
       <View className="h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
         <View
           className="h-full rounded-full bg-brand"
-          style={{ width: `${percent}%` }}
+          style={{ width: `${width}%` }}
         />
       </View>
     </View>
   );
 }
 
-export function HowPeopleFindYouSection({ periodLabel }: HowPeopleFindYouSectionProps) {
+export function HowPeopleFindYouSection({
+  periodLabel,
+  discovery,
+}: HowPeopleFindYouSectionProps) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
@@ -74,11 +61,11 @@ export function HowPeopleFindYouSection({ periodLabel }: HowPeopleFindYouSection
         {periodLabel}
       </Text>
       <BusinessHomeCard>
-        {CHANNELS.map((channel) => (
+        {discovery.channels.map((channel) => (
           <DiscoveryProgressRow
-            key={channel.labelKey}
-            label={t(`businessHome.discovery.${channel.labelKey}`)}
-            value={channel.value}
+            key={channel.key}
+            label={t(`businessHome.discovery.${channel.key}`)}
+            percent={channel.percent}
           />
         ))}
         <Pressable onPress={() => setExpanded((v) => !v)} accessibilityRole="button">
@@ -88,11 +75,21 @@ export function HowPeopleFindYouSection({ periodLabel }: HowPeopleFindYouSection
         </Pressable>
         {expanded ? (
           <>
-            {BUSINESS_HOME_DISCOVERY.details.map((item) => (
-              <KeyValueRow key={item.label} label={item.label} value={item.value} />
+            {discovery.channels.map((channel) => (
+              <KeyValueRow
+                key={channel.key}
+                label={t(`businessHome.discovery.${channel.key}`)}
+                value={t('businessHome.discovery.viewsCount', {
+                  value: formatCompactNumber(channel.count),
+                })}
+              />
             ))}
             <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {BUSINESS_HOME_DISCOVERY.insight}
+              {discovery.leading
+                ? t('businessHome.discovery.insight', {
+                    channel: t(`businessHome.discovery.${discovery.leading.key}`),
+                  })
+                : t('businessHome.discovery.insightEmpty')}
             </Text>
             <LocalNotesButton
               label={t('businessHome.buttons.reachMore')}
