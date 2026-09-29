@@ -6,7 +6,7 @@ import {
   getListMatchPercent,
 } from "@/utils/matchScore";
 
-export type HomeContentType = "lists" | "picks";
+export type HomeContentType = "lists" | "picks" | "businesses";
 
 function pickHasImage(pick: ListItemPublic): boolean {
   const primary = pick.images?.[0]?.url;

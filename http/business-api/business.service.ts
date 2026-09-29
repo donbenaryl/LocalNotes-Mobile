@@ -65,6 +65,8 @@ class BusinessService extends AppHttpService{
          query.longitude = dto.longitude;
          if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
        }
+       if (dto.page !== undefined) query.page = dto.page;
+       if (dto.pageSize !== undefined) query.page_size = dto.pageSize;
        return await this.SendRequest<BusinessItemDAO[]>({
         method:"get",
         path:"/",

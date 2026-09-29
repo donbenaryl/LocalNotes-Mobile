@@ -14,12 +14,18 @@ import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 import { HomeEditorialTitle } from "@/components/PageComponents/Home/Home/HomeEditorialTitle";
 import { HomeTabSkeleton } from "@/components/PageComponents/Home/Home/HomeTabSkeleton";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
+import {
+  BusinessCardDetailed,
+  getBusinessLogoUrl,
+} from "@/components/ui/BusinessCardDetailed";
 import { ListCardDetailed } from "@/components/ui/ListCardDetailed";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
 import { PickCard } from "@/components/PageComponents/Profile/PickCard";
 import { useHomeLists } from "@/hooks/useHomeLists";
 import { useHomePicks } from "@/hooks/useHomePicks";
+import { useHomeBusinesses } from "@/hooks/useHomeBusinesses";
+import type { BusinessItemDAO } from "@/http/business-api/types";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useUserCoordinates } from "@/hooks/useUserCoordinates";
 import { sortPicksWithImagesFirst } from "@/utils/homePicks";
@@ -66,6 +72,17 @@ function sortListsWithImagesFirst(lists: ListItemDAO[]): ListItemDAO[] {
       return aHasImage ? -1 : 1;
     })
     .map(({ list }) => list);
+}
+
+function sortBusinessesWithLogoFirst(
+  businesses: BusinessItemDAO[],
+): BusinessItemDAO[] {
+  const withLogo: BusinessItemDAO[] = [];
+  const withoutLogo: BusinessItemDAO[] = [];
+  for (const business of businesses) {
+    (getBusinessLogoUrl(business) ? withLogo : withoutLogo).push(business);
+  }
+  return [...withLogo, ...withoutLogo];
 }
 
 function HomeSection({
@@ -274,13 +291,50 @@ export function HomeTab() {
     enabled: contentType === "picks",
   });
 
-  const isLoading = contentType === "picks" ? isPicksLoading : isListsLoading;
-  const isRefetching =
-    contentType === "picks" ? isPicksRefetching : isListsRefetching;
-  const error = contentType === "picks" ? picksError : listsError;
-  const refetch = contentType === "picks" ? refetchPicks : refetchLists;
-  const showNearYouSection =
-    contentType === "picks" ? showNearYouPicksSection : showNearYouListsSection;
+  const {
+    businesses,
+    isLoading: isBusinessesLoading,
+    isRefetching: isBusinessesRefetching,
+    error: businessesError,
+    refetch: refetchBusinesses,
+    fetchNextPage: fetchNextBusinessesPage,
+    hasNextPage: hasNextBusinessesPage,
+    isFetchingNextPage: isFetchingNextBusinessesPage,
+  } = useHomeBusinesses({
+    activeFilters,
+    locationOverride: locationMode === "city" ? manualLocation : null,
+    skipLocationFilter: locationMode === "all",
+    enabled: contentType === "businesses",
+  });
+
+  const byContentType = <T,>(values: Record<HomeContentType, T>): T =>
+    values[contentType];
+
+  const isLoading = byContentType({
+    lists: isListsLoading,
+    picks: isPicksLoading,
+    businesses: isBusinessesLoading,
+  });
+  const isRefetching = byContentType({
+    lists: isListsRefetching,
+    picks: isPicksRefetching,
+    businesses: isBusinessesRefetching,
+  });
+  const error = byContentType({
+    lists: listsError,
+    picks: picksError,
+    businesses: businessesError,
+  });
+  const refetch = byContentType<() => Promise<unknown>>({
+    lists: refetchLists,
+    picks: refetchPicks,
+    businesses: refetchBusinesses,
+  });
+  const showNearYouSection = byContentType({
+    lists: showNearYouListsSection,
+    picks: showNearYouPicksSection,
+    businesses: false,
+  });
   const matchingCount =
     contentType === "picks" ? picksMatchingCount : listsMatchingCount;
   const vibeMatchCount =
@@ -288,14 +342,21 @@ export function HomeTab() {
   const categoryMatchCount =
     contentType === "picks" ? picksCategoryMatchCount : listsCategoryMatchCount;
 
-  const fetchNextPage =
-    contentType === "picks" ? fetchNextPicksPage : fetchNextListsPage;
-  const hasNextPage =
-    contentType === "picks" ? hasNextPicksPage : hasNextListsPage;
-  const isFetchingNextPage =
-    contentType === "picks"
-      ? isFetchingNextPicksPage
-      : isFetchingNextListsPage;
+  const fetchNextPage = byContentType<() => Promise<unknown>>({
+    lists: fetchNextListsPage,
+    picks: fetchNextPicksPage,
+    businesses: fetchNextBusinessesPage,
+  });
+  const hasNextPage = byContentType({
+    lists: hasNextListsPage,
+    picks: hasNextPicksPage,
+    businesses: hasNextBusinessesPage,
+  });
+  const isFetchingNextPage = byContentType({
+    lists: isFetchingNextListsPage,
+    picks: isFetchingNextPicksPage,
+    businesses: isFetchingNextBusinessesPage,
+  });
 
   const handleLoadMore = useCallback(() => {
     void fetchNextPage();
@@ -370,6 +431,11 @@ export function HomeTab() {
     [discoverPicks],
   );
 
+  const sortedBusinesses = useMemo(
+    () => sortBusinessesWithLogoFirst(businesses),
+    [businesses],
+  );
+
   if (error) {
     return (
       <View className="items-center justify-center px-6 py-20">
@@ -386,14 +452,17 @@ export function HomeTab() {
     );
   }
 
-  const isEmpty =
-    contentType === "picks"
-      ? forYouPicks.length === 0 &&
-        !showNearYouSection &&
-        discoverPicks.length === 0
-      : forYouLists.length === 0 &&
-        !showNearYouSection &&
-        discoverLists.length === 0;
+  const isEmpty = byContentType({
+    lists:
+      forYouLists.length === 0 &&
+      !showNearYouSection &&
+      discoverLists.length === 0,
+    picks:
+      forYouPicks.length === 0 &&
+      !showNearYouSection &&
+      discoverPicks.length === 0,
+    businesses: businesses.length === 0,
+  });
 
   return (
     <View className="px-4">
@@ -464,6 +533,22 @@ export function HomeTab() {
 
               {isFetchingNextPage ? <SpinLoader className="py-6" /> : null}
             </>
+          ) : contentType === "businesses" ? (
+            <>
+              {sortedBusinesses.length > 0 ? (
+                <HomeSection>
+                  {sortedBusinesses.map((business) => (
+                    <BusinessCardDetailed
+                      key={business.id}
+                      business={business}
+                      viewOrigin="discovery"
+                    />
+                  ))}
+                </HomeSection>
+              ) : null}
+
+              {isFetchingNextPage ? <SpinLoader className="py-6" /> : null}
+            </>
           ) : (
             <>
               {sortedForYouPicks.length > 0 ? (
@@ -510,16 +595,16 @@ export function HomeTab() {
 
           {isEmpty ? (
             <EmptyScreen
-              title={
-                contentType === "picks"
-                  ? t("home.emptyPicksDiscover")
-                  : t("home.emptyDiscover")
-              }
-              description={
-                contentType === "picks"
-                  ? t("home.emptyPicksDiscoverDescription")
-                  : t("home.emptyDiscoverDescription")
-              }
+              title={byContentType({
+                lists: t("home.emptyDiscover"),
+                picks: t("home.emptyPicksDiscover"),
+                businesses: t("home.emptyBusinesses"),
+              })}
+              description={byContentType({
+                lists: t("home.emptyDiscoverDescription"),
+                picks: t("home.emptyPicksDiscoverDescription"),
+                businesses: t("home.emptyBusinessesDescription"),
+              })}
               className="justify-center py-20"
             />
           ) : null}

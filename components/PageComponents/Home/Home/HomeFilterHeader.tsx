@@ -65,6 +65,9 @@ const FILTER_OPTIONS: HomeListFilter[] = [
   "newest",
 ];
 
+/** GET /businesses/ only filters by location, so the other chips would be no-ops. */
+const BUSINESS_FILTER_OPTIONS: HomeListFilter[] = ["distance"];
+
 const FILTER_LABEL_KEYS: Record<HomeListFilter, string> = {
   personality_match: "home.filters.personalityMatch",
   vibe: "home.filters.vibe",
@@ -126,6 +129,7 @@ export function HomeFilterHeader({
           options={[
             { value: "lists", label: t("home.contentType.lists") },
             { value: "picks", label: t("home.contentType.picks") },
+            { value: "businesses", label: t("home.contentType.businesses") },
           ]}
         />
         {isCityLoading ? (
@@ -157,7 +161,10 @@ export function HomeFilterHeader({
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="flex-row items-center gap-1.5"
       >
-        {FILTER_OPTIONS.map((filter) => (
+        {(contentType === "businesses"
+          ? BUSINESS_FILTER_OPTIONS
+          : FILTER_OPTIONS
+        ).map((filter) => (
           <LocalNotesButton
             key={filter}
             label={t(FILTER_LABEL_KEYS[filter])}

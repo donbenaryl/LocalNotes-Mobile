@@ -79,6 +79,8 @@ export interface searchBusinessDTO{
   radiusKm?: number;
   /** Keyword/name-only matching for autocomplete; skips semantic vector hits. */
   match?: "name";
+  page?: number;
+  pageSize?: number;
 }
 
 export interface UpdateBusinessDTO {

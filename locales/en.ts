@@ -713,9 +713,21 @@ const en = {
     contentType: {
       lists: 'List',
       picks: 'Pick',
+      businesses: 'Businesses',
     },
     emptyPicksDiscover: 'No picks to show yet',
     emptyPicksDiscoverDescription: 'Check back soon for new picks from curators near you',
+    emptyBusinesses: 'No businesses to show yet',
+    emptyBusinessesDescription: 'Try another location or check back soon',
+    business: {
+      listsCount_one: '{{count}} list',
+      listsCount_other: '{{count}} lists',
+      followersCount_one: '{{count}} follower',
+      followersCount_other: '{{count}} followers',
+      moreBranches: '+ {{count}}',
+      seeMoreBranches: 'See {{count}} more branches',
+      showLessBranches: 'Show less',
+    },
     filters: {
       category: 'Category',
       personalityMatch: 'Match',
