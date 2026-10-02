@@ -1,4 +1,4 @@
-import type { Account, ListItemDAO } from "../list-api/types";
+import type { Account, ListItemDAO, ListItemPublic } from "../list-api/types";
 
 export type activitiesDTO ={
     page:number;
@@ -8,12 +8,18 @@ export type ActivityListData = ListItemDAO & {
   similarity?: number | null;
 };
 
+export type ActivityPickData = ListItemPublic & {
+  name: string;
+};
+
+export type ActivityStoredData = { id: string; name: string };
+
 export type ActivityItemDAO = {
   id: string;
   account: Account;
-  entity: "list" | "user";
+  entity: "list" | "user" | "list_item";
   action: "create" | "update" | "like" | "save" | "share" | "comment" | "follow";
-  data: ActivityListData | { id: string; name: string };
+  data: ActivityListData | ActivityPickData | ActivityStoredData;
   created_at: string;
 };
 

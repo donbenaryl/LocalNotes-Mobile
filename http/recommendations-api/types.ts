@@ -7,6 +7,11 @@ export interface similarCreatorItem {
   is_followed: boolean;
   num_lists:number;
   follows_summary:string;
+  personality_name?: string | null;
+  personality_color?: Record<string, number> | null;
+  location?: { city?: string | null; region?: string | null } | null;
+  posts_this_month?: number;
+  match?: number;
 }
 
 export interface similarUserScore{

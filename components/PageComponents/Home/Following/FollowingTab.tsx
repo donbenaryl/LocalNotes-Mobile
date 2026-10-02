@@ -1,31 +1,51 @@
 import { useCallback, useMemo } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useRegisterSectionPullToRefresh } from "@/components/ui/SectionPullToRefreshContext";
 import { AlertCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@/components/ui/Avatar";
-import { ActivityFeedCard } from "@/components/PageComponents/Profile/ActivityFeedCard";
 import type { ActivityItemDAO } from "@/http/home-api/type";
+import { FollowingActivityRow } from "@/components/PageComponents/Home/Following/FollowingActivityRow";
+import { FollowingFreshPerspectives } from "@/components/PageComponents/Home/Following/FollowingFreshPerspectives";
 import { FollowingListCard } from "@/components/PageComponents/Home/Following/FollowingListCard";
-import {
-  FollowingCreatorsRowSkeleton,
-  FollowingListSkeleton,
-} from "@/components/PageComponents/Home/Following/FollowingListSkeleton";
+import { FollowingListSkeleton } from "@/components/PageComponents/Home/Following/FollowingListSkeleton";
+import { FollowingPickCard } from "@/components/PageComponents/Home/Following/FollowingPickCard";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
-import { useActivityFeed, useFollowingLists } from "@/hooks/useProfileList";
+import { useActivityFeed, useSimilarUsers } from "@/hooks/useProfileList";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
-import { PageSectionTitle } from "@/components/ui/PageSectionTitle";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { cn } from "@/utils/cn";
+import { isActivityListData, isActivityPickData } from "@/utils/followingFeed";
+import { getFeedTimeGroup, type FeedTimeGroup } from "@/utils/time";
+
+interface ActivityGroup {
+  group: FeedTimeGroup;
+  items: ActivityItemDAO[];
+}
+
+function groupActivityByTime(items: ActivityItemDAO[], locale: string): ActivityGroup[] {
+  const now = new Date();
+  const groups: ActivityGroup[] = [];
+  for (const item of items) {
+    const group = getFeedTimeGroup(item.created_at, now, locale);
+    const last = groups[groups.length - 1];
+    if (last && last.group.id === group.id) {
+      last.items.push(item);
+    } else {
+      groups.push({ group, items: [item] });
+    }
+  }
+  return groups;
+}
+
+function FollowingActivityItem({ item }: { item: ActivityItemDAO }) {
+  if (isActivityListData(item)) return <FollowingListCard item={item} />;
+  if (isActivityPickData(item)) return <FollowingPickCard item={item} />;
+  return <FollowingActivityRow item={item} />;
+}
 
 export function FollowingTab() {
-  const { t } = useTranslation();
-
-  const {
-    followingList,
-    isPending: followingLoading,
-    isError: followingError,
-    isRefetching: followingRefetching,
-    refetch: refetchFollowing,
-  } = useFollowingLists();
+  const { t, i18n } = useTranslation();
+  const currentUserId = useAuthStore((state) => state.user?.id) ?? "";
 
   const {
     activityFeed,
@@ -35,111 +55,82 @@ export function FollowingTab() {
     refetch: refetchActivity,
   } = useActivityFeed();
 
-  const isRefetching = followingRefetching || activityRefetching;
+  const {
+    similarUsers,
+    isPending: similarPending,
+    isError: similarError,
+    isRefetching: similarRefetching,
+    refetch: refetchSimilar,
+  } = useSimilarUsers(currentUserId);
+
+  const isRefetching = activityRefetching || similarRefetching;
 
   const handleRefresh = useCallback(() => {
-    void Promise.all([refetchFollowing(), refetchActivity()]);
-  }, [refetchFollowing, refetchActivity]);
+    void Promise.all([refetchActivity(), currentUserId ? refetchSimilar() : null]);
+  }, [refetchActivity, refetchSimilar, currentUserId]);
 
   useRegisterSectionPullToRefresh("following", handleRefresh, isRefetching);
 
-  const today = new Date().toISOString().split("T")[0];
-
-  const todayCreators = useMemo(() => {
-    const seen = new Set<string>();
-    return followingList
-      .filter((l) => l.created_at.startsWith(today))
-      .filter((l) => {
-        if (seen.has(l.account.id)) return false;
-        seen.add(l.account.id);
-        return true;
-      });
-  }, [followingList, today]);
-
-  const showNotesToday =
-    !followingLoading && !followingError && todayCreators.length > 0;
+  const groups = useMemo(
+    () => groupActivityByTime(activityFeed, i18n.language),
+    [activityFeed, i18n.language],
+  );
 
   return (
-    <View className="px-4">
-      {followingLoading && <FollowingCreatorsRowSkeleton />}
+    <View className="px-4 pt-2">
+      {activityLoading && <FollowingListSkeleton />}
 
-      {showNotesToday && (
-        <View className="mb-8 mt-2">
-          <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-gray-100">
-            {t("home.following.notesToday")}
+      {activityError && !activityLoading && (
+        <View className="items-center gap-3 py-8">
+          <AlertCircle size={40} color="#EF4444" />
+          <Text className="font-geist text-sm text-red-500">
+            {t("profile.lists.error")}
           </Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="gap-4"
-          >
-            <View className="flex-row gap-4">
-              {todayCreators.map((item) => (
-                <View key={item.account.id} className="items-center gap-2">
-                  <Avatar
-                    name={item.account.name}
-                    src={item.account.profile_image ?? undefined}
-                    size="md"
-                    userId={item.account.id}
-                  />
-                  <Text
-                    className="max-w-16 text-center font-geist text-xs text-ink dark:text-gray-200"
-                    numberOfLines={1}
-                  >
-                    {item.account.name}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </ScrollView>
+          <LocalNotesButton
+            label={t("profile.lists.retry")}
+            onPress={() => void refetchActivity()}
+            variant="dark"
+            size="sm"
+            isWidthFull={false}
+          />
         </View>
       )}
 
-      <View className="">
-        <PageSectionTitle className="mb-4">
-          {t("home.following.latestActivity")}
-        </PageSectionTitle>
+      {!activityLoading && !activityError && activityFeed.length === 0 && (
+        <EmptyScreen
+          title={t("home.following.noActivity")}
+          description={t("home.following.noActivityDescription")}
+        />
+      )}
 
-        {activityLoading && <FollowingListSkeleton />}
-
-        {activityError && !activityLoading && (
-          <View className="items-center gap-3 py-8">
-            <AlertCircle size={40} color="#EF4444" />
-            <Text className="font-geist text-sm text-red-500">
-              {t("profile.lists.error")}
-            </Text>
-            <LocalNotesButton
-              label={t("profile.lists.retry")}
-              onPress={() => void refetchActivity()}
-              variant="dark"
-              size="sm"
-              isWidthFull={false}
-            />
-          </View>
-        )}
-
-        {!activityLoading && !activityError && activityFeed.length === 0 && (
-          <EmptyScreen
-            title={t("home.following.noActivity")}
-            description={t("home.following.noActivityDescription")}
-          />
-        )}
-
-        {!activityLoading && !activityError && activityFeed.length > 0 && (
-          <View className="gap-4">
-            {activityFeed.map((item) =>
-              item.entity === "list" ? (
-                <FollowingListCard
+      {!activityLoading && !activityError && groups.length > 0 && (
+        <View className="gap-6">
+          {groups.map(({ group, items }) => (
+            <View key={`${group.id}-${items[0].id}`}>
+              <Text className="font-geist-semibold text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                {t(group.i18nKey, group.params)}
+              </Text>
+              {items.map((item, index) => (
+                <View
                   key={item.id}
-                  item={item as ActivityItemDAO & { entity: "list" }}
-                />
-              ) : (
-                <ActivityFeedCard key={item.id} item={item} />
-              ),
-            )}
-          </View>
-        )}
-      </View>
+                  className={cn(
+                    "py-4",
+                    index < items.length - 1 && "border-b border-gray-100 dark:border-gray-800",
+                  )}
+                >
+                  <FollowingActivityItem item={item} />
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      )}
+
+      <FollowingFreshPerspectives
+        users={similarUsers}
+        isLoading={Boolean(currentUserId) && similarPending}
+        isError={similarError}
+      />
     </View>
   );
 }

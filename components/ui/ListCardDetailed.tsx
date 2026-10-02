@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import {
   ChevronDown,
-  ChevronUp,
   Edit,
   Flag,
   Pin,
@@ -21,10 +20,12 @@ import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { ListEngagementRow } from "@/components/ui/ListEngagementRow";
-import { NoImage } from "@/components/ui/NoImage";
+import {
+  getPickImageUrl,
+  getPickName,
+  ListPickSection,
+} from "@/components/ui/ListPickSection";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
-import { PickPreviewImage } from "@/components/ui/PickPreviewImage";
-import { ScrollableContainer } from "@/components/ui/ScrollableContainer";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -43,6 +44,8 @@ import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import type { ViewOrigin } from "@/http/types";
 import { WhiteBox } from "./WhiteBox";
 
+export { PickPreviewRow } from "@/components/ui/ListPickSection";
+
 interface ListCardDetailedProps {
   list: ListItemDAO;
   variant?: "default" | "forYou";
@@ -59,13 +62,6 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]*>/g, "");
 }
 
-function getPickImageUrl(item: Item): string | null {
-  return (
-    resolveImageUrl(item.images?.[0]?.url) ??
-    resolveImageUrl(item.business?.logo)
-  );
-}
-
 function getHeroImageUrl(list: ListItemDAO): string | null {
   const cover = resolveImageUrl(list.image_url);
   if (cover) return cover;
@@ -76,22 +72,6 @@ function getHeroImageUrl(list: ListItemDAO): string | null {
   }
 
   return null;
-}
-
-function getPickName(item: Item): string | null {
-  return item.business?.name ?? item.unverified_business?.name ?? null;
-}
-
-function formatPickSubtitle(item: Item, fallbackCity?: string): string {
-  const category = item.categories?.[0];
-  const categoryLabel = category
-    ? isOthersCategoryName(category)
-      ? (item.others_name ?? category)
-      : category
-    : null;
-  const city = item.location?.city || fallbackCity;
-
-  return [categoryLabel, city].filter(Boolean).join(" · ");
 }
 
 function formatListCategoriesSubtitle(
@@ -127,57 +107,6 @@ export function mapItemToListItemPublic(
     list_usage_count: 0,
     location: item.location ?? list.location ?? null,
   };
-}
-
-interface PickPreviewRowProps {
-  item: Item;
-  index: number;
-  personalityColor?: Record<string, number> | null;
-  onPress: () => void;
-}
-
-export function PickPreviewRow({
-  item,
-  index,
-  personalityColor,
-  onPress,
-}: PickPreviewRowProps) {
-  const name = getPickName(item);
-  if (!name) return null;
-
-  const imageUrl = getPickImageUrl(item);
-
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={name}
-      className="cursor-pointer flex-row items-center gap-3 py-1"
-    >
-      <PickPreviewImage
-        imageUrl={imageUrl}
-        index={index}
-        personalityColor={personalityColor}
-      />
-
-      <View className="min-w-0 flex-1 justify-center">
-        <Text
-          className="font-geist-semibold text-md text-ink dark:text-gray-100"
-          numberOfLines={1}
-        >
-          {name}
-        </Text>
-        {item.description ? (
-          <Text
-            className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
-            numberOfLines={1}
-          >
-            {item.description}
-          </Text>
-        ) : null}
-      </View>
-    </Pressable>
-  );
 }
 
 interface ListCardCollapsedBannerProps {
@@ -305,31 +234,7 @@ export function ListCardDetailed({
   const [isPickDetailOpen, setIsPickDetailOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [picksExpanded, setPicksExpanded] = useState(false);
   const cardRef = useRef<View>(null);
-
-  const namedPicks = useMemo(() => {
-    const items = list.items ?? [];
-    const named = items.filter((item) => Boolean(getPickName(item)));
-    const withImage: Item[] = [];
-    const withoutImage: Item[] = [];
-    for (const item of named) {
-      if (getPickImageUrl(item)) {
-        withImage.push(item);
-      } else {
-        withoutImage.push(item);
-      }
-    }
-    return [...withImage, ...withoutImage];
-  }, [list.items]);
-  const featuredPick = namedPicks[0] ?? null;
-  const featuredPickImageUrl = featuredPick
-    ? getPickImageUrl(featuredPick)
-    : null;
-  const featuredPickSubtitle = featuredPick
-    ? formatPickSubtitle(featuredPick, cityLabel)
-    : "";
-  const extraPickCount = Math.max(0, namedPicks.length - 1);
 
   useEffect(() => {
     setIsPinned(list.is_pinned);
@@ -338,16 +243,6 @@ export function ListCardDetailed({
   useEffect(() => {
     setIsFollowed(list.account_is_followed);
   }, [list.id, list.account_is_followed]);
-
-  useEffect(() => {
-    setPicksExpanded(false);
-  }, [list.id]);
-
-  useEffect(() => {
-    if (collapsible && !expanded) {
-      setPicksExpanded(false);
-    }
-  }, [collapsible, expanded]);
 
   const handleEdit = useCallback(() => {
     useListFormStore.getState().clearEditHydration();
@@ -502,7 +397,6 @@ export function ListCardDetailed({
 
   const isDark = theme === "dark";
   const iconDim = isDark ? "#6B7280" : "#A8A29E";
-  const showLessIconColor = isDark ? "#9CA3AF" : "#6B7280";
 
   const isCollapsed = collapsible && !expanded;
   const whereLabel = cityLabel || list.account.name;
@@ -611,115 +505,14 @@ export function ListCardDetailed({
                 </View>
               </Pressable>
 
-              {featuredPick ? (
-                <View
-                  className={`mx-4 mb-3 rounded-2xl bg-soft px-3 pt-3 dark:bg-gray-800 ${
-                    picksExpanded && extraPickCount > 0 ? "pb-1" : "pb-3"
-                  }`}
-                >
-                  {picksExpanded && extraPickCount > 0 ? (
-                    <>
-                      <ScrollableContainer className="max-h-44">
-                        {namedPicks.map((item, index) => (
-                          <View
-                            key={item.id}
-                            className={
-                              index > 0
-                                ? "border-t border-gray-200/60 dark:border-gray-700/60"
-                                : undefined
-                            }
-                          >
-                            <PickPreviewRow
-                              item={item}
-                              index={index}
-                              personalityColor={
-                                list.account.personality_color
-                              }
-                              onPress={() => handlePickPress(item)}
-                            />
-                          </View>
-                        ))}
-                      </ScrollableContainer>
-
-                      <Pressable
-                        onPress={() => setPicksExpanded(false)}
-                        accessibilityRole="button"
-                        accessibilityLabel={t("home.showLessPicks")}
-                        accessibilityState={{ expanded: true }}
-                        className="mt-1 cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-200/80 pt-2.5 pb-1.5 dark:border-gray-700"
-                        hitSlop={4}
-                      >
-                        <ChevronUp size={15} color={showLessIconColor} />
-                        <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-gray-300">
-                          {t("home.showLessPicks")}
-                        </Text>
-                      </Pressable>
-                    </>
-                  ) : (
-                    <View className="flex-row items-center gap-3">
-                      <Pressable
-                        onPress={() => handlePickPress(featuredPick)}
-                        accessibilityRole="button"
-                        accessibilityLabel={
-                          getPickName(featuredPick) ?? undefined
-                        }
-                        className="min-w-0 flex-1 cursor-pointer flex-row items-center gap-3"
-                      >
-                        {featuredPickImageUrl ? (
-                          <Image
-                            source={{ uri: featuredPickImageUrl }}
-                            className="h-9 w-9 shrink-0 rounded-xl"
-                            resizeMode="cover"
-                          />
-                        ) : (
-                          <NoImage
-                            personalityColor={list.account.personality_color}
-                            size="xs"
-                            appearance="flat"
-                            innerClassName="dark:!bg-gray-900 !bg-white"
-                          />
-                        )}
-
-                        <View className="min-w-0 flex-1 justify-center">
-                          <Text
-                            className="font-geist-semibold text-md text-ink dark:text-gray-100"
-                            numberOfLines={1}
-                          >
-                            {getPickName(featuredPick)}
-                          </Text>
-                          {featuredPickSubtitle ? (
-                            <Text
-                              className="font-geist text-xs text-gray-500 dark:text-gray-400"
-                              numberOfLines={1}
-                            >
-                              {featuredPickSubtitle}
-                            </Text>
-                          ) : null}
-                        </View>
-                      </Pressable>
-
-                      {/* Additional Picks Counter */}
-                      {extraPickCount > 0 ? (
-                        <Pressable
-                          onPress={() => setPicksExpanded(true)}
-                          accessibilityRole="button"
-                          accessibilityLabel={t("home.seeMorePicks", {
-                            count: extraPickCount,
-                          })}
-                          accessibilityState={{ expanded: false }}
-                          className="h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white dark:bg-gray-900"
-                        >
-                          <Text className="text-md text-ink dark:text-gray-100">
-                            {t("home.morePicksBadge", {
-                              count: extraPickCount,
-                            })}
-                          </Text>
-                        </Pressable>
-                      ) : null}
-                    </View>
-                  )}
-                </View>
-              ) : null}
+              {/* Pick Section */}
+              <ListPickSection
+                items={list.items}
+                listId={list.id}
+                personalityColor={list.account.personality_color}
+                fallbackCity={cityLabel}
+                onPickPress={handlePickPress}
+              />
 
               {/* Like Comment and Bookmark */}
               <ListEngagementRow

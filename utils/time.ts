@@ -14,6 +14,68 @@ export function formatRelativeTimeUpper(dateStr: string): string {
   return formatRelativeTime(dateStr).toUpperCase();
 }
 
+export interface FeedTimeGroup {
+  /** Stable per bucket: consecutive feed rows with the same id share one header. */
+  id: string;
+  i18nKey: string;
+  params?: Record<string, string | number>;
+}
+
+const HOUR_MS = 60 * 60 * 1000;
+
+function startOfDay(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
+/** Bucket for the Following feed's time headers: hour today, Yesterday, N days, then a date. */
+export function getFeedTimeGroup(
+  dateStr: string,
+  now: Date = new Date(),
+  locale?: string,
+): FeedTimeGroup {
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) {
+    return { id: "unknown", i18nKey: "home.following.time.withinHour" };
+  }
+
+  const calendarDays = Math.round((startOfDay(now) - startOfDay(date)) / (24 * HOUR_MS));
+
+  if (calendarDays <= 0) {
+    const hours = Math.floor((now.getTime() - date.getTime()) / HOUR_MS);
+    if (hours < 1) {
+      return { id: "hour-0", i18nKey: "home.following.time.withinHour" };
+    }
+    return {
+      id: `hour-${hours}`,
+      i18nKey: "home.following.time.hoursAgo",
+      params: { count: hours },
+    };
+  }
+
+  if (calendarDays === 1) {
+    return { id: "yesterday", i18nKey: "home.following.time.yesterday" };
+  }
+
+  if (calendarDays < 7) {
+    return {
+      id: `days-${calendarDays}`,
+      i18nKey: "home.following.time.daysAgo",
+      params: { count: calendarDays },
+    };
+  }
+
+  const label = date.toLocaleDateString(locale, {
+    month: "short",
+    day: "numeric",
+    ...(date.getFullYear() !== now.getFullYear() ? { year: "numeric" } : {}),
+  });
+  return {
+    id: `date-${startOfDay(date)}`,
+    i18nKey: "home.following.time.date",
+    params: { date: label },
+  };
+}
+
 export function isCreatedToday(dateStr: string): boolean {
   const date = new Date(dateStr);
   const now = new Date();

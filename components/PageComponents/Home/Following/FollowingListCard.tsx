@@ -1,177 +1,190 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
-import { MapPin } from "lucide-react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import { Avatar } from "@/components/ui/Avatar";
+import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
+import { mapItemToListItemPublic } from "@/components/ui/ListCardDetailed";
 import { ListDetailModal } from "@/components/ui/ListDetailModal";
-import { NoImage } from "@/components/ui/NoImage";
-import { PersonalityName } from "@/components/ui/PersonalityName";
-import { WhiteBox } from "@/components/ui/WhiteBox";
+import { ListPickSection } from "@/components/ui/ListPickSection";
+import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 import type { ActivityItemDAO, ActivityListData } from "@/http/home-api/type";
-import { formatListLocation } from "@/utils/listUi";
+import listService from "@/http/list-api/list.service";
+import type { Item, ListItemPublic } from "@/http/list-api/types";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { resolveImageUrl } from "@/utils/httpHelpers";
-import {
-  getPersonalityGradientColors,
-  getPersonalityMatchPillStyle,
-} from "@/utils/personalityRing";
+import { clampPercent, getListMatchPercent } from "@/utils/matchScore";
+import { formatCityRegion, getItemImageUrl } from "@/utils/followingFeed";
 import { formatRelativeTime } from "@/utils/time";
-import { clampPercent } from "@/utils/matchScore";
+import { FollowingActivityHeader } from "./FollowingActivityHeader";
+import { FollowingBookmarkButton } from "./FollowingBookmarkButton";
 
 interface FollowingListCardProps {
-  item: ActivityItemDAO & { entity: "list" };
+  item: ActivityItemDAO & { entity: "list"; data: ActivityListData };
 }
 
-const ACTION_I18N_KEY: Record<ActivityItemDAO["action"], string> = {
-  create: "home.following.activity.create",
-  update: "home.following.activity.update",
-  like: "home.following.activity.like",
-  save: "home.following.activity.save",
-  share: "home.following.activity.share",
-  comment: "home.following.activity.comment",
-  follow: "home.following.activity.follow",
-};
+const HERO_GRADIENT_FILL = { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 } as const;
 
-function getHeroImageUrl(list: ActivityListData): string | null {
-  const cover = resolveImageUrl(list.image_url);
-  if (cover) return cover;
+function useListBookmark(listId: string, initialSaved: boolean) {
+  const [isSaved, setIsSaved] = useState(initialSaved);
+  const [isSaving, setIsSaving] = useState(false);
 
-  for (const pick of list.items ?? []) {
-    const itemImage =
-      resolveImageUrl(pick.images?.[0]?.url) ??
-      resolveImageUrl(pick.business?.logo);
-    if (itemImage) return itemImage;
-  }
+  useEffect(() => {
+    setIsSaved(initialSaved);
+  }, [listId, initialSaved]);
 
-  return null;
-}
+  const toggle = useCallback(async () => {
+    if (isSaving) return;
+    const previous = isSaved;
+    setIsSaved(!previous);
+    setIsSaving(true);
+    try {
+      const { error } = await listService.saveUnsaveList(listId);
+      if (error) throw error;
+    } catch (error) {
+      console.error("Failed to toggle list save:", error);
+      setIsSaved(previous);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [isSaved, isSaving, listId]);
 
-function isActivityListData(
-  data: ActivityItemDAO["data"],
-): data is ActivityListData {
-  return "items" in data;
+  return { isSaved, isSaving, toggle };
 }
 
 export function FollowingListCard({ item }: FollowingListCardProps) {
   const { t } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-  if (!isActivityListData(item.data)) {
-    return null;
-  }
+  const currentUserId = useAuthStore((state) => state.user?.id);
 
   const list = item.data;
-  const gradientColors = getPersonalityGradientColors(
-    item.account.personality_color,
-  );
-  const personalityName = item.account.personality_name ?? undefined;
-  const heroImageUrl = getHeroImageUrl(list);
-  const locationLabel =
-    formatListLocation(list.location) || t("home.unknownLocation");
-  const picksCount = list.items?.length ?? 0;
-  const similarityPillStyle = getPersonalityMatchPillStyle(
-    item.account.personality_color,
+  const isOwnList = currentUserId === list.account?.id;
+  const { isSaved, isSaving, toggle } = useListBookmark(list.id, list.is_saved);
+
+  const [selectedPick, setSelectedPick] = useState<ListItemPublic | null>(null);
+  const [isPickDetailOpen, setIsPickDetailOpen] = useState(false);
+
+  const firstPick = list.items[0];
+  const heroImageUrl =
+    resolveImageUrl(list.image_url) ?? (firstPick ? getItemImageUrl(firstPick) : null);
+  const categoriesLabel = list.categories.join(" · ");
+  const matchPercent =
+    list.similarity != null ? clampPercent(list.similarity) : getListMatchPercent(list);
+  const personalityColor = list.personality_color ?? item.account.personality_color;
+
+  const handlePickPress = useCallback(
+    (pick: Item) => {
+      setSelectedPick(mapItemToListItemPublic(pick, list, isOwnList));
+      setIsPickDetailOpen(true);
+    },
+    [list, isOwnList],
   );
 
   return (
-    <WhiteBox className="gap-3 p-4">
-      <View className="flex-row items-start gap-3">
-        <Avatar
-          name={item.account.name}
-          src={resolveImageUrl(item.account.profile_image) ?? undefined}
-          size="sm"
-          userId={item.account.id}
-          gradientColors={gradientColors}
-        />
+    <View className="gap-3">
+      <FollowingActivityHeader
+        account={item.account}
+        actionText={t(`home.following.activity.list.${item.action}`, {
+          defaultValue: t("home.following.activity.fallback"),
+        })}
+        locationLabel={formatCityRegion(list.location)}
+        right={
+          isOwnList ? null : (
+            <FollowingBookmarkButton
+              active={isSaved}
+              disabled={isSaving}
+              onPress={() => void toggle()}
+              accessibilityLabel={t("home.following.saveListLabel", { name: list.name })}
+            />
+          )
+        }
+      />
 
-        <View className="min-w-0 flex-1 gap-1">
-          <View className="flex-row items-start justify-between gap-2">
-            <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-x-2 gap-y-1">
-              <Text
-                className="font-geist-semibold text-sm text-ink dark:text-gray-100"
-                numberOfLines={1}
-              >
-                {item.account.name}
-              </Text>
-              {personalityName ? (
-                <PersonalityName
-                  name={personalityName}
-                  personalityColor={item.account.personality_color}
-                  variant="text"
-                />
-              ) : null}
-            </View>
-            <Text className="shrink-0 font-geist text-xs text-gray-400 dark:text-gray-500">
-              {formatRelativeTime(item.created_at)}
-            </Text>
-          </View>
-
-          <Text className="font-geist text-sm text-gray-600 dark:text-gray-400">
-            {t(ACTION_I18N_KEY[item.action])}{" "}
-            <Text className="font-geist-semibold text-ink dark:text-gray-100">
-              {t("home.following.activity.listObject")}
-            </Text>
-          </Text>
-        </View>
-      </View>
-
-      <Pressable
-        onPress={() => setIsModalVisible(true)}
-        accessibilityRole="button"
-        className="cursor-pointer"
-      >
-        <View className="flex-row items-center gap-3 rounded-2xl bg-soft p-3 dark:bg-gray-800/60">
+      <View className="overflow-hidden rounded-2xl border border-gray-200 bg-soft dark:border-gray-700 dark:bg-gray-800/60">
+        <Pressable
+          onPress={() => setIsModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel={list.name}
+          className="cursor-pointer"
+        >
           {heroImageUrl ? (
-            <View className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700">
+            <View className="h-28 justify-end px-3 pb-2.5">
               <Image
                 source={{ uri: heroImageUrl }}
-                className="h-full w-full"
+                className="absolute inset-0 h-full w-full"
                 resizeMode="cover"
               />
+              <LinearGradient
+                colors={["rgba(10,7,4,0.85)", "rgba(10,7,4,0.35)", "rgba(10,7,4,0.05)"]}
+                locations={[0, 0.6, 1]}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 0, y: 0 }}
+                style={HERO_GRADIENT_FILL}
+              />
+              <Text className="font-geist-semibold text-xl text-white" numberOfLines={1}>
+                {list.name}
+              </Text>
+              {categoriesLabel ? (
+                <Text className="mt-0.5 font-geist text-xs text-white/85" numberOfLines={1}>
+                  {categoriesLabel}
+                </Text>
+              ) : null}
             </View>
           ) : (
-            <NoImage
-              personalityColor={list.personality_color ?? item.account.personality_color}
-              size="sm"
-            />
-          )}
-
-          <View className="min-w-0 flex-1 gap-1">
-            <Text
-              className="font-geist-semibold text-sm text-ink dark:text-gray-100"
-              numberOfLines={2}
-            >
-              {list.name}
-            </Text>
-            <View className="flex-row items-center gap-1">
-              <MapPin size={12} color="#9CA3AF" />
+            <View className="px-3 pt-3">
               <Text
-                className="font-geist text-xs text-gray-500 dark:text-gray-400"
-                numberOfLines={1}
+                className="font-geist-semibold text-lg text-ink dark:text-gray-100"
+                numberOfLines={2}
               >
-                {locationLabel} · {t("home.picksCount", { count: picksCount })}
+                {list.name}
               </Text>
+              {categoriesLabel ? (
+                <Text
+                  className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
+                  numberOfLines={1}
+                >
+                  {categoriesLabel}
+                </Text>
+              ) : null}
             </View>
-          </View>
+          )}
+        </Pressable>
 
-          <View
-            className="shrink-0 rounded-full px-2.5 py-1"
-            style={{ backgroundColor: similarityPillStyle.backgroundColor }}
-          >
-            <Text
-              className="font-geist-semibold text-xs"
-              style={{ color: similarityPillStyle.color }}
-            >
-              {clampPercent(list.similarity ?? 0)}%
-            </Text>
-          </View>
+        <ListPickSection
+          items={list.items}
+          listId={list.id}
+          personalityColor={personalityColor}
+          fallbackCity={list.location?.city}
+          onPickPress={handlePickPress}
+          className="mx-2.5 mt-2.5 border border-gray-200 dark:border-gray-800/60"
+        />
+
+        <View className="flex-row items-center justify-between px-3 pb-3 pt-2.5">
+          <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+            {formatRelativeTime(item.created_at)}
+          </Text>
+          {matchPercent != null && !isOwnList ? (
+            <PersonalityMatchPill
+              percent={matchPercent}
+              personalityColor={personalityColor}
+              size="md"
+            />
+          ) : null}
         </View>
-      </Pressable>
+      </View>
 
       <ListDetailModal
         visible={isModalVisible}
         listId={list.id}
         onClose={() => setIsModalVisible(false)}
       />
-    </WhiteBox>
+
+      {selectedPick ? (
+        <PickDetailModal
+          visible={isPickDetailOpen}
+          onClose={() => setIsPickDetailOpen(false)}
+          data={selectedPick}
+        />
+      ) : null}
+    </View>
   );
 }

@@ -69,8 +69,8 @@ export function NoImage({
   const outerPadding = appearance === "gradient" ? 1 : 0;
   const containerClassName =
     appearance === "gradient"
-      ? `h-full w-full items-center justify-center bg-gray-50 dark:bg-gray-900 ${config.innerClassName} ${innerClassName}`
-      : `h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800 ${config.innerClassName} ${innerClassName}`;
+      ? `h-full w-full items-center justify-center bg-gray-50 dark:bg-gray-900/60 ${config.innerClassName} ${innerClassName}`
+      : `h-full w-full items-center justify-center bg-gray-200 dark:bg-gray-800/60 ${config.innerClassName} ${innerClassName}`;
 
   return (
     <View
