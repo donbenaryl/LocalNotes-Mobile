@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import businessService from '@/http/business-api/business.service';
-import {
-  BUSINESS_HOME_LOCATIONS_MOCK,
-  type BusinessHomeLocationRow,
-} from '@/constants/businessHomeMock';
+import type { BusinessHomeLocationRow } from '@/constants/businessHomeMock';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
@@ -259,17 +256,18 @@ export function useBusinessHomeData() {
 
   const locationRows: BusinessHomeLocationRow[] = useMemo(() => {
     const branches = businessInfo?.branches ?? [];
-    if (branches.length === 0) return BUSINESS_HOME_LOCATIONS_MOCK;
-
-    return branches.map((branch, index) => {
-      const mock = BUSINESS_HOME_LOCATIONS_MOCK[index];
-      return {
-        name: branch.name,
-        savesLabel: mock?.savesLabel ?? '—',
-        highlight: mock?.highlight,
-        isViewing: branch.id === selectedBranchId,
-      };
-    });
+    return branches.map((branch) => ({
+      id: branch.id,
+      name: branch.name,
+      address: [
+        branch.location?.street_address,
+        branch.location?.city,
+        branch.location?.region,
+      ]
+        .filter(Boolean)
+        .join(', '),
+      isViewing: branch.id === selectedBranchId,
+    }));
   }, [businessInfo?.branches, selectedBranchId]);
 
   const activeOwned =

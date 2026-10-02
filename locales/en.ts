@@ -1466,6 +1466,7 @@ const en = {
     },
     locations: {
       viewing: 'viewing',
+      added: 'Location added.',
       note: 'Each location keeps its own public profile. One account and team can manage all locations — Business Insights membership is billed per subscribed location on the web.',
       paidNote: '✦ "Slow service" is emerging at Scottsdale only — the playbook from your Roosevelt Row fix applies.',
     },

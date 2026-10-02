@@ -17,10 +17,10 @@ export type BusinessHomeDiscoveryItem = {
 };
 
 export type BusinessHomeLocationRow = {
+  id: string;
   name: string;
-  savesLabel: string;
-  highlight?: 'green' | 'warn';
-  isViewing?: boolean;
+  address: string;
+  isViewing: boolean;
 };
 
 export type BusinessHomeExploreChip = {
@@ -111,12 +111,6 @@ export const BUSINESS_HOME_CAMPAIGN = {
   sales: '$768',
   roas: '15.4×',
 };
-
-export const BUSINESS_HOME_LOCATIONS_MOCK: BusinessHomeLocationRow[] = [
-  { name: 'Roosevelt Row', savesLabel: '2.1K saves · +34%', highlight: 'green', isViewing: true },
-  { name: 'Tempe', savesLabel: '880 saves · +6%' },
-  { name: 'Scottsdale', savesLabel: '640 saves · −3% ⚠', highlight: 'warn' },
-];
 
 export const BUSINESS_HOME_EXPLORE_CHIPS: BusinessHomeExploreChip[] = [
   { label: 'quiet', count: '14', hot: true },

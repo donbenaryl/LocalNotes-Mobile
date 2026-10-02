@@ -328,11 +328,11 @@ function MainProfileContent({
 
     const base: TabItem[] = [
       { id: "picks", label: t("profile.tabs.picks"), icon: Building2 },
-      {
-        id: "reviews",
-        label: t("profile.tabs.reviews"),
-        icon: MessageSquareQuote,
-      },
+      // {
+      //   id: "reviews",
+      //   label: t("profile.tabs.reviews"),
+      //   icon: MessageSquareQuote,
+      // },
       { id: "my-lists", label: t("profile.tabs.myLists"), icon: LayoutGrid },
       { id: "saved", label: t("profile.tabs.saved"), icon: List },
     ];
