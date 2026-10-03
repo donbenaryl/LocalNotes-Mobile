@@ -38,7 +38,7 @@ export function FollowingActivityRow({ item }: FollowingActivityRowProps) {
             <Text
               onPress={openProfile}
               accessibilityRole="link"
-              className="font-geist-semibold underline decoration-dashed capitalize"
+              className="font-geist-bold capitalize"
          
             />
           ) : (
