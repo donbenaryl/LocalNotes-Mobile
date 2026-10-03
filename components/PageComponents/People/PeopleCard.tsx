@@ -8,10 +8,9 @@ import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import {
   getPersonalityGradientColors,
-  getPersonalityMatchPillStyle,
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
-import { getPeopleMatchPercent } from "@/utils/matchScore";
+import { getMatchPercentColor, getPeopleMatchPercent } from "@/utils/matchScore";
 import { withViewOrigin } from "@/utils/viewTracking";
 
 interface PeopleCardProps {
@@ -25,7 +24,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
   const role = data.personality_name ?? "";
   const matchValue = getPeopleMatchPercent(data) ?? 0;
   const roleColor = getPersonalityRoleColor(role);
-  const matchPill = getPersonalityMatchPillStyle(data.personality_color);
+  const matchColor = getMatchPercentColor(matchValue);
   const gradientColors = getPersonalityGradientColors(data.personality_color);
   const blurb =
     data.personality_description?.trim() || data.bio?.trim() || "";
@@ -80,11 +79,11 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
 
               <View
                 className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-                style={{ backgroundColor: matchPill.backgroundColor }}
+                style={{ backgroundColor: `${matchColor}24` }}
               >
                 <Text
                   className="font-geist-bold text-[9.5px] leading-3"
-                  style={{ color: matchPill.color }}
+                  style={{ color: matchColor }}
                 >
                   {matchValue}%
                 </Text>

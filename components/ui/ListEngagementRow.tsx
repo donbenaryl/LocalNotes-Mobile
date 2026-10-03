@@ -251,10 +251,7 @@ export function ListEngagementRow({
         <View className="flex-1" />
 
         {matchPercent !== undefined ? (
-          <PersonalityMatchPill
-            percent={matchPercent}
-            personalityColor={list.account.personality_color}
-          />
+          <PersonalityMatchPill percent={matchPercent} />
         ) : locationLabel ? (
           <Text
             className="max-w-[45%] font-geist-medium text-[12.5px] text-gray-400"

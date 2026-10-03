@@ -4,10 +4,9 @@ import { Avatar } from "./Avatar";
 import { WhiteBox } from "./WhiteBox";
 import {
   getPersonalityGradientColors,
-  getPersonalityMatchPillStyle,
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
-import { clampPercent } from "@/utils/matchScore";
+import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 
 interface UserCardProps {
   name: string;
@@ -34,7 +33,7 @@ export function UserCard({
 }: UserCardProps) {
   const matchValue = clampPercent(match ?? 0);
   const roleColor = getPersonalityRoleColor(role);
-  const matchPill = getPersonalityMatchPillStyle(personalityColor);
+  const matchColor = getMatchPercentColor(matchValue);
   const gradientColors = getPersonalityGradientColors(personalityColor);
 
   return (
@@ -79,11 +78,11 @@ export function UserCard({
           </View>
           <View
             className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-            style={{ backgroundColor: matchPill.backgroundColor }}
+            style={{ backgroundColor: `${matchColor}24` }}
           >
             <Text
               className="font-geist-bold text-[9.5px] leading-3"
-              style={{ color: matchPill.color }}
+              style={{ color: matchColor }}
             >
               {matchValue}%
             </Text>

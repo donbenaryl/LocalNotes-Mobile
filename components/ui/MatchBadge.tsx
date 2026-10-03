@@ -1,11 +1,8 @@
-import { Text, View } from "react-native";
-import { useTranslation } from "react-i18next";
 import { useSimilarScores } from "@/hooks/useSimilarScores";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
 
 interface MatchBadgeProps {
   userId: string;
-  personalityColor?: Record<string, number> | null;
   enabled?: boolean;
 }
 
@@ -15,7 +12,6 @@ interface MatchBadgeProps {
  */
 export function MatchBadge({
   userId,
-  personalityColor,
   enabled = true,
 }: MatchBadgeProps) {
   const { matchPercent, isLoading } = useSimilarScores(userId, enabled);
@@ -25,11 +21,5 @@ export function MatchBadge({
     return null;
   }
 
-  return (
-    <PersonalityMatchPill
-      percent={matchPercent ?? 0}
-      personalityColor={personalityColor}
-      size="md"
-    />
-  );
+  return <PersonalityMatchPill percent={matchPercent ?? 0} size="md" />;
 }

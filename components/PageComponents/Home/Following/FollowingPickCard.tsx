@@ -112,11 +112,7 @@ export function FollowingPickCard({ item }: FollowingPickCardProps) {
         </View>
 
         {matchPercent != null && !pick.is_owner ? (
-          <PersonalityMatchPill
-            percent={matchPercent}
-            personalityColor={personalityColor}
-            size="md"
-          />
+          <PersonalityMatchPill percent={matchPercent} size="md" />
         ) : null}
       </Pressable>
 

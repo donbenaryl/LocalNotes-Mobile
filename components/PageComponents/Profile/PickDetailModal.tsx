@@ -500,10 +500,7 @@ export function PickDetailModal({
                     <View className="flex-1" />
                   )}
                   {showMatch ? (
-                    <PersonalityMatchPill
-                      percent={personalityMatch}
-                      personalityColor={data.owner?.personality_color}
-                    />
+                    <PersonalityMatchPill percent={personalityMatch} />
                   ) : null}
                 </View>
               ) : null}
@@ -545,10 +542,7 @@ export function PickDetailModal({
                     <View className="flex-1" />
                   )}
                   {showMatch ? (
-                    <PersonalityMatchPill
-                      percent={personalityMatch}
-                      personalityColor={data.owner?.personality_color}
-                    />
+                    <PersonalityMatchPill percent={personalityMatch} />
                   ) : null}
                 </View>
               ) : null}

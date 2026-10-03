@@ -5,13 +5,6 @@ const PERSONALITY_ROLE_COLORS: Record<string, string> = {
   creator: "#D4537E",
 };
 
-const PERSONALITY_MATCH_TEXT: Record<string, string> = {
-  "#BA7517": "#7c4f0e",
-  "#0F6E56": "#0a4d3c",
-  "#534AB7": "#3d3690",
-  "#D4537E": "#9c3a5d",
-};
-
 const DEFAULT_RING_COLORS = ["#BA7517", "#534AB7", "#0F6E56", "#D4537E"];
 
 export function getDominantPersonalityColor(
@@ -37,15 +30,4 @@ export function getPersonalityGradientColors(
     .slice(0, 4);
 
   return colors.length > 0 ? colors : DEFAULT_RING_COLORS;
-}
-
-export function getPersonalityMatchPillStyle(
-  personalityColor?: Record<string, number> | null,
-): { backgroundColor: string; color: string } {
-  const dominant = getDominantPersonalityColor(personalityColor);
-
-  return {
-    backgroundColor: `${dominant}24`,
-    color: PERSONALITY_MATCH_TEXT[dominant] ?? dominant,
-  };
 }

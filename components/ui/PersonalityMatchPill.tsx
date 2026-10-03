@@ -1,14 +1,12 @@
 import { Text, View } from "react-native";
-import { getPersonalityMatchPillStyle } from "@/utils/personalityRing";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 
 interface PersonalityMatchPillProps {
   /** Server-computed personality match, 0-100. Always renders; null shows as 0%. */
   percent?: number | null;
-  personalityColor?: Record<string, number> | null;
   size?: "sm" | "md";
   /**
-   * `inline` — tinted chip used in author rows / modals.
+   * `inline` — score-band tinted chip used in author rows / modals.
    * `overlay` — white pill with score-band dot + % (list cards).
    * `overlayCompact` — white pill with score-band % only (pick cards).
    */
@@ -22,14 +20,13 @@ interface PersonalityMatchPillProps {
  */
 export function PersonalityMatchPill({
   percent,
-  personalityColor,
   size = "sm",
   variant = "inline",
 }: PersonalityMatchPillProps) {
   const clamped = clampPercent(percent ?? 0);
+  const color = getMatchPercentColor(clamped);
 
   if (variant === "overlay" || variant === "overlayCompact") {
-    const color = getMatchPercentColor(clamped);
     return (
       <View
         accessibilityRole="text"
@@ -52,8 +49,6 @@ export function PersonalityMatchPill({
     );
   }
 
-  const pillStyle = getPersonalityMatchPillStyle(personalityColor);
-
   return (
     <View
       accessibilityRole="text"
@@ -62,7 +57,7 @@ export function PersonalityMatchPill({
           ? "shrink-0 rounded-md px-2.5 py-1"
           : "shrink-0 rounded-md px-2 py-0.5"
       }
-      style={{ backgroundColor: pillStyle.backgroundColor }}
+      style={{ backgroundColor: `${color}24` }}
     >
       <Text
         className={
@@ -70,7 +65,7 @@ export function PersonalityMatchPill({
             ? "font-geist-bold text-sm"
             : "font-geist-bold text-[11.5px]"
         }
-        style={{ color: pillStyle.color }}
+        style={{ color }}
         numberOfLines={1}
       >
         {`${clamped}%`}

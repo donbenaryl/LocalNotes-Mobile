@@ -163,11 +163,7 @@ export function FollowingListCard({ item }: FollowingListCardProps) {
             {formatRelativeTime(item.created_at)}
           </Text>
           {matchPercent != null && !isOwnList ? (
-            <PersonalityMatchPill
-              percent={matchPercent}
-              personalityColor={personalityColor}
-              size="md"
-            />
+            <PersonalityMatchPill percent={matchPercent} size="md" />
           ) : null}
         </View>
       </View>

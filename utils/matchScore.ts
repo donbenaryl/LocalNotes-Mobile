@@ -14,7 +14,7 @@ export function clampPercent(value: number): number {
 /** Red / yellow / green for match % badges (0–40 / 41–69 / 70–100). */
 export function getMatchPercentColor(percent: number): string {
   const p = clampPercent(percent);
-  if (p <= 40) return "#EF4444";     // Red: low match (0-40)
+  if (p <= 40) return "#9CA3AF";     // Gray: low match (0-40)
   if (p <= 69) return "#BA7517";     // Yellow/amber: medium match (41-69)
   return "#0F6E56";                  // Green: high match (70-100)
 }

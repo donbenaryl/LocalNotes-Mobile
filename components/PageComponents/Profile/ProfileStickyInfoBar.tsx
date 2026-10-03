@@ -50,10 +50,7 @@ export function ProfileStickyInfoBar({
 
       {showOtherUserActions ? (
         <>
-          <MatchBadge
-            userId={profile.id!}
-            personalityColor={profile.personality_color}
-          />
+          <MatchBadge userId={profile.id!} />
           <FollowButton
             userId={profile.id!}
             initialIsFollowed={Boolean(profile.is_followed)}

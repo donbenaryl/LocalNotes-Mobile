@@ -90,10 +90,7 @@ export function ListDetailsBody({ list, viewOrigin }: ListDetailsBodyProps) {
               <View className="flex-1" />
             )}
             {!isOwnList ? (
-              <PersonalityMatchPill
-                percent={personalityMatch}
-                personalityColor={list.account.personality_color}
-              />
+              <PersonalityMatchPill percent={personalityMatch} />
             ) : null}
           </View>
         ) : null}
