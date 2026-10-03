@@ -1135,6 +1135,7 @@ const en = {
     aroundTheWeb: 'Also from around the web',
     enableLocation: 'Enable location access to get nearby suggestions from around the web.',
     saveIt: 'Save it',
+    noWebsite: "This place doesn't have a website yet.",
     historyTitle: 'Previous picks',
     historyEmptyTitle: 'No previous picks yet',
     historyEmptyDetail: 'Your Smart Pick history will show up here.',

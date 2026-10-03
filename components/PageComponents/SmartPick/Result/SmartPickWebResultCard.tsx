@@ -1,8 +1,9 @@
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Linking, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react-native';
 import { useListFormStore } from '@/stores/useListFormStore';
+import { useToastStore } from '@/stores/useToastStore';
 import { mapWebResultToPickDraft } from '@/utils/listPickMappers';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { WebResult } from '@/http/smart-pick-api/types';
@@ -16,7 +17,18 @@ interface SmartPickWebResultCardProps {
 export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const showToast = useToastStore((s) => s.show);
   const photoUrl = resolveImageUrl(webResult.image_url);
+
+  const handleOpenWebsite = () => {
+    const website = webResult.website?.trim();
+    if (!website) {
+      showToast({ type: 'info', message: t('smartPick.noWebsite') });
+      return;
+    }
+    const url = website.startsWith('http') ? website : `https://${website}`;
+    void Linking.openURL(url);
+  };
 
   const handleSave = () => {
     const { resetCreate, setItems } = useListFormStore.getState();
@@ -26,7 +38,10 @@ export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProp
   };
 
   return (
-    <View className="flex-row gap-3 rounded-2xl border border-gray-200 bg-white p-2.5 dark:border-gray-800 dark:bg-gray-900">
+    <Pressable
+      onPress={handleOpenWebsite}
+      className="flex-row gap-3 rounded-2xl border border-gray-200 bg-white p-2.5 cursor-pointer dark:border-gray-800 dark:bg-gray-900"
+    >
       <View className="h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-soft dark:bg-gray-800">
         {photoUrl ? (
           <Image source={{ uri: photoUrl }} className="h-full w-full" resizeMode="cover" />
@@ -62,7 +77,6 @@ export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProp
         isWidthFull={false}
         className="shrink-0 self-center px-3 h-8"
       />
-
-    </View>
+    </Pressable>
   );
 }
