@@ -2,6 +2,7 @@ import type {
   ActivityItemDAO,
   ActivityListData,
   ActivityPickData,
+  ActivityStoredData,
 } from "@/http/home-api/type";
 import type { Item, Location } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -30,6 +31,24 @@ export function formatCategoryCity(
   location?: Partial<Location> | null,
 ): string {
   return [categories?.[0], location?.city].filter(Boolean).join(" · ");
+}
+
+export type ListActivity = ActivityItemDAO & {
+  entity: "list";
+  data: ActivityListData | ActivityStoredData;
+};
+
+export type PickActivity = ActivityItemDAO & {
+  entity: "list_item";
+  data: ActivityPickData | ActivityStoredData;
+};
+
+export function isListActivity(item: ActivityItemDAO): item is ListActivity {
+  return item.entity === "list";
+}
+
+export function isPickActivity(item: ActivityItemDAO): item is PickActivity {
+  return item.entity === "list_item";
 }
 
 export function isActivityListData(

@@ -14,7 +14,7 @@ import { useActivityFeed, useSimilarUsers } from "@/hooks/useProfileList";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { cn } from "@/utils/cn";
-import { isActivityListData, isActivityPickData } from "@/utils/followingFeed";
+import { isListActivity, isPickActivity } from "@/utils/followingFeed";
 import { getFeedTimeGroup, type FeedTimeGroup } from "@/utils/time";
 
 interface ActivityGroup {
@@ -38,8 +38,8 @@ function groupActivityByTime(items: ActivityItemDAO[], locale: string): Activity
 }
 
 function FollowingActivityItem({ item }: { item: ActivityItemDAO }) {
-  if (isActivityListData(item)) return <FollowingListCard item={item} />;
-  if (isActivityPickData(item)) return <FollowingPickCard item={item} />;
+  if (isListActivity(item)) return <FollowingListCard item={item} />;
+  if (isPickActivity(item)) return <FollowingPickCard item={item} />;
   return <FollowingActivityRow item={item} />;
 }
 

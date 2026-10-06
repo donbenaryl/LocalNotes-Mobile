@@ -2,24 +2,36 @@ import { useCallback, useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { mapItemToListItemPublic } from "@/components/ui/ListCardDetailed";
 import { ListDetailModal } from "@/components/ui/ListDetailModal";
 import { ListPickSection } from "@/components/ui/ListPickSection";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
-import type { ActivityItemDAO, ActivityListData } from "@/http/home-api/type";
+import type { ActivityListData } from "@/http/home-api/type";
 import listService from "@/http/list-api/list.service";
-import type { Item, ListItemPublic } from "@/http/list-api/types";
+import type { Item, ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { clampPercent, getListMatchPercent } from "@/utils/matchScore";
-import { formatCityRegion, getItemImageUrl } from "@/utils/followingFeed";
+import {
+  formatCityRegion,
+  getItemImageUrl,
+  isActivityListData,
+  type ListActivity,
+} from "@/utils/followingFeed";
 import { formatRelativeTime } from "@/utils/time";
 import { FollowingActivityHeader } from "./FollowingActivityHeader";
 import { FollowingBookmarkButton } from "./FollowingBookmarkButton";
+import { FollowingUnavailableCard } from "./FollowingUnavailableCard";
 
 interface FollowingListCardProps {
-  item: ActivityItemDAO & { entity: "list"; data: ActivityListData };
+  item: ListActivity;
+}
+
+interface FollowingListCardContentProps {
+  item: ListActivity;
+  list: ActivityListData;
 }
 
 const HERO_GRADIENT_FILL = { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 } as const;
@@ -53,10 +65,41 @@ function useListBookmark(listId: string, initialSaved: boolean) {
 
 export function FollowingListCard({ item }: FollowingListCardProps) {
   const { t } = useTranslation();
+  const fullList = isActivityListData(item) ? item.data : null;
+  const listId = item.data.id;
+
+  const { data: fetchedList, isPending } = useQuery({
+    queryKey: ["list-detail", listId],
+    enabled: !fullList && Boolean(listId),
+    retry: 1,
+    queryFn: async (): Promise<ListItemDAO | null> => {
+      const response = await listService.retrieveList(listId);
+      if (response.error) throw response.error;
+      return response.data?.data ?? null;
+    },
+  });
+
+  const list = fullList ?? fetchedList;
+  if (list) return <FollowingListCardContent item={item} list={list} />;
+
+  return (
+    <FollowingUnavailableCard
+      account={item.account}
+      actionText={t(`home.following.activity.list.${item.action}`, {
+        defaultValue: t("home.following.activity.fallback"),
+      })}
+      name={item.data.name}
+      isLoading={isPending}
+      message={t("home.following.unavailableList")}
+    />
+  );
+}
+
+function FollowingListCardContent({ item, list }: FollowingListCardContentProps) {
+  const { t } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const currentUserId = useAuthStore((state) => state.user?.id);
 
-  const list = item.data;
   const isOwnList = currentUserId === list.account?.id;
   const { isSaved, isSaving, toggle } = useListBookmark(list.id, list.is_saved);
 

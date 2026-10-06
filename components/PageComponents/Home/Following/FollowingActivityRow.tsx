@@ -10,7 +10,7 @@ interface FollowingActivityRowProps {
   item: ActivityItemDAO;
 }
 
-/** Header-only card for follows and for list/pick rows whose target was deleted. */
+/** Header-only row for follow activities. */
 export function FollowingActivityRow({ item }: FollowingActivityRowProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -48,11 +48,7 @@ export function FollowingActivityRow({ item }: FollowingActivityRowProps) {
       />
     );
   } else {
-    const kind = item.entity === "list_item" ? "pick" : "list";
-    const verb = t(`home.following.activity.${kind}.${item.action}`, {
-      defaultValue: t("home.following.activity.fallback"),
-    });
-    actionText = targetName ? `${verb} · ${targetName}` : verb;
+    actionText = t("home.following.activity.fallback");
   }
 
   return (

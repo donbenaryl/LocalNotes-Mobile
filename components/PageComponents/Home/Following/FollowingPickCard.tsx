@@ -1,20 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
 import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { NoImage } from "@/components/ui/NoImage";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
-import type { ActivityItemDAO, ActivityPickData } from "@/http/home-api/type";
+import type { ActivityPickData } from "@/http/home-api/type";
 import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import { getDominantPersonalityColor } from "@/utils/personalityRing";
-import { formatCategoryCity, formatCityRegion } from "@/utils/followingFeed";
+import {
+  formatCategoryCity,
+  formatCityRegion,
+  isActivityPickData,
+  type PickActivity,
+} from "@/utils/followingFeed";
 import { FollowingActivityHeader } from "./FollowingActivityHeader";
 import { FollowingBookmarkButton } from "./FollowingBookmarkButton";
+import { FollowingUnavailableCard } from "./FollowingUnavailableCard";
 
 interface FollowingPickCardProps {
-  item: ActivityItemDAO & { entity: "list_item"; data: ActivityPickData };
+  item: PickActivity;
+}
+
+interface FollowingPickCardContentProps {
+  item: PickActivity;
+  pick: ActivityPickData;
 }
 
 function usePickFavorite(pickId: string, initialFavorite: boolean) {
@@ -43,9 +55,42 @@ function usePickFavorite(pickId: string, initialFavorite: boolean) {
 
 export function FollowingPickCard({ item }: FollowingPickCardProps) {
   const { t } = useTranslation();
+  const fullPick = isActivityPickData(item) ? item.data : null;
+  const pickId = item.data.id;
+  const storedName = item.data.name;
+
+  const { data: fetchedPick, isPending } = useQuery({
+    queryKey: ["list-item", pickId],
+    enabled: !fullPick && Boolean(pickId),
+    retry: 1,
+    queryFn: async (): Promise<ActivityPickData | null> => {
+      const response = await listService.fetchListItem(pickId);
+      if (response.error) throw response.error;
+      const data = response.data?.data;
+      return data ? { ...data, name: data.business_name ?? storedName } : null;
+    },
+  });
+
+  const pick = fullPick ?? fetchedPick;
+  if (pick) return <FollowingPickCardContent item={item} pick={pick} />;
+
+  return (
+    <FollowingUnavailableCard
+      account={item.account}
+      actionText={t(`home.following.activity.pick.${item.action}`, {
+        defaultValue: t("home.following.activity.fallback"),
+      })}
+      name={storedName}
+      isLoading={isPending}
+      message={t("home.following.unavailablePick")}
+    />
+  );
+}
+
+function FollowingPickCardContent({ item, pick }: FollowingPickCardContentProps) {
+  const { t } = useTranslation();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const pick = item.data;
   const { isFavorite, isToggling, toggle } = usePickFavorite(pick.id, pick.is_favorite);
 
   const placeName = pick.business_name ?? pick.name;

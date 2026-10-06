@@ -683,6 +683,7 @@ const en = {
         pick: {
           create: 'added a pick',
           update: 'updated a pick',
+          save: 'saved a pick',
         },
         follow: 'followed <name>{{name}}</name>',
         fallback: 'shared an update',
@@ -697,6 +698,8 @@ const en = {
       morePicks: '+{{count}}',
       saveListLabel: 'Save {{name}}',
       favoritePickLabel: 'Favorite {{name}}',
+      unavailableList: 'This list is no longer available',
+      unavailablePick: 'This pick is no longer available',
       freshPerspectives: {
         title: 'Fresh perspectives',
         previous: 'Show previous people',
