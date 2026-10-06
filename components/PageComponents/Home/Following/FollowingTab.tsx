@@ -5,6 +5,7 @@ import { AlertCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import type { ActivityItemDAO } from "@/http/home-api/type";
 import { FollowingActivityRow } from "@/components/PageComponents/Home/Following/FollowingActivityRow";
+import { FollowingFindFriends } from "@/components/PageComponents/Home/Following/FindFriends/FollowingFindFriends";
 import { FollowingFreshPerspectives } from "@/components/PageComponents/Home/Following/FollowingFreshPerspectives";
 import { FollowingListCard } from "@/components/PageComponents/Home/Following/FollowingListCard";
 import { FollowingListSkeleton } from "@/components/PageComponents/Home/Following/FollowingListSkeleton";
@@ -131,6 +132,8 @@ export function FollowingTab() {
         isLoading={Boolean(currentUserId) && similarPending}
         isError={similarError}
       />
+
+      <FollowingFindFriends />
     </View>
   );
 }
