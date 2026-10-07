@@ -25,6 +25,8 @@ export interface PrivacyPrefs {
   usePreciseLocation: boolean;
   showSavedList: boolean;
   showLikesAndComments: boolean;
+  /** Synced to `PrivacySetting.discoverable_by_phone` (contact matching). */
+  discoverableByPhone: boolean;
 }
 
 export interface ConnectedProvider {
@@ -66,6 +68,7 @@ export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
   usePreciseLocation: true,
   showSavedList: false,
   showLikesAndComments: false,
+  discoverableByPhone: true,
 };
 
 /** Unconnected defaults — live status comes from GET /api/reviews/connections. */

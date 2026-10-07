@@ -53,7 +53,7 @@ export function TextInput({
       >
         <RNTextInput
           className={cn(
-            "flex-1 text-ink dark:text-gray-100 font-geist text-base",
+            "flex-1 text-ink dark:text-gray-100 font-geist text-base py-0 text-[16px]",
             isMultiline && shouldShowCounter ? "pb-7" : "",
           )}
           placeholderTextColor="#6B7280"

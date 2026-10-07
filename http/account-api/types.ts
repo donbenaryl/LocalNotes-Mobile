@@ -2,6 +2,7 @@ import type {
   NotificationPrefs,
   PrivacyPrefs,
 } from "@/components/PageComponents/Profile/AccountSettings/types";
+import type { UnifiedSearchPersonDAO } from "../search-api/type";
 
 export interface AccountLocationDTO {
   city: string;
@@ -52,7 +53,41 @@ export interface profileItemDAO {
   primary_business_name?: string | null;
   /** Mirrored third-party reviews on this profile (additive). */
   review_count?: number;
+  /** Self profile only; E.164. Set exclusively via SMS verification. */
+  phone_number?: string | null;
+  phone_verified?: boolean;
 }
+
+export interface PhoneSendCodeDTO {
+  phone_number: string;
+  /** ISO 3166-1 alpha-2, used when `phone_number` lacks a country code. */
+  region?: string;
+}
+
+export interface PhoneSendCodeDAO {
+  phone_number: string;
+  phone_number_masked: string;
+  resend_after: number;
+}
+
+export interface PhoneVerifyDTO extends PhoneSendCodeDTO {
+  code: string;
+}
+
+export interface ContactsMatchDTO {
+  /** SHA-256 hex digests of E.164 numbers. Max 1000 per request. */
+  hashes: string[];
+}
+
+export type ContactMatchPersonDAO = UnifiedSearchPersonDAO & {
+  matched_hash: string;
+};
+
+/** Error body for rate-limited phone/contacts endpoints (HTTP 429). */
+export type RateLimitedErrorBody = {
+  message?: string;
+  data?: { retry_after?: number | null } | null;
+};
 
 export type profileDAO = {
   success: boolean;
@@ -299,6 +334,7 @@ export interface PrivacySettingsDAO {
   use_precise_location: boolean;
   show_saved_list: boolean;
   show_likes_and_comments: boolean;
+  discoverable_by_phone?: boolean;
 }
 
 export type UpdatePrivacySettingsDTO = Partial<PrivacySettingsDAO>;
@@ -393,6 +429,7 @@ export function mapPrivacySettingsDAOToPrefs(dao: PrivacySettingsDAO): PrivacyPr
     usePreciseLocation: dao.use_precise_location,
     showSavedList: dao.show_saved_list,
     showLikesAndComments: dao.show_likes_and_comments,
+    discoverableByPhone: dao.discoverable_by_phone ?? true,
   };
 }
 
@@ -413,6 +450,9 @@ export function mapPrivacyPrefsToDAO(
   if (prefs.showSavedList !== undefined) dto.show_saved_list = prefs.showSavedList;
   if (prefs.showLikesAndComments !== undefined) {
     dto.show_likes_and_comments = prefs.showLikesAndComments;
+  }
+  if (prefs.discoverableByPhone !== undefined) {
+    dto.discoverable_by_phone = prefs.discoverableByPhone;
   }
   return dto;
 }

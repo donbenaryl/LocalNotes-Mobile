@@ -118,6 +118,12 @@ export default function PrivacyVisibilitySettings() {
             onValueChange={toggle('appearInSearch')}
           />
           <SettingsSwitchRow
+            title={t('accountSettings.privacy.discoverableByPhone')}
+            subtitle={t('accountSettings.privacy.discoverableByPhoneSub')}
+            value={privacy.discoverableByPhone}
+            onValueChange={toggle('discoverableByPhone')}
+          />
+          <SettingsSwitchRow
             title={t('accountSettings.privacy.showInSmartPicks')}
             subtitle={t('accountSettings.privacy.showInSmartPicksSub')}
             value={privacy.showInSmartPicks}

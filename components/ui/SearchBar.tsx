@@ -63,7 +63,7 @@ export function SearchBar({
           autoCorrect={false}
           autoFocus={autoFocus}
           onSubmitEditing={() => onCommit(value)}
-          className="flex-1 py-3 font-geist text-base text-ink dark:text-gray-100"
+          className="flex-1 py-3 text-[16px] font-geist text-ink dark:text-gray-100"
         />
         {value.length > 0 ? (
           <Pressable

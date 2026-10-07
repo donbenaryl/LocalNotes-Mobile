@@ -23,6 +23,8 @@ import {
 } from "@/components/PageComponents/Profile/BusinessProfileFields";
 import { EditBranchHoursModal } from "@/components/PageComponents/Profile/EditBranchHoursModal";
 import { EditProfileHub } from "@/components/PageComponents/Profile/EditProfileHub";
+import { PhoneVerificationModal } from "@/components/PhoneVerification/PhoneVerificationModal";
+import { maskPhone } from "@/utils/phone";
 import {
   EditProfilePersonalFields,
   type EditProfilePersonalValues,
@@ -176,6 +178,7 @@ export default function EditProfile() {
   const [usernameStatus, setUsernameStatus] =
     useState<UsernameAvailabilityStatus>("idle");
   const [isLocationModalVisible, setIsLocationModalVisible] = useState(false);
+  const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
 
   const [businessForm, setBusinessForm] =
     useState<BusinessProfileFormValues>(EMPTY_BUSINESS_FORM);
@@ -797,13 +800,12 @@ export default function EditProfile() {
                 params: { isRetake: "true" },
               })
             }
-            onPressPhone={() =>
-              showToast({
-                type: "info",
-                message: t("editProfile.hub.phoneComingSoon"),
-                title: t("editProfile.hub.phoneComingSoonTitle"),
-              })
+            phoneValue={
+              profile.phone_verified && profile.phone_number
+                ? maskPhone(profile.phone_number)
+                : undefined
             }
+            onPressPhone={() => setIsPhoneModalVisible(true)}
           />
         ) : null}
 
@@ -885,6 +887,12 @@ export default function EditProfile() {
         visible={isLocationModalVisible}
         onClose={() => setIsLocationModalVisible(false)}
         initialLocation={homeLocation}
+      />
+
+      <PhoneVerificationModal
+        visible={isPhoneModalVisible}
+        onClose={() => setIsPhoneModalVisible(false)}
+        verifiedPhone={profile.phone_verified ? profile.phone_number : null}
       />
 
       {isBusiness ? (

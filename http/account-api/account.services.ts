@@ -28,6 +28,11 @@ import type {
   ReportUserDTO,
   BlockedAccountDAO,
   FollowListUserDAO,
+  PhoneSendCodeDTO,
+  PhoneSendCodeDAO,
+  PhoneVerifyDTO,
+  ContactsMatchDTO,
+  ContactMatchPersonDAO,
 } from "./types";
 import type { UnifiedSearchPersonDAO } from "../search-api/type";
 
@@ -299,6 +304,33 @@ class AccountService extends AppHttpService {
     return await this.SendRequest({
       method: "post",
       path: "/notification-token",
+      body: dto,
+    });
+  }
+  async sendPhoneCode(dto: PhoneSendCodeDTO) {
+    return await this.SendRequest<PhoneSendCodeDAO>({
+      method: "post",
+      path: "/phone/send-code",
+      body: dto,
+    });
+  }
+  async verifyPhoneCode(dto: PhoneVerifyDTO) {
+    return await this.SendRequest<profileItemDAO>({
+      method: "post",
+      path: "/phone/verify",
+      body: dto,
+    });
+  }
+  async removePhone() {
+    return await this.SendRequest<profileItemDAO>({
+      method: "delete",
+      path: "/phone",
+    });
+  }
+  async matchContacts(dto: ContactsMatchDTO) {
+    return await this.SendRequest<ContactMatchPersonDAO[]>({
+      method: "post",
+      path: "/contacts/match",
       body: dto,
     });
   }

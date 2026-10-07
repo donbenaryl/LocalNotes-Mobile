@@ -9,6 +9,7 @@ import { FACEBOOK_BLUE, FacebookIcon } from "@/components/ui/icons/FacebookIcon"
 import { getWebAppUrl } from "@/http/environment.config";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ConnectNowModal } from "./ConnectNow/ConnectNowModal";
+import { FindContactsModal } from "./FindContacts/FindContactsModal";
 
 type FindFriendsOptionId = "connectNow" | "inviteFriends" | "findContacts" | "findFacebook";
 
@@ -53,8 +54,10 @@ export function FollowingFindFriends() {
   const userId = useAuthStore((state) => state.user?.id);
   const [visible, setVisible] = useState(false);
   const [connectNowVisible, setConnectNowVisible] = useState(false);
-  // Mount lazily so location permission is only requested once the user opts in.
+  // Mount lazily so location/contacts permission is only requested once the user opts in.
   const [connectNowMounted, setConnectNowMounted] = useState(false);
+  const [findContactsVisible, setFindContactsVisible] = useState(false);
+  const [findContactsMounted, setFindContactsMounted] = useState(false);
   const handoffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chevronColor = colorScheme === "dark" ? "#9CA3AF" : "#6B7280";
 
@@ -71,6 +74,14 @@ export function FollowingFindFriends() {
       setConnectNowMounted(true);
       handoffTimerRef.current = setTimeout(
         () => setConnectNowVisible(true),
+        MODAL_HANDOFF_DELAY_MS,
+      );
+      return;
+    }
+    if (id === "findContacts") {
+      setFindContactsMounted(true);
+      handoffTimerRef.current = setTimeout(
+        () => setFindContactsVisible(true),
         MODAL_HANDOFF_DELAY_MS,
       );
       return;
@@ -140,6 +151,13 @@ export function FollowingFindFriends() {
         <ConnectNowModal
           visible={connectNowVisible}
           onClose={() => setConnectNowVisible(false)}
+        />
+      ) : null}
+
+      {findContactsMounted ? (
+        <FindContactsModal
+          visible={findContactsVisible}
+          onClose={() => setFindContactsVisible(false)}
         />
       ) : null}
     </>

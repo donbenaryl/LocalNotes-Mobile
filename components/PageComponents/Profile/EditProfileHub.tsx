@@ -35,6 +35,8 @@ interface EditProfileHubProps {
   onOpenSocial: () => void;
   onOpenHomeCity: () => void;
   onOpenPersonality: () => void;
+  /** Masked verified phone; falls back to "Add" when absent. */
+  phoneValue?: string;
   onPressPhone: () => void;
 }
 
@@ -54,6 +56,7 @@ export function EditProfileHub({
   onOpenSocial,
   onOpenHomeCity,
   onOpenPersonality,
+  phoneValue,
   onPressPhone,
 }: EditProfileHubProps) {
   const { t } = useTranslation();
@@ -143,7 +146,7 @@ export function EditProfileHub({
           icon={Phone}
           title={t("editProfile.hub.phone")}
           subtitle={t("editProfile.hub.phoneSub")}
-          value={t("editProfile.add")}
+          value={phoneValue || t("editProfile.add")}
           onPress={onPressPhone}
           isLast
         />
