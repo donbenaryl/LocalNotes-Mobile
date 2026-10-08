@@ -88,7 +88,8 @@ export function FollowingFindFriends() {
     }
     if (id === "inviteFriends") {
       const webUrl = getWebAppUrl();
-      const url = webUrl && userId ? `${webUrl}/user/${userId}` : webUrl;
+      // Sign-up link tagged with the inviter so the backend can record `referred_by`.
+      const url = webUrl && userId ? `${webUrl}/sign-up?ref=${encodeURIComponent(userId)}` : webUrl;
       void Share.share({
         message: url
           ? t("home.following.findFriends.inviteMessage", { url })

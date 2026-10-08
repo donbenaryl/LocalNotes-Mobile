@@ -1,6 +1,8 @@
 export type signUpDTO={
     email:string;
     notification_token?: string;
+    /** Id of the account whose invite link was used. */
+    ref?: string;
 }
 
 export type signInDTO={
