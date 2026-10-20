@@ -4,6 +4,7 @@ import {
   InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   Pressable,
   ScrollView,
   Share,
@@ -378,13 +379,16 @@ export function PickDetailModal({
           style={{ maxHeight: sheetMaxHeight, minHeight: 120 }}
           className="-mx-8"
           contentContainerClassName="pb-6"
+          // RefreshControl blanks flex ScrollViews on Android.
           refreshControl={
-            <AppRefreshControl
-              refreshing={isPullRefreshing}
-              onRefresh={() => {
-                void refreshRelatedLists({ fromPull: true });
-              }}
-            />
+            Platform.OS === "android" ? undefined : (
+              <AppRefreshControl
+                refreshing={isPullRefreshing}
+                onRefresh={() => {
+                  void refreshRelatedLists({ fromPull: true });
+                }}
+              />
+            )
           }
         >
           {hasPhotos ? (
