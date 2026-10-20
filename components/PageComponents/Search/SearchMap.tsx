@@ -7,11 +7,7 @@ import {
   View,
   type NativeSyntheticEvent,
 } from "react-native";
-import MapView, {
-  Marker,
-  PROVIDER_GOOGLE,
-  type Region,
-} from "react-native-maps";
+import MapView, { Marker, type Region } from "react-native-maps";
 import { useTranslation } from "react-i18next";
 import { MapPinMarker } from "@/components/ui/MapPinMarker";
 import { ListDetailModal } from "@/components/ui/ListDetailModal";
@@ -397,8 +393,6 @@ export function SearchMap({
           <MapView
             key="search-map-fill"
             ref={mapRef}
-            provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
-            googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
             style={mapViewStyle}
             initialRegion={region as Region}
             showsUserLocation={false}
@@ -428,8 +422,6 @@ export function SearchMap({
         <MapView
           key="search-map"
           ref={mapRef}
-          provider={Platform.OS === "android" ? PROVIDER_GOOGLE : undefined}
-          googleRenderer={Platform.OS === "android" ? "LEGACY" : undefined}
           style={mapViewStyle}
           initialRegion={region as Region}
           showsUserLocation={false}
