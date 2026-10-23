@@ -12,6 +12,10 @@ interface SavedSectionStateProps {
   emptyIcon?: ReactNode;
   emptyTitle: string;
   emptyDescription?: string;
+  /** Replaces the default spinner while pending (e.g. skeleton placeholders). */
+  pendingContent?: ReactNode;
+  errorMessage?: string;
+  retryLabel?: string;
   children: ReactNode;
 }
 
@@ -23,11 +27,15 @@ export function SavedSectionState({
   emptyIcon,
   emptyTitle,
   emptyDescription,
+  pendingContent,
+  errorMessage,
+  retryLabel,
   children,
 }: SavedSectionStateProps) {
   const { t } = useTranslation();
 
   if (isPending) {
+    if (pendingContent) return <>{pendingContent}</>;
     return (
       <View className="items-center justify-center gap-3 py-12">
         <ActivityIndicator size="large" color="#FF6B1A" />
@@ -42,10 +50,10 @@ export function SavedSectionState({
     return (
       <View className="items-center justify-center gap-4 py-12">
         <Text className="font-geist text-sm text-red-500">
-          {t("profile.lists.error")}
+          {errorMessage ?? t("profile.lists.error")}
         </Text>
         <LocalNotesButton
-          label={t("profile.lists.retry")}
+          label={retryLabel ?? t("profile.lists.retry")}
           onPress={onRetry}
           variant="dark"
           size="sm"

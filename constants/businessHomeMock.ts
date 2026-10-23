@@ -23,23 +23,6 @@ export type BusinessHomeLocationRow = {
   isViewing: boolean;
 };
 
-export type BusinessHomeExploreChip = {
-  label: string;
-  count: string;
-  hot?: boolean;
-};
-
-export type BusinessHomeDemandRow = {
-  query: string;
-  meta: string;
-  highlight?: boolean;
-};
-
-export type BusinessHomePerformanceRow = {
-  title: string;
-  meta: string;
-};
-
 export const BUSINESS_HOME_PERIOD_LABEL = 'Jul 1–28';
 
 export const BUSINESS_HOME_TOPLINE_MOCK: BusinessHomeToplineMock = {
@@ -111,30 +94,6 @@ export const BUSINESS_HOME_CAMPAIGN = {
   sales: '$768',
   roas: '15.4×',
 };
-
-export const BUSINESS_HOME_EXPLORE_CHIPS: BusinessHomeExploreChip[] = [
-  { label: 'quiet', count: '14', hot: true },
-  { label: 'cortado', count: '11', hot: true },
-  { label: 'cozy', count: '9' },
-  { label: 'wifi', count: '8' },
-];
-
-export const BUSINESS_HOME_DIFF_CHIPS: BusinessHomeExploreChip[] = [
-  { label: 'taste over looks', count: '1.8×', hot: true },
-  { label: 'quiet over lively', count: '1.6×', hot: true },
-  { label: 'regulars over novelty', count: '1.4×' },
-];
-
-export const BUSINESS_HOME_DEMAND_ROWS: BusinessHomeDemandRow[] = [
-  { query: '"study spots open late"', meta: '310 · ↑18%', highlight: true },
-  { query: '"quiet cafe near me"', meta: '480' },
-];
-
-export const BUSINESS_HOME_PERFORMANCE_ROWS: BusinessHomePerformanceRow[] = [
-  { title: 'Audience fit 87% vs café avg 61%', meta: 'Top 5%' },
-  { title: 'Views → saves 25% vs 9%', meta: 'Top 10%' },
-  { title: 'Visit intent · directions requested', meta: '640 · ↑9%' },
-];
 
 export const BUSINESS_HOME_USAGE =
   'This month: 41/60 Copilot questions · 3/12 campaign drafts · shared across your team · we\'ll warn you at 80%, never silently charge';

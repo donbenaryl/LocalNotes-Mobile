@@ -16,6 +16,10 @@ import type {
     BusinessTotalListSavesStatsDAO,
     BusinessRedeemsStatsDAO,
     BusinessDiscoveryStatsDAO,
+    BusinessCustomerInsightsDAO,
+    BusinessDemandInsightsDAO,
+    BusinessPerformanceInsightsDAO,
+    BusinessInsightsParams,
     OwnedBusinessDAO,
     StatsDateRangeParams,
     BusinessClaimDAO,
@@ -240,6 +244,27 @@ class BusinessService extends AppHttpService{
         return await this.SendRequest<BusinessDiscoveryStatsDAO, Record<string, unknown>, StatsDateRangeParams>({
             method: "get",
             path: `/${businessId}/stats/discovery`,
+            query: params,
+        });
+    }
+    async getCustomersInsights(businessId: string, params?: BusinessInsightsParams) {
+        return await this.SendRequest<BusinessCustomerInsightsDAO, Record<string, unknown>, BusinessInsightsParams>({
+            method: "get",
+            path: `/${businessId}/insights/customers/`,
+            query: params,
+        });
+    }
+    async getDemandInsights(businessId: string, params?: BusinessInsightsParams) {
+        return await this.SendRequest<BusinessDemandInsightsDAO, Record<string, unknown>, BusinessInsightsParams>({
+            method: "get",
+            path: `/${businessId}/insights/demand/`,
+            query: params,
+        });
+    }
+    async getPerformanceInsights(businessId: string, params?: BusinessInsightsParams) {
+        return await this.SendRequest<BusinessPerformanceInsightsDAO, Record<string, unknown>, BusinessInsightsParams>({
+            method: "get",
+            path: `/${businessId}/insights/performance/`,
             query: params,
         });
     }

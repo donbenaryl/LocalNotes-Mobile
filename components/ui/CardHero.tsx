@@ -67,6 +67,23 @@ function HeroVideoPreview({ uri }: HeroVideoPreviewProps) {
   );
 }
 
+interface HeroImageProps {
+  uri: string;
+  pointerEventsNone: boolean;
+}
+
+/** `Image` has no `pointerEvents` prop, so the wrapper carries it. */
+function HeroImage({ uri, pointerEventsNone }: HeroImageProps) {
+  return (
+    <View
+      pointerEvents={pointerEventsNone ? "none" : "auto"}
+      className="absolute inset-0 h-full w-full"
+    >
+      <Image source={{ uri }} className="h-full w-full" resizeMode="cover" />
+    </View>
+  );
+}
+
 interface HeroMediaProps {
   imageUrl?: string;
   videoUrl?: string;
@@ -85,14 +102,7 @@ function HeroMedia({ imageUrl, videoUrl, pointerEventsNone }: HeroMediaProps) {
     }
 
     if (imageUrl) {
-      return (
-        <Image
-          source={{ uri: imageUrl }}
-          className="absolute inset-0 h-full w-full"
-          resizeMode="cover"
-          pointerEvents={pointerEventsNone ? "none" : "auto"}
-        />
-      );
+      return <HeroImage uri={imageUrl} pointerEventsNone={pointerEventsNone} />;
     }
 
     return (
@@ -103,14 +113,7 @@ function HeroMedia({ imageUrl, videoUrl, pointerEventsNone }: HeroMediaProps) {
   }
 
   if (imageUrl) {
-    return (
-      <Image
-        source={{ uri: imageUrl }}
-        className="absolute inset-0 h-full w-full"
-        resizeMode="cover"
-        pointerEvents={pointerEventsNone ? "none" : "auto"}
-      />
-    );
+    return <HeroImage uri={imageUrl} pointerEventsNone={pointerEventsNone} />;
   }
 
   return null;

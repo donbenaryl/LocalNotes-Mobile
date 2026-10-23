@@ -31,7 +31,6 @@ export default function BusinessHomeScreen() {
     onDateRangeChange,
     topline,
     discovery,
-    personalityRows,
     locationRows,
     isPaidMember,
     togglePaidMember,
@@ -164,7 +163,6 @@ export default function BusinessHomeScreen() {
     case 'customers':
       content = (
         <BusinessHomeCustomersPage
-          personalityRows={personalityRows}
           isPaidMember={isPaidMember}
           onBack={pop}
         />

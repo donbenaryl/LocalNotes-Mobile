@@ -63,7 +63,7 @@ export function MainVerifyOtp() {
       showsVerticalScrollIndicator={false}
     >
       <View style={{ paddingTop: insets.top + 20 }} className="px-6 mb-16">
-        <PageTitleHeading onBack={() => router.back()} />
+        <PageTitleHeading />
       </View>
 
       <View className="px-10 flex-1">

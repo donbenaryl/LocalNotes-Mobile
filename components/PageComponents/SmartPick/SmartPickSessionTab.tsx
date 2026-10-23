@@ -55,7 +55,11 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
             />
           }
         >
-          <SmartPickResults conversation={conversation} onBack={() => router.back()} />
+          <SmartPickResults
+            conversation={conversation}
+            onBack={() => router.back()}
+            coordinates={null}
+          />
         </AppScrollView>
       )}
     </View>

@@ -5,7 +5,6 @@ import type { BusinessHomeLocationRow } from '@/constants/businessHomeMock';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
-import { getBusinessPersonalityLabel } from '@/utils/businessPersonalityLabels';
 import { formatIsoDate, formatPeriodLabel, parseIsoDate } from '@/utils/dateIso';
 import type {
   BusinessDiscoveryStatsDAO,
@@ -66,12 +65,6 @@ function pickDisplayName(fullName?: string | null): string {
   if (trimmed) return trimmed;
   return 'Owner';
 }
-
-export type BusinessHomePersonalityRow = {
-  label: string;
-  color: string;
-  percentage: number;
-};
 
 export type BusinessHomeDiscoveryChannelKey = keyof BusinessDiscoveryStatsDAO;
 
@@ -197,16 +190,6 @@ export function useBusinessHomeData() {
     queryFn: () => fetchToplineCounts(businessId, previousDateRange),
   });
 
-  const personalityQuery = useQuery({
-    queryKey: ['business-home-personality', businessId],
-    enabled: Boolean(businessId),
-    queryFn: async () => {
-      const response = await businessService.getPersonalityColorStats(businessId);
-      if (response.error) throw new Error(response.error.message);
-      return response.data?.data ?? [];
-    },
-  });
-
   const discoveryQuery = useQuery({
     queryKey: ['business-home-discovery', businessId, dateRange],
     enabled: Boolean(businessId),
@@ -236,23 +219,6 @@ export function useBusinessHomeData() {
       listsChange: percentChange(current.lists, previous.lists),
     };
   }, [toplineQuery.data, previousToplineQuery.data]);
-
-  const personalityRows: BusinessHomePersonalityRow[] = useMemo(() => {
-    const rows = personalityQuery.data ?? [];
-    if (rows.length === 0) {
-      return [
-        { label: 'Curators', color: '#7C5CFF', percentage: 38 },
-        { label: 'Explorers', color: '#FF6B1A', percentage: 31 },
-        { label: 'Relaxed Locals', color: '#0F8B7E', percentage: 22 },
-        { label: 'Connectors', color: '#E0417E', percentage: 9 },
-      ];
-    }
-    return rows.map((row) => ({
-      label: getBusinessPersonalityLabel(row.color_name),
-      color: row.color,
-      percentage: Math.round(row.percentage),
-    }));
-  }, [personalityQuery.data]);
 
   const locationRows: BusinessHomeLocationRow[] = useMemo(() => {
     const branches = businessInfo?.branches ?? [];
@@ -294,7 +260,6 @@ export function useBusinessHomeData() {
     (Boolean(businessId) &&
       (toplineQuery.isPending ||
         previousToplineQuery.isPending ||
-        personalityQuery.isPending ||
         discoveryQuery.isPending));
 
   const refetchAll = async () => {
@@ -303,7 +268,6 @@ export function useBusinessHomeData() {
     await Promise.all([
       toplineQuery.refetch(),
       previousToplineQuery.refetch(),
-      personalityQuery.refetch(),
       discoveryQuery.refetch(),
     ]);
   };
@@ -322,7 +286,6 @@ export function useBusinessHomeData() {
     onDateRangeChange,
     topline,
     discovery,
-    personalityRows,
     locationRows,
     isPaidMember,
     togglePaidMember,
@@ -330,7 +293,6 @@ export function useBusinessHomeData() {
     isRefetching:
       toplineQuery.isRefetching ||
       previousToplineQuery.isRefetching ||
-      personalityQuery.isRefetching ||
       discoveryQuery.isRefetching,
     refetchAll,
   };

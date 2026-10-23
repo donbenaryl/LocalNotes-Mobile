@@ -1,10 +1,9 @@
 import { Image } from "react-native";
-import wazeLogo from "@/assets/icons/waze-logo.png";
 
 export function WazeLogoIcon() {
   return (
     <Image
-      source={wazeLogo}
+      source={require("@/assets/icons/waze-logo.png")}
       style={{ width: 18, height: 18 }}
       resizeMode="contain"
     />

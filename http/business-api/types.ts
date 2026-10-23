@@ -175,6 +175,112 @@ export type BusinessDiscoveryStatsDAO = {
   discover: number;
 };
 
+export type BusinessInsightsTab = "customers" | "demand" | "performance";
+
+export type BusinessInsightsWindow = "7d" | "30d" | "90d";
+
+export type BusinessInsightStatus = "ready" | "building" | "insufficient_data";
+
+type BusinessInsightsTabDAO = {
+  status: BusinessInsightStatus;
+  /** Oldest `computed_at` across the tab's sections; null while building. */
+  computed_at: string | null;
+  window: BusinessInsightsWindow;
+};
+
+/** Sections are null while the tab is building. */
+type BusinessInsightSectionDAO<T> = ({ status: BusinessInsightStatus } & T) | null;
+
+export type BusinessKeywordChipDAO = {
+  label: string;
+  count: number;
+  hot: boolean;
+};
+
+export type BusinessPersonalityInsightRowDAO = {
+  color: string;
+  color_name: string;
+  percentage: number;
+};
+
+export type BusinessDifferentiatorChipDAO = {
+  label: string;
+  lift: number;
+};
+
+export type BusinessCustomerInsightsDAO = BusinessInsightsTabDAO & {
+  customer_keywords: BusinessInsightSectionDAO<{
+    chips: BusinessKeywordChipDAO[];
+    savers_count: number;
+    notes_count: number;
+  }>;
+  customer_personality: BusinessInsightSectionDAO<{
+    rows: BusinessPersonalityInsightRowDAO[];
+    cohort_size: number;
+    top_area: string | null;
+  }>;
+  customer_differentiators: BusinessInsightSectionDAO<{
+    chips: BusinessDifferentiatorChipDAO[];
+    peer_count: number;
+    peer_label?: string;
+  }>;
+};
+
+export type BusinessDemandTopicSource = "smart_pick" | "search";
+
+export type BusinessDemandTopicRowDAO = {
+  query: string;
+  volume: number;
+  delta_pct: number | null;
+  source: BusinessDemandTopicSource;
+};
+
+export type BusinessPeakHourRangeDAO = {
+  start_hour: number;
+  end_hour: number;
+  views: number;
+};
+
+export type BusinessDemandInsightsDAO = BusinessInsightsTabDAO & {
+  demand_topics: BusinessInsightSectionDAO<{
+    rows: BusinessDemandTopicRowDAO[];
+    source: "smart_pick" | "smart_pick+search";
+    period_label: string;
+    opportunity: { query: string; delta_pct: number | null } | null;
+  }>;
+  demand_peak_hours: BusinessInsightSectionDAO<{
+    /** IANA zone the histogram is bucketed in; absent when insufficient. */
+    timezone?: string;
+    /** 24 hourly view counts when ready, empty otherwise. */
+    histogram: number[];
+    strongest: BusinessPeakHourRangeDAO | null;
+    quietest: BusinessPeakHourRangeDAO | null;
+    reason?: "no_timezone" | "small_cohort";
+  }>;
+};
+
+export type BusinessPerformanceMetricKey = "audience_fit" | "views" | "saves" | "follows";
+
+export type BusinessPerformanceRowDAO = {
+  key: BusinessPerformanceMetricKey;
+  value: number;
+  peer_avg: number | null;
+  delta: number | null;
+  percentile: number | null;
+};
+
+export type BusinessPerformanceInsightsDAO = BusinessInsightsTabDAO & {
+  performance_summary: BusinessInsightSectionDAO<{
+    rows: BusinessPerformanceRowDAO[];
+    peer_count: number;
+    peer_label: string | null;
+  }>;
+};
+
+export type BusinessInsightsParams = {
+  window?: BusinessInsightsWindow;
+};
+
 export type OwnedBusinessDAO = {
   id: string;
   name: string;
