@@ -3,11 +3,14 @@ import { Pressable, Text, View } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import type { CountryCode } from "libphonenumber-js";
 import { useTranslation } from "react-i18next";
+import * as WebBrowser from "expo-web-browser";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { OtpInput } from "@/components/ui/OtpInput";
 import { PhoneInput } from "@/components/ui/PhoneInput";
 import accountService from "@/http/account-api/account.services";
 import type { profileItemDAO } from "@/http/account-api/types";
+import { LEGAL_WEBSITE } from "@/constants/legal";
 import { DEFAULT_COUNTRY } from "@/utils/countries";
 import {
   formatCooldown,
@@ -47,6 +50,7 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
   const [isVerifying, setIsVerifying] = useState(false);
   const [cooldown, setCooldown] = useCountdown();
   const [country, setCountry] = useState<CountryCode>(DEFAULT_COUNTRY);
+  const [smsConsent, setSmsConsent] = useState(false);
 
   const rateLimitedMessage = (seconds: number) =>
     t("phoneVerification.rateLimited", { duration: formatCooldown(seconds, t) });
@@ -59,6 +63,7 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
       const response = await accountService.sendPhoneCode({
         phone_number: target,
         region: country,
+        sms_consent: true,
       });
       if (response.error) {
         const retryAfter = getRetryAfterSeconds(response.error);
@@ -79,7 +84,16 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
     }
   };
 
+  const toggleConsent = (next: boolean) => {
+    setSmsConsent(next);
+    if (next && error) setError(null);
+  };
+
   const handleSubmitPhone = () => {
+    if (!smsConsent) {
+      setError(t("phoneVerification.consentRequired"));
+      return;
+    }
     const normalized = validateNationalNumber(rawPhone, country);
     if (!normalized) {
       setError(t("phoneVerification.invalidPhone"));
@@ -192,9 +206,33 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
         onSubmitEditing={handleSubmitPhone}
         error={error ?? undefined}
       />
-      <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
-        {t("phoneVerification.smsDisclaimer")}
-      </Text>
+      <View className="flex-row gap-3">
+        <View className="pt-0.5">
+          <Checkbox checked={smsConsent} onChange={toggleConsent} size={20} />
+        </View>
+        <Text
+          className="flex-1 font-geist text-xs leading-5 text-gray-500 dark:text-gray-400"
+          onPress={() => toggleConsent(!smsConsent)}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: smsConsent }}
+        >
+          {t("phoneVerification.consentPrefix")}
+          <Text
+            className="font-geist-semibold text-brand underline"
+            onPress={() => void WebBrowser.openBrowserAsync(`${LEGAL_WEBSITE}/terms`)}
+          >
+            {t("phoneVerification.consentTerms")}
+          </Text>
+          {t("phoneVerification.consentAnd")}
+          <Text
+            className="font-geist-semibold text-brand underline"
+            onPress={() => void WebBrowser.openBrowserAsync(`${LEGAL_WEBSITE}/privacy`)}
+          >
+            {t("phoneVerification.consentPrivacy")}
+          </Text>
+          {t("phoneVerification.consentSuffix")}
+        </Text>
+      </View>
       <LocalNotesButton
         label={
           cooldown > 0
@@ -202,7 +240,7 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
             : t("phoneVerification.sendCode")
         }
         onPress={handleSubmitPhone}
-        disabled={rawPhone.trim().length === 0 || cooldown > 0}
+        disabled={!smsConsent || rawPhone.trim().length === 0 || cooldown > 0}
         loading={isSending}
         variant="brand"
         size={compact ? "sm" : "md"}

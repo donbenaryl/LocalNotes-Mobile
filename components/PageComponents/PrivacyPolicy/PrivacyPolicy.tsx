@@ -76,6 +76,10 @@ const PRIVACY_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
+        text: 'Phone number. Adding a mobile phone number is optional. If you add one, we verify it by sending a one-time code by text message, and we keep a record of when you agreed to receive verification texts and which consent wording you were shown. We also store a one-way hashed copy of the number. If you allow phone discovery in your privacy settings, people who have your number in their device contacts can find your account; we compare hashed numbers for this and do not store their contact lists.',
+      },
+      {
+        type: 'paragraph',
         text: 'Business-account information. Business name, public address, category, contact information, role, authorization, verification materials, advertising selections, and account-management information.',
       },
       {
@@ -144,6 +148,7 @@ const PRIVACY_SECTIONS: SectionData[] = [
           'create, authenticate, maintain, secure, and support accounts;',
           'host, display, organize, and distribute User Content according to user choices;',
           'provide search, maps, location, saves, follows, lists, drafts, reports, blocking, and business features;',
+          'verify phone numbers you choose to add and, if you allow it, help people who have your number find you;',
           'personalize recommendations, ranking, curator matching, and feature discovery;',
           'process purchases, subscriptions, refunds, and related accounting;',
           'provide customer support and communicate about service, security, policy, and account matters;',
@@ -180,6 +185,14 @@ const PRIVACY_SECTIONS: SectionData[] = [
       {
         type: 'paragraph',
         text: 'We disclose information to vendors that perform services on our behalf, such as cloud hosting, storage, content delivery, authentication, analytics, crash monitoring, communications, customer support, payment processing, mapping, moderation, fraud prevention, and security. They may process information only for contracted purposes and subject to applicable confidentiality and security obligations.',
+      },
+      {
+        type: 'paragraph',
+        text: 'Text messages. We use an SMS delivery provider (currently Twilio) to send phone verification codes. The provider receives your phone number and the message content only to deliver the text.',
+      },
+      {
+        type: 'paragraph',
+        text: 'We do not sell, rent, or share mobile phone numbers or text-message opt-in consent with third parties or affiliates for their marketing or promotional purposes. We disclose mobile phone numbers and text-message consent only to service providers that help us deliver messages and as required by law.',
       },
       { type: 'subheading', text: 'Businesses' },
       {
@@ -239,6 +252,10 @@ const PRIVACY_SECTIONS: SectionData[] = [
           [
             'Account and profile data',
             'While the account is active; after a verified deletion request, removed or de-identified from active systems within 90 days unless an exception applies',
+          ],
+          [
+            'Phone number and SMS consent record',
+            'Phone number: until you remove it or delete your account. Consent record: while the account is active and as reasonably necessary to show that you agreed to receive verification texts. One-time verification codes expire after 10 minutes; related delivery records are kept only as long as reasonably necessary for security and fraud prevention',
           ],
           [
             'Age and eligibility information',
@@ -306,6 +323,10 @@ const PRIVACY_SECTIONS: SectionData[] = [
       {
         type: 'paragraph',
         text: 'Location. You may grant, limit, or revoke precise location through device settings. Revoking permission prevents future precise-location collection but does not automatically delete previously published place information.',
+      },
+      {
+        type: 'paragraph',
+        text: 'Phone number and text messages. You may remove your phone number at any time in Edit Profile. Reply STOP to any LocalNotes text to stop receiving texts, or HELP for help. You can turn off "Let people find me by phone number" in Privacy & visibility settings.',
       },
       {
         type: 'paragraph',
@@ -591,7 +612,7 @@ export function PrivacyPolicy() {
           Effective Date: July 5, 2026
         </Text>
         <Text className="text-[11px] tracking-wide text-gray-500 dark:text-gray-400 mb-4">
-          Last Updated: July 5, 2026
+          Last Updated: October 26, 2026
         </Text>
 
         <Text className="font-geist-bold text-2xl text-ink dark:text-gray-100 leading-tight mb-4">

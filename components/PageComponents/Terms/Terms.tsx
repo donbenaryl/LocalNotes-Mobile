@@ -453,6 +453,7 @@ const TERMS_SECTIONS: SectionData[] = [
   {
     title: '15. Communications',
     blocks: [
+      { type: 'subheading', text: '15.1 Electronic communications' },
       {
         type: 'paragraph',
         text: 'You consent to receive account, service, transaction, policy, legal, and security communications electronically. Marketing communications are optional and may be stopped through available settings or unsubscribe mechanisms, but you cannot opt out of nonmarketing communications required to operate or secure an active account.',
@@ -460,6 +461,21 @@ const TERMS_SECTIONS: SectionData[] = [
       {
         type: 'paragraph',
         text: 'Standard carrier charges may apply.',
+      },
+      { type: 'subheading', text: '15.2 Text messages (SMS)' },
+      {
+        type: 'paragraph',
+        text: 'If you choose to add a mobile phone number to your account, LocalNotes will send a one-time verification code to that number by text message. We send a text only when you request a code, so message frequency is one message per request. You must agree to receive these texts before a code is sent, and agreeing is not a condition of any purchase. LocalNotes does not use your phone number to send marketing text messages.',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Message and data rates may apply, according to your mobile carrier plan.',
+          'Reply STOP to any LocalNotes text to stop receiving texts, or reply HELP for help. You can also remove your phone number at any time in Edit Profile or by emailing localnotesapp@gmail.com.',
+          'Mobile carriers are not liable for delayed or undelivered messages, and delivery is not guaranteed.',
+          'You may add only a phone number for which you are the account holder or an authorized user. If your number changes or is no longer yours, remove it from your account.',
+          'We handle your phone number as described in the Privacy Policy.',
+        ],
       },
     ],
   },
@@ -948,7 +964,7 @@ export function Terms() {
           Effective Date: July 5, 2026
         </Text>
         <Text className="text-[11px] tracking-wide text-gray-500 dark:text-gray-400 mb-4">
-          Last Updated: July 5, 2026
+          Last Updated: October 26, 2026
         </Text>
 
         <Text className="font-geist-bold text-2xl text-ink dark:text-gray-100 leading-tight mb-4">

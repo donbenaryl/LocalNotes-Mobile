@@ -62,6 +62,8 @@ export interface PhoneSendCodeDTO {
   phone_number: string;
   /** ISO 3166-1 alpha-2, used when `phone_number` lacks a country code. */
   region?: string;
+  /** User checked the SMS consent box; the backend records when and which wording. */
+  sms_consent?: boolean;
 }
 
 export interface PhoneSendCodeDAO {
