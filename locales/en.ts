@@ -1546,6 +1546,7 @@ const en = {
     },
     locations: {
       viewing: 'viewing',
+      memberBadge: 'Member',
       added: 'Location added.',
       note: 'Each location keeps its own public profile. One account and team can manage all locations — Business Insights membership is billed per subscribed location on the web.',
       paidNote: '✦ "Slow service" is emerging at Scottsdale only — the playbook from your Roosevelt Row fix applies.',
@@ -1613,6 +1614,11 @@ const en = {
     monthlyReport: {
       rowTitle: 'Monthly report',
       ready: 'July report ready →',
+    },
+    pastDue: {
+      title: 'Payment issue with your membership',
+      body: 'Your Insights membership payment failed. Update your payment method on the web to keep access.',
+      cta: 'Fix on web',
     },
     upsell: {
       membership: 'Membership',

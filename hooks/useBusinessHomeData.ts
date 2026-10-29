@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AppState } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import businessService from '@/http/business-api/business.service';
 import type { BusinessHomeLocationRow } from '@/constants/businessHomeMock';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { getBranchInsightsMembership } from '@/utils/insightsMembership';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { formatIsoDate, formatPeriodLabel, parseIsoDate } from '@/utils/dateIso';
 import type {
@@ -136,7 +138,7 @@ export function useBusinessHomeData() {
   const loadOwnedBusinesses = useBusinessStore((s) => s.loadOwnedBusinesses);
   const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
 
-  const [isPaidMember, setIsPaidMember] = useState(false);
+  const [devPaidOverride, setDevPaidOverride] = useState<boolean | null>(null);
   const [dateFrom, setDateFrom] = useState(() => {
     const today = new Date();
     return formatIsoDate(new Date(today.getFullYear(), today.getMonth(), 1));
@@ -154,6 +156,14 @@ export function useBusinessHomeData() {
       void loadOwnedBusinesses();
     }
   }, [hasFetchedOwned, loadOwnedBusinesses]);
+
+  // Membership is bought on web; refresh entitlement when the user comes back.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') void loadOwnedBusinesses();
+    });
+    return () => sub.remove();
+  }, [loadOwnedBusinesses]);
 
   const dateRange = useMemo(
     () => ({
@@ -220,6 +230,23 @@ export function useBusinessHomeData() {
     };
   }, [toplineQuery.data, previousToplineQuery.data]);
 
+  const activeOwned =
+    ownedBusinesses.find((item) => item.id === businessId) ??
+    ownedBusinesses.find((item) => item.is_primary);
+
+  const selectedBranch =
+    businessInfo?.branches?.find((branch) => branch.id === selectedBranchId) ??
+    activeOwned?.branches?.find((branch) => branch.id === selectedBranchId) ??
+    businessInfo?.branches?.[0] ??
+    activeOwned?.branches?.[0];
+
+  const branchMembership = useMemo(
+    () => getBranchInsightsMembership(ownedBusinesses, activeOwned?.id, selectedBranch?.id),
+    [ownedBusinesses, activeOwned?.id, selectedBranch?.id],
+  );
+  const isPaidMember =
+    __DEV__ && devPaidOverride !== null ? devPaidOverride : branchMembership.isPaid;
+
   const locationRows: BusinessHomeLocationRow[] = useMemo(() => {
     const branches = businessInfo?.branches ?? [];
     return branches.map((branch) => ({
@@ -233,18 +260,9 @@ export function useBusinessHomeData() {
         .filter(Boolean)
         .join(', '),
       isViewing: branch.id === selectedBranchId,
+      isPaid: getBranchInsightsMembership(ownedBusinesses, activeOwned?.id, branch.id).isPaid,
     }));
-  }, [businessInfo?.branches, selectedBranchId]);
-
-  const activeOwned =
-    ownedBusinesses.find((item) => item.id === businessId) ??
-    ownedBusinesses.find((item) => item.is_primary);
-
-  const selectedBranch =
-    businessInfo?.branches?.find((branch) => branch.id === selectedBranchId) ??
-    activeOwned?.branches?.find((branch) => branch.id === selectedBranchId) ??
-    businessInfo?.branches?.[0] ??
-    activeOwned?.branches?.[0];
+  }, [businessInfo?.branches, selectedBranchId, ownedBusinesses, activeOwned?.id]);
 
   const businessName = businessInfo?.name ?? activeOwned?.name ?? '';
   const businessLogo = businessInfo?.logo ?? null;
@@ -257,6 +275,7 @@ export function useBusinessHomeData() {
 
   const isLoading =
     !hasFetched ||
+    !hasFetchedOwned ||
     (Boolean(businessId) &&
       (toplineQuery.isPending ||
         previousToplineQuery.isPending ||
@@ -272,7 +291,9 @@ export function useBusinessHomeData() {
     ]);
   };
 
-  const togglePaidMember = () => setIsPaidMember((prev) => !prev);
+  const togglePaidMember = () => {
+    if (__DEV__) setDevPaidOverride(!isPaidMember);
+  };
 
   return {
     businessName,
@@ -288,6 +309,7 @@ export function useBusinessHomeData() {
     discovery,
     locationRows,
     isPaidMember,
+    membershipStatus: branchMembership.status,
     togglePaidMember,
     isLoading,
     isRefetching:

@@ -14,6 +14,7 @@ export function useOpenBusinessInsightsOnWeb() {
   const { t } = useTranslation();
   const showToast = useToastStore((s) => s.show);
   const businessId = useBusinessStore((s) => s.businessId);
+  const selectedBranchId = useBusinessStore((s) => s.selectedBranchId);
 
   return useCallback(async () => {
     if (!businessId) {
@@ -24,12 +25,14 @@ export function useOpenBusinessInsightsOnWeb() {
       return;
     }
 
-    const url = `${getWebAppUrl()}/business/insights`;
+    // Web preselects this branch when it is eligible (ignored otherwise).
+    const query = selectedBranchId ? `?branch=${encodeURIComponent(selectedBranchId)}` : '';
+    const url = `${getWebAppUrl()}/business/insights${query}`;
     const canOpen = await Linking.canOpenURL(url);
     if (!canOpen) {
       showToast({ type: 'error', message: t('businessHome.upsell.openWebError') });
       return;
     }
     await Linking.openURL(url);
-  }, [businessId, showToast, t]);
+  }, [businessId, selectedBranchId, showToast, t]);
 }

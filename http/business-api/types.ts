@@ -28,11 +28,28 @@ export type OpeningHours = Partial<
   >
 >;
 
+export type InsightsMembershipStatus =
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'canceled'
+  | 'incomplete'
+  | 'incomplete_expired'
+  | 'unpaid'
+  | 'paused';
+
+export type InsightsMembershipDAO = {
+  active: boolean;
+  status: InsightsMembershipStatus | null;
+};
+
 export type BusinessBranchDAO = {
   id: string;
   name: string;
   location: BusinessLocation;
   opening_hours?: OpeningHours;
+  /** Only on owned-business (`/mine`) payloads; absent means not a paid member. */
+  insights_membership?: InsightsMembershipDAO;
 };
 export type BusinessItemDAO = {
   id: string;

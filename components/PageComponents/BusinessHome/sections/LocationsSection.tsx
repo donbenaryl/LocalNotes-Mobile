@@ -106,6 +106,11 @@ export function LocationsSection({
                     ? ` · ${t("businessHome.locations.viewing")}`
                     : ""}
                 </Text>
+                {row.isPaid ? (
+                  <Text className="mt-0.5 font-geist-semibold text-[11px] text-brand">
+                    ✦ {t("businessHome.locations.memberBadge")}
+                  </Text>
+                ) : null}
                 {row.address ? (
                   <Text
                     numberOfLines={1}

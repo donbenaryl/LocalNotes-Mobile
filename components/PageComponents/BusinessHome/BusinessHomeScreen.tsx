@@ -33,6 +33,7 @@ export default function BusinessHomeScreen() {
     discovery,
     locationRows,
     isPaidMember,
+    membershipStatus,
     togglePaidMember,
     isLoading,
     isRefetching,
@@ -107,6 +108,7 @@ export default function BusinessHomeScreen() {
           dateTo={dateTo}
           onDateRangeChange={onDateRangeChange}
           isPaidMember={isPaidMember}
+          membershipStatus={membershipStatus}
           isRefetching={isRefetching}
           onRefresh={refetchAll}
           onBack={handleRootBack}

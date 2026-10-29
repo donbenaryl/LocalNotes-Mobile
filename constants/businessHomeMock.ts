@@ -21,6 +21,7 @@ export type BusinessHomeLocationRow = {
   name: string;
   address: string;
   isViewing: boolean;
+  isPaid: boolean;
 };
 
 export const BUSINESS_HOME_PERIOD_LABEL = 'Jul 1–28';

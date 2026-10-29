@@ -26,6 +26,8 @@ import { DateRangePicker } from '../ui/DateRangePicker';
 import { SectionHeading } from '../ui/SectionHeading';
 import { ThankYouContent } from '@/components/PageComponents/ThankYou/ThankYouContent';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
+import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnWeb';
+import type { InsightsMembershipStatus } from '@/http/business-api/types';
 import { BUSINESS_HOME_CAMPAIGN } from '@/constants/businessHomeMock';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { BusinessHomeTopTabId } from '../navigation';
@@ -49,6 +51,7 @@ interface BusinessHomeProfilePageProps {
   dateTo: string;
   onDateRangeChange: (range: { dateFrom: string; dateTo: string }) => void;
   isPaidMember: boolean;
+  membershipStatus?: InsightsMembershipStatus | null;
   isRefetching: boolean;
   onRefresh: () => void;
   onBack: () => void;
@@ -70,6 +73,7 @@ export function BusinessHomeProfilePage({
   dateTo,
   onDateRangeChange,
   isPaidMember,
+  membershipStatus,
   isRefetching,
   onRefresh,
   onBack,
@@ -81,6 +85,7 @@ export function BusinessHomeProfilePage({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
+  const openInsightsOnWeb = useOpenBusinessInsightsOnWeb();
   const [activeTab, setActiveTab] = useState<BusinessHomeTopTabId>('insights');
   const [switcherVisible, setSwitcherVisible] = useState(false);
   const [stickyTabsVisible, setStickyTabsVisible] = useState(false);
@@ -200,6 +205,26 @@ export function BusinessHomeProfilePage({
               </Text>
             </Pressable>
           </View>
+
+          {membershipStatus === 'past_due' ? (
+            <View className="mx-4 mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/20">
+              <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+                {t('businessHome.pastDue.title')}
+              </Text>
+              <Text className="mt-1 font-geist text-[12px] leading-[1.5] text-gray-600 dark:text-gray-300">
+                {t('businessHome.pastDue.body')}
+              </Text>
+              <View className="mt-2 self-start">
+                <LocalNotesButton
+                  label={t('businessHome.pastDue.cta')}
+                  onPress={() => void openInsightsOnWeb()}
+                  variant="dark"
+                  size="sm"
+                  isWidthFull={false}
+                />
+              </View>
+            </View>
+          ) : null}
 
           <View onLayout={handleTabsLayout}>
             <Tabs
