@@ -133,7 +133,7 @@ const TERMS_SECTIONS: SectionData[] = [
       { type: 'subheading', text: '4.2 Account security' },
       {
         type: 'paragraph',
-        text: "You are responsible for safeguarding your credentials and for activity you knowingly authorize. Notify localnotesapp@gmail.com promptly if you suspect unauthorized access. You may be responsible for losses caused by your failure to use reasonable care, but not to the extent caused by LocalNotes' failure to use legally required security.",
+        text: "You are responsible for safeguarding your credentials and for activity you knowingly authorize. Notify support@localnotesapp.com promptly if you suspect unauthorized access. You may be responsible for losses caused by your failure to use reasonable care, but not to the extent caused by LocalNotes' failure to use legally required security.",
       },
       { type: 'subheading', text: '4.3 One person, one account' },
       {
@@ -189,7 +189,7 @@ const TERMS_SECTIONS: SectionData[] = [
       { type: 'subheading', text: '6.3 Promotional use' },
       {
         type: 'paragraph',
-        text: 'We may feature public User Content, with attribution to your username where practical, in the Service, on LocalNotes websites, and in LocalNotes marketing. You may ask us to stop future promotional use of specific content by emailing localnotesapp@gmail.com. We are not required to recall materials already distributed or printed.',
+        text: 'We may feature public User Content, with attribution to your username where practical, in the Service, on LocalNotes websites, and in LocalNotes marketing. You may ask us to stop future promotional use of specific content by emailing support@localnotesapp.com. We are not required to recall materials already distributed or printed.',
       },
       { type: 'subheading', text: '6.4 Your warranties' },
       {
@@ -340,7 +340,7 @@ const TERMS_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: 'Users may report content or accounts through in-app tools or localnotesapp@gmail.com. Reports should identify the content, explain the concern, and provide supporting information where available. Blocking another user immediately removes that user\'s content from your feed and notifies LocalNotes so we can review the account.',
+        text: 'Users may report content or accounts through in-app tools or support@localnotesapp.com. Reports should identify the content, explain the concern, and provide supporting information where available. Blocking another user immediately removes that user\'s content from your feed and notifies LocalNotes so we can review the account.',
       },
       {
         type: 'paragraph',
@@ -348,7 +348,7 @@ const TERMS_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: 'You may appeal a significant moderation action within six months by replying to the notice or emailing localnotesapp@gmail.com with the subject Appeal. Appeals do not stay enforcement unless we decide otherwise. Repeatedly filing knowingly false or abusive reports or appeals is prohibited.',
+        text: 'You may appeal a significant moderation action within six months by replying to the notice or emailing support@localnotesapp.com with the subject Appeal. Appeals do not stay enforcement unless we decide otherwise. Repeatedly filing knowingly false or abusive reports or appeals is prohibited.',
       },
       {
         type: 'paragraph',
@@ -471,7 +471,7 @@ const TERMS_SECTIONS: SectionData[] = [
         type: 'bullets',
         items: [
           'Message and data rates may apply, according to your mobile carrier plan.',
-          'Reply STOP to any LocalNotes text to stop receiving texts, or reply HELP for help. You can also remove your phone number at any time in Edit Profile or by emailing localnotesapp@gmail.com.',
+          'Reply STOP to any LocalNotes text to stop receiving texts, or reply HELP for help. You can also remove your phone number at any time in Edit Profile or by emailing support@localnotesapp.com.',
           'Mobile carriers are not liable for delayed or undelivered messages, and delivery is not guaranteed.',
           'You may add only a phone number for which you are the account holder or an authorized user. If your number changes or is no longer yours, remove it from your account.',
           'We handle your phone number as described in the Privacy Policy.',
@@ -497,7 +497,7 @@ const TERMS_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: "A rights holder may report alleged trademark, publicity, privacy, or other infringement to localnotesapp@gmail.com. A notice should identify the protected right, the material, its location, the basis of the claim, and the reporter's contact information and authority. We may request verification or additional information and may forward the notice to the affected user.",
+        text: "A rights holder may report alleged trademark, publicity, privacy, or other infringement to support@localnotesapp.com. A notice should identify the protected right, the material, its location, the basis of the claim, and the reporter's contact information and authority. We may request verification or additional information and may forward the notice to the affected user.",
       },
     ],
   },
@@ -511,15 +511,15 @@ const TERMS_SECTIONS: SectionData[] = [
       { type: 'subheading', text: '18.1 Copyright agent' },
       {
         type: 'paragraph',
-        text: 'Designated Copyright Agent: Copyright Agent, LocalNotes Corp',
+        text: 'Designated Copyright Agent: Copyright Agent, LocalNotes Group LLC',
       },
       {
         type: 'paragraph',
-        text: 'Address: 9001 Antora Summit St, Las Vegas, NV 89166, USA',
+        text: 'Address: 732 S 6th St Ste N, Las Vegas, NV 89101, USA',
       },
       {
         type: 'paragraph',
-        text: 'Email: localnotesapp@gmail.com',
+        text: 'Email: support@localnotesapp.com',
       },
       {
         type: 'paragraph',
@@ -693,7 +693,7 @@ const TERMS_SECTIONS: SectionData[] = [
       { type: 'subheading', text: '23.1 Informal resolution first' },
       {
         type: 'paragraph',
-        text: 'Before filing arbitration or a court claim, the claimant must send a written Notice of Dispute describing the claimant, relevant account email, facts, legal basis, requested relief, and a good-faith calculation of any monetary demand. Notices to LocalNotes must be emailed to localnotesapp@gmail.com with the subject Notice of Dispute and mailed to the address in Section 28. Notices to you may be sent to your account email.',
+        text: 'Before filing arbitration or a court claim, the claimant must send a written Notice of Dispute describing the claimant, relevant account email, facts, legal basis, requested relief, and a good-faith calculation of any monetary demand. Notices to LocalNotes must be emailed to support@localnotesapp.com with the subject Notice of Dispute and mailed to the address in Section 28. Notices to you may be sent to your account email.',
       },
       {
         type: 'paragraph',
@@ -746,7 +746,7 @@ const TERMS_SECTIONS: SectionData[] = [
       { type: 'subheading', text: '23.6 Right to opt out' },
       {
         type: 'paragraph',
-        text: 'You may opt out of Sections 23.2 through 23.5 by emailing localnotesapp@gmail.com with the subject Arbitration Opt-Out within 30 days after first accepting these Terms. Include your full name, account email, and a clear statement that you opt out of arbitration. Each user must opt out individually. Opting out does not affect the remaining Terms or any prior arbitration agreement.',
+        text: 'You may opt out of Sections 23.2 through 23.5 by emailing support@localnotesapp.com with the subject Arbitration Opt-Out within 30 days after first accepting these Terms. Include your full name, account email, and a clear statement that you opt out of arbitration. Each user must opt out individually. Opting out does not affect the remaining Terms or any prior arbitration agreement.',
       },
       { type: 'subheading', text: '23.7 Changes to arbitration' },
       {
@@ -847,23 +847,23 @@ const TERMS_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'LocalNotes Corp',
+        text: 'LocalNotes Group LLC',
       },
       {
         type: 'paragraph',
-        text: '9001 Antora Summit St',
+        text: '732 S 6th St Ste N',
       },
       {
         type: 'paragraph',
-        text: 'Las Vegas, NV 89166, USA',
+        text: 'Las Vegas, NV 89101, USA',
       },
       {
         type: 'paragraph',
-        text: 'Phone: +1-602-652-4777',
+        text: 'Phone: +1 602-564-4777',
       },
       {
         type: 'paragraph',
-        text: 'Email: localnotesapp@gmail.com',
+        text: 'Email: support@localnotesapp.com',
       },
     ],
   },
@@ -981,7 +981,7 @@ export function Terms() {
         </View>
 
         <Paragraph>
-          These Terms of Service ("Terms") are a legally binding agreement between you and LocalNotes Corp ("LocalNotes," "we," "us," or "our") governing your access to and use of the LocalNotes mobile application, websites, and related services, features, products, and content (collectively, the "Service").
+          These Terms of Service ("Terms") are a legally binding agreement between you and LocalNotes Group LLC ("LocalNotes," "we," "us," or "our") governing your access to and use of the LocalNotes mobile application, websites, and related services, features, products, and content (collectively, the "Service").
         </Paragraph>
 
         <View className="bg-paper dark:bg-gray-800 border border-soft dark:border-gray-700 rounded-xl px-4 py-3.5 mb-5">

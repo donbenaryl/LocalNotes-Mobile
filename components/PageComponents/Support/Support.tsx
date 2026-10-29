@@ -19,10 +19,10 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { SettingsNavRow } from '@/components/PageComponents/Profile/AccountSettings/SettingsNavRow';
 import { SettingsSection } from '@/components/PageComponents/Profile/AccountSettings/SettingsSection';
 
-const SUPPORT_PHONE = '+1-602-652-4777';
-const SUPPORT_PHONE_HREF = 'tel:+16026524777';
-const SUPPORT_EMAIL = 'localnotesapp@gmail.com';
-const SUPPORT_ADDRESS = '9001 Antora Summit St, Las Vegas, NV 89166';
+const SUPPORT_PHONE = '+1 602-564-4777';
+const SUPPORT_PHONE_HREF = 'tel:+16025644777';
+const SUPPORT_EMAIL = 'support@localnotesapp.com';
+const SUPPORT_ADDRESS = '732 S 6th St Ste N, Las Vegas, NV 89101';
 const BRAND = '#FF6B1A';
 
 function ContactMethodRow({

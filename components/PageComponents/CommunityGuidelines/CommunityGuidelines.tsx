@@ -178,7 +178,7 @@ const GUIDELINES_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'Reporting. Users may report content, accounts, and businesses through the in-app Report function or by emailing localnotesapp@gmail.com. Reports should identify the content and explain the concern. Reporting immediately hides that content from your feed. We review reports within 24 hours and, when substantiated, remove the content and eject the user who provided it. Reports are handled confidentially to the extent reasonably possible, but we may disclose information when required by law or necessary to investigate a serious safety issue.',
+        text: 'Reporting. Users may report content, accounts, and businesses through the in-app Report function or by emailing support@localnotesapp.com. Reports should identify the content and explain the concern. Reporting immediately hides that content from your feed. We review reports within 24 hours and, when substantiated, remove the content and eject the user who provided it. Reports are handled confidentially to the extent reasonably possible, but we may disclose information when required by law or necessary to investigate a serious safety issue.',
       },
       {
         type: 'paragraph',
@@ -225,7 +225,7 @@ const GUIDELINES_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'When we take a significant enforcement action, we will generally provide a reason unless doing so would compromise safety, an investigation, another person\'s privacy, or legal obligations. You may appeal within six months by replying to the enforcement notice or emailing localnotesapp@gmail.com with the subject Appeal. Include your account email, the affected content or account, and why you believe the decision should be changed.',
+        text: 'When we take a significant enforcement action, we will generally provide a reason unless doing so would compromise safety, an investigation, another person\'s privacy, or legal obligations. You may appeal within six months by replying to the enforcement notice or emailing support@localnotesapp.com with the subject Appeal. Include your account email, the affected content or account, and why you believe the decision should be changed.',
       },
       {
         type: 'paragraph',
@@ -255,11 +255,11 @@ const GUIDELINES_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: 'Questions or reports: localnotesapp@gmail.com',
+        text: 'Questions or reports: support@localnotesapp.com',
       },
       {
         type: 'paragraph',
-        text: 'LocalNotes Corp · 9001 Antora Summit St, Las Vegas, NV 89166, USA',
+        text: 'LocalNotes Group LLC · 732 S 6th St Ste N, Las Vegas, NV 89101, USA',
       },
     ],
   },

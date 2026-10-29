@@ -318,7 +318,7 @@ const PRIVACY_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: 'Account deletion. You may use any available in-app deletion control or email localnotesapp@gmail.com with the subject Account Deletion. We may verify the request. Account deletion does not require deletion of information we must retain for security, fraud prevention, legal compliance, disputes, or enforcement.',
+        text: 'Account deletion. You may use any available in-app deletion control or email support@localnotesapp.com with the subject Account Deletion. We may verify the request. Account deletion does not require deletion of information we must retain for security, fraud prevention, legal compliance, disputes, or enforcement.',
       },
       {
         type: 'paragraph',
@@ -338,7 +338,7 @@ const PRIVACY_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: 'Personalization. You may request information about or object to certain personalization by emailing localnotesapp@gmail.com. Some personalization is integral to the taste-matching Service; limiting it may reduce functionality.',
+        text: 'Personalization. You may request information about or object to certain personalization by emailing support@localnotesapp.com. Some personalization is integral to the taste-matching Service; limiting it may reduce functionality.',
       },
     ],
   },
@@ -365,7 +365,7 @@ const PRIVACY_SECTIONS: SectionData[] = [
       { type: 'subheading', text: 'Exercising a request' },
       {
         type: 'paragraph',
-        text: 'Email localnotesapp@gmail.com with the subject Privacy Request and describe the right you wish to exercise. Where available, you may also use in-app privacy controls. We will verify requests using information associated with your account and may request additional information reasonably necessary to prevent fraud. Authorized agents may submit requests where permitted by law, subject to verification of authority and identity.',
+        text: 'Email support@localnotesapp.com with the subject Privacy Request and describe the right you wish to exercise. Where available, you may also use in-app privacy controls. We will verify requests using information associated with your account and may request additional information reasonably necessary to prevent fraud. Authorized agents may submit requests where permitted by law, subject to verification of authority and identity.',
       },
       {
         type: 'paragraph',
@@ -387,7 +387,7 @@ const PRIVACY_SECTIONS: SectionData[] = [
       { type: 'subheading', text: 'Nevada' },
       {
         type: 'paragraph',
-        text: 'We do not sell covered information as "sale" is defined by Nevada law. Nevada residents may submit a verified request concerning future sales by emailing localnotesapp@gmail.com with the subject Nevada Opt-Out.',
+        text: 'We do not sell covered information as "sale" is defined by Nevada law. Nevada residents may submit a verified request concerning future sales by emailing support@localnotesapp.com with the subject Nevada Opt-Out.',
       },
       { type: 'subheading', text: 'Global Privacy Control and Do Not Track' },
       {
@@ -405,11 +405,11 @@ const PRIVACY_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: 'You are responsible for protecting your credentials and promptly notifying localnotesapp@gmail.com of suspected unauthorized access. We will provide legally required notices if we determine that a security incident triggers a notification obligation.',
+        text: 'You are responsible for protecting your credentials and promptly notifying support@localnotesapp.com of suspected unauthorized access. We will provide legally required notices if we determine that a security incident triggers a notification obligation.',
       },
       {
         type: 'paragraph',
-        text: 'Security researchers may report suspected vulnerabilities responsibly to localnotesapp@gmail.com. Do not exploit a vulnerability, access data that is not yours, disrupt the Service, or publicly disclose a vulnerability before we have had a reasonable opportunity to address it.',
+        text: 'Security researchers may report suspected vulnerabilities responsibly to support@localnotesapp.com. Do not exploit a vulnerability, access data that is not yours, disrupt the Service, or publicly disclose a vulnerability before we have had a reasonable opportunity to address it.',
       },
     ],
   },
@@ -430,7 +430,7 @@ const PRIVACY_SECTIONS: SectionData[] = [
       },
       {
         type: 'paragraph',
-        text: "A parent or legal guardian may contact localnotesapp@gmail.com to report an account believed to belong to a child under 13 or to submit a privacy request concerning a minor where applicable law permits. We may take reasonable steps to verify the requester's identity and authority before acting. We do not knowingly sell or share the personal information of users under 16 for cross-context behavioral advertising.",
+        text: "A parent or legal guardian may contact support@localnotesapp.com to report an account believed to belong to a child under 13 or to submit a privacy request concerning a minor where applicable law permits. We may take reasonable steps to verify the requester's identity and authority before acting. We do not knowingly sell or share the personal information of users under 16 for cross-context behavioral advertising.",
       },
     ],
   },
@@ -470,19 +470,19 @@ const PRIVACY_SECTIONS: SectionData[] = [
     blocks: [
       {
         type: 'paragraph',
-        text: 'LocalNotes Corp',
+        text: 'LocalNotes Group LLC',
       },
       {
         type: 'paragraph',
-        text: '9001 Antora Summit St',
+        text: '732 S 6th St Ste N',
       },
       {
         type: 'paragraph',
-        text: 'Las Vegas, NV 89166, USA',
+        text: 'Las Vegas, NV 89101, USA',
       },
       {
         type: 'paragraph',
-        text: 'Email: localnotesapp@gmail.com',
+        text: 'Email: support@localnotesapp.com',
       },
     ],
   },
@@ -495,7 +495,7 @@ const KEY_POINTS = [
   'Businesses receive aggregated or de-identified insights, not individual user identities or individual-level activity.',
   'We do not sell personal information for money or allow businesses to purchase placement in personal picks or lists.',
   'At launch, we do not use personal information for cross-context behavioral advertising.',
-  'You may request access, correction, deletion, or a portable copy by emailing localnotesapp@gmail.com. Where available, you may also use in-app account controls.',
+  'You may request access, correction, deletion, or a portable copy by emailing support@localnotesapp.com. Where available, you may also use in-app account controls.',
   'The Service is not directed to children under 13. We may use a neutral age screen, but we do not currently operate a general parent- or guardian-consent verification program for users age 13 or older.',
 ];
 
@@ -621,14 +621,14 @@ export function PrivacyPolicy() {
 
         <View className="bg-brand-tint dark:bg-brand-tint/10 border border-brand/30 rounded-xl px-4 py-3.5 mb-5">
           <Paragraph>
-            This Privacy Policy explains how LocalNotes Corp ("LocalNotes," "we," "us," or "our") collects, uses, discloses, retains, and protects personal information when you use the LocalNotes mobile application, websites, and related services (collectively, the "Service").
+            This Privacy Policy explains how LocalNotes Group LLC ("LocalNotes," "we," "us," or "our") collects, uses, discloses, retains, and protects personal information when you use the LocalNotes mobile application, websites, and related services (collectively, the "Service").
           </Paragraph>
           <Paragraph>
-            LocalNotes Corp is responsible for the personal information described in this Policy. The Service is available to people age 13 or older and is initially offered in the United States.
+            LocalNotes Group LLC is responsible for the personal information described in this Policy. The Service is available to people age 13 or older and is initially offered in the United States.
           </Paragraph>
-          <Paragraph>Contact: localnotesapp@gmail.com</Paragraph>
+          <Paragraph>Contact: support@localnotesapp.com</Paragraph>
           <Paragraph>
-            Mail: LocalNotes Corp, 9001 Antora Summit St, Las Vegas, NV 89166, USA
+            Mail: LocalNotes Group LLC, 732 S 6th St Ste N, Las Vegas, NV 89101, USA
           </Paragraph>
         </View>
 
