@@ -46,13 +46,6 @@ export const BUSINESS_HOME_ACTIVITY_ROWS: BusinessHomeActivityRow[] = [
   { title: 'You joined "Best study cafés in Phoenix"', meta: '2.1K saves', highlight: true },
 ];
 
-export const BUSINESS_HOME_ALERT = {
-  title: 'Weekend hours are unconfirmed',
-  body: 'This may reduce Saturday discovery.',
-  saturdayHours: '7:00 AM – 4:00 PM',
-  sundayHours: '7:00 AM – 3:00 PM',
-};
-
 export const BUSINESS_HOME_ACTIVE_PLAN = {
   title: 'Saturday staffing review · day 12 of 28',
   subtitle: 'On track — mentions down 3 → 1.',

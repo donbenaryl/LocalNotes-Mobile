@@ -59,6 +59,7 @@ interface BusinessHomeProfilePageProps {
   onOpenSheet: (id: BusinessHomeSheetId) => void;
   onOpenFullInsights: () => void;
   onOpenCampaign: () => void;
+  onOpenCustomers: () => void;
 }
 
 export function BusinessHomeProfilePage({
@@ -81,6 +82,7 @@ export function BusinessHomeProfilePage({
   onOpenSheet,
   onOpenFullInsights,
   onOpenCampaign,
+  onOpenCustomers,
 }: BusinessHomeProfilePageProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -299,7 +301,11 @@ export function BusinessHomeProfilePage({
 
           {activeTab === 'alerts' ? (
             <View className="pt-1">
-              <AlertsSection isPaidMember={isPaidMember} />
+              <AlertsSection
+                isPaidMember={isPaidMember}
+                onOpenCustomers={onOpenCustomers}
+                onOpenCampaign={onOpenCampaign}
+              />
             </View>
           ) : null}
 

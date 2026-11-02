@@ -11,7 +11,7 @@ import listService from '@/http/list-api/list.service';
 import { hydrateUserProfile } from '@/services/authBootstrap';
 import { useListDetailModalStore } from '@/stores/useListDetailModalStore';
 import { parseRichPushData, type RichPushData } from '@/types/pushNotification';
-import { withViewOrigin } from '@/utils/viewTracking';
+import { resolveDeepLinkPath } from '@/utils/pushDeepLink';
 
 let categoriesRegistered = false;
 let responseListener: Notifications.EventSubscription | null = null;
@@ -96,36 +96,7 @@ export function extractListIdFromDeepLink(deepLink: string | null | undefined): 
 }
 
 function resolveDeepLink(data: RichPushData): Href | null {
-  const link = data.deepLink?.trim();
-  if (!link) return null;
-
-  if (link.startsWith('/lists/')) {
-    // List detail is modal-only; open via store after navigating to a shell route.
-    return null;
-  }
-  if (link.startsWith('/profile/')) {
-    const userId = link.replace('/profile/', '').split('/')[0];
-    if (userId) {
-      return withViewOrigin(`/profile/${userId}`, 'notification') as Href;
-    }
-  }
-  if (link === '/home/spotlight' || link.startsWith('/home/spotlight')) {
-    return '/(app)/(tabs)/home/spotlight' as Href;
-  }
-  if (link === '/home/offers' || link.startsWith('/home/offers')) {
-    return '/(app)/(tabs)/home/offers' as Href;
-  }
-  if (link === '/notifications' || link.startsWith('/notifications')) {
-    return '/(app)/(stack)/notifications' as Href;
-  }
-  if (link === '/business-home' || link.startsWith('/business-home')) {
-    return '/(app)/(stack)/business-home' as Href;
-  }
-  if (link === '/claim-business' || link.startsWith('/claim-business')) {
-    return '/(app)/(stack)/claim-business' as Href;
-  }
-
-  return null;
+  return resolveDeepLinkPath(data.deepLink) as Href | null;
 }
 
 export function navigateFromPushData(data: RichPushData): void {

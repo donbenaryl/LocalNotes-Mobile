@@ -471,3 +471,65 @@ export type ThankYouReceivedDAO = {
     logo: string | null;
   };
 };
+
+export type BusinessAlertType =
+  | "activity_change"
+  | "customer_concern"
+  | "important_list"
+  | "campaign_performance"
+  | "profile_incomplete";
+
+export type BusinessAlertDirection = "up" | "down" | "added" | "removed";
+
+export type BusinessAlertSeverity = "info" | "important";
+
+export type BusinessAlertCta =
+  | "edit_profile"
+  | "create_offer_web"
+  | "thank_you"
+  | "open_customers"
+  | "open_campaign";
+
+/** Numbers and labels only; the backend never stores customer text here. */
+export type BusinessAlertParams = {
+  metric?: "views" | "saves" | "follows" | "shares";
+  delta_pct?: number;
+  current?: number;
+  baseline?: number;
+  /** Concern theme slug (`long_wait`, `price`, ...). */
+  term?: string;
+  count?: number;
+  list_name?: string;
+  engagement?: number;
+  city?: string;
+  campaign?: string;
+  score?: number;
+  /** Same shape as the mobile profile-health gaps. */
+  gaps?: { group: string; missing?: string[] }[];
+};
+
+export type BusinessAlertDAO = {
+  id: string;
+  alert_type: BusinessAlertType;
+  direction: BusinessAlertDirection | null;
+  severity: BusinessAlertSeverity;
+  what_key: string;
+  why_key: string;
+  action_key: string;
+  cta: BusinessAlertCta | null;
+  params: BusinessAlertParams;
+  created_at: string;
+  read_at: string | null;
+};
+
+export type BusinessAlertsDAO = {
+  unread_count: number;
+  alerts: BusinessAlertDAO[];
+};
+
+export type BusinessAlertActionDAO = {
+  id: string;
+  read_at: string | null;
+  dismissed_at: string | null;
+  unread_count: number;
+};

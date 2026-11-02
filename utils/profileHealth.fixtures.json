@@ -1,0 +1,768 @@
+{
+  "types": [
+    {
+      "name": "Fixture Diner",
+      "requirements": [
+        {
+          "key": "cuisine",
+          "label": "Cuisine"
+        },
+        {
+          "key": "price_range",
+          "label": "Price range"
+        }
+      ]
+    },
+    {
+      "name": "Fixture Kiosk",
+      "requirements": []
+    }
+  ],
+  "cases": [
+    {
+      "name": "complete",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 100,
+        "gaps": []
+      }
+    },
+    {
+      "name": "missing_hours",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {},
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "hours"
+          }
+        ]
+      }
+    },
+    {
+      "name": "hours_open_without_close",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": null
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "hours"
+          }
+        ]
+      }
+    },
+    {
+      "name": "hours_whitespace_only",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": " ",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "hours"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_bio_only",
+      "business": {
+        "name": "Joe's",
+        "bio": "",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 94,
+        "gaps": [
+          {
+            "group": "businessInfo"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_and_bio_whitespace",
+      "business": {
+        "name": "   ",
+        "bio": " ",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "businessInfo"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_contact",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "",
+        "contact_email": "",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "contact"
+          }
+        ]
+      }
+    },
+    {
+      "name": "phone_only_is_contact",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 100,
+        "gaps": []
+      }
+    },
+    {
+      "name": "missing_website",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "website"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_location",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "",
+          "city": " "
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "location"
+          }
+        ]
+      }
+    },
+    {
+      "name": "street_only_is_location",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": ""
+        }
+      },
+      "expected": {
+        "score": 100,
+        "gaps": []
+      }
+    },
+    {
+      "name": "missing_photo",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "photo"
+          }
+        ]
+      }
+    },
+    {
+      "name": "half_rounds_up",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "",
+        "contact_email": "",
+        "website": "",
+        "logo": "",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 63,
+        "gaps": [
+          {
+            "group": "contact"
+          },
+          {
+            "group": "website"
+          },
+          {
+            "group": "photo"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown_business_type",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Spaceship",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 75,
+        "gaps": [
+          {
+            "group": "businessType"
+          },
+          {
+            "group": "importantInfo",
+            "missing": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_with_no_requirements",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Kiosk",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {}
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 88,
+        "gaps": [
+          {
+            "group": "importantInfo",
+            "missing": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "partial_important_info",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 94,
+        "gaps": [
+          {
+            "group": "importantInfo",
+            "missing": [
+              "Price range"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "important_info_whitespace_value",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "  ",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 94,
+        "gaps": [
+          {
+            "group": "importantInfo",
+            "missing": [
+              "Cuisine"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_name_case_and_padding",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": " fixture diner ",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 100,
+        "gaps": []
+      }
+    },
+    {
+      "name": "unexpected_detail_keys_ignored",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$",
+          "zzz": "x"
+        }
+      },
+      "branch": {
+        "opening_hours": {
+          "monday": {
+            "open": "09:00",
+            "close": "17:00"
+          }
+        },
+        "location": {
+          "street_address": "1 Main St",
+          "city": "Chicago"
+        }
+      },
+      "expected": {
+        "score": 100,
+        "gaps": []
+      }
+    },
+    {
+      "name": "no_branch",
+      "business": {
+        "name": "Joe's",
+        "bio": "Great food",
+        "business_type": "Fixture Diner",
+        "phone_number": "+15555550100",
+        "contact_email": "joe@example.com",
+        "website": "https://joes.example.com",
+        "logo": "businesses/logos/joe.png",
+        "profile_details": {
+          "cuisine": "Italian",
+          "price_range": "$$"
+        }
+      },
+      "branch": null,
+      "expected": {
+        "score": 75,
+        "gaps": [
+          {
+            "group": "hours"
+          },
+          {
+            "group": "location"
+          }
+        ]
+      }
+    },
+    {
+      "name": "everything_empty",
+      "business": {
+        "name": "",
+        "bio": "",
+        "business_type": "",
+        "phone_number": "",
+        "contact_email": "",
+        "website": "",
+        "logo": "",
+        "profile_details": {}
+      },
+      "branch": null,
+      "expected": {
+        "score": 0,
+        "gaps": [
+          {
+            "group": "businessInfo"
+          },
+          {
+            "group": "businessType"
+          },
+          {
+            "group": "contact"
+          },
+          {
+            "group": "website"
+          },
+          {
+            "group": "hours"
+          },
+          {
+            "group": "location"
+          },
+          {
+            "group": "photo"
+          },
+          {
+            "group": "importantInfo",
+            "missing": []
+          }
+        ]
+      }
+    }
+  ]
+}

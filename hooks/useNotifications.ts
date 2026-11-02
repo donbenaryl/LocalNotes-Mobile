@@ -21,6 +21,7 @@ const FILTER_TYPE_MAP: Record<NotificationFilter, string[] | null> = {
   offers: [
     'SPOTLIGHT_FEATURED',
     'BUSINESS_VIEWED',
+    'BUSINESS_SMART_ALERT',
     'FOLLOWED_BUSINESS_NEW_OFFER',
   ],
 };

@@ -81,6 +81,11 @@ export default function NotificationsFeed() {
       return;
     }
 
+    if (item.notification_type === 'BUSINESS_SMART_ALERT') {
+      router.push('/(app)/(stack)/business-home?page=profile' as never);
+      return;
+    }
+
     if (item.notification_type === 'BUSINESS_CLAIM_REJECTED') {
       router.push('/(app)/(stack)/claim-business' as never);
       return;

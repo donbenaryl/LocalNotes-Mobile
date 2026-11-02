@@ -1,10 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, BackHandler, StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import { useBusinessHomeData } from '@/hooks/useBusinessHomeData';
 import { useBusinessHomeNav } from './navigation';
+import { parseBusinessHomePage } from '@/utils/pushDeepLink';
 import { BusinessHomeSheets } from './sheets/BusinessHomeSheets';
 import type { BusinessHomeSheetId } from './sheets/types';
 import { BusinessHomeProfilePage } from './pages/BusinessHomeProfilePage';
@@ -18,6 +19,7 @@ import { BusinessHomeSpotlightPage } from './pages/BusinessHomeSpotlightPage';
 
 export default function BusinessHomeScreen() {
   const router = useRouter();
+  const { page: pageParam } = useLocalSearchParams<{ page?: string }>();
   const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const {
     businessName,
@@ -40,7 +42,9 @@ export default function BusinessHomeScreen() {
     refetchAll,
   } = useBusinessHomeData();
 
-  const { page, push, pop, canPop } = useBusinessHomeNav('profile');
+  const { page, push, pop, canPop } = useBusinessHomeNav(
+    parseBusinessHomePage(pageParam),
+  );
   const [activeSheet, setActiveSheet] = useState<BusinessHomeSheetId | null>(
     null,
   );
@@ -116,6 +120,7 @@ export default function BusinessHomeScreen() {
           onOpenSheet={openSheet}
           onOpenFullInsights={() => push('overview')}
           onOpenCampaign={() => push('campaign')}
+          onOpenCustomers={() => push('customers')}
         />
       );
       break;

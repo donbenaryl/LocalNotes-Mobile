@@ -37,6 +37,8 @@ import type {
     ThankYouSendResultDAO,
     ThankYouRedeemLookupDAO,
     ThankYouReceivedDAO,
+    BusinessAlertsDAO,
+    BusinessAlertActionDAO,
 } from "./types";
 import type { NoteDAO } from "../notes-api/types";
 
@@ -416,6 +418,27 @@ class BusinessService extends AppHttpService{
         return await this.SendRequest<ThankYouReceivedDAO[]>({
             method: "get",
             path: "/thank-you/received",
+        });
+    }
+
+    async getAlerts(businessId: string) {
+        return await this.SendRequest<BusinessAlertsDAO>({
+            method: "get",
+            path: `/${businessId}/alerts/`,
+        });
+    }
+
+    async markAlertRead(businessId: string, alertId: string) {
+        return await this.SendRequest<BusinessAlertActionDAO>({
+            method: "post",
+            path: `/${businessId}/alerts/${alertId}/read/`,
+        });
+    }
+
+    async dismissAlert(businessId: string, alertId: string) {
+        return await this.SendRequest<BusinessAlertActionDAO>({
+            method: "post",
+            path: `/${businessId}/alerts/${alertId}/dismiss/`,
         });
     }
 

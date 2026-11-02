@@ -8,6 +8,7 @@ import {
   Eye,
   Bell,
   Building2,
+  BellRing,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
@@ -37,6 +38,8 @@ function getBadgeConfig(type: string): BadgeConfig {
       return { icon: Sparkles, bgClass: 'bg-brand' };
     case 'BUSINESS_VIEWED':
       return { icon: Eye, bgClass: 'bg-brand' };
+    case 'BUSINESS_SMART_ALERT':
+      return { icon: BellRing, bgClass: 'bg-brand' };
     case 'BUSINESS_CLAIM_APPROVED':
       return { icon: Building2, bgClass: 'bg-emerald-700' };
     case 'BUSINESS_CLAIM_REJECTED':
