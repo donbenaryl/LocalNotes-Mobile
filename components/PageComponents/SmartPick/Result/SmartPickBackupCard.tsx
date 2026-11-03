@@ -57,7 +57,7 @@ export function SmartPickBackupCard({
             className="font-fraunces text-[11px] italic text-gray-500 dark:text-gray-400"
             numberOfLines={1}
           >
-            "{reasonText}"
+            &quot;{reasonText}&quot;
           </Text>
         ) : null}
       </View>

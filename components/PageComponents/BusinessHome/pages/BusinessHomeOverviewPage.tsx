@@ -106,6 +106,9 @@ export function BusinessHomeOverviewPage({
           <BusinessHomeTopline {...topline} />
           <BusinessInsightsSections
             isPaidMember={isPaidMember}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            topline={topline}
           />
           <ThisWeekSection isPaidMember={isPaidMember} />
           <NextActionsSection

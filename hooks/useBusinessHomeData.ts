@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { INTERPRETATION_QUERY_KEY } from '@/utils/insightInterpretation';
 import businessService from '@/http/business-api/business.service';
 import type { BusinessHomeLocationRow } from '@/constants/businessHomeMock';
 import { useBusinessStore } from '@/stores/useBusinessStore';
@@ -127,6 +128,7 @@ function buildDiscovery(stats: BusinessDiscoveryStatsDAO): BusinessHomeDiscovery
 }
 
 export function useBusinessHomeData() {
+  const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const businessInfo = useBusinessStore((s) => s.businessInfo);
   const businessId = useBusinessStore((s) => s.businessId);
@@ -288,6 +290,7 @@ export function useBusinessHomeData() {
       toplineQuery.refetch(),
       previousToplineQuery.refetch(),
       discoveryQuery.refetch(),
+      queryClient.invalidateQueries({ queryKey: [INTERPRETATION_QUERY_KEY] }),
     ]);
   };
 

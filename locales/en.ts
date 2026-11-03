@@ -1407,14 +1407,60 @@ const en = {
       lists: 'Lists',
     },
     insight: {
-      paidBody:
-        'Views rose 18% — mostly because two new Lists added you. Those visitors save at a lower rate than your usual audience, which is why saves rose only 6%: your discovery is improving faster than your conversion.',
       paidSource: 'Your data ✦ Automatic interpretation · Business Insights',
       freeBody:
-        'Views ↑18% · Saves ↑6% this period. Every number here is yours, free, always.',
+        'Views {{views}} · Saves {{saves}} this period. Every number here is yours, free, always.',
       freeSource:
         '✦ Want to know why these moved differently? Business Insights can explain the change and recommend what to do next.',
       seeInsights: 'See Business Insights',
+      auto: {
+        headline: {
+          up: '{{metric}} increased {{pct}}%',
+          down: '{{metric}} dropped {{pct}}%',
+          steady: 'Views and saves held steady compared with the previous period',
+        },
+        driver: {
+          channelMost: 'most of the additional {{metricLower}} came from {{channel}}',
+          channelMostDown: 'most of the lost {{metricLower}} were from {{channel}}',
+          channelLargest: '{{channel}} was the biggest source of the change in {{metricLower}}',
+          listAdded: 'after you were added to the list “{{list}}”',
+          listRemoved: 'after you stopped appearing on the list “{{list}}”',
+          topList: 'the list “{{list}}” drove most of the change in {{metricLower}}',
+          pickFavorites: 'most of the change came from favorites on your picks',
+        },
+        secondary: '{{metric}} {{direction}} {{pct}}%',
+        direction: {
+          rose: 'rose',
+          fell: 'fell',
+        },
+        metric: {
+          views: 'Views',
+          saves: 'Saves',
+        },
+        metricLower: {
+          views: 'views',
+          saves: 'saves',
+        },
+        channel: {
+          search: 'Search',
+          spotlight: 'Spotlight',
+          discovery: 'Discovery',
+          profile: 'your profile',
+          notification: 'notifications',
+          share_link: 'shared links',
+          smart_pick: 'Smart Picks',
+          recommendation: 'recommendations',
+          offer: 'offers',
+        },
+        loading: 'Analyzing your numbers…',
+        error: 'We could not load the interpretation.',
+        retry: 'Try again',
+        notEntitled: 'Automatic interpretation is available with Business Insights.',
+        insufficient: {
+          low_volume: 'Not enough activity in this period to explain the change yet.',
+          no_previous: 'Not enough activity in the previous period to compare yet.',
+        },
+      },
     },
     sections: {
       thisWeek: 'This week',

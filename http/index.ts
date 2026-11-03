@@ -150,10 +150,20 @@ export class HttpService {
       data = apiResponse;
     } catch (_error: unknown) {
       if (axios.isAxiosError(_error)) {
-        error = _error.response?.data ?? {
-          message: _error.message,
-          statusCode: 400,
-        };
+        const body = _error.response?.data as
+          | Partial<HttpServiceResolverError>
+          | undefined;
+        // Backend error bodies carry no status; fill it from the HTTP response.
+        error = body
+          ? {
+              ...body,
+              message: body.message ?? _error.message,
+              statusCode:
+                typeof body.statusCode === 'number'
+                  ? body.statusCode
+                  : (_error.response?.status ?? 400),
+            }
+          : { message: _error.message, statusCode: 400 };
       } else {
         error = { message: 'Unknown error', statusCode: 400 };
       }

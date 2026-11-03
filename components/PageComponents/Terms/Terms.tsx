@@ -981,7 +981,7 @@ export function Terms() {
         </View>
 
         <Paragraph>
-          These Terms of Service ("Terms") are a legally binding agreement between you and LocalNotes Group LLC ("LocalNotes," "we," "us," or "our") governing your access to and use of the LocalNotes mobile application, websites, and related services, features, products, and content (collectively, the "Service").
+          These Terms of Service (&quot;Terms&quot;) are a legally binding agreement between you and LocalNotes Group LLC (&quot;LocalNotes,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your access to and use of the LocalNotes mobile application, websites, and related services, features, products, and content (collectively, the &quot;Service&quot;).
         </Paragraph>
 
         <View className="bg-paper dark:bg-gray-800 border border-soft dark:border-gray-700 rounded-xl px-4 py-3.5 mb-5">

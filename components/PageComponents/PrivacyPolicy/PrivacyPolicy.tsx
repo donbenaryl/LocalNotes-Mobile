@@ -621,7 +621,7 @@ export function PrivacyPolicy() {
 
         <View className="bg-brand-tint dark:bg-brand-tint/10 border border-brand/30 rounded-xl px-4 py-3.5 mb-5">
           <Paragraph>
-            This Privacy Policy explains how LocalNotes Group LLC ("LocalNotes," "we," "us," or "our") collects, uses, discloses, retains, and protects personal information when you use the LocalNotes mobile application, websites, and related services (collectively, the "Service").
+            This Privacy Policy explains how LocalNotes Group LLC (&quot;LocalNotes,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) collects, uses, discloses, retains, and protects personal information when you use the LocalNotes mobile application, websites, and related services (collectively, the &quot;Service&quot;).
           </Paragraph>
           <Paragraph>
             LocalNotes Group LLC is responsible for the personal information described in this Policy. The Service is available to people age 13 or older and is initially offered in the United States.

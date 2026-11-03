@@ -20,6 +20,7 @@ import type {
     BusinessDemandInsightsDAO,
     BusinessPerformanceInsightsDAO,
     BusinessInsightsParams,
+    BusinessInsightInterpretationDAO,
     OwnedBusinessDAO,
     StatsDateRangeParams,
     BusinessClaimDAO,
@@ -427,6 +428,14 @@ class BusinessService extends AppHttpService{
         return await this.SendRequest<ThankYouReceivedDAO[]>({
             method: "get",
             path: "/thank-you/received",
+        });
+    }
+
+    async getInsightInterpretation(businessId: string, range: StatsDateRangeParams) {
+        return await this.SendRequest<BusinessInsightInterpretationDAO, Record<string, unknown>, StatsDateRangeParams>({
+            method: "get",
+            path: `/${businessId}/insights/interpretation/`,
+            query: range,
         });
     }
 

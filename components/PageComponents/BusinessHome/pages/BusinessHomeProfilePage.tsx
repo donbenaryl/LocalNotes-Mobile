@@ -253,7 +253,12 @@ export function BusinessHomeProfilePage({
                 </View>
               </View>
               <BusinessHomeTopline {...topline} />
-              <BusinessInsightsSections isPaidMember={isPaidMember} />
+              <BusinessInsightsSections
+                isPaidMember={isPaidMember}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+                topline={topline}
+              />
               <View className="mt-3 px-4">
                 <LocalNotesButton
                   label={t('businessHome.openFullInsights')}

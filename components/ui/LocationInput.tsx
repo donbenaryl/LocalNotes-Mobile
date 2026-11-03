@@ -481,7 +481,7 @@ export function LocationInput({
         query.length >= 2 && (
           <View className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-4 mb-4 items-center">
             <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
-              No locations found for "{query}"
+              No locations found for &quot;{query}&quot;
             </Text>
           </View>
         )}

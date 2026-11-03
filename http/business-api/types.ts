@@ -1,4 +1,4 @@
-import type { RNFile } from "../types";
+import type { RNFile, ViewOrigin } from "../types";
 
 export type BusinessLocation = {
   street_address: string;
@@ -643,4 +643,50 @@ export type BusinessAlertActionDAO = {
   read_at: string | null;
   dismissed_at: string | null;
   unread_count: number;
+};
+
+export type InterpretationMetric = "views" | "saves";
+export type InterpretationDirection = "up" | "down" | "flat";
+/** Named view channels; `other` is never returned by the server. */
+export type InterpretationViewOrigin = Exclude<ViewOrigin, "other">;
+
+export type InterpretationMetricTotals = {
+  current: number;
+  previous: number;
+  /** Signed percent change; null when `previous` is 0. */
+  delta_pct: number | null;
+};
+
+export type InterpretationHighlight = {
+  metric: InterpretationMetric;
+  direction: InterpretationDirection;
+  /** Absolute percent change. */
+  delta_pct: number;
+};
+
+export type InterpretationDriver =
+  | {
+      type: "channel";
+      key: InterpretationViewOrigin;
+      share_pct: number;
+      strength: "most" | "largest";
+    }
+  | { type: "list_added" | "list_removed"; list_id: string; list_name: string }
+  | { type: "top_list"; list_id: string; list_name: string; share_pct: number }
+  | { type: "pick_favorites"; share_pct: number };
+
+export type BusinessInsightInterpretationDAO = {
+  status: "ready" | "insufficient_data";
+  reason: "low_volume" | "no_previous" | null;
+  kind: "change" | "steady" | null;
+  period: {
+    date_from: string;
+    date_to: string;
+    prev_date_from: string;
+    prev_date_to: string;
+  };
+  metrics: Record<InterpretationMetric, InterpretationMetricTotals>;
+  headline: (InterpretationHighlight & { direction: "up" | "down" }) | null;
+  secondary: InterpretationHighlight | null;
+  driver: InterpretationDriver | null;
 };
