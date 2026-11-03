@@ -1,14 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
 import { Tabs, type TabItem } from '@/components/ui/Tabs';
 import { useBusinessInsights } from '@/hooks/useBusinessInsights';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import type { BusinessInsightsWindow } from '@/http/business-api/types';
-import { getFeedTimeGroup } from '@/utils/time';
 import { ExploreInsightsSection } from '../sections/ExploreInsightsSection';
-import { InsightsWindowSelector } from '../ui/InsightsWindowSelector';
+import { InsightsWindowBar } from '../ui/InsightsWindowBar';
 import type { BusinessHomeCustomersTabId } from '../navigation';
 import { BusinessHomeDetailShell } from './BusinessHomeDetailShell';
 
@@ -17,18 +14,11 @@ interface BusinessHomeCustomersPageProps {
   onBack: () => void;
 }
 
-/** Reuses the feed's time buckets (hours, yesterday, days, then a date). */
-function formatUpdatedLabel(t: TFunction, computedAt: string, locale: string): string {
-  const group = getFeedTimeGroup(computedAt, new Date(), locale);
-  const bucket = group.i18nKey.split('.').pop();
-  return t(`businessHome.explore.updated.${bucket}`, group.params);
-}
-
 export function BusinessHomeCustomersPage({
   isPaidMember,
   onBack,
 }: BusinessHomeCustomersPageProps) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const businessId = useBusinessStore((s) => s.businessId);
   const [activeTab, setActiveTab] =
     useState<BusinessHomeCustomersTabId>('customers');
@@ -49,8 +39,6 @@ export function BusinessHomeCustomersPage({
     [t],
   );
 
-  const computedAt = active.data?.computed_at;
-
   return (
     <BusinessHomeDetailShell
       title={t('businessHome.pages.customers')}
@@ -66,15 +54,11 @@ export function BusinessHomeCustomersPage({
         />
       }
     >
-      <View className="mx-4 mt-2.5 flex-row items-center justify-between gap-2">
-        <Text
-          className="flex-1 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400"
-          numberOfLines={1}
-        >
-          {computedAt ? formatUpdatedLabel(t, computedAt, i18n.language) : ''}
-        </Text>
-        <InsightsWindowSelector value={insightsWindow} onChange={setInsightsWindow} />
-      </View>
+      <InsightsWindowBar
+        computedAt={active.data?.computed_at}
+        window={insightsWindow}
+        onChange={setInsightsWindow}
+      />
       <ExploreInsightsSection
         activeTab={activeTab}
         customers={customers}

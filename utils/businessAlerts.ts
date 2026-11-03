@@ -1,3 +1,14 @@
+import {
+  BellRing,
+  BookmarkMinus,
+  BookmarkPlus,
+  Megaphone,
+  MessageSquareWarning,
+  TrendingDown,
+  TrendingUp,
+  UserRoundCog,
+  type LucideIcon,
+} from 'lucide-react-native';
 import type {
   BusinessAlertCta,
   BusinessAlertDAO,
@@ -60,6 +71,77 @@ export function resolveAlertAction(
     return { kind: 'edit_hours' };
   }
   return action;
+}
+
+// ---------------------------------------------------------------------------
+// Visual identity per alert type
+// ---------------------------------------------------------------------------
+
+export type BusinessAlertVisual = {
+  icon: LucideIcon;
+  /** Icon stroke; mid-tone so it reads on both the light and dark badge backgrounds. */
+  iconColor: string;
+  /** Badge background (light + dark). */
+  badgeClass: string;
+  /** Left accent border used for `important` alerts. */
+  accentClass: string;
+};
+
+const VISUAL_BRAND: BusinessAlertVisual = {
+  icon: BellRing,
+  iconColor: '#FF6B1A',
+  badgeClass: 'bg-orange-100 dark:bg-orange-950/50',
+  accentClass: 'border-l-4 border-l-brand',
+};
+const VISUAL_POSITIVE: Omit<BusinessAlertVisual, 'icon'> = {
+  iconColor: '#059669',
+  badgeClass: 'bg-emerald-100 dark:bg-emerald-950/50',
+  accentClass: 'border-l-4 border-l-emerald-600',
+};
+const VISUAL_NEGATIVE: Omit<BusinessAlertVisual, 'icon'> = {
+  iconColor: '#E11D48',
+  badgeClass: 'bg-rose-100 dark:bg-rose-950/50',
+  accentClass: 'border-l-4 border-l-rose-600',
+};
+const VISUAL_CAUTION: Omit<BusinessAlertVisual, 'icon'> = {
+  iconColor: '#D97706',
+  badgeClass: 'bg-amber-100 dark:bg-amber-950/50',
+  accentClass: 'border-l-4 border-l-amber-500',
+};
+const VISUAL_VIOLET: Omit<BusinessAlertVisual, 'icon'> = {
+  iconColor: '#7C3AED',
+  badgeClass: 'bg-violet-100 dark:bg-violet-950/50',
+  accentClass: 'border-l-4 border-l-violet-600',
+};
+const VISUAL_INFO: Omit<BusinessAlertVisual, 'icon'> = {
+  iconColor: '#0284C7',
+  badgeClass: 'bg-sky-100 dark:bg-sky-950/50',
+  accentClass: 'border-l-4 border-l-sky-600',
+};
+
+/** Icon + tint for an alert. Unknown types fall back to the generic brand bell. */
+export function getAlertVisual(
+  alert: Pick<BusinessAlertDAO, 'alert_type' | 'direction'>,
+): BusinessAlertVisual {
+  const down = alert.direction === 'down' || alert.direction === 'removed';
+  switch (alert.alert_type) {
+    case 'activity_change':
+      return alert.direction === 'down'
+        ? { icon: TrendingDown, ...VISUAL_NEGATIVE }
+        : { icon: TrendingUp, ...VISUAL_POSITIVE };
+    case 'customer_concern':
+      return { icon: MessageSquareWarning, ...VISUAL_CAUTION };
+    case 'important_list':
+      return down
+        ? { icon: BookmarkMinus, ...VISUAL_NEGATIVE }
+        : { icon: BookmarkPlus, ...VISUAL_VIOLET };
+    case 'campaign_performance':
+      return { icon: Megaphone, ...(down ? VISUAL_NEGATIVE : VISUAL_POSITIVE) };
+    case 'profile_incomplete':
+      return { icon: UserRoundCog, ...VISUAL_INFO };
+    default:
+      return VISUAL_BRAND;
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getWebAppUrl } from '@/http/environment.config';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useToastStore } from '@/stores/useToastStore';
+import { buildCreateOfferUrl, type OfferPrefill } from '@/utils/offerPrefill';
 
 /**
  * Opens the web create-offer page in the browser. Paid offer publishing must
@@ -14,7 +15,7 @@ export function useOpenCreateOfferOnWeb() {
   const showToast = useToastStore((s) => s.show);
   const businessId = useBusinessStore((s) => s.businessId);
 
-  return useCallback(async () => {
+  return useCallback(async (prefill?: OfferPrefill | null) => {
     if (!businessId) {
       showToast({
         type: 'error',
@@ -23,7 +24,7 @@ export function useOpenCreateOfferOnWeb() {
       return;
     }
 
-    const url = `${getWebAppUrl()}/business/offers/new`;
+    const url = buildCreateOfferUrl(`${getWebAppUrl()}/business/offers/new`, prefill);
     const canOpen = await Linking.canOpenURL(url);
     if (!canOpen) {
       showToast({ type: 'error', message: t('offerForm.error') });

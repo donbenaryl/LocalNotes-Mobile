@@ -1,6 +1,18 @@
-import { parseBusinessHomePage, resolveDeepLinkPath } from '@/utils/pushDeepLink';
+import {
+  parseBusinessHomePage,
+  parseBusinessHomeTab,
+  resolveDeepLinkPath,
+} from '@/utils/pushDeepLink';
 
 describe('resolveDeepLinkPath', () => {
+  it('carries a valid business-home tab and drops an unknown one', () => {
+    expect(resolveDeepLinkPath('/business-home?page=profile&tab=alerts')).toBe(
+      '/(app)/(stack)/business-home?page=profile&tab=alerts',
+    );
+    expect(resolveDeepLinkPath('/business-home?page=profile&tab=bogus')).toBe(
+      '/(app)/(stack)/business-home?page=profile',
+    );
+  });
   it('carries the business-home page', () => {
     expect(resolveDeepLinkPath('/business-home?page=profile')).toBe(
       '/(app)/(stack)/business-home?page=profile',
@@ -23,6 +35,15 @@ describe('resolveDeepLinkPath', () => {
     expect(resolveDeepLinkPath('/lists/abc')).toBeNull();
     expect(resolveDeepLinkPath('')).toBeNull();
     expect(resolveDeepLinkPath(undefined)).toBeNull();
+  });
+});
+
+describe('parseBusinessHomeTab', () => {
+  it('validates the param', () => {
+    expect(parseBusinessHomeTab('alerts')).toBe('alerts');
+    expect(parseBusinessHomeTab(['thankYou'])).toBe('thankYou');
+    expect(parseBusinessHomeTab('x')).toBeUndefined();
+    expect(parseBusinessHomeTab(undefined)).toBeUndefined();
   });
 });
 

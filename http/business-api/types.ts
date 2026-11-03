@@ -235,12 +235,18 @@ export type BusinessCustomerInsightsDAO = BusinessInsightsTabDAO & {
     rows: BusinessPersonalityInsightRowDAO[];
     cohort_size: number;
     top_area: string | null;
+    /** Paid businesses only; the key is absent for free members and insufficient data. */
+    insight_note?: string | null;
   }>;
   customer_differentiators: BusinessInsightSectionDAO<{
     chips: BusinessDifferentiatorChipDAO[];
     peer_count: number;
     peer_label?: string;
+    /** Paid businesses only; the key is absent for free members and insufficient data. */
+    insight_note?: string | null;
   }>;
+  /** Only with `detail=1`; null while building. */
+  customer_detail?: BusinessCustomerDetailDAO | null;
 };
 
 export type BusinessDemandTopicSource = "smart_pick" | "search";
@@ -274,6 +280,8 @@ export type BusinessDemandInsightsDAO = BusinessInsightsTabDAO & {
     quietest: BusinessPeakHourRangeDAO | null;
     reason?: "no_timezone" | "small_cohort";
   }>;
+  /** Only with `detail=1`; null while building. */
+  demand_detail?: BusinessDemandDetailDAO | null;
 };
 
 export type BusinessPerformanceMetricKey = "audience_fit" | "views" | "saves" | "follows";
@@ -292,10 +300,113 @@ export type BusinessPerformanceInsightsDAO = BusinessInsightsTabDAO & {
     peer_count: number;
     peer_label: string | null;
   }>;
+  /** Only with `detail=1`; null while building. */
+  performance_detail?: BusinessPerformanceDetailDAO | null;
+};
+
+type BusinessInsightPartDAO<T> = { status: BusinessInsightStatus } & T;
+
+export type BusinessCustomerDetailPersonalityRowDAO = BusinessPersonalityInsightRowDAO & {
+  user_count?: number;
+};
+
+export type BusinessCustomerDetailDAO = {
+  status: BusinessInsightStatus;
+  keywords: BusinessInsightPartDAO<{
+    /** One page of the full keyword list. */
+    chips: BusinessKeywordChipDAO[];
+    savers_count: number;
+    notes_count: number;
+    page: number;
+    page_size: number;
+    total: number;
+  }>;
+  personality: BusinessInsightPartDAO<{
+    rows: BusinessCustomerDetailPersonalityRowDAO[];
+    cohort_size: number;
+    top_area: string | null;
+  }>;
+  differentiators: BusinessInsightPartDAO<{
+    chips: BusinessDifferentiatorChipDAO[];
+    peer_count: number;
+    peer_label?: string;
+  }>;
+};
+
+/** One bucket of a topic's trend; `count` is null when under the privacy threshold. */
+export type BusinessDemandTrendPointDAO = {
+  start: string;
+  count: number | null;
+};
+
+export type BusinessDemandDetailTopicRowDAO = BusinessDemandTopicRowDAO & {
+  trend: BusinessDemandTrendPointDAO[];
+};
+
+export type BusinessDemandSourceVolumeDAO = {
+  source: BusinessDemandTopicSource;
+  volume: number;
+};
+
+export type BusinessDemandDetailDAO = {
+  status: BusinessInsightStatus;
+  topics: BusinessInsightPartDAO<{
+    rows: BusinessDemandDetailTopicRowDAO[];
+    bucket_days?: number;
+  }>;
+  sources: BusinessInsightPartDAO<{ rows: BusinessDemandSourceVolumeDAO[] }>;
+  heatmap: BusinessInsightPartDAO<{
+    /** 7 weekdays (Monday first) x 24 hours; null cells are under the privacy threshold. */
+    cells: (number | null)[][];
+    timezone?: string | null;
+    reason?: "no_timezone" | "small_cohort";
+  }>;
+};
+
+export type BusinessPerformanceSeriesKey = "views" | "saves" | "follows" | "shares";
+
+export type BusinessPerformanceSeriesPointDAO = {
+  start: string;
+  value: number;
+};
+
+export type BusinessPerformanceDetailMetricDAO = {
+  key: BusinessPerformanceSeriesKey;
+  value: number;
+  delta: number | null;
+  peer_avg: number | null;
+  percentile: number | null;
+};
+
+export type BusinessPeerDistributionDAO = {
+  min: number;
+  p25: number;
+  median: number;
+  p75: number;
+  max: number;
+  count: number;
+};
+
+export type BusinessPerformanceDetailDAO = {
+  status: BusinessInsightStatus;
+  series: Partial<Record<BusinessPerformanceSeriesKey, BusinessPerformanceSeriesPointDAO[]>>;
+  series_bucket_days?: number;
+  metrics: BusinessPerformanceDetailMetricDAO[];
+  /** Null without a peer group of at least 5. */
+  peers: Partial<Record<BusinessPerformanceSeriesKey, BusinessPeerDistributionDAO>> | null;
+  peer_count?: number;
+  peer_label?: string | null;
+  audience_fit: BusinessPerformanceRowDAO | null;
 };
 
 export type BusinessInsightsParams = {
   window?: BusinessInsightsWindow;
+  /** Adds the tab's `<tab>_detail` section to the response. */
+  detail?: boolean;
+  /** Customers detail only: keyword page (>= 1). */
+  page?: number;
+  /** Customers detail only: keywords per page (1 to 100). */
+  page_size?: number;
 };
 
 export type OwnedBusinessDAO = {

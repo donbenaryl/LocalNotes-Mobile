@@ -21,6 +21,20 @@ export function parseBusinessHomePage(value: string | string[] | undefined): Bus
     : 'profile';
 }
 
+export const BUSINESS_HOME_TAB_IDS = ['insights', 'campaigns', 'alerts', 'thankYou'] as const;
+
+export type BusinessHomeTabParam = (typeof BUSINESS_HOME_TAB_IDS)[number];
+
+/** Validates a `tab` route param; anything unknown (or an array) means "use the default tab". */
+export function parseBusinessHomeTab(
+  value: string | string[] | undefined,
+): BusinessHomeTabParam | undefined {
+  const tab = Array.isArray(value) ? value[0] : value;
+  return (BUSINESS_HOME_TAB_IDS as readonly string[]).includes(tab ?? '')
+    ? (tab as BusinessHomeTabParam)
+    : undefined;
+}
+
 /**
  * Route path for a push deep link, or null when it has none (list links are opened through
  * the list modal store instead). `/business-home?page=x` carries the target page along.
@@ -39,11 +53,15 @@ export function resolveDeepLinkPath(rawLink: string | null | undefined): string 
   if (link.startsWith('/notifications')) return '/(app)/(stack)/notifications';
   if (link.startsWith('/business-home')) {
     const query = link.split('?')[1];
-    const page = query
-      ? new URLSearchParams(query).get('page')
-      : null;
+    const params = query ? new URLSearchParams(query) : null;
+    const page = params?.get('page');
+    const tab = parseBusinessHomeTab(params?.get('tab') ?? undefined);
     const base = '/(app)/(stack)/business-home';
-    return page ? `${base}?page=${parseBusinessHomePage(page)}` : base;
+    const search = [
+      page ? `page=${parseBusinessHomePage(page)}` : null,
+      tab ? `tab=${tab}` : null,
+    ].filter(Boolean);
+    return search.length > 0 ? `${base}?${search.join('&')}` : base;
   }
   if (link.startsWith('/claim-business')) return '/(app)/(stack)/claim-business';
   return null;

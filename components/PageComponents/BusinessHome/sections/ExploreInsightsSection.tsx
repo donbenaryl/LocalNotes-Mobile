@@ -1,18 +1,17 @@
-import type { ReactNode } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ChartColumn } from 'lucide-react-native';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
-import { SavedSectionState } from '@/components/PageComponents/Saved/SavedSectionState';
-import { Skeleton } from '@/components/ui/Skeleton';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { getBusinessPersonalityLabel } from '@/utils/businessPersonalityLabels';
-import { cn } from '@/utils/cn';
+import { formatDelta, visibleInsightNote } from '@/utils/insightsFormat';
+import { topPercentValue } from '@/utils/insightsDetailModels';
+import { peakHoursReasonKey } from '@/utils/insightsReasons';
+import { quietestToPrefill } from '@/utils/offerPrefill';
 import type {
   BusinessCustomerInsightsDAO,
   BusinessDemandInsightsDAO,
-  BusinessInsightStatus,
   BusinessInsightsTab,
   BusinessInsightsWindow,
   BusinessPeakHourRangeDAO,
@@ -20,16 +19,16 @@ import type {
   BusinessPerformanceRowDAO,
 } from '@/http/business-api/types';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
+import {
+  CardTitle,
+  ChipRow,
+  InsightsTabState,
+  SectionInsufficient,
+  SourceText,
+  isReady,
+  type InsightsTabQuery,
+} from '../ui/InsightsParts';
 import { MembershipGate } from '../ui/MembershipGate';
-
-/** The slice of a TanStack query result each tab needs. */
-export interface InsightsTabQuery<T> {
-  data: T | undefined;
-  isPending: boolean;
-  isError: boolean;
-  isPlaceholderData: boolean;
-  refetch: () => unknown;
-}
 
 interface ExploreInsightsSectionProps {
   activeTab: BusinessInsightsTab;
@@ -39,21 +38,8 @@ interface ExploreInsightsSectionProps {
   isPaidMember: boolean;
 }
 
-/** Peer percentile only reads as a win in the top half. */
-const MIN_PERCENTILE_TO_SHOW = 50;
 /** Chips arrive sorted by lift; the strongest ones get the brand highlight. */
 const HIGHLIGHTED_DIFFERENTIATORS = 2;
-
-function isReady<T extends { status: BusinessInsightStatus }>(
-  section: T | null,
-): section is T {
-  return section?.status === 'ready';
-}
-
-function formatDelta(delta: number | null): string {
-  if (delta === null || delta === 0) return '';
-  return `${delta > 0 ? '↑' : '↓'}${Math.round(Math.abs(delta))}%`;
-}
 
 function formatHour(hour: number, locale: string): string {
   return new Date(2000, 0, 1, hour).toLocaleTimeString(locale, { hour: 'numeric' });
@@ -67,111 +53,6 @@ function formatMetricValue(row: BusinessPerformanceRowDAO, value: number): strin
   return row.key === 'audience_fit' ? `${Math.round(value)}%` : formatCompactNumber(value);
 }
 
-function ChipRow({
-  chips,
-}: {
-  chips: { label: string; count: string; hot?: boolean }[];
-}) {
-  return (
-    <View className="mt-2 flex-row flex-wrap gap-1.5">
-      {chips.map((chip) => (
-        <View
-          key={chip.label}
-          className={`rounded-full px-2.5 py-1 ${
-            chip.hot ? 'bg-brand-tint' : 'bg-soft dark:bg-gray-900'
-          }`}
-        >
-          <Text
-            className={`font-geist-bold text-xs ${
-              chip.hot ? 'text-brand-dark' : 'text-ink dark:text-gray-100'
-            }`}
-          >
-            {chip.label}
-            <Text className="text-gray-500"> {chip.count}</Text>
-          </Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function CardTitle({ children }: { children: ReactNode }) {
-  return (
-    <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">{children}</Text>
-  );
-}
-
-function SourceText({ children }: { children: ReactNode }) {
-  return (
-    <Text className="mt-2 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
-      {children}
-    </Text>
-  );
-}
-
-function SectionInsufficient() {
-  const { t } = useTranslation();
-  return (
-    <Text className="mt-2 font-geist text-xs text-gray-500 dark:text-gray-400">
-      {t('businessHome.explore.insufficientData')}
-    </Text>
-  );
-}
-
-function InsightsTabSkeleton({ label }: { label: string }) {
-  return (
-    <View className="mt-2.5 gap-2" accessibilityLabel={label}>
-      {[0, 1].map((index) => (
-        <BusinessHomeCard key={index}>
-          <Skeleton className="h-4 w-2/5" />
-          <View className="mt-3 flex-row flex-wrap gap-1.5">
-            <Skeleton className="h-6 w-16 rounded-full" />
-            <Skeleton className="h-6 w-20 rounded-full" />
-            <Skeleton className="h-6 w-14 rounded-full" />
-          </View>
-          <Skeleton className="mt-3 h-3 w-3/4" />
-        </BusinessHomeCard>
-      ))}
-      <Text className="mx-4 font-geist text-xs text-gray-500 dark:text-gray-400">{label}</Text>
-    </View>
-  );
-}
-
-function InsightsTabState<T extends { status: BusinessInsightStatus }>({
-  query,
-  children,
-}: {
-  query: InsightsTabQuery<T>;
-  children: (data: T) => ReactNode;
-}) {
-  const { t } = useTranslation();
-  const isBuilding = query.data?.status === 'building';
-  const isPending = !query.isError && (query.isPending || isBuilding);
-
-  return (
-    <SavedSectionState
-      isPending={isPending}
-      isError={query.isError}
-      isEmpty={query.data?.status === 'insufficient_data'}
-      onRetry={() => void query.refetch()}
-      pendingContent={
-        <InsightsTabSkeleton
-          label={t(isBuilding ? 'businessHome.explore.building' : 'businessHome.explore.loading')}
-        />
-      }
-      errorMessage={t('businessHome.explore.error')}
-      retryLabel={t('businessHome.explore.retry')}
-      emptyIcon={<ChartColumn size={40} color="#D1D5DB" />}
-      emptyTitle={t('businessHome.explore.insufficientData')}
-      emptyDescription={t('businessHome.explore.insufficientDataHint')}
-    >
-      <View className={cn(query.isPlaceholderData && 'opacity-60')}>
-        {query.data ? children(query.data) : null}
-      </View>
-    </SavedSectionState>
-  );
-}
-
 export function ExploreInsightsSection({
   activeTab,
   customers,
@@ -180,13 +61,17 @@ export function ExploreInsightsSection({
   isPaidMember,
 }: ExploreInsightsSectionProps) {
   const { t, i18n } = useTranslation();
+  const router = useRouter();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
 
-  const showComingSoon = () => {
-    Alert.alert(
-      t('businessHome.comingSoonTitle'),
-      t('businessHome.comingSoonMessage'),
-    );
+  const openDetail = (
+    pathname:
+      | '/business-customers-detail'
+      | '/business-demand-detail'
+      | '/business-performance-detail',
+    window: BusinessInsightsWindow,
+  ) => {
+    router.push({ pathname, params: { window } });
   };
 
   const windowPeriod = (window: BusinessInsightsWindow) =>
@@ -201,6 +86,12 @@ export function ExploreInsightsSection({
             const keywords = data.customer_keywords;
             const personality = data.customer_personality;
             const differentiators = data.customer_differentiators;
+            const personalityNote = isReady(personality)
+              ? visibleInsightNote(personality.insight_note)
+              : null;
+            const differentiatorsNote = isReady(differentiators)
+              ? visibleInsightNote(differentiators.insight_note)
+              : null;
             return (
               <View className="mt-2.5">
                 <BusinessHomeCard>
@@ -230,7 +121,10 @@ export function ExploreInsightsSection({
                   ) : (
                     <SectionInsufficient />
                   )}
-                  <Pressable onPress={showComingSoon} accessibilityRole="button">
+                  <Pressable
+                    onPress={() => openDetail('/business-customers-detail', data.window)}
+                    accessibilityRole="button"
+                  >
                     <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
                       {t('businessHome.explore.viewAllCustomers')}
                     </Text>
@@ -282,9 +176,11 @@ export function ExploreInsightsSection({
                     <SectionInsufficient />
                   )}
                   <MembershipGate isPaidMember={isPaidMember} tier="paid">
-                    <Text className="mt-1 font-geist-semibold text-[11px] text-gray-500">
-                      {t('businessHome.explore.personalityPaidNote')}
-                    </Text>
+                    {personalityNote ? (
+                      <Text className="mt-1 font-geist-semibold text-[11px] text-gray-500">
+                        {personalityNote}
+                      </Text>
+                    ) : null}
                   </MembershipGate>
                 </BusinessHomeCard>
                 <BusinessHomeCard className="mt-2">
@@ -310,9 +206,11 @@ export function ExploreInsightsSection({
                     <SectionInsufficient />
                   )}
                   <MembershipGate isPaidMember={isPaidMember} tier="paid">
-                    <Text className="mt-1 font-geist-semibold text-[11px] text-gray-500">
-                      {t('businessHome.explore.diffPaidNote')}
-                    </Text>
+                    {differentiatorsNote ? (
+                      <Text className="mt-1 font-geist-semibold text-[11px] text-gray-500">
+                        {differentiatorsNote}
+                      </Text>
+                    ) : null}
                   </MembershipGate>
                 </BusinessHomeCard>
               </View>
@@ -326,6 +224,10 @@ export function ExploreInsightsSection({
           {(data) => {
             const topics = data.demand_topics;
             const peakHours = data.demand_peak_hours;
+            const morningOfferPrefill = quietestToPrefill(peakHours);
+            const opportunityDelta = isReady(topics)
+              ? formatDelta(topics.opportunity?.delta_pct)
+              : '';
             return (
               <BusinessHomeCard className="mt-2.5">
                 {isReady(topics) ? (
@@ -364,16 +266,24 @@ export function ExploreInsightsSection({
                 ) : (
                   <SectionInsufficient />
                 )}
-                <Pressable onPress={showComingSoon} accessibilityRole="button">
+                <Pressable
+                  onPress={() => openDetail('/business-demand-detail', data.window)}
+                  accessibilityRole="button"
+                >
                   <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
                     {t('businessHome.explore.viewDemandReport')}
                   </Text>
                 </Pressable>
                 {isReady(topics) && topics.opportunity ? (
                   <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
-                    {t('businessHome.explore.demandOpportunity', {
-                      query: topics.opportunity.query,
-                    })}
+                    {opportunityDelta
+                      ? t('businessHome.explore.demandOpportunityWithDelta', {
+                          query: topics.opportunity.query,
+                          delta: opportunityDelta,
+                        })
+                      : t('businessHome.explore.demandOpportunity', {
+                          query: topics.opportunity.query,
+                        })}
                   </Text>
                 ) : null}
                 <LocalNotesButton
@@ -406,12 +316,13 @@ export function ExploreInsightsSection({
                       </View>
                     </View>
                   ) : (
-                    <SectionInsufficient />
+                    <SectionInsufficient messageKey={peakHoursReasonKey(peakHours?.reason)} />
                   )}
 
                   <LocalNotesButton
                     label={t('businessHome.buttons.createMorningOffer')}
-                    onPress={showComingSoon}
+                    onPress={() => void openCreateOfferOnWeb(morningOfferPrefill)}
+                    disabled={!morningOfferPrefill}
                     variant="light"
                     size="xs"
                     isWidthFull={false}
@@ -445,9 +356,9 @@ export function ExploreInsightsSection({
                               peer: formatMetricValue(row, row.peer_avg),
                             });
                       const meta = [
-                        row.percentile !== null && row.percentile >= MIN_PERCENTILE_TO_SHOW
+                        topPercentValue(row.percentile) !== null
                           ? t('businessHome.explore.topPercent', {
-                              percent: Math.max(1, 100 - row.percentile),
+                              percent: topPercentValue(row.percentile),
                             })
                           : null,
                         formatDelta(row.delta),
@@ -483,7 +394,10 @@ export function ExploreInsightsSection({
                 ) : (
                   <SectionInsufficient />
                 )}
-                <Pressable onPress={showComingSoon} accessibilityRole="button">
+                <Pressable
+                  onPress={() => openDetail('/business-performance-detail', data.window)}
+                  accessibilityRole="button"
+                >
                   <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
                     {t('businessHome.explore.viewPerformanceReport')}
                   </Text>

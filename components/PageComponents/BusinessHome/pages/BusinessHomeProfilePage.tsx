@@ -60,9 +60,12 @@ interface BusinessHomeProfilePageProps {
   onOpenFullInsights: () => void;
   onOpenCampaign: () => void;
   onOpenCustomers: () => void;
+  /** Top tab to open on first render; defaults to `insights`. */
+  initialTab?: BusinessHomeTopTabId;
 }
 
 export function BusinessHomeProfilePage({
+  initialTab = 'insights',
   businessName,
   businessLogo,
   locationName,
@@ -88,7 +91,7 @@ export function BusinessHomeProfilePage({
   const { colorScheme } = useColorScheme();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const openInsightsOnWeb = useOpenBusinessInsightsOnWeb();
-  const [activeTab, setActiveTab] = useState<BusinessHomeTopTabId>('insights');
+  const [activeTab, setActiveTab] = useState<BusinessHomeTopTabId>(initialTab);
   const [switcherVisible, setSwitcherVisible] = useState(false);
   const [stickyTabsVisible, setStickyTabsVisible] = useState(false);
   const tabsYRef = useRef(0);

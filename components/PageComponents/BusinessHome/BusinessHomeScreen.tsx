@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import { useBusinessHomeData } from '@/hooks/useBusinessHomeData';
 import { useBusinessHomeNav } from './navigation';
-import { parseBusinessHomePage } from '@/utils/pushDeepLink';
+import { parseBusinessHomePage, parseBusinessHomeTab } from '@/utils/pushDeepLink';
 import { BusinessHomeSheets } from './sheets/BusinessHomeSheets';
 import type { BusinessHomeSheetId } from './sheets/types';
 import { BusinessHomeProfilePage } from './pages/BusinessHomeProfilePage';
@@ -19,7 +19,10 @@ import { BusinessHomeSpotlightPage } from './pages/BusinessHomeSpotlightPage';
 
 export default function BusinessHomeScreen() {
   const router = useRouter();
-  const { page: pageParam } = useLocalSearchParams<{ page?: string }>();
+  const { page: pageParam, tab: tabParam } = useLocalSearchParams<{
+    page?: string;
+    tab?: string;
+  }>();
   const accountType = useAuthStore((s) => s.accountType ?? s.user?.accountType);
   const {
     businessName,
@@ -101,6 +104,7 @@ export default function BusinessHomeScreen() {
     case 'profile':
       content = (
         <BusinessHomeProfilePage
+          initialTab={parseBusinessHomeTab(tabParam)}
           businessName={businessName}
           businessLogo={businessLogo}
           locationName={locationName}

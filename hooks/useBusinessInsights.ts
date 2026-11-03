@@ -7,20 +7,15 @@ import {
 } from '@tanstack/react-query';
 import businessService from '@/http/business-api/business.service';
 import type { HttpServiceResolverDTO } from '@/http';
-import { INSIGHTS_STALE_TIME_MS } from '@/constants/queryCache';
+import { buildingRefetchInterval, insightsStaleTime } from '@/utils/insightsPolling';
 import type {
   BusinessCustomerInsightsDAO,
   BusinessDemandInsightsDAO,
-  BusinessInsightStatus,
   BusinessInsightsParams,
   BusinessInsightsTab,
   BusinessInsightsWindow,
   BusinessPerformanceInsightsDAO,
 } from '@/http/business-api/types';
-
-const BUILDING_POLL_INTERVAL_MS = 10_000;
-/** ~1 minute of polling; after that the nightly job or a manual refetch takes over. */
-const BUILDING_MAX_POLLS = 6;
 
 const INSIGHTS_TABS: BusinessInsightsTab[] = ['customers', 'demand', 'performance'];
 
@@ -41,25 +36,6 @@ const INSIGHTS_FETCHERS: {
   performance: (businessId, params) =>
     businessService.getPerformanceInsights(businessId, params),
 };
-
-type InsightsQueryState = {
-  state: {
-    data?: { status: BusinessInsightStatus };
-    dataUpdateCount: number;
-    errorUpdateCount: number;
-  };
-};
-
-/** A `building` tab must not sit in cache as fresh for 30 minutes. */
-function insightsStaleTime(query: InsightsQueryState) {
-  return query.state.data?.status === 'building' ? 0 : INSIGHTS_STALE_TIME_MS;
-}
-
-function buildingRefetchInterval(query: InsightsQueryState) {
-  if (query.state.data?.status !== 'building') return false;
-  const attempts = query.state.dataUpdateCount + query.state.errorUpdateCount;
-  return attempts <= BUILDING_MAX_POLLS ? BUILDING_POLL_INTERVAL_MS : false;
-}
 
 export function businessInsightsQueryKey(
   tab: BusinessInsightsTab,

@@ -9,10 +9,12 @@ import { useBusinessStore } from '@/stores/useBusinessStore';
 import type { BusinessAlertDAO } from '@/http/business-api/types';
 import {
   resolveAlertAction,
+  getAlertVisual,
   resolveAlertCopy,
   unreadAlertIds,
   type BusinessAlertAction,
 } from '@/utils/businessAlerts';
+import { cn } from '@/utils/cn';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { SectionHeading } from '../ui/SectionHeading';
@@ -82,12 +84,26 @@ export function AlertsSection({
     const ctaLabel =
       action.kind === 'none' ? null : t(`businessHome.alert.cta.${action.kind}`);
 
+    const visual = getAlertVisual(alert);
+    const AlertIcon = visual.icon;
+
     return (
-      <BusinessHomeCard key={alert.id} className="mb-2">
-        <View className="flex-row gap-2">
+      <BusinessHomeCard
+        key={alert.id}
+        className={cn('mb-2', alert.severity === 'important' && visual.accentClass)}
+      >
+        <View className="flex-row gap-3">
           <View
-            className={`mt-1 h-2 w-2 rounded-full ${alert.read_at ? 'bg-gray-300 dark:bg-gray-600' : 'bg-brand'}`}
-          />
+            className={cn(
+              'h-9 w-9 items-center justify-center rounded-full',
+              visual.badgeClass,
+            )}
+          >
+            <AlertIcon size={18} color={visual.iconColor} />
+            {!alert.read_at ? (
+              <View className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand dark:border-gray-900" />
+            ) : null}
+          </View>
           <View className="flex-1">
             <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
               {copy.what}

@@ -270,6 +270,15 @@ class BusinessService extends AppHttpService{
             query: params,
         });
     }
+    async getCustomersInsightsDetail(businessId: string, params?: BusinessInsightsParams) {
+        return await this.getCustomersInsights(businessId, { ...params, detail: true });
+    }
+    async getDemandInsightsDetail(businessId: string, params?: BusinessInsightsParams) {
+        return await this.getDemandInsights(businessId, { ...params, detail: true });
+    }
+    async getPerformanceInsightsDetail(businessId: string, params?: BusinessInsightsParams) {
+        return await this.getPerformanceInsights(businessId, { ...params, detail: true });
+    }
 
     async submitBusinessClaim(dto: SubmitClaimDTO) {
         const formData = new FormData();

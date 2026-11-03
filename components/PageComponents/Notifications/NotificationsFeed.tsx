@@ -82,7 +82,7 @@ export default function NotificationsFeed() {
     }
 
     if (item.notification_type === 'BUSINESS_SMART_ALERT') {
-      router.push('/(app)/(stack)/business-home?page=profile' as never);
+      router.push('/(app)/(stack)/business-home?page=profile&tab=alerts' as never);
       return;
     }
 
