@@ -88,6 +88,3 @@ export const BUSINESS_HOME_CAMPAIGN = {
   sales: '$768',
   roas: '15.4×',
 };
-
-export const BUSINESS_HOME_USAGE =
-  'This month: 41/60 Copilot questions · 3/12 campaign drafts · shared across your team · we\'ll warn you at 80%, never silently charge';

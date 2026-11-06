@@ -1,0 +1,11 @@
+{
+  "_source": "Canonical: RPI/business/copilot/plan.md, 'How credits are calculated' (worked examples). Mirrors the backend pricing tests; update both together.",
+  "pricing": { "output_weight": 5, "tokens_per_credit": 15000, "min_per_answer": 1, "max_per_answer": 5, "monthly_per_branch": 150 },
+  "examples": [
+    { "name": "quick, from the brief", "model_calls": 1, "tool_labels": [], "prompt_tokens": 12400, "completion_tokens": 320, "reserved": 5, "weighted": 14000, "raw": "0.93", "rounded": 1, "charged": 1, "capped_by": null },
+    { "name": "one tool round", "model_calls": 2, "tool_labels": ["view_sources"], "prompt_tokens": 26000, "completion_tokens": 440, "reserved": 5, "weighted": 28200, "raw": "1.88", "rounded": 2, "charged": 2, "capped_by": null },
+    { "name": "two tool rounds", "model_calls": 3, "tool_labels": ["lists", "offers"], "prompt_tokens": 46500, "completion_tokens": 620, "reserved": 5, "weighted": 49600, "raw": "3.31", "rounded": 4, "charged": 4, "capped_by": null },
+    { "name": "long conversation, capped at max", "model_calls": 4, "tool_labels": ["lists"], "prompt_tokens": 100000, "completion_tokens": 900, "reserved": 5, "weighted": 104500, "raw": "6.97", "rounded": 7, "charged": 5, "capped_by": "max" },
+    { "name": "low balance, 2 reserved", "model_calls": 2, "tool_labels": ["view_sources"], "prompt_tokens": 27500, "completion_tokens": 500, "reserved": 2, "weighted": 30000, "raw": "2.00", "rounded": 2, "charged": 2, "capped_by": null }
+  ]
+}

@@ -1,0 +1,256 @@
+import { useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { MoreHorizontal } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
+import { useTranslation } from 'react-i18next';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
+import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { Modal } from '@/components/ui/Modal';
+import { TextInput } from '@/components/ui/TextInput';
+import { toast } from '@/components/ui/Toast';
+import { useCopilotThreads } from '@/hooks/useCopilotThreads';
+import { useSelectedBranch } from '@/hooks/useSelectedBranch';
+import type { CopilotThreadSummaryDAO } from '@/http/business-api/types';
+import { COPILOT_THREAD_TITLE_MAX, validateThreadTitle } from '@/utils/copilot';
+import { formatRelativeTime } from '@/utils/time';
+import { cn } from '@/utils/cn';
+
+interface CopilotConversationsSheetProps {
+  visible: boolean;
+  onClose: () => void;
+  activeThreadId: string | null;
+  onOpenThread: (threadId: string) => void;
+  onNewChat: () => void;
+  isPaid?: boolean;
+}
+
+/** The selected branch's conversations: open, start a new chat, rename, delete. */
+export function CopilotConversationsSheet({
+  visible,
+  onClose,
+  activeThreadId,
+  onOpenThread,
+  onNewChat,
+  isPaid,
+}: CopilotConversationsSheetProps) {
+  const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const { branchName } = useSelectedBranch();
+  const { query, threads, rename, remove } = useCopilotThreads({ isPaid });
+
+  const [optionsFor, setOptionsFor] = useState<CopilotThreadSummaryDAO | null>(null);
+  const [renaming, setRenaming] = useState<CopilotThreadSummaryDAO | null>(null);
+  const [title, setTitle] = useState('');
+  const [deleting, setDeleting] = useState<CopilotThreadSummaryDAO | null>(null);
+
+  const titleError = validateThreadTitle(title);
+  const showTitleError = title.length > 0 && titleError === 'too_long';
+
+  const openRename = (thread: CopilotThreadSummaryDAO) => {
+    setOptionsFor(null);
+    setTitle(thread.title);
+    setRenaming(thread);
+  };
+
+  const submitRename = () => {
+    if (!renaming || validateThreadTitle(title) !== null) return;
+    const target = renaming;
+    setRenaming(null);
+    rename.mutate(
+      { threadId: target.id, title: title.trim() },
+      { onError: () => toast.error(t('businessHome.copilot.conversations.renameFailed')) },
+    );
+  };
+
+  const confirmDelete = () => {
+    if (!deleting) return;
+    const target = deleting;
+    setDeleting(null);
+    remove.mutate(target.id, {
+      onError: () => toast.error(t('businessHome.copilot.conversations.deleteFailed')),
+    });
+    // Deleting the open conversation drops the screen onto a new chat straight away.
+    if (target.id === activeThreadId) onNewChat();
+  };
+
+  const iconColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
+
+  return (
+    <>
+      <Modal
+        visible={visible}
+        onClose={onClose}
+        title={t('businessHome.copilot.conversations.title', { branchName })}
+        sheetHeightRatio={0.85}
+      >
+        <Pressable
+          onPress={() => {
+            onNewChat();
+            onClose();
+          }}
+          accessibilityRole="button"
+          className="mb-2 rounded-xl border border-brand bg-brand-tint px-4 py-3 active:opacity-70 dark:bg-brand/10"
+        >
+          <Text className="font-geist-bold text-sm text-brand">
+            {t('businessHome.copilot.conversations.newChat')}
+          </Text>
+        </Pressable>
+
+        {query.isPending ? (
+          <View className="items-center py-10">
+            <ActivityIndicator color="#FF6B1A" />
+          </View>
+        ) : query.isError ? (
+          <View className="items-center gap-3 py-8">
+            <Text className="font-geist text-sm text-gray-600 dark:text-gray-400">
+              {t('businessHome.copilot.conversations.error')}
+            </Text>
+            <LocalNotesButton
+              label={t('businessHome.copilot.conversations.retry')}
+              onPress={() => void query.refetch()}
+              variant="light"
+              size="xs"
+              isWidthFull={false}
+            />
+          </View>
+        ) : threads.length === 0 ? (
+          <Text className="py-8 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            {t('businessHome.copilot.conversations.empty')}
+          </Text>
+        ) : (
+          <FlatList
+            data={threads}
+            keyExtractor={(item) => item.id}
+            className="max-h-[58vh]"
+            showsVerticalScrollIndicator={false}
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (query.hasNextPage && !query.isFetchingNextPage) void query.fetchNextPage();
+            }}
+            ListFooterComponent={
+              query.isFetchingNextPage ? <ActivityIndicator className="py-3" color="#FF6B1A" /> : null
+            }
+            renderItem={({ item }) => {
+              const active = item.id === activeThreadId;
+              return (
+                <View className="flex-row items-center border-b border-gray-100 py-1 dark:border-gray-800">
+                  <Pressable
+                    onPress={() => {
+                      onOpenThread(item.id);
+                      onClose();
+                    }}
+                    onLongPress={() => setOptionsFor(item)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                    className="min-w-0 flex-1 flex-row items-center gap-2 py-2 active:opacity-70"
+                  >
+                    <View
+                      className={cn('h-2 w-2 rounded-full', active ? 'bg-brand' : 'bg-transparent')}
+                    />
+                    <View className="min-w-0 flex-1">
+                      <View className="flex-row items-baseline justify-between gap-2">
+                        <Text
+                          numberOfLines={1}
+                          className="flex-1 font-geist-bold text-sm text-ink dark:text-gray-100"
+                        >
+                          {item.title || t('businessHome.copilot.conversations.untitled')}
+                        </Text>
+                        <Text className="font-geist text-[11px] text-gray-500 dark:text-gray-400">
+                          {formatRelativeTime(item.last_message_at)}
+                        </Text>
+                      </View>
+                      {item.preview ? (
+                        <Text
+                          numberOfLines={1}
+                          className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
+                        >
+                          {item.preview}
+                        </Text>
+                      ) : null}
+                    </View>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setOptionsFor(item)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('businessHome.copilot.conversations.options')}
+                    hitSlop={8}
+                    className="p-2 active:opacity-70"
+                  >
+                    <MoreHorizontal size={18} color={iconColor} />
+                  </Pressable>
+                </View>
+              );
+            }}
+          />
+        )}
+
+        <Text className="mt-3 pb-2 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+          {t('businessHome.copilot.conversations.retentionNote')}
+        </Text>
+      </Modal>
+
+      <Modal
+        visible={optionsFor !== null}
+        onClose={() => setOptionsFor(null)}
+        title={optionsFor?.title || t('businessHome.copilot.conversations.untitled')}
+      >
+        <View className="gap-2 pb-2">
+          <LocalNotesButton
+            label={t('businessHome.copilot.conversations.rename')}
+            onPress={() => optionsFor && openRename(optionsFor)}
+            variant="light"
+            size="sm"
+          />
+          <LocalNotesButton
+            label={t('businessHome.copilot.conversations.delete')}
+            onPress={() => {
+              setDeleting(optionsFor);
+              setOptionsFor(null);
+            }}
+            variant="danger"
+            size="sm"
+          />
+        </View>
+      </Modal>
+
+      <Modal
+        visible={renaming !== null}
+        onClose={() => setRenaming(null)}
+        title={t('businessHome.copilot.conversations.renameTitle')}
+      >
+        <TextInput
+          value={title}
+          onChangeText={setTitle}
+          placeholder={t('businessHome.copilot.conversations.renamePlaceholder')}
+          autoFocus
+          returnKeyType="done"
+          onSubmitEditing={submitRename}
+          error={
+            showTitleError
+              ? t('businessHome.copilot.conversations.renameTooLong', {
+                  max: COPILOT_THREAD_TITLE_MAX,
+                })
+              : undefined
+          }
+        />
+        <View className="mt-4 pb-2">
+          <LocalNotesButton
+            label={t('businessHome.copilot.conversations.renameSave')}
+            onPress={submitRename}
+            variant="dark"
+            size="sm"
+            disabled={titleError !== null}
+          />
+        </View>
+      </Modal>
+
+      <ConfirmDeleteModal
+        visible={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={confirmDelete}
+        title={t('businessHome.copilot.conversations.deleteConfirmTitle')}
+        message={t('businessHome.copilot.conversations.deleteConfirmBody')}
+      />
+    </>
+  );
+}

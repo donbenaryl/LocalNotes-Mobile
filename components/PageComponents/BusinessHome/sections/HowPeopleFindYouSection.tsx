@@ -9,6 +9,7 @@ import type {
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { Modal } from '@/components/ui/Modal';
+import { ProgressBar } from '@/components/ui/ProgressBar';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { KeyValueRow } from '../ui/KeyValueRow';
@@ -27,8 +28,6 @@ function DiscoveryProgressRow({
   label: string;
   percent: number;
 }) {
-  const width = Math.min(100, Math.max(0, percent));
-
   return (
     <View className="py-2">
       <View className="mb-1.5 flex-row items-center justify-between">
@@ -37,12 +36,7 @@ function DiscoveryProgressRow({
         </Text>
         <Text className="font-geist-bold text-[13px] text-brand">{`${percent}%`}</Text>
       </View>
-      <View className="h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-        <View
-          className="h-full rounded-full bg-brand"
-          style={{ width: `${width}%` }}
-        />
-      </View>
+      <ProgressBar percent={percent} />
     </View>
   );
 }

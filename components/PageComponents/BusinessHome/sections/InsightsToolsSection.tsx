@@ -1,7 +1,9 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { BUSINESS_HOME_USAGE } from '@/constants/businessHomeMock';
-import { SectionHeading } from '../ui/SectionHeading';
+import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { copilotHref } from '@/utils/copilotRoutes';
+import { AiCreditsMeter } from '../ui/AiCreditsMeter';
 import { MembershipGate } from '../ui/MembershipGate';
 import type { BusinessHomeSheetId } from '../sheets/types';
 
@@ -10,18 +12,39 @@ interface InsightsToolsSectionProps {
   onOpenSheet: (id: BusinessHomeSheetId) => void;
 }
 
-const TOOLS: { id: BusinessHomeSheetId; icon: string; labelKey: string }[] = [
-  { id: 'copilot', icon: '✦', labelKey: 'businessHome.tools.copilot' },
-  { id: 'profile', icon: '✎', labelKey: 'businessHome.tools.improveProfile' },
-  { id: 'plans', icon: '⚑', labelKey: 'businessHome.tools.actionPlans' },
-  { id: 'alerts', icon: '🔔', labelKey: 'businessHome.tools.alerts' },
-];
-
 export function InsightsToolsSection({
   isPaidMember,
   onOpenSheet,
 }: InsightsToolsSectionProps) {
   const { t } = useTranslation();
+  const router = useRouter();
+
+  const tools: { id: string; icon: string; labelKey: string; onPress: () => void }[] = [
+    {
+      id: 'ask-copilot',
+      icon: '✦',
+      labelKey: 'businessHome.tools.copilot',
+      onPress: () => router.push(copilotHref()),
+    },
+    {
+      id: 'profile',
+      icon: '✎',
+      labelKey: 'businessHome.tools.improveProfile',
+      onPress: () => onOpenSheet('profile'),
+    },
+    {
+      id: 'plans',
+      icon: '⚑',
+      labelKey: 'businessHome.tools.actionPlans',
+      onPress: () => onOpenSheet('plans'),
+    },
+    // {
+    //   id: 'alerts',
+    //   icon: '🔔',
+    //   labelKey: 'businessHome.tools.alerts',
+    //   onPress: () => onOpenSheet('alerts'),
+    // },
+  ];
 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="paid">
@@ -33,23 +56,19 @@ export function InsightsToolsSection({
         showsHorizontalScrollIndicator={false}
         contentContainerClassName="gap-1.5 px-4"
       >
-        {TOOLS.map((tool) => (
-          <Pressable
+        {tools.map((tool) => (
+          <LocalNotesButton
             key={tool.id}
-            onPress={() => onOpenSheet(tool.id)}
-            accessibilityRole="button"
-            className="min-h-10 flex-row items-center gap-1.5 rounded-full bg-paper px-3.5 shadow-sm dark:bg-gray-800"
-          >
-            <Text className="text-brand">{tool.icon}</Text>
-            <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
-              {t(tool.labelKey)}
-            </Text>
-          </Pressable>
+            label={t(tool.labelKey)}
+            onPress={tool.onPress}
+            variant="light"
+            size="xs"
+            isWidthFull={false}
+            leftIcon={<Text className="text-brand">{tool.icon}</Text>}
+          />
         ))}
       </ScrollView>
-      <Text className="px-5 pt-1.5 font-geist-semibold text-[11px] leading-[1.5] text-gray-500">
-        {BUSINESS_HOME_USAGE}
-      </Text>
+      <AiCreditsMeter variant="compact" isPaid={isPaidMember} className="px-5 pt-1.5" />
     </MembershipGate>
   );
 }

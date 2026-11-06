@@ -37,64 +37,6 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
   return (
     <>
       <Modal
-        visible={activeSheet === 'copilot'}
-        onClose={onClose}
-        title={t('businessHome.sheets.copilot.title')}
-        sheetHeightRatio={0.85}
-      >
-        <SheetScroll>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="self-end rounded-2xl bg-soft px-3 py-2 font-geist text-sm dark:bg-gray-800">
-              {t('businessHome.sheets.copilot.sampleQuestion')}
-            </Text>
-          </BusinessHomeCard>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist text-sm leading-[1.55] text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.copilot.sampleAnswer')}
-            </Text>
-            <View className="mt-2 flex-row flex-wrap gap-1">
-              <Text className="rounded-full bg-soft px-2 py-1 text-[11px] dark:bg-gray-800">
-                {t('businessHome.sheets.copilot.cite1')}
-              </Text>
-              <Text className="rounded-full bg-soft px-2 py-1 text-[11px] dark:bg-gray-800">
-                {t('businessHome.sheets.copilot.cite2')}
-              </Text>
-            </View>
-            <View className="mt-2 flex-row flex-wrap gap-1.5">
-              <LocalNotesButton
-                label={t('businessHome.sheets.copilot.turnIntoPlan')}
-                onPress={showComingSoon}
-                variant="dark"
-                size="xs"
-                isWidthFull={false}
-              />
-              <LocalNotesButton
-                label={t('businessHome.sheets.copilot.draftNote')}
-                onPress={showComingSoon}
-                variant="light"
-                size="xs"
-                isWidthFull={false}
-              />
-            </View>
-          </BusinessHomeCard>
-          <View className="mt-2 flex-row flex-wrap gap-1.5">
-            {[
-              'businessHome.sheets.copilot.suggest1',
-              'businessHome.sheets.copilot.suggest2',
-              'businessHome.sheets.copilot.suggest3',
-            ].map((key) => (
-              <Text
-                key={key}
-                className="rounded-full border border-gray-200 px-3 py-2 font-geist-bold text-xs dark:border-gray-600"
-              >
-                {t(key)}
-              </Text>
-            ))}
-          </View>
-        </SheetScroll>
-      </Modal>
-
-      <Modal
         visible={activeSheet === 'profile'}
         onClose={onClose}
         title={t('businessHome.sheets.profile.title')}

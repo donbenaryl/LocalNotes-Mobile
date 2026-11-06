@@ -40,6 +40,14 @@ import type {
     ThankYouReceivedDAO,
     BusinessAlertsDAO,
     BusinessAlertActionDAO,
+    AiCreditsDAO,
+    AiCreditsDetailDAO,
+    CopilotThreadSummaryDAO,
+    CopilotThreadDAO,
+    CopilotMessageDAO,
+    SendCopilotMessageDTO,
+    SendCopilotMessageDAO,
+    RenameCopilotThreadDTO,
 } from "./types";
 import type { NoteDAO } from "../notes-api/types";
 
@@ -460,6 +468,87 @@ class BusinessService extends AppHttpService{
         });
     }
 
+    // -----------------------------------------------------------------------
+    // Branch-scoped reads (AI credits + Copilot). Unlike the business-scoped
+    // methods above, these take `(businessId, branchId, ...)` and call
+    // `/<businessId>/branches/<branchId>/...` with trailing slashes: credits
+    // and conversations belong to one paid branch, never the whole business.
+    // Failures resolve as `{ error: { message, statusCode } }` (403/404/409/
+    // 429/503 reach callers through `error.statusCode`); nothing throws.
+    // -----------------------------------------------------------------------
+
+    async getAiCredits(businessId: string, branchId: string) {
+        return await this.SendRequest<AiCreditsDAO>({
+            method: "get",
+            path: `/${businessId}/branches/${branchId}/ai-credits/`,
+        });
+    }
+
+    async getAiCreditsDetail(businessId: string, branchId: string) {
+        return await this.SendRequest<AiCreditsDetailDAO, unknown, { detail: number }>({
+            method: "get",
+            path: `/${businessId}/branches/${branchId}/ai-credits/`,
+            query: { detail: 1 },
+        });
+    }
+
+    async getCopilotThreads(businessId: string, branchId: string, page = 1) {
+        return await this.SendRequest<CopilotThreadSummaryDAO[], unknown, { page: number }>({
+            method: "get",
+            path: `/${businessId}/branches/${branchId}/copilot/threads/`,
+            query: { page },
+        });
+    }
+
+    async getCopilotThread(
+        businessId: string,
+        branchId: string,
+        threadId: string,
+        before?: string,
+    ) {
+        return await this.SendRequest<CopilotThreadDAO, unknown, { before?: string }>({
+            method: "get",
+            path: `/${businessId}/branches/${branchId}/copilot/threads/${threadId}/`,
+            query: before ? { before } : undefined,
+        });
+    }
+
+    async renameCopilotThread(
+        businessId: string,
+        branchId: string,
+        threadId: string,
+        dto: RenameCopilotThreadDTO,
+    ) {
+        return await this.SendRequest<CopilotThreadSummaryDAO, RenameCopilotThreadDTO>({
+            method: "patch",
+            path: `/${businessId}/branches/${branchId}/copilot/threads/${threadId}/`,
+            body: dto,
+        });
+    }
+
+    async deleteCopilotThread(businessId: string, branchId: string, threadId: string) {
+        return await this.SendRequest<null>({
+            method: "delete",
+            path: `/${businessId}/branches/${branchId}/copilot/threads/${threadId}/`,
+        });
+    }
+
+    async sendCopilotMessage(businessId: string, branchId: string, dto: SendCopilotMessageDTO) {
+        return await this.SendRequest<SendCopilotMessageDAO, SendCopilotMessageDTO>({
+            method: "post",
+            path: `/${businessId}/branches/${branchId}/copilot/messages/`,
+            body: dto,
+        });
+    }
+
+    async getCopilotMessage(businessId: string, branchId: string, messageId: string) {
+        return await this.SendRequest<CopilotMessageDAO>({
+            method: "get",
+            path: `/${businessId}/branches/${branchId}/copilot/messages/${messageId}/`,
+        });
+    }
+
 }
+
 
 export default new BusinessService()

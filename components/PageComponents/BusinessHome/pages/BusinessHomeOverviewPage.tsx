@@ -8,6 +8,7 @@ import { SectionHeading } from '../ui/SectionHeading';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessHomeTopline';
 import { BusinessInsightsSections } from '../sections/BusinessInsightsSections';
+import { CopilotEntrySection } from '../sections/CopilotEntrySection';
 import { InsightsToolsSection } from '../sections/InsightsToolsSection';
 import { RunAnotherCampaignSection } from '../sections/FreeCampaignSections';
 import {
@@ -213,6 +214,7 @@ export function BusinessHomeOverviewPage({
           <Text className="px-5 pb-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
             {t('businessHome.analyticsTab.empty')}
           </Text>
+          <CopilotEntrySection isPaidMember={isPaidMember} />
           <InsightsToolsSection
             isPaidMember={isPaidMember}
             onOpenSheet={onOpenSheet}

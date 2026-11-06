@@ -690,3 +690,138 @@ export type BusinessInsightInterpretationDAO = {
   secondary: InterpretationHighlight | null;
   driver: InterpretationDriver | null;
 };
+
+// ---------------------------------------------------------------------------
+// AI credits + Business Copilot (branch-scoped; see RPI/business/copilot/plan.md)
+// The API never sends money cost or the answering model, so no type here carries them.
+// ---------------------------------------------------------------------------
+
+export type AiCreditsPricingDAO = {
+  output_weight: number;
+  tokens_per_credit: number;
+  min_per_answer: number;
+  max_per_answer: number;
+  monthly_per_branch: number;
+};
+
+export type AiCreditsDAO = {
+  enabled: boolean;
+  branch_id: string;
+  allowance: number;
+  used: number;
+  remaining: number;
+  percent: number;
+  /** UTC date (YYYY-MM-DD) of the first day of the current period. */
+  period_start: string;
+  /** UTC instant the pool resets (00:00 on the 1st of next month). */
+  resets_at: string;
+  warn: boolean;
+  pricing: AiCreditsPricingDAO;
+};
+
+export type AiCreditsFeatureUsageDAO = {
+  feature: string;
+  credits: number;
+  count: number;
+};
+
+export type AiCreditsDailyDAO = { date: string; credits: number };
+
+export type AiCreditsHistoryDAO = {
+  period_start: string;
+  used: number;
+  allowance: number;
+};
+
+export type AiCreditsDetailDAO = AiCreditsDAO & {
+  used_by_you: number;
+  team_size: number;
+  /** Credits held by answers still in progress (included in `used`). */
+  reserved: number;
+  by_feature: AiCreditsFeatureUsageDAO[];
+  daily: AiCreditsDailyDAO[];
+  history: AiCreditsHistoryDAO[];
+};
+
+export type CopilotCostBreakdownDAO = {
+  model_calls: number;
+  /** Tool `progress_key`s used by the answer, in order. */
+  tool_labels: string[];
+  prompt_tokens: number;
+  completion_tokens: number;
+  output_weight: number;
+  weighted_tokens: number;
+  tokens_per_credit: number;
+  raw_credits: number;
+  credits_charged: number;
+  capped_by: null | "max" | "reserved";
+};
+
+export type CopilotSourceKey =
+  | "profile"
+  | "profile_health"
+  | "performance"
+  | "metrics"
+  | "changes"
+  | "view_sources"
+  | "customer_keywords"
+  | "personality"
+  | "differentiators"
+  | "demand_topics"
+  | "peak_hours"
+  | "lists"
+  | "notes"
+  | "offers"
+  | "spotlight"
+  | "ads"
+  | "smart_pick"
+  | "alerts";
+
+export type CopilotMessageRole = "user" | "assistant";
+export type CopilotMessageStatus = "pending" | "done" | "failed";
+
+export type CopilotMessageDAO = {
+  id: string;
+  role: CopilotMessageRole;
+  status: CopilotMessageStatus;
+  /** Current tool `progress_key` while pending, else null. */
+  progress: string | null;
+  content: string;
+  sources: CopilotSourceKey[];
+  follow_ups: string[];
+  credits_charged: number;
+  cost_breakdown: CopilotCostBreakdownDAO | null;
+  created_at: string;
+};
+
+export type CopilotThreadSummaryDAO = {
+  id: string;
+  branch_id: string;
+  title: string;
+  last_message_at: string;
+  message_count: number;
+  preview: string;
+};
+
+export type CopilotThreadDAO = {
+  id: string;
+  branch_id: string;
+  title: string;
+  /** Oldest first, at most 50. */
+  messages: CopilotMessageDAO[];
+  has_more: boolean;
+};
+
+export type SendCopilotMessageDTO = {
+  thread_id?: string | null;
+  message: string;
+};
+
+export type SendCopilotMessageDAO = {
+  thread: CopilotThreadSummaryDAO;
+  user_message: CopilotMessageDAO;
+  assistant_message: CopilotMessageDAO;
+  credits: AiCreditsDAO;
+};
+
+export type RenameCopilotThreadDTO = { title: string };
