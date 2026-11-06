@@ -284,6 +284,7 @@ export function BusinessHomeProfilePage({
                   size="sm"
                 />
               </View>
+              {/* Campaign list */}
               <SectionHeading title={t('businessHome.campaignsTab.past')} />
               <BusinessHomeCard>
                 <Pressable

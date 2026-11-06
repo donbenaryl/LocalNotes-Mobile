@@ -143,6 +143,19 @@ export type BusinessMentionsStatsDAO = {
   total_mentions: number;
 };
 
+export type BusinessMentionWeekdaysDAO = {
+  /** IANA zone the weekdays are bucketed in; null when the branch has none. */
+  timezone: string | null;
+  window_days: number;
+  min_mentions: number;
+  /** Weekdays with at least `min_mentions` picks, Monday first. */
+  mentioned_days: { day: keyof OpeningHours; mentions: number }[];
+};
+
+export type BusinessMentionWeekdaysParams = {
+  branch_id?: string;
+};
+
 export type BusinessCategoryStatItemDAO = {
   category_id: string;
   category_name: string;

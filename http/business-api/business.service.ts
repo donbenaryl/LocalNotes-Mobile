@@ -9,6 +9,8 @@ import type {
     UpdateBranchDTO,
     BusinessViewsStatsDAO,
     BusinessMentionsStatsDAO,
+    BusinessMentionWeekdaysDAO,
+    BusinessMentionWeekdaysParams,
     BusinessCategoryStatItemDAO,
     BusinessListStatItemDAO,
     BusinessPersonalityColorStatItemDAO,
@@ -206,6 +208,13 @@ class BusinessService extends AppHttpService{
         return await this.SendRequest<BusinessMentionsStatsDAO, Record<string, unknown>, StatsDateRangeParams>({
             method: "get",
             path: `/${businessId}/stats/mentions`,
+            query: params,
+        });
+    }
+    async getMentionWeekdays(businessId: string, params?: BusinessMentionWeekdaysParams) {
+        return await this.SendRequest<BusinessMentionWeekdaysDAO, Record<string, unknown>, BusinessMentionWeekdaysParams>({
+            method: "get",
+            path: `/${businessId}/stats/mention-weekdays`,
             query: params,
         });
     }

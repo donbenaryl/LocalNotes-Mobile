@@ -2047,9 +2047,9 @@ const en = {
     sheets: {
       profile: {
         title: '✎ Improve profile',
-        hoursTitle: 'Confirm weekend hours',
+        hoursTitle: 'Check your {{days}} hours',
         hoursBody:
-          'Saturday searches can\'t surface you confidently while hours are unconfirmed — and Saturday is your most-mentioned day.',
+          'Customers mentioned you on {{days}}, but your hours show you closed or not set those days. Searches can\'t surface you confidently until they\'re set.',
         descriptionTitle: 'Refresh your description',
         descriptionBody:
           'Your bio doesn\'t mention the words customers actually search for. AI draft:',

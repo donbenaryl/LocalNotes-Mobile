@@ -1,8 +1,14 @@
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { EditBranchHoursModal } from '@/components/PageComponents/Profile/EditBranchHoursModal';
+import { useMentionWeekdays } from '@/hooks/useMentionWeekdays';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
+import { useUpdateBranchHours } from '@/hooks/useUpdateBranchHours';
+import { useBusinessStore } from '@/stores/useBusinessStore';
+import { closedMentionedDays } from '@/utils/openingHours';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { ProfileHealthSection } from '../sections/FreeCampaignSections';
 import type { BusinessHomeSheetId } from './types';
@@ -32,6 +38,40 @@ export function BusinessHomeSheets({
 }: BusinessHomeSheetsProps) {
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
+  const businessId = useBusinessStore((s) => s.businessId);
+  const businessInfo = useBusinessStore((s) => s.businessInfo);
+  const selectedBranchId = useBusinessStore((s) => s.selectedBranchId);
+  const [hoursEditorOpen, setHoursEditorOpen] = useState(false);
+
+  const selectedBranch =
+    businessInfo?.branches?.find((item) => item.id === selectedBranchId) ??
+    businessInfo?.branches?.[0];
+  const { data: mentionWeekdays, refetch: refetchMentionWeekdays } = useMentionWeekdays(
+    businessId,
+    selectedBranch?.id,
+  );
+  const canFetchMentionWeekdays = Boolean(businessId && selectedBranch?.id);
+
+  useEffect(() => {
+    if (activeSheet === 'profile' && canFetchMentionWeekdays) void refetchMentionWeekdays();
+  }, [activeSheet, canFetchMentionWeekdays, refetchMentionWeekdays]);
+
+  const hoursGapDays = useMemo(
+    () => closedMentionedDays(mentionWeekdays?.mentioned_days ?? [], selectedBranch?.opening_hours),
+    [mentionWeekdays, selectedBranch?.opening_hours],
+  );
+  const hoursGapLabel = hoursGapDays
+    .map((day) => t(`editProfile.business.weekdays.${day}`))
+    .join(', ');
+
+  const { mutateAsync: updateBranchHours, isPending: isUpdatingHours } = useUpdateBranchHours({
+    onSuccess: () => setHoursEditorOpen(false),
+  });
+
+  const openHoursEditor = () => {
+    onClose();
+    setHoursEditorOpen(true);
+  };
 
   const showComingSoon = () => {
     Alert.alert(
@@ -55,21 +95,25 @@ export function BusinessHomeSheets({
             className="mx-0"
             onFixPress={onClose}
           />
-          {/* Confirm Weekend Hours */}
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.profile.hoursTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.profile.hoursBody')}
-            </Text>
-            <LocalNotesButton
-              label={t('businessHome.buttons.confirmHours')}
-              onPress={showComingSoon}
-              variant="dark"
-              size="xs"
-              isWidthFull={false}
-              className="mt-2 self-start"
-            />
-          </BusinessHomeCard>
+          {/* Mentioned on days the branch is not open */}
+          {hoursGapDays.length > 0 ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist-extrabold text-sm">
+                {t('businessHome.sheets.profile.hoursTitle', { days: hoursGapLabel })}
+              </Text>
+              <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.profile.hoursBody', { days: hoursGapLabel })}
+              </Text>
+              <LocalNotesButton
+                label={t('businessHome.buttons.confirmHours')}
+                onPress={openHoursEditor}
+                variant="dark"
+                size="xs"
+                isWidthFull={false}
+                className="mt-2 self-start"
+              />
+            </BusinessHomeCard>
+          ) : null}
           {/* Suggest Business Description */}
           <BusinessHomeCard className="mx-0 mt-2">
             <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.profile.descriptionTitle')}</Text>
@@ -213,6 +257,24 @@ export function BusinessHomeSheets({
           </BusinessHomeCard>
         </SheetScroll>
       </Modal>
+
+      <EditBranchHoursModal
+        visible={hoursEditorOpen && Boolean(selectedBranch)}
+        branchName={
+          (businessInfo?.branches?.length ?? 0) > 1 ? selectedBranch?.name ?? undefined : undefined
+        }
+        initialHours={selectedBranch?.opening_hours}
+        loading={isUpdatingHours}
+        onClose={() => setHoursEditorOpen(false)}
+        onSave={async (hours) => {
+          if (!selectedBranch) return;
+          try {
+            await updateBranchHours({ branchId: selectedBranch.id, openingHours: hours });
+          } catch {
+            // Error toast is shown by useUpdateBranchHours.
+          }
+        }}
+      />
     </>
   );
 }

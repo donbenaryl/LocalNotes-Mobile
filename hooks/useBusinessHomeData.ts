@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { INTERPRETATION_QUERY_KEY } from '@/utils/insightInterpretation';
 import { AI_CREDITS_QUERY_KEY } from '@/utils/aiCredits';
+import { MENTION_WEEKDAYS_QUERY_KEY } from '@/hooks/useMentionWeekdays';
 import businessService from '@/http/business-api/business.service';
 import type { BusinessHomeLocationRow } from '@/constants/businessHomeMock';
 import { useBusinessStore } from '@/stores/useBusinessStore';
@@ -293,6 +294,7 @@ export function useBusinessHomeData() {
       discoveryQuery.refetch(),
       queryClient.invalidateQueries({ queryKey: [INTERPRETATION_QUERY_KEY] }),
       queryClient.invalidateQueries({ queryKey: [AI_CREDITS_QUERY_KEY] }),
+      queryClient.invalidateQueries({ queryKey: [MENTION_WEEKDAYS_QUERY_KEY] }),
     ]);
   };
 

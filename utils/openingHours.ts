@@ -78,6 +78,20 @@ export function openingHoursForApi(hours: OpeningHours): OpeningHours {
   return out;
 }
 
+/** Mentioned weekdays the branch is not open on (open or close unset), Monday first. */
+export function closedMentionedDays(
+  mentionedDays: readonly { day: WeekdayKey }[],
+  hours: OpeningHours | null | undefined,
+): WeekdayKey[] {
+  const mentioned = new Set(mentionedDays.map((entry) => entry.day));
+  const normalized = normalizeOpeningHours(hours);
+  return WEEKDAY_KEYS.filter((day) => {
+    if (!mentioned.has(day)) return false;
+    const entry = normalized[day];
+    return !entry?.open || !entry?.close;
+  });
+}
+
 export function areOpeningHoursEqual(
   a: OpeningHours | null | undefined,
   b: OpeningHours | null | undefined,

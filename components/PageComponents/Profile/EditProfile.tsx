@@ -57,6 +57,7 @@ import {
   type UsernameAvailabilityStatus,
 } from "@/hooks/useUsernameAvailability";
 import { useBusinessTypes } from "@/hooks/useBusinessTypes";
+import { useUpdateBranchHours } from "@/hooks/useUpdateBranchHours";
 import { findBusinessType } from "@/utils/businessTypes";
 
 const BIO_MAX_LENGTH = 160;
@@ -617,43 +618,13 @@ export default function EditProfile() {
   });
 
   const { mutateAsync: updateBranchHoursAsync, isPending: isUpdatingHours } =
-    useMutation({
-      mutationFn: async ({
-        branchId,
-        openingHours,
-      }: {
-        branchId: string;
-        openingHours: OpeningHours;
-      }) => {
-        const res = await businessService.updateBranch({
-          id: branchId,
-          opening_hours: openingHours,
-        });
-        if (res.error || !res.data?.data) {
-          throw new Error(
-            res.error?.message ?? t("editProfile.business.saveFailed"),
-          );
-        }
-        return res.data.data;
-      },
-      onSuccess: async (data) => {
+    useUpdateBranchHours({
+      onSuccess: (data) => {
         setBusinessForm((prev) => ({
           ...prev,
           branches: mapBranchesFromApi(data),
         }));
-        queryClient.setQueryData(["business-info", data.id], data);
-        await refreshBusinessInfo();
         setEditingHoursBranchId(null);
-        showToast({ type: "success", message: "Branch hours updated." });
-      },
-      onError: (err: unknown) => {
-        showToast({
-          type: "error",
-          message:
-            err instanceof Error
-              ? err.message
-              : t("editProfile.business.saveFailed"),
-        });
       },
     });
 
