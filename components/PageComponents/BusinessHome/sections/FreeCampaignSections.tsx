@@ -7,6 +7,7 @@ import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { useBusinessTypes } from '@/hooks/useBusinessTypes';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { gradeBusinessProfile, type ProfileHealthGap } from '@/utils/profileHealth';
+import { cn } from '@/utils/cn';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { MembershipGate } from '../ui/MembershipGate';
@@ -76,7 +77,17 @@ function describeGap(
   });
 }
 
-export function ProfileHealthSection({ isPaidMember }: { isPaidMember: boolean }) {
+interface ProfileHealthSectionProps {
+  isPaidMember: boolean;
+  className?: string;
+  onFixPress?: () => void;
+}
+
+export function ProfileHealthSection({
+  isPaidMember,
+  className,
+  onFixPress,
+}: ProfileHealthSectionProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const businessInfo = useBusinessStore((s) => s.businessInfo);
@@ -98,7 +109,7 @@ export function ProfileHealthSection({ isPaidMember }: { isPaidMember: boolean }
 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="all">
-      <BusinessHomeCard className="mt-2">
+      <BusinessHomeCard className={cn('mt-2', className)}>
         <View className="flex-row items-center justify-between">
           <Text className="font-geist-extrabold text-md text-ink dark:text-gray-100">
             {t('businessHome.profileHealth.title', { score: health.score })}
@@ -122,7 +133,10 @@ export function ProfileHealthSection({ isPaidMember }: { isPaidMember: boolean }
         {gapLabels.length > 0 ? (
           <LocalNotesButton
             label={t('businessHome.buttons.fixNow')}
-            onPress={() => router.push('/edit-profile')}
+            onPress={() => {
+              onFixPress?.();
+              router.push('/edit-profile');
+            }}
             size="xs"
             isWidthFull={false}
             className="mt-2.5 self-end"

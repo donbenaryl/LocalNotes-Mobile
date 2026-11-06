@@ -4,10 +4,12 @@ import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
+import { ProfileHealthSection } from '../sections/FreeCampaignSections';
 import type { BusinessHomeSheetId } from './types';
 
 interface BusinessHomeSheetsProps {
   activeSheet: BusinessHomeSheetId | null;
+  isPaidMember: boolean;
   onClose: () => void;
 }
 
@@ -23,7 +25,11 @@ function SheetScroll({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsProps) {
+export function BusinessHomeSheets({
+  activeSheet,
+  isPaidMember,
+  onClose,
+}: BusinessHomeSheetsProps) {
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
 
@@ -43,12 +49,13 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
         sheetHeightRatio={0.85}
       >
         <SheetScroll>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.profile.healthTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.profile.healthBody')}
-            </Text>
-          </BusinessHomeCard>
+          {/* Profile Health */}
+          <ProfileHealthSection
+            isPaidMember={isPaidMember}
+            className="mx-0"
+            onFixPress={onClose}
+          />
+          {/* Confirm Weekend Hours */}
           <BusinessHomeCard className="mx-0 mt-2">
             <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.profile.hoursTitle')}</Text>
             <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
@@ -63,6 +70,7 @@ export function BusinessHomeSheets({ activeSheet, onClose }: BusinessHomeSheetsP
               className="mt-2 self-start"
             />
           </BusinessHomeCard>
+          {/* Suggest Business Description */}
           <BusinessHomeCard className="mx-0 mt-2">
             <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.profile.descriptionTitle')}</Text>
             <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">

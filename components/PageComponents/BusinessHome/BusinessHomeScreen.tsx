@@ -208,6 +208,7 @@ export default function BusinessHomeScreen() {
       {content}
       <BusinessHomeSheets
         activeSheet={activeSheet}
+        isPaidMember={isPaidMember}
         onClose={() => setActiveSheet(null)}
       />
     </View>

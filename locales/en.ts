@@ -2047,8 +2047,6 @@ const en = {
     sheets: {
       profile: {
         title: '✎ Improve profile',
-        healthTitle: 'Profile health',
-        healthBody: 'Strong basics. Two gaps are costing you discovery — both fixable today.',
         hoursTitle: 'Confirm weekend hours',
         hoursBody:
           'Saturday searches can\'t surface you confidently while hours are unconfirmed — and Saturday is your most-mentioned day.',
