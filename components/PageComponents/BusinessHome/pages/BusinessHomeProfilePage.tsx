@@ -21,14 +21,13 @@ import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessHomeTopline';
 import { BusinessSwitcherSheet } from '../sheets/BusinessSwitcherSheet';
 import { AlertsSection } from '../sections/AlertsSection';
-import { BusinessHomeCard } from '../ui/BusinessHomeCard';
+import { ActiveOffersList } from '../sections/ActiveOffersList';
 import { DateRangePicker } from '../ui/DateRangePicker';
 import { SectionHeading } from '../ui/SectionHeading';
 import { ThankYouContent } from '@/components/PageComponents/ThankYou/ThankYouContent';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnWeb';
 import type { InsightsMembershipStatus } from '@/http/business-api/types';
-import { BUSINESS_HOME_CAMPAIGN } from '@/constants/businessHomeMock';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { BusinessHomeTopTabId } from '../navigation';
 import type { BusinessHomeSheetId } from '../sheets/types';
@@ -273,9 +272,7 @@ export function BusinessHomeProfilePage({
           {activeTab === 'campaigns' ? (
             <View className="pt-1">
               <SectionHeading title={t('businessHome.campaignsTab.active')} />
-              <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
-                {t('businessHome.campaignsTab.activeEmpty')}
-              </Text>
+              <ActiveOffersList />
               <View className="px-4 pb-2">
                 <LocalNotesButton
                   label={t('businessHome.buttons.createOffer')}
@@ -284,27 +281,6 @@ export function BusinessHomeProfilePage({
                   size="sm"
                 />
               </View>
-              {/* Campaign list */}
-              <SectionHeading title={t('businessHome.campaignsTab.past')} />
-              <BusinessHomeCard>
-                <Pressable
-                  onPress={onOpenCampaign}
-                  accessibilityRole="button"
-                  className="active:opacity-70"
-                >
-                  <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
-                    {BUSINESS_HOME_CAMPAIGN.name}
-                  </Text>
-                  <View className="mt-1 flex-row items-center justify-between gap-2">
-                    <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
-                      {BUSINESS_HOME_CAMPAIGN.status}
-                    </Text>
-                    <Text className="font-geist-bold text-xs text-success">
-                      {BUSINESS_HOME_CAMPAIGN.roas} ROAS
-                    </Text>
-                  </View>
-                </Pressable>
-              </BusinessHomeCard>
             </View>
           ) : null}
 

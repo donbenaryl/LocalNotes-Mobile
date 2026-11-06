@@ -10,13 +10,13 @@ import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessH
 import { BusinessInsightsSections } from '../sections/BusinessInsightsSections';
 import { CopilotEntrySection } from '../sections/CopilotEntrySection';
 import { InsightsToolsSection } from '../sections/InsightsToolsSection';
+import { ActiveOffersList } from '../sections/ActiveOffersList';
 import { RunAnotherCampaignSection } from '../sections/FreeCampaignSections';
 import {
   FooterNoteSection,
   MonthlyReportSection,
 } from '../sections/MonthlyReportSection';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
-import { BUSINESS_HOME_CAMPAIGN } from '@/constants/businessHomeMock';
 import type { BusinessHomeDiscovery } from '@/hooks/useBusinessHomeData';
 import type { BusinessHomeOverviewTabId } from '../navigation';
 import type { BusinessHomeSheetId } from '../sheets/types';
@@ -40,7 +40,6 @@ interface BusinessHomeOverviewPageProps {
   onOpenLocations: () => void;
   onOpenCustomers: () => void;
   onOpenMembership: () => void;
-  onOpenCampaign: () => void;
   onOpenSpotlight: () => void;
   leadingLocationName?: string;
 }
@@ -61,7 +60,6 @@ export function BusinessHomeOverviewPage({
   onOpenLocations,
   onOpenCustomers,
   onOpenMembership,
-  onOpenCampaign,
   onOpenSpotlight,
   leadingLocationName,
 }: BusinessHomeOverviewPageProps) {
@@ -158,28 +156,10 @@ export function BusinessHomeOverviewPage({
           <SectionHeading
             title={t('businessHome.promoteTab.currentlyPromoting')}
           />
-          <BusinessHomeCard className="mb-1">
-            <Pressable
-              onPress={onOpenCampaign}
-              accessibilityRole="button"
-              className="active:opacity-70"
-            >
-              <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
-                {BUSINESS_HOME_CAMPAIGN.name}
-              </Text>
-              <View className="mt-1 flex-row items-center justify-between gap-2">
-                <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
-                  {BUSINESS_HOME_CAMPAIGN.status}
-                </Text>
-                <Text className="font-geist-bold text-xs text-success">
-                  {BUSINESS_HOME_CAMPAIGN.roas} ROAS
-                </Text>
-              </View>
-            </Pressable>
-          </BusinessHomeCard>
-          <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+          <ActiveOffersList />
+          {/* <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
             {t('businessHome.promoteTab.promoteNote')}
-          </Text>
+          </Text> */}
 
           <SectionHeading title={t('businessHome.promoteTab.spotlight')} />
           <BusinessHomeCard className="mb-1">

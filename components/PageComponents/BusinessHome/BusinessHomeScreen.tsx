@@ -146,7 +146,6 @@ export default function BusinessHomeScreen() {
           onOpenLocations={() => push('locations')}
           onOpenCustomers={() => push('customers')}
           onOpenMembership={() => push('membership')}
-          onOpenCampaign={() => push('campaign')}
           onOpenSpotlight={() => push('spotlight')}
           leadingLocationName={locationRows[0]?.name}
         />

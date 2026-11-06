@@ -1344,7 +1344,8 @@ const en = {
     campaignsTab: {
       active: 'Active',
       activeEmpty: 'No campaign is running right now.',
-      past: 'Past',
+      viewDetails: 'View offer details',
+      loadError: "Couldn't load your offers.",
     },
     promoteTab: {
       currentlyPromoting: 'Currently promoting',
