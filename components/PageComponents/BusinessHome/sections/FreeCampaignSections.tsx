@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { Alert, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
+import { useOpenSpotlightBidOnWeb } from '@/hooks/useOpenSpotlightBidOnWeb';
 import { useBusinessTypes } from '@/hooks/useBusinessTypes';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { gradeBusinessProfile, type ProfileHealthGap } from '@/utils/profileHealth';
@@ -16,13 +17,7 @@ import { Badge } from '@/components/ui/Badge';
 export function RunAnotherCampaignSection({ isPaidMember }: { isPaidMember: boolean }) {
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
-
-  const showComingSoon = () => {
-    Alert.alert(
-      t('businessHome.comingSoonTitle'),
-      t('businessHome.comingSoonMessage'),
-    );
-  };
+  const openSpotlightBidOnWeb = useOpenSpotlightBidOnWeb();
 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="all">
@@ -43,7 +38,7 @@ export function RunAnotherCampaignSection({ isPaidMember }: { isPaidMember: bool
           />
           <LocalNotesButton
             label={t('businessHome.buttons.submitSpotlight')}
-            onPress={showComingSoon}
+            onPress={() => void openSpotlightBidOnWeb()}
             variant="light"
             size="xs"
             isWidthFull={false}

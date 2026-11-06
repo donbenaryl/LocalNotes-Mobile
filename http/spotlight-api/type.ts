@@ -138,3 +138,39 @@ export type SpotlightEditionDAO = {
 export type SpotlightEditionDQO = {
   city?: string;
 };
+
+export type SpotlightBidRoundStatus =
+  | "open"
+  | "awaiting_payment"
+  | "paid"
+  | "no_sponsor";
+
+export type SpotlightBidStatus =
+  | "active"
+  | "withdrawn"
+  | "offered"
+  | "paid"
+  | "expired"
+  | "not_selected"
+  | "refunded";
+
+export type SpotlightMyBidDAO = {
+  id: string;
+  amount_cents: number;
+  currency: string;
+  status: SpotlightBidStatus;
+  is_leading: boolean;
+};
+
+export type SpotlightBidRoundDAO = {
+  id: string;
+  city: string;
+  status: SpotlightBidRoundStatus;
+  bidding_closes_at: string;
+  top_amount_cents: number | null;
+  is_leading: boolean;
+  my_bid: SpotlightMyBidDAO | null;
+};
+
+export type SpotlightBidRoundDQO = { business_id: string; city: string };
+export type SpotlightBidCitiesDQO = { business_id: string };

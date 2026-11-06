@@ -1,3 +1,4 @@
+import { SPOTLIGHT_BID_ROUND_KEY } from '@/hooks/useSpotlightBidRound';
 import { useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -295,6 +296,7 @@ export function useBusinessHomeData() {
       queryClient.invalidateQueries({ queryKey: [INTERPRETATION_QUERY_KEY] }),
       queryClient.invalidateQueries({ queryKey: [AI_CREDITS_QUERY_KEY] }),
       queryClient.invalidateQueries({ queryKey: [MENTION_WEEKDAYS_QUERY_KEY] }),
+      queryClient.invalidateQueries({ queryKey: [SPOTLIGHT_BID_ROUND_KEY] }),
     ]);
   };
 

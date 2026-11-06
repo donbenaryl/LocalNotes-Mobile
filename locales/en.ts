@@ -1353,9 +1353,20 @@ const en = {
       spotlight: 'Spotlight',
       spotlightNote:
         'Spotlight placements open from time to time. When one is open, the highest bid wins the feature slot.',
-      spotlightTitle: 'Open spotlight · Roosevelt Row weekend feature',
-      spotlightMeta: 'Closes in 2 days',
-      spotlightBid: 'Highest bid $85',
+      spotlightLoading: 'Checking spotlight…',
+      spotlightUnavailable: 'Spotlight bidding',
+      spotlightStatusOpen: 'Open spotlight · {{city}}',
+      spotlightStatusAwaitingPayment: 'Spotlight winner awaiting payment · {{city}}',
+      spotlightStatusPaid: 'Spotlight slot filled · {{city}}',
+      spotlightStatusNoSponsor: 'No spotlight sponsor this week · {{city}}',
+      spotlightCloses: 'Closes {{when}}',
+      spotlightNoBids: 'No bids yet',
+      spotlightHighestBid: 'Highest bid {{amount}}',
+      spotlightLeading: "You're the highest bidder",
+      spotlightOutbid: "You've been outbid",
+      spotlightWonPayOnWeb: 'You won. Complete payment on the web.',
+      spotlightCta: 'Submit Spotlight bid',
+      spotlightOpenWebError: 'Could not open Spotlight bidding on the web.',
     },
     analyticsTab: {
       empty:

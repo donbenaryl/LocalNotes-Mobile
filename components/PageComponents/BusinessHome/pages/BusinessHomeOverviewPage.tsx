@@ -1,11 +1,10 @@
 import { useMemo, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Tabs, type TabItem } from '@/components/ui/Tabs';
 import { DateRangePicker } from '../ui/DateRangePicker';
 import { DetailNavRow } from '../ui/DetailNavRow';
 import { SectionHeading } from '../ui/SectionHeading';
-import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessHomeTopline';
 import { BusinessInsightsSections } from '../sections/BusinessInsightsSections';
 import { CopilotEntrySection } from '../sections/CopilotEntrySection';
@@ -21,6 +20,7 @@ import type { BusinessHomeDiscovery } from '@/hooks/useBusinessHomeData';
 import type { BusinessHomeOverviewTabId } from '../navigation';
 import type { BusinessHomeSheetId } from '../sheets/types';
 import { BusinessHomeDetailShell } from './BusinessHomeDetailShell';
+import { SpotlightBidCard } from '../sections/SpotlightBidCard';
 import { ThisWeekSection } from '../sections/ThisWeekSection';
 import { NextActionsSection } from '../sections/NextActionsSection';
 
@@ -40,7 +40,6 @@ interface BusinessHomeOverviewPageProps {
   onOpenLocations: () => void;
   onOpenCustomers: () => void;
   onOpenMembership: () => void;
-  onOpenSpotlight: () => void;
   leadingLocationName?: string;
 }
 
@@ -60,7 +59,6 @@ export function BusinessHomeOverviewPage({
   onOpenLocations,
   onOpenCustomers,
   onOpenMembership,
-  onOpenSpotlight,
   leadingLocationName,
 }: BusinessHomeOverviewPageProps) {
   const { t } = useTranslation();
@@ -161,26 +159,9 @@ export function BusinessHomeOverviewPage({
             {t('businessHome.promoteTab.promoteNote')}
           </Text> */}
 
+          {/* Spotlight Section */}
           <SectionHeading title={t('businessHome.promoteTab.spotlight')} />
-          <BusinessHomeCard className="mb-1">
-            <Pressable
-              onPress={onOpenSpotlight}
-              accessibilityRole="button"
-              className="active:opacity-70"
-            >
-              <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
-                {t('businessHome.promoteTab.spotlightTitle')}
-              </Text>
-              <View className="mt-1 flex-row items-center justify-between gap-2">
-                <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
-                  {t('businessHome.promoteTab.spotlightMeta')}
-                </Text>
-                <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
-                  {t('businessHome.promoteTab.spotlightBid')}
-                </Text>
-              </View>
-            </Pressable>
-          </BusinessHomeCard>
+          <SpotlightBidCard />
           <Text className="px-5 pb-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
             {t('businessHome.promoteTab.spotlightNote')}
           </Text>
