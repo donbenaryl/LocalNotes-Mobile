@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 interface MembershipGateProps {
   isPaidMember: boolean;
-  tier: 'paid' | 'free';
+  tier: 'paid' | 'free' | 'all';
   children: ReactNode;
 }
 
@@ -12,7 +12,7 @@ export function MembershipGate({
   tier,
   children,
 }: MembershipGateProps) {
-  const visible = tier === 'paid' ? isPaidMember : !isPaidMember;
+  const visible = tier === 'all' ? true : tier === 'paid' ? isPaidMember : !isPaidMember;
   if (!visible) return null;
   return children;
 }

@@ -50,7 +50,7 @@ export function CopilotEntrySection({ isPaidMember }: CopilotEntrySectionProps) 
             label={t('businessHome.copilot.entry.resume')}
             onPress={() => router.push(copilotHref())}
             variant="dark"
-            size="xs"
+            size="sm"
           />
         </View>
         <AiCreditsMeter variant="compact" isPaid={isPaidMember} className="mt-2" />

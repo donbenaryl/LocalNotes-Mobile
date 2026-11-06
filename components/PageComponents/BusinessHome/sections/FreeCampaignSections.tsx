@@ -24,7 +24,7 @@ export function RunAnotherCampaignSection({ isPaidMember }: { isPaidMember: bool
   };
 
   return (
-    <MembershipGate isPaidMember={isPaidMember} tier="free">
+    <MembershipGate isPaidMember={isPaidMember} tier="all">
       <BusinessHomeCard className="mt-2">
         <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
           {t('businessHome.runAnother.title')}
@@ -97,17 +97,19 @@ export function ProfileHealthSection({ isPaidMember }: { isPaidMember: boolean }
   if (!businessInfo) return null;
 
   return (
-    <MembershipGate isPaidMember={isPaidMember} tier="free">
+    <MembershipGate isPaidMember={isPaidMember} tier="all">
       <BusinessHomeCard className="mt-2">
         <View className="flex-row items-center justify-between">
           <Text className="font-geist-extrabold text-md text-ink dark:text-gray-100">
             {t('businessHome.profileHealth.title', { score: health.score })}
           </Text>
-          <Badge
-            label={t('businessHome.profileHealth.freeBadge')}
-            variant="success"
-            size="md"
-          />
+          {!isPaidMember ? (
+            <Badge
+              label={t('businessHome.profileHealth.freeBadge')}
+              variant="success"
+              size="md"
+            />
+          ) : null}
         </View>
         <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400">
           {gapLabels.length > 0

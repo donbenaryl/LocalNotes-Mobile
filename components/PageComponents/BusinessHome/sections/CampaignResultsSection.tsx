@@ -80,23 +80,23 @@ export function CampaignResultsSection({
             isWidthFull={false}
           />
         </View>
+        <View className="mt-2.5 flex-row flex-wrap gap-1.5">
+          <LocalNotesButton
+            label={t('businessHome.campaign.viewSnapshot')}
+            onPress={showComingSoon}
+            variant="ghost"
+            size="sm"
+            isWidthFull={false}
+          />
+          <LocalNotesButton
+            label={t('businessHome.campaign.campaignSetup')}
+            onPress={showComingSoon}
+            variant="ghost"
+            size="sm"
+            isWidthFull={false}
+          />
+        </View>
         <MembershipGate isPaidMember={isPaidMember} tier="free">
-          <View className="mt-2.5 flex-row flex-wrap gap-1.5">
-            <LocalNotesButton
-              label={t('businessHome.campaign.viewSnapshot')}
-              onPress={showComingSoon}
-              variant="ghost"
-              size="sm"
-              isWidthFull={false}
-            />
-            <LocalNotesButton
-              label={t('businessHome.campaign.campaignSetup')}
-              onPress={showComingSoon}
-              variant="ghost"
-              size="sm"
-              isWidthFull={false}
-            />
-          </View>
           <Text className="mt-2 border-t border-white/10 pt-2 font-geist text-[11px] leading-[1.55] text-white/60">
             <Text className="font-geist-bold text-[#FFB37E]">
               {t('businessHome.campaign.unlockInsights')}

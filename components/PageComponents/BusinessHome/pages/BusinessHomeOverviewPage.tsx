@@ -223,7 +223,7 @@ export function BusinessHomeOverviewPage({
             isPaidMember={isPaidMember}
             onOpenSheet={onOpenSheet}
           />
-          <FooterNoteSection />
+          {/* <FooterNoteSection /> */}
         </View>
       ) : null}
     </BusinessHomeDetailShell>

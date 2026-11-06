@@ -48,7 +48,7 @@ export function MonthlyReportSection({
           </Text>
         </Pressable>
       </BusinessHomeCard>
-      <Text className="px-5 pb-1.5 pt-3 font-geist-extrabold text-[10px] uppercase tracking-widest text-gray-500">
+      {/* <Text className="px-5 pb-1.5 pt-3 font-geist-extrabold text-[10px] uppercase tracking-widest text-gray-500">
         {t('businessHome.sections.promoteTools')}
       </Text>
       <ScrollView
@@ -69,7 +69,7 @@ export function MonthlyReportSection({
             </Text>
           </Pressable>
         ))}
-      </ScrollView>
+      </ScrollView> */}
     </MembershipGate>
   );
 }
