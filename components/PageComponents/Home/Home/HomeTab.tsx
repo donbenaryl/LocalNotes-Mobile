@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Text, View } from "react-native";
 import { useRegisterSectionPullToRefresh, useRegisterSectionInfiniteScroll } from "@/components/ui/SectionPullToRefreshContext";
 import { SpinLoader } from "@/components/ui/SpinLoader";
@@ -36,6 +36,9 @@ import {
 } from "@/utils/time";
 import { cn } from "@/utils/cn";
 import type { ViewOrigin } from "@/http/types";
+import { HOME_HREF } from "@/constants/swipeNavigation";
+import { usePickModalStore } from "@/stores/usePickModalStore";
+import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 
 function formatCityLabel(location: GeoLocation): string {
   if (location.street_address?.trim()) {
@@ -273,6 +276,7 @@ export function HomeTab() {
     isRefetching: isPicksRefetching,
     error: picksError,
     refetch: refetchPicks,
+    prependPick,
     showNearYouSection: showNearYouPicksSection,
     matchingCount: picksMatchingCount,
     vibeMatchCount: picksVibeMatchCount,
@@ -290,6 +294,24 @@ export function HomeTab() {
     selectedCategories,
     enabled: contentType === "picks",
   });
+
+  const lastCreatedPick = usePickModalStore((s) => s.lastCreatedPick);
+  const clearCreatedPick = usePickModalStore((s) => s.clearCreatedPick);
+  const isHomePageActive = useSectionRouteStore((s) => s.activeHref === HOME_HREF);
+
+  useEffect(() => {
+    if (!lastCreatedPick) return;
+    if (isHomePageActive && contentType === "picks") {
+      const hasActiveFilters = activeFilters.length > 0 || locationMode !== "all";
+      if (hasActiveFilters) {
+        void refetchPicks();
+      } else {
+        prependPick(lastCreatedPick);
+      }
+    }
+    clearCreatedPick();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handle each created pick once, with the filters current at that moment
+  }, [lastCreatedPick]);
 
   const {
     businesses,
@@ -550,6 +572,7 @@ export function HomeTab() {
               {isFetchingNextPage ? <SpinLoader className="py-6" /> : null}
             </>
           ) : (
+            // Pick List Section
             <>
               {sortedForYouPicks.length > 0 ? (
                 <View className="mb-6">

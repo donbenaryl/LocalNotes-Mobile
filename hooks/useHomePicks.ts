@@ -1,5 +1,10 @@
 import { useCallback, useMemo } from "react";
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import listService from "@/http/list-api/list.service";
 import type { ListItemPublic, Location as GeoLocation } from "@/http/list-api/types";
 import type { HomeListFilter } from "@/components/PageComponents/Home/Home/HomeFilterHeader";
@@ -153,8 +158,13 @@ export function useHomePicks(options: UseHomePicksOptions) {
     [options, effectiveCoordinates, discoverRadiusKm, discoverParams.personality_sides],
   );
 
+  const discoverQueryKey = useMemo(
+    () => ["home-picks-discover", ...filterQueryKey],
+    [filterQueryKey],
+  );
+
   const discoverQuery = useInfiniteQuery({
-    queryKey: ["home-picks-discover", ...filterQueryKey],
+    queryKey: discoverQueryKey,
     queryFn: ({ pageParam }) =>
       fetchPicks({
         ...discoverParams,
@@ -301,6 +311,28 @@ export function useHomePicks(options: UseHomePicksOptions) {
     ]);
   };
 
+  const prependPick = useCallback(
+    (pick: ListItemPublic) => {
+      queryClient.setQueryData<InfiniteData<ListItemPublic[], number>>(
+        discoverQueryKey,
+        (data) => {
+          if (!data) return data;
+          const [firstPage = [], ...restPages] = data.pages;
+          return {
+            ...data,
+            pages: [
+              [pick, ...firstPage.filter((existing) => existing.id !== pick.id)],
+              ...restPages.map((page) =>
+                page.filter((existing) => existing.id !== pick.id),
+              ),
+            ],
+          };
+        },
+      );
+    },
+    [queryClient, discoverQueryKey],
+  );
+
   const showNearYouSection =
     effectiveCoordinates !== null && nearYouPicksExclusive.length > 0;
 
@@ -315,6 +347,7 @@ export function useHomePicks(options: UseHomePicksOptions) {
       (effectiveCoordinates ? nearYouQuery.isRefetching : false),
     error,
     refetch,
+    prependPick,
     hasCoordinates: effectiveCoordinates !== null,
     showNearYouSection,
     matchingCount,

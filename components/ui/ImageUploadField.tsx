@@ -23,6 +23,7 @@ interface ImageUploadFieldProps {
   label?: string;
   required?: boolean;
   maxFiles?: number;
+  allowsMultipleSelection?: boolean;
   existingImages?: ExistingImage[];
   onRemoveExisting?: (id: string) => void;
   newFiles: UploadedImageFile[];
@@ -42,6 +43,7 @@ export function ImageUploadField({
   label,
   required = false,
   maxFiles,
+  allowsMultipleSelection = false,
   existingImages = [],
   onRemoveExisting,
   newFiles,
@@ -55,7 +57,8 @@ export function ImageUploadField({
   const [showPicker, setShowPicker] = useState(false);
 
   const totalCount = existingImages.length + newFiles.length;
-  const canAddMore = maxFiles === undefined || totalCount < maxFiles;
+  const remaining = maxFiles === undefined ? undefined : Math.max(maxFiles - totalCount, 0);
+  const canAddMore = remaining === undefined || remaining > 0;
 
   const displayLabel = useMemo(() => {
     if (!label) return undefined;
@@ -82,20 +85,27 @@ export function ImageUploadField({
         ? await ImagePicker.launchImageLibraryAsync({
             mediaTypes: "images",
             quality: 0.8,
+            allowsMultipleSelection,
+            // 0 means no limit.
+            selectionLimit: allowsMultipleSelection ? (remaining ?? 0) : 1,
+            orderedSelection: allowsMultipleSelection,
           })
         : await ImagePicker.launchCameraAsync({ quality: 0.8 });
 
-    if (result.canceled || !result.assets[0]) return;
+    if (result.canceled || result.assets.length === 0) return;
 
-    const asset = result.assets[0];
-    const ext = asset.uri.split(".").pop() ?? "jpg";
-    onAppendNewFiles([
-      {
-        uri: asset.uri,
-        name: `image.${ext}`,
-        type: asset.mimeType ?? `image/${ext}`,
-      },
-    ]);
+    // selectionLimit is ignored on Android < 13 and on web.
+    const assets = remaining === undefined ? result.assets : result.assets.slice(0, remaining);
+    onAppendNewFiles(
+      assets.map((asset, index) => {
+        const ext = asset.uri.split(".").pop() ?? "jpg";
+        return {
+          uri: asset.uri,
+          name: asset.fileName ?? `image-${index}.${ext}`,
+          type: asset.mimeType ?? `image/${ext}`,
+        };
+      }),
+    );
   }
 
   const countHint =

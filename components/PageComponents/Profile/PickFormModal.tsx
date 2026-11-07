@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 interface PickFormModalProps {
   visible: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (pick: ListItemPublic | null) => void;
   editingItem?: ListItemPublic;
   onUpdated?: () => void;
   createInitialData?: ListItemFormInitialData;
@@ -92,7 +92,13 @@ export function PickFormModal({
         );
       }
 
-      onCreated();
+      let createdPick: ListItemPublic | null = null;
+      if (itemId) {
+        const { data: pickResponse } = await listService.fetchListItem(itemId);
+        createdPick = pickResponse?.data ?? null;
+      }
+
+      onCreated(createdPick);
       onClose();
     } finally {
       setIsSubmitting(false);

@@ -26,7 +26,9 @@ export default function TabsLayout() {
   const syncSectionFromPathname = useSectionRouteStore(
     (s) => s.syncSectionFromPathname,
   );
-  const { isOpen, close } = usePickModalStore();
+  const isOpen = usePickModalStore((s) => s.isOpen);
+  const close = usePickModalStore((s) => s.close);
+  const publishCreatedPick = usePickModalStore((s) => s.publishCreatedPick);
 
   useEffect(() => {
     const pathSection = getSectionId(pathname);
@@ -68,8 +70,9 @@ export default function TabsLayout() {
       <PickFormModal
         visible={isOpen}
         onClose={close}
-        onCreated={() => {
+        onCreated={(pick) => {
           void queryClient.invalidateQueries({ queryKey: ['profile-picks'] });
+          if (pick) publishCreatedPick(pick);
           close();
         }}
       />

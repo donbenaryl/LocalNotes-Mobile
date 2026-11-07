@@ -647,6 +647,7 @@ export function ListItemForm({
             label={t("profile.picks.photos")}
             required={false}
             maxFiles={DEFAULT_MAX_IMAGE_FILES}
+            allowsMultipleSelection
             existingImages={localExistingImages}
             onRemoveExisting={
               isEditing
