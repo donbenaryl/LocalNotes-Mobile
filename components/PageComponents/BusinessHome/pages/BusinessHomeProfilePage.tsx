@@ -149,7 +149,7 @@ export function BusinessHomeProfilePage({
         <AppScrollView
           style={styles.fill}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-8"
+          contentContainerClassName="pb-24"
           keyboardShouldPersistTaps="handled"
           onScroll={handleScroll}
           refreshControl={

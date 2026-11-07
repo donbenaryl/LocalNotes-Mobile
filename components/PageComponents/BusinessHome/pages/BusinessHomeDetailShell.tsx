@@ -28,13 +28,13 @@ export function BusinessHomeDetailShell({
 }: BusinessHomeDetailShellProps) {
   return (
     <View style={styles.fill} className="bg-page dark:bg-gray-900">
-      <PageHeader title={title} onBack={onBack} rightChild={rightChild} borderless />
+      <PageHeader title={title} onBack={onBack} rightChild={rightChild} borderless titleClass="px-10 text-center" />
       {headerBelow}
       {scroll ? (
         <AppScrollView
           style={styles.fill}
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="pb-8"
+          contentContainerClassName="pb-24"
           refreshControl={
             Platform.OS === 'android' || !onRefresh ? undefined : (
               <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />

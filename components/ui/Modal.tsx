@@ -30,10 +30,16 @@ import { cn } from '@/utils/cn';
 /** Drives the enter/exit choreography of `topContent`: 0 = closed, 1 = fully open. */
 const TOP_CONTENT_ENTER = { duration: 420, easing: Easing.out(Easing.cubic) };
 const TOP_CONTENT_EXIT = { duration: 240, easing: Easing.in(Easing.cubic) };
+/** Approximates the iOS keyboard animation so the sheet and keyboard rise as one motion. */
+const KEYBOARD_ENTER = { duration: 250, easing: Easing.bezier(0.17, 0.59, 0.4, 0.77) };
 
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
+  /** Fires as soon as the modal is presented, when the enter animation starts. */
+  onShow?: () => void;
+  /** Use keyboard-matched timing for the slide-up, for sheets that focus an input on show. */
+  syncEnterWithKeyboard?: boolean;
   children: ReactNode;
   title?: string;
   position?: 'bottom' | 'center' | 'fullscreen';
@@ -41,6 +47,8 @@ interface ModalProps {
   withCloseIcon?: boolean;
   /** When false, skip KeyboardAvoidingView and lift via keyboard-height padding + maxHeight clamp. */
   avoidKeyboard?: boolean;
+  /** Set false to stop lifting for the keyboard, e.g. while another modal with an input is stacked on top. */
+  keyboardAvoidanceEnabled?: boolean;
   /** Content shown above the sheet. As a function, it receives the 0→1 open progress. */
   topContent?: ReactNode | ((progress: Animated.Value) => ReactNode);
   sheetHeightRatio?: number;
@@ -53,12 +61,15 @@ interface ModalProps {
 export function Modal({
   visible,
   onClose,
+  onShow,
+  syncEnterWithKeyboard = false,
   children,
   title,
   position = 'bottom',
   footer,
   withCloseIcon = false,
   avoidKeyboard = true,
+  keyboardAvoidanceEnabled = true,
   topContent,
   sheetHeightRatio,
   sheetClassName,
@@ -80,8 +91,9 @@ export function Modal({
   const keyboardLiftEnabled = useSharedValue(0);
 
   useEffect(() => {
-    keyboardLiftEnabled.value = !avoidKeyboard && visible && isBottom ? 1 : 0;
-  }, [avoidKeyboard, visible, isBottom, keyboardLiftEnabled]);
+    keyboardLiftEnabled.value =
+      keyboardAvoidanceEnabled && !avoidKeyboard && visible && isBottom ? 1 : 0;
+  }, [keyboardAvoidanceEnabled, avoidKeyboard, visible, isBottom, keyboardLiftEnabled]);
 
   const pushModalHost = useModalHostStore((s) => s.push);
   const popModalHost = useModalHostStore((s) => s.pop);
@@ -127,12 +139,18 @@ export function Modal({
       backdropOpacity.setValue(0);
       topProgress.setValue(0);
       Animated.parallel([
-        Animated.spring(translateY, {
-          toValue: 0,
-          useNativeDriver: true,
-          bounciness: 0,
-          speed: 20,
-        }),
+        syncEnterWithKeyboard
+          ? Animated.timing(translateY, {
+              toValue: 0,
+              ...KEYBOARD_ENTER,
+              useNativeDriver: true,
+            })
+          : Animated.spring(translateY, {
+              toValue: 0,
+              useNativeDriver: true,
+              bounciness: 0,
+              speed: 20,
+            }),
         Animated.timing(backdropOpacity, {
           toValue: 1,
           duration: 250,
@@ -155,7 +173,7 @@ export function Modal({
       backdropOpacity.setValue(0);
       topProgress.setValue(0);
     }
-  }, [visible, height, translateY, backdropOpacity, topProgress]);
+  }, [visible, height, syncEnterWithKeyboard, translateY, backdropOpacity, topProgress]);
 
   const handleClose = () => {
     slideDown(onClose);
@@ -404,6 +422,7 @@ export function Modal({
       animationType="none"
       statusBarTranslucent
       onRequestClose={handleClose}
+      onShow={onShow}
     >
       <Animated.View
         style={[{ opacity: backdropOpacity }]}
@@ -434,6 +453,7 @@ export function Modal({
         ) : (
           <KeyboardAvoidingView
             behavior="padding"
+            enabled={keyboardAvoidanceEnabled}
             style={{ zIndex: 30, flex: 1, justifyContent: 'flex-end' }}
             pointerEvents="box-none"
           >

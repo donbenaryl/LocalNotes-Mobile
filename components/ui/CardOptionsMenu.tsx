@@ -46,6 +46,7 @@ interface CardOptionsMenuProps {
   pinIcon?: LucideIcon;
   isDeleting?: boolean;
   iconOrientation?: "horizontal" | "vertical";
+  accessibilityLabel?: string;
 }
 
 interface ButtonLayout {
@@ -63,6 +64,7 @@ export function CardOptionsMenu({
   pinIcon: PinIcon = Pin,
   isDeleting = false,
   iconOrientation = "horizontal",
+  accessibilityLabel,
 }: CardOptionsMenuProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -174,6 +176,7 @@ export function CardOptionsMenu({
           onPress={open}
           disabled={isDeleting}
           accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel}
           className="cursor-pointer rounded-full p-1"
         >
           {isDeleting ? (

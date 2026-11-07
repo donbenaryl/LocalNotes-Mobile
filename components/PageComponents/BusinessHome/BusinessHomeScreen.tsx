@@ -16,6 +16,7 @@ import { BusinessHomeCustomersPage } from './pages/BusinessHomeCustomersPage';
 import { BusinessHomeMembershipPage } from './pages/BusinessHomeMembershipPage';
 import { BusinessHomeCampaignPage } from './pages/BusinessHomeCampaignPage';
 import { BusinessHomeSpotlightPage } from './pages/BusinessHomeSpotlightPage';
+import { AskCopilotFab } from './ui/AskCopilotFab';
 
 export default function BusinessHomeScreen() {
   const router = useRouter();
@@ -204,6 +205,7 @@ export default function BusinessHomeScreen() {
   return (
     <View style={styles.root} className="bg-page dark:bg-gray-900">
       {content}
+      {isPaidMember && !activeSheet ? <AskCopilotFab /> : null}
       <BusinessHomeSheets
         activeSheet={activeSheet}
         isPaidMember={isPaidMember}

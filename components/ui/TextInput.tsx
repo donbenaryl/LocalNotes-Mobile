@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { Ref } from "react";
 import {
   Text,
   TextInput as RNTextInput,
@@ -20,9 +21,11 @@ interface TextInputProps extends Omit<
   error?: string;
   containerClassName?: string;
   labelClassName?: string;
+  ref?: Ref<RNTextInput>;
 }
 
 export function TextInput({
+  ref,
   label,
   required,
   hint,
@@ -52,6 +55,7 @@ export function TextInput({
         )}
       >
         <RNTextInput
+          ref={ref}
           className={cn(
             "flex-1 text-ink dark:text-gray-100 font-geist text-base py-0 text-[16px]",
             isMultiline && shouldShowCounter ? "pb-7" : "",

@@ -7,6 +7,7 @@ import { ChevronLeft } from 'lucide-react-native';
 
 interface PageHeaderProps {
   title?: string;
+  titleClass?: string;
   onBack?: () => void;
   hideBack?: boolean;
   children?: ReactNode;
@@ -21,6 +22,7 @@ interface PageHeaderProps {
 
 export function PageHeader({
   title,
+  titleClass,
   onBack,
   hideBack = false,
   children,
@@ -72,7 +74,7 @@ export function PageHeader({
             <View className="absolute left-0 z-10">{backControl}</View>
             <Text
               pointerEvents="none"
-              className="font-geist-bold text-lg text-ink dark:text-gray-100"
+              className={`font-geist-bold text-lg text-ink dark:text-gray-100 ${titleClass}`}
             >
               {title}
             </Text>
