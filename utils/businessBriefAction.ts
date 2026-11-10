@@ -168,6 +168,18 @@ export function activeActionSubtitle(
   return tr(`${ACTION}.status.completed`, base);
 }
 
+/** "You {did} on {date}." for a completed action; null when it has not been completed. */
+export function completedLine(
+  active: BusinessBriefActiveActionDAO,
+  tr: BriefTranslate,
+  locale: string,
+): string | null {
+  if (active.status !== 'completed') return null;
+  const did = tr(actionCopyKeys(active.key).did);
+  const date = formatDate(active.completed_at, locale);
+  return date ? tr(`${ACTION}.status.doneOn`, { did, date }) : tr(`${ACTION}.status.doneNoDate`, { did });
+}
+
 /** Only a `started` action can be marked done by the owner. */
 export function canMarkDone(status: BusinessBriefActionStatus | string): boolean {
   return status === 'started';

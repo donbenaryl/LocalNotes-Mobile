@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -20,12 +20,17 @@ interface BusinessHomeSheetsProps {
   onClose: () => void;
 }
 
+const SHEET_MAX_HEIGHT_RATIO = 0.85;
+/** Drag handle + title + padding around the scroll area, so the whole sheet stays within the max. */
+const SHEET_CHROME_HEIGHT = 96;
+
 function SheetScroll({ children }: { children: React.ReactNode }) {
+  const { height } = useWindowDimensions();
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerClassName="pb-8"
-      className="max-h-[70vh]"
+      style={{ maxHeight: height * SHEET_MAX_HEIGHT_RATIO - SHEET_CHROME_HEIGHT }}
     >
       {children}
     </ScrollView>
@@ -87,7 +92,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'profile'}
         onClose={onClose}
         title={t('businessHome.sheets.profile.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           {/* Profile Health */}
@@ -150,7 +154,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'plans'}
         onClose={onClose}
         title={t('businessHome.sheets.plans.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <PlansSheetBody enabled={activeSheet === 'plans' && isPaidMember} />
@@ -161,7 +164,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'alerts'}
         onClose={onClose}
         title={t('businessHome.sheets.alerts.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">
@@ -191,7 +193,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'report'}
         onClose={onClose}
         title={t('businessHome.sheets.report.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">
@@ -212,7 +213,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'compare'}
         onClose={onClose}
         title={t('businessHome.sheets.compare.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">

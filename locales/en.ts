@@ -1719,7 +1719,7 @@ const en = {
       level: { low: 'Low', medium: 'Medium', high: 'High' },
       noAction: 'No new action this week',
       alreadyTracking: "You're already working on this",
-      buttons: { start: 'Start', done: 'Mark done', notNow: 'Not now' },
+      buttons: { start: 'Start', done: 'Mark done', notNow: 'Not now', continue: 'Continue' },
       error: "That didn't go through. Please try again.",
       status: {
         started: 'Started {{date}}. Mark done when finished.',
@@ -1727,6 +1727,8 @@ const en = {
         completed: 'Day {{day}} of {{ofDays}} · tracking {{metric}}',
         completedEarly: 'Day {{day}} of {{ofDays}} · {{baseline}} → {{value}} so far (early)',
         measured: 'Measured',
+        doneOn: 'You {{did}} on {{date}}.',
+        doneNoDate: 'You {{did}}.',
       },
       verdict: {
         improved: 'Since you {{did}}, {{metric}} went from {{baseline}} to {{value}}.',

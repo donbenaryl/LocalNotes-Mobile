@@ -25,6 +25,7 @@ import {
   actionParams,
   activeActionSubtitle,
   canMarkDone,
+  completedLine,
   ctaDestination,
   metricName,
   noActionLine,
@@ -79,35 +80,87 @@ export function NextActionsSection({
     if (!active) return null;
     const keys = actionCopyKeys(active.key);
     const params = actionParams(active, tr);
+    const inProgress = canMarkDone(active.status);
+    const doneButton = (
+      <LocalNotesButton
+        label={t('businessHome.action.buttons.done')}
+        onPress={() => complete.mutate(active.id, { onError: fail })}
+        loading={complete.isPending}
+        variant="dark"
+        size="xs"
+        isWidthFull={false}
+      />
+    );
+    const viewPlanButton = (
+      <LocalNotesButton
+        label={t('businessHome.buttons.viewPlan')}
+        onPress={() => onOpenSheet('plans')}
+        variant="light"
+        size="xs"
+        isWidthFull={false}
+      />
+    );
+
+    if (!inProgress) {
+      const doneLine = completedLine(active, tr, i18n.language);
+      return (
+        <BusinessHomeCard className="flex-row items-center gap-3">
+          <Text className="text-base">⚑</Text>
+          <View className="min-w-0 flex-1">
+            <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-gray-100">
+              {t(keys.title, params)}
+            </Text>
+            {doneLine ? (
+              <Text className="mt-0.5 font-geist-semibold text-xs text-ink dark:text-gray-100">
+                {doneLine}
+              </Text>
+            ) : null}
+            <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-gray-400">
+              {activeActionSubtitle(active, tr, i18n.language)}
+            </Text>
+          </View>
+          <View className="items-end gap-1.5">{viewPlanButton}</View>
+        </BusinessHomeCard>
+      );
+    }
+
+    // Started: keep the task visible so the owner knows what to do and can jump back to it.
     return (
-      <BusinessHomeCard className="flex-row items-center gap-3">
-        <Text className="text-base">⚑</Text>
-        <View className="min-w-0 flex-1">
-          <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-gray-100">
-            {t(keys.title, params)}
-          </Text>
-          <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-gray-400">
-            {activeActionSubtitle(active, tr, i18n.language)}
-          </Text>
+      <BusinessHomeCard>
+        <View className="flex-row items-start gap-3">
+          <Text className="text-base">⚑</Text>
+          <View className="min-w-0 flex-1">
+            <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-gray-100">
+              {t(keys.title, params)}
+            </Text>
+            <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-gray-400">
+              {activeActionSubtitle(active, tr, i18n.language)}
+            </Text>
+          </View>
         </View>
-        <View className="items-end gap-1.5">
-          {canMarkDone(active.status) ? (
+        <Text className="mt-2.5 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark">
+          {t('businessHome.action.recommendedStep')}
+        </Text>
+        <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">
+          {t(keys.step, params)}
+        </Text>
+        <Text className="mt-1.5 font-geist text-xs text-gray-600 dark:text-gray-400">
+          {t('businessHome.action.measureLine', {
+            metric: metricName(active.target_metric, tr),
+          })}
+        </Text>
+        <View className="mt-2.5 flex-row flex-wrap gap-1.5">
+          {ctaDestination(active.cta) ? (
             <LocalNotesButton
-              label={t('businessHome.action.buttons.done')}
-              onPress={() => complete.mutate(active.id, { onError: fail })}
-              loading={complete.isPending}
+              label={t('businessHome.action.buttons.continue')}
+              onPress={() => runCta(active.cta)}
               variant="dark"
               size="xs"
               isWidthFull={false}
             />
           ) : null}
-          <LocalNotesButton
-            label={t('businessHome.buttons.viewPlan')}
-            onPress={() => onOpenSheet('plans')}
-            variant="light"
-            size="xs"
-            isWidthFull={false}
-          />
+          {doneButton}
+          {viewPlanButton}
         </View>
       </BusinessHomeCard>
     );
