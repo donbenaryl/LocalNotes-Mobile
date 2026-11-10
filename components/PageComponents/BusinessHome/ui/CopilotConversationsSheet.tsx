@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
 import type { TextInput as RNTextInput } from 'react-native';
-import { Pencil } from 'lucide-react-native';
+import { Pencil, Trash2 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { CardOptionsMenu } from '@/components/ui/CardOptionsMenu';
+import { ConfirmDeleteModal } from '@/components/ui/ConfirmDeleteModal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/TextInput';
@@ -27,7 +28,7 @@ interface CopilotConversationsSheetProps {
   isPaid?: boolean;
 }
 
-/** The selected branch's conversations: open, start a new chat, rename. */
+/** The selected branch's conversations: open, start a new chat, rename, delete. */
 export function CopilotConversationsSheet({
   visible,
   onClose,
@@ -38,10 +39,11 @@ export function CopilotConversationsSheet({
 }: CopilotConversationsSheetProps) {
   const { t } = useTranslation();
   const { branchName } = useSelectedBranch();
-  const { query, threads, rename } = useCopilotThreads({ isPaid });
+  const { query, threads, rename, remove } = useCopilotThreads({ isPaid });
 
   const [renaming, setRenaming] = useState<CopilotThreadSummaryDAO | null>(null);
   const [title, setTitle] = useState('');
+  const [deleting, setDeleting] = useState<CopilotThreadSummaryDAO | null>(null);
   const handoffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const renameInputRef = useRef<RNTextInput>(null);
 
@@ -71,6 +73,22 @@ export function CopilotConversationsSheet({
     );
   };
 
+  const openDelete = (thread: CopilotThreadSummaryDAO) => {
+    if (handoffTimerRef.current) clearTimeout(handoffTimerRef.current);
+    handoffTimerRef.current = setTimeout(() => setDeleting(thread), MODAL_HANDOFF_DELAY_MS);
+  };
+
+  const confirmDelete = () => {
+    if (!deleting) return;
+    const target = deleting;
+    setDeleting(null);
+    remove.mutate(target.id, {
+      onError: () => toast.error(t('businessHome.copilot.conversations.deleteFailed')),
+    });
+    // Deleting the open conversation drops the screen onto a new chat straight away.
+    if (target.id === activeThreadId) onNewChat();
+  };
+
   return (
     <Modal
       visible={visible}
@@ -79,18 +97,22 @@ export function CopilotConversationsSheet({
       sheetHeightRatio={0.85}
       keyboardAvoidanceEnabled={false}
     >
-      <Pressable
-        onPress={() => {
-          onNewChat();
-          onClose();
-        }}
-        accessibilityRole="button"
-        className="mb-2 rounded-xl border border-brand bg-brand-tint px-4 py-3 active:opacity-70 dark:bg-brand/10"
-      >
-        <Text className="font-geist-bold text-sm text-brand">
-          {t('businessHome.copilot.conversations.newChat')}
-        </Text>
-      </Pressable>
+      <Text className="absolute -top-4 pb-2 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+        {t('businessHome.copilot.conversations.retentionNote')}
+      </Text>
+      {/* New Chat Button */}
+      <View className="mb-2 flex-row justify-end">
+        <LocalNotesButton
+          label={t('businessHome.copilot.conversations.newChat')}
+          onPress={() => {
+            onNewChat();
+            onClose();
+          }}
+          variant="brand"
+          size="xs"
+          isWidthFull={false}
+        />
+      </View>
 
       {query.isPending ? (
         <View className="items-center py-10">
@@ -174,6 +196,14 @@ export function CopilotConversationsSheet({
                       icon: Pencil,
                       onPress: () => openRename(item),
                     },
+                    {
+                      kind: 'action',
+                      key: 'delete',
+                      label: t('businessHome.copilot.conversations.delete'),
+                      icon: Trash2,
+                      variant: 'destructive',
+                      onPress: () => openDelete(item),
+                    },
                   ]}
                 />
               </View>
@@ -181,10 +211,6 @@ export function CopilotConversationsSheet({
           }}
         />
       )}
-
-      <Text className="mt-3 pb-2 font-geist text-[11px] text-gray-500 dark:text-gray-400">
-        {t('businessHome.copilot.conversations.retentionNote')}
-      </Text>
 
       <Modal
         visible={renaming !== null}
@@ -218,6 +244,14 @@ export function CopilotConversationsSheet({
           />
         </View>
       </Modal>
+
+      <ConfirmDeleteModal
+        visible={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={confirmDelete}
+        title={t('businessHome.copilot.conversations.deleteConfirmTitle')}
+        message={t('businessHome.copilot.conversations.deleteConfirmBody')}
+      />
     </Modal>
   );
 }

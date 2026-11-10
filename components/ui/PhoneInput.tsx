@@ -77,11 +77,11 @@ export function PhoneInput({
           <ChevronDown size={16} color="#6B7280" />
         </Pressable>
         <View className="mx-3 h-6 w-px bg-gray-200 dark:bg-gray-600" />
-        <Text className="mr-2 font-geist text-base text-gray-500 dark:text-gray-400">
+        <Text className="mr-2 font-geist text-[16px] text-gray-500 dark:text-gray-400">
           +{getCountryCallingCode(country)}
         </Text>
         <RNTextInput
-          className="flex-1 text-ink dark:text-gray-100 font-geist text-base py-0 text-[16px]"
+          className="flex-1 text-ink dark:text-gray-100 font-geist py-0 text-[16px]"
           // NativeWind can't express these; they keep the placeholder vertically centered like the value.
           style={{ textAlignVertical: "center", includeFontPadding: false }}
           placeholder={examplePlaceholder}
