@@ -16,6 +16,8 @@ import {
   MonthlyReportSection,
 } from '../sections/MonthlyReportSection';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
+import { useBusinessWeeklyBrief } from '@/hooks/useBusinessWeeklyBrief';
+import { useBusinessStore } from '@/stores/useBusinessStore';
 import type { BusinessHomeDiscovery } from '@/hooks/useBusinessHomeData';
 import type { BusinessHomeOverviewTabId } from '../navigation';
 import type { BusinessHomeSheetId } from '../sheets/types';
@@ -39,6 +41,7 @@ interface BusinessHomeOverviewPageProps {
   onOpenFindYou: () => void;
   onOpenLocations: () => void;
   onOpenCustomers: () => void;
+  onOpenCampaign: () => void;
   onOpenMembership: () => void;
   leadingLocationName?: string;
 }
@@ -58,11 +61,14 @@ export function BusinessHomeOverviewPage({
   onOpenFindYou,
   onOpenLocations,
   onOpenCustomers,
+  onOpenCampaign,
   onOpenMembership,
   leadingLocationName,
 }: BusinessHomeOverviewPageProps) {
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
+  const businessId = useBusinessStore((s) => s.businessId);
+  const briefQuery = useBusinessWeeklyBrief({ businessId: businessId ?? '', isPaidMember });
   const [activeTab, setActiveTab] =
     useState<BusinessHomeOverviewTabId>('overview');
 
@@ -107,10 +113,22 @@ export function BusinessHomeOverviewPage({
             dateTo={dateTo}
             topline={topline}
           />
-          <ThisWeekSection isPaidMember={isPaidMember} />
+          <ThisWeekSection
+            isPaidMember={isPaidMember}
+            brief={briefQuery.data}
+            isLoading={briefQuery.isLoading}
+            isError={briefQuery.isError}
+            onRetry={() => void briefQuery.refetch()}
+            onOpenFindYou={onOpenFindYou}
+            onOpenCustomers={onOpenCustomers}
+            onOpenCampaign={onOpenCampaign}
+          />
           <NextActionsSection
             isPaidMember={isPaidMember}
+            brief={briefQuery.data}
             onOpenSheet={onOpenSheet}
+            onOpenCustomers={onOpenCustomers}
+            onOpenCampaign={onOpenCampaign}
           />
 
           <SectionHeading title={t('businessHome.details.section')} />

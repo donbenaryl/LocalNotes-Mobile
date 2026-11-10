@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -11,6 +11,7 @@ import { useBusinessStore } from '@/stores/useBusinessStore';
 import { closedMentionedDays } from '@/utils/openingHours';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { ProfileHealthSection } from '../sections/FreeCampaignSections';
+import { PlansSheetBody } from './PlansSheetBody';
 import type { BusinessHomeSheetId } from './types';
 
 interface BusinessHomeSheetsProps {
@@ -19,12 +20,17 @@ interface BusinessHomeSheetsProps {
   onClose: () => void;
 }
 
+const SHEET_MAX_HEIGHT_RATIO = 0.85;
+/** Drag handle + title + padding around the scroll area, so the whole sheet stays within the max. */
+const SHEET_CHROME_HEIGHT = 96;
+
 function SheetScroll({ children }: { children: React.ReactNode }) {
+  const { height } = useWindowDimensions();
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
       contentContainerClassName="pb-8"
-      className="max-h-[70vh]"
+      style={{ maxHeight: height * SHEET_MAX_HEIGHT_RATIO - SHEET_CHROME_HEIGHT }}
     >
       {children}
     </ScrollView>
@@ -86,7 +92,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'profile'}
         onClose={onClose}
         title={t('businessHome.sheets.profile.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           {/* Profile Health */}
@@ -149,32 +154,9 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'plans'}
         onClose={onClose}
         title={t('businessHome.sheets.plans.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.plans.activeTitle')}</Text>
-            <View className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-              <View className="h-full w-[43%] rounded-full bg-brand" />
-            </View>
-            <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.plans.activeBody')}
-            </Text>
-            <LocalNotesButton
-              label={t('businessHome.sheets.plans.logNumbers')}
-              onPress={showComingSoon}
-              variant="dark"
-              size="xs"
-              isWidthFull={false}
-              className="mt-2 self-start"
-            />
-          </BusinessHomeCard>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.plans.completedTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.plans.completedBody')}
-            </Text>
-          </BusinessHomeCard>
+          <PlansSheetBody enabled={activeSheet === 'plans' && isPaidMember} />
         </SheetScroll>
       </Modal>
 
@@ -182,7 +164,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'alerts'}
         onClose={onClose}
         title={t('businessHome.sheets.alerts.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">
@@ -212,7 +193,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'report'}
         onClose={onClose}
         title={t('businessHome.sheets.report.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">
@@ -233,7 +213,6 @@ export function BusinessHomeSheets({
         visible={activeSheet === 'compare'}
         onClose={onClose}
         title={t('businessHome.sheets.compare.title')}
-        sheetHeightRatio={0.85}
       >
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">

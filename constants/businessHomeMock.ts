@@ -5,12 +5,6 @@ export type BusinessHomeToplineMock = {
   lists: number;
 };
 
-export type BusinessHomeActivityRow = {
-  title: string;
-  meta: string;
-  highlight?: boolean;
-};
-
 export type BusinessHomeDiscoveryItem = {
   label: string;
   value: string;
@@ -31,39 +25,6 @@ export const BUSINESS_HOME_TOPLINE_MOCK: BusinessHomeToplineMock = {
   saves: 2100,
   redeemed: 96,
   lists: 47,
-};
-
-export const BUSINESS_HOME_BRIEF = {
-  periodLabel: 'Jul 1–28',
-  body:
-    'Your Saturday service plan is holding — mentions down 3 → 1 — and the cardamom bun test confirmed real demand. Late-hour searches keep rising.',
-  nextMove: 'Promote the bun while the Saturday fix finishes.',
-};
-
-export const BUSINESS_HOME_ACTIVITY_ROWS: BusinessHomeActivityRow[] = [
-  { title: 'Sarah confirmed weekend hours', meta: '9:42 AM' },
-  { title: 'Danae R. picked you', meta: '2d' },
-  { title: 'You joined "Best study cafés in Phoenix"', meta: '2.1K saves', highlight: true },
-];
-
-export const BUSINESS_HOME_ACTIVE_PLAN = {
-  title: 'Saturday staffing review · day 12 of 28',
-  subtitle: 'On track — mentions down 3 → 1.',
-};
-
-export const BUSINESS_HOME_ACTION_PLAN = {
-  title: 'Promote the cardamom bun',
-  summary:
-    'Your +20% test confirmed demand — sell-out moved from 8:40 to 10:15am.',
-  priority: '1',
-  effort: 'Low',
-  confidence: 'High',
-  evidence:
-    'Completed test: units +19%, zero waste days, mentions 3 → 6. Demand is proven — the open question is how far it reaches.',
-  source: 'Jul 1–28 · 32 public pick notes',
-  recommendedStep:
-    'Run a morning Offer aimed at study & quiet-list savers — your proven audience.',
-  measure: 'Verified redemptions · tracked sales · sell-out time.',
 };
 
 export const BUSINESS_HOME_DISCOVERY = {

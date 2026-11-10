@@ -838,3 +838,159 @@ export type SendCopilotMessageDAO = {
 };
 
 export type RenameCopilotThreadDTO = { title: string };
+
+// ── Weekly business brief (backend: businesses/brief/presenter.py) ──────────
+
+export type ArchetypeSlug =
+  | "explorer"
+  | "social_connector"
+  | "relaxed_local"
+  | "social_explorer"
+  | "adventurer"
+  | "tastemaker"
+  | "balanced";
+
+export type BusinessBriefStatus = "insight" | "quiet" | "insufficient_data" | "building";
+
+export type BusinessBriefInsightKey =
+  | "archetype_affinity"
+  | "untapped_match"
+  | "audience_alignment"
+  | "discovery_conversion_gap"
+  | "discovery_quality_up"
+  | "list_recommendations"
+  | "rising_term"
+  | "campaign_results"
+  | "visibility_change";
+
+export type BusinessBriefDirection = "up" | "down";
+export type BusinessBriefConfidence = "high" | "medium";
+
+export type BusinessBriefActionKey =
+  | "fill_profile_gaps"
+  | "add_shared_interest_tags"
+  | "feature_group_interests"
+  | "thank_recommenders"
+  | "feature_term"
+  | "extend_campaign"
+  | "refresh_offer";
+
+export type BusinessBriefActionStatus =
+  | "suggested"
+  | "started"
+  | "completed"
+  | "measured"
+  | "dismissed"
+  | "expired";
+
+export type BusinessBriefCta =
+  | "edit_profile"
+  | "create_offer_web"
+  | "thank_you"
+  | "open_customers"
+  | "open_campaign";
+
+export type BusinessBriefVerdict = "improved" | "no_change" | "declined" | "inconclusive";
+
+export type BusinessBriefEffort = "low" | "medium";
+
+export type BusinessBriefEvidenceRowDAO = {
+  metric: string;
+  kind: "count" | "rate";
+  current: number | null;
+  baseline: number | null;
+  n: number;
+  /** Archetype slug or tag label the row is scoped to. */
+  scope?: string;
+};
+
+export type BusinessBriefInsightDAO = {
+  key: BusinessBriefInsightKey;
+  direction: BusinessBriefDirection | null;
+  confidence: BusinessBriefConfidence | null;
+  /** Aggregates only: archetype slug, rates, counts, tag labels. Shape varies by key. */
+  params: Record<string, unknown> & { already_tracking?: boolean };
+  evidence_rows: BusinessBriefEvidenceRowDAO[];
+};
+
+/** The suggested action (also the body returned by the start/done/dismiss POSTs). */
+export type BusinessBriefActionDAO = {
+  id: string;
+  key: BusinessBriefActionKey;
+  status: BusinessBriefActionStatus;
+  cta: BusinessBriefCta;
+  effort: BusinessBriefEffort;
+  params: Record<string, unknown>;
+  target_metric: string;
+};
+
+export type BusinessBriefProgressDAO = {
+  value: number | null;
+  n: number;
+  early: boolean;
+};
+
+export type BusinessBriefResultDAO = {
+  value: number | null;
+  n: number | null;
+  delta: number | null;
+  verdict: BusinessBriefVerdict | null;
+  measured_at: string | null;
+};
+
+/** The tracked action: started, completed, or recently measured. */
+export type BusinessBriefActiveActionDAO = BusinessBriefActionDAO & {
+  started_at: string | null;
+  completed_at: string | null;
+  day: number | null;
+  of_days: number | null;
+  baseline_value: number | null;
+  baseline_n: number | null;
+  progress: BusinessBriefProgressDAO | null;
+  result: BusinessBriefResultDAO | null;
+};
+
+export type BusinessBriefVolumeDAO = {
+  visitors?: number;
+  savers?: number;
+  recommenders?: number;
+  list_adds?: number;
+  list_adds_local?: number;
+  /** Null until two weeks of search history exist. */
+  discovered?: number | null;
+};
+
+export type BusinessBriefInsufficientDAO = {
+  metric: string;
+  current: number;
+  needed: number;
+};
+
+export type BusinessBriefQuietSummaryDAO = {
+  visitors: number;
+  visit_save_rate: number;
+  baseline_visit_save_rate: number | null;
+};
+
+export type BusinessWeeklyBriefDAO = {
+  status: BusinessBriefStatus;
+  /** ISO dates (YYYY-MM-DD). Null while `building`. */
+  week_start: string | null;
+  week_end: string | null;
+  volume: BusinessBriefVolumeDAO;
+  insight: BusinessBriefInsightDAO | null;
+  action: BusinessBriefActionDAO | null;
+  active_action: BusinessBriefActiveActionDAO | null;
+  insufficient: BusinessBriefInsufficientDAO | null;
+  summary: BusinessBriefQuietSummaryDAO | null;
+  computed_at: string | null;
+};
+
+/** One row of GET brief/actions/: the active shape plus the week it came from. */
+export type BusinessBriefActionHistoryItemDAO = BusinessBriefActiveActionDAO & {
+  week_start: string;
+};
+
+export type BusinessBriefActionsListDAO = {
+  actions: BusinessBriefActionHistoryItemDAO[];
+};

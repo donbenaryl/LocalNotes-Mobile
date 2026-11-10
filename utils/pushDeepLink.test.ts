@@ -13,6 +13,16 @@ describe('resolveDeepLinkPath', () => {
       '/(app)/(stack)/business-home?page=profile',
     );
   });
+  it('opens Overview from the weekly brief push link', () => {
+    expect(resolveDeepLinkPath('/business-home?page=overview')).toBe(
+      '/(app)/(stack)/business-home?page=overview',
+    );
+  });
+  it('returns null for malformed input', () => {
+    expect(resolveDeepLinkPath('not-a-link')).toBeNull();
+    expect(resolveDeepLinkPath('   ')).toBeNull();
+    expect(resolveDeepLinkPath(null)).toBeNull();
+  });
   it('carries the business-home page', () => {
     expect(resolveDeepLinkPath('/business-home?page=profile')).toBe(
       '/(app)/(stack)/business-home?page=profile',
