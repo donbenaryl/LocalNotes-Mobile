@@ -24,6 +24,9 @@ import type {
     BusinessInsightsParams,
     BusinessInsightInterpretationDAO,
     OwnedBusinessDAO,
+    BusinessWeeklyBriefDAO,
+    BusinessBriefActionDAO,
+    BusinessBriefActionsListDAO,
     StatsDateRangeParams,
     BusinessClaimDAO,
     ClaimableBusinessDAO,
@@ -557,6 +560,37 @@ class BusinessService extends AppHttpService{
         });
     }
 
+    async getWeeklyBrief(businessId: string) {
+        return await this.SendRequest<BusinessWeeklyBriefDAO>({
+            method: "get",
+            path: `/${businessId}/brief/weekly/`,
+        });
+    }
+    async startBriefAction(businessId: string, actionId: string) {
+        return await this.SendRequest<BusinessBriefActionDAO>({
+            method: "post",
+            path: `/${businessId}/brief/actions/${actionId}/start/`,
+        });
+    }
+    async completeBriefAction(businessId: string, actionId: string) {
+        return await this.SendRequest<BusinessBriefActionDAO>({
+            method: "post",
+            path: `/${businessId}/brief/actions/${actionId}/done/`,
+        });
+    }
+    async dismissBriefAction(businessId: string, actionId: string) {
+        return await this.SendRequest<BusinessBriefActionDAO>({
+            method: "post",
+            path: `/${businessId}/brief/actions/${actionId}/dismiss/`,
+        });
+    }
+    async listBriefActions(businessId: string, limit = 10) {
+        return await this.SendRequest<BusinessBriefActionsListDAO, Record<string, unknown>, { limit: number }>({
+            method: "get",
+            path: `/${businessId}/brief/actions/`,
+            query: { limit },
+        });
+    }
 }
 
 

@@ -146,6 +146,7 @@ export default function BusinessHomeScreen() {
           onOpenFindYou={() => push('findyou')}
           onOpenLocations={() => push('locations')}
           onOpenCustomers={() => push('customers')}
+          onOpenCampaign={() => push('campaign')}
           onOpenMembership={() => push('membership')}
           leadingLocationName={locationRows[0]?.name}
         />

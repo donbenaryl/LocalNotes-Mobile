@@ -11,6 +11,7 @@ import { useBusinessStore } from '@/stores/useBusinessStore';
 import { closedMentionedDays } from '@/utils/openingHours';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { ProfileHealthSection } from '../sections/FreeCampaignSections';
+import { PlansSheetBody } from './PlansSheetBody';
 import type { BusinessHomeSheetId } from './types';
 
 interface BusinessHomeSheetsProps {
@@ -152,29 +153,7 @@ export function BusinessHomeSheets({
         sheetHeightRatio={0.85}
       >
         <SheetScroll>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.plans.activeTitle')}</Text>
-            <View className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-              <View className="h-full w-[43%] rounded-full bg-brand" />
-            </View>
-            <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.plans.activeBody')}
-            </Text>
-            <LocalNotesButton
-              label={t('businessHome.sheets.plans.logNumbers')}
-              onPress={showComingSoon}
-              variant="dark"
-              size="xs"
-              isWidthFull={false}
-              className="mt-2 self-start"
-            />
-          </BusinessHomeCard>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.plans.completedTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.plans.completedBody')}
-            </Text>
-          </BusinessHomeCard>
+          <PlansSheetBody enabled={activeSheet === 'plans' && isPaidMember} />
         </SheetScroll>
       </Modal>
 
