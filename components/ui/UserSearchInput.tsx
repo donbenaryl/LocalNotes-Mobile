@@ -124,7 +124,7 @@ export function UserSearchInput({
                   <Avatar
                     name={user.name}
                     src={user.profile_image_url ?? undefined}
-                    size="xs"
+                    size="sm"
                   />
                   <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
                     {user.name}
@@ -161,7 +161,7 @@ export function UserSearchInput({
                     <Avatar
                       name={user.name}
                       src={user.profile_image_url ?? undefined}
-                      size="xs"
+                      size="sm"
                     />
                   }
                   rightIcon={
