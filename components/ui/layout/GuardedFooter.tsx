@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   Text,
   Platform,
-  InteractionManager,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from 'nativewind';
@@ -25,7 +24,8 @@ import {
 } from '@/constants/swipeNavigation';
 import { navigateToSection } from '@/utils/navigateToSection';
 import { isBusinessAccountType } from '@/utils/businessAccount';
-import { DropDown, type DropDownOption } from '@/components/ui/DropDown';
+import type { DropDownOption } from '@/components/ui/DropDown';
+import { FloatingActionButtons } from '@/components/ui/layout/FloatingActionButtons';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 
 const BRAND = '#FF6B1A';
@@ -112,13 +112,7 @@ export function GuardedFooter() {
 
   const handleCreateOptionSelect = (value: string) => {
     if (value === 'pick') {
-      // DropDown still has its RNModal up during onApply. Opening PickFormModal
-      // in the same turn stacks two RNModals and leaves an invisible blocker.
-      InteractionManager.runAfterInteractions(() => {
-        setTimeout(() => {
-          openPickModal();
-        }, 100);
-      });
+      openPickModal();
       return;
     }
     if (value === 'offer') {
@@ -137,6 +131,7 @@ export function GuardedFooter() {
   // its commit can't batch with — and so delay — the highlight.
   const handleTabPress = useCallback(
     (to: SectionId) => {
+      setIsCreatePickerOpen(false);
       // Re-tap active section → section root (Facebook "tap again to root").
       // Sub-tabs are not in the URL, so the section resets itself off the token.
       if (activeSection === to) {
@@ -160,12 +155,18 @@ export function GuardedFooter() {
       pointerEvents="box-none"
     >
       <View className="relative w-full max-w-md">
+        <FloatingActionButtons
+          visible={isCreatePickerOpen}
+          options={createOptions}
+          onSelect={handleCreateOptionSelect}
+          onClose={() => setIsCreatePickerOpen(false)}
+        />
         <View
           className="absolute top-2 left-0 right-0 z-20 items-center"
           pointerEvents="box-none"
         >
           <TouchableOpacity
-            onPress={() => setIsCreatePickerOpen(true)}
+            onPress={() => setIsCreatePickerOpen((open) => !open)}
             className="h-14 w-14 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-gray-900"
             style={FAB_SHADOW}
           >
@@ -215,13 +216,6 @@ export function GuardedFooter() {
         </View>
       </View>
 
-      <DropDown
-        visible={isCreatePickerOpen}
-        selected=""
-        onApply={handleCreateOptionSelect}
-        onClose={() => setIsCreatePickerOpen(false)}
-        options={createOptions}
-      />
     </View>
   );
 }

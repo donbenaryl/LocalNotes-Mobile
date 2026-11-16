@@ -63,6 +63,11 @@ export function ProfileListTabPanel({
   const resolvedBusinessId = useAboutBusiness ? businessId : undefined;
   const resolvedBusinessName = inBusinessContext ? businessName : undefined;
 
+  // "About business" lists are always published (the API ignores `status`
+  // when `business_id` is set), so the Status filter would be a no-op.
+  const effectiveStatus = useAboutBusiness ? "Published" : selectedStatus;
+  const effectiveStatusOptions = useAboutBusiness ? [] : statusOptions;
+
   return (
     <View className="px-4">
       {showBusinessToggle && businessName && onBusinessAuthorshipChange ? (
@@ -79,13 +84,13 @@ export function ProfileListTabPanel({
         isOwnProfile={isOwnProfile}
         selectedCategory={selectedCategory}
         onCategoryChange={onCategoryChange}
-        selectedStatus={selectedStatus}
+        selectedStatus={effectiveStatus}
         onStatusChange={onStatusChange}
         selectedSort={selectedSort}
         onSortChange={onSortChange}
         pickFavoriteFilter={pickFavoriteFilter}
         onPickFavoriteFilterChange={onPickFavoriteFilterChange}
-        statusOptions={statusOptions}
+        statusOptions={effectiveStatusOptions}
         sortOptions={sortOptions}
         favoriteOptions={favoriteOptions}
         businessAuthorship={resolvedAuthorship}
@@ -96,7 +101,7 @@ export function ProfileListTabPanel({
         userId={userId}
         isOwnProfile={isOwnProfile}
         selectedCategory={selectedCategory}
-        selectedStatus={selectedStatus}
+        selectedStatus={effectiveStatus}
         businessAuthorship={resolvedAuthorship}
         businessId={resolvedBusinessId}
         businessName={resolvedBusinessName}
