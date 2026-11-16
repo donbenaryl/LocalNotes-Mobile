@@ -105,7 +105,6 @@ export function SmartPickTab() {
       showsVerticalScrollIndicator={false}
     >
       <GuardedHeader />
-      {locationChip}
       <SmartPickForm
         formState={formState}
         onChange={handleChange}
@@ -115,6 +114,9 @@ export function SmartPickTab() {
         onSkip={handleSkip}
         isSubmitting={isCreating}
         errorMessage={error}
+        cityLabel={cityLabel}
+        isLocationLoading={isLocationLoading}
+        onLocationSelected={onLocationSelected}
       />
     </KeyboardAwareScrollView>
   );

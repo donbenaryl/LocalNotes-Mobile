@@ -1155,17 +1155,19 @@ const en = {
   },
   smartPick: {
     welcomeEyebrow: 'SmartPicks',
-    welcomeTitle: 'Welcome.',
-    welcomeTitleAccent: 'Where to?',
-    welcomeDetail:
-      "We'll match you against your lists, your personality, your friends, and the community. No guesswork.",
-    occasionQuestion: "What's the occasion?",
-    timeQuestion: 'What time of day?',
+    welcomeTitle: 'Let us pick for you.',
+    welcomeDetail: "Flying solo or with a group? We'll find what fits.",
+    occasionQuestion: 'Occasion',
+    timeQuestion: 'Time',
     engineQuestion:
-      'Want smarter results? Use personality. Want fast picks? Choose a vibe.',
+      'Match by',
     modePersonality: 'Personality',
     modeVibes: 'Vibes',
-    linkProfileLabel: 'Link profile',
+    linkProfileLabel: "Who's going?",
+    justMe: 'Just me',
+    addPeople: 'Add people',
+    matchByVibesHint: 'Vibes: skip personality and pick up to 3 moods.',
+    chooseMatchHint: 'Choose how to match to continue',
     linkProfileHelper:
       "Add anyone you're going with. We'll pick something that works for all of you.",
     linkProfileSearchPlaceholder: 'Search for users...',

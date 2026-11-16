@@ -1,17 +1,20 @@
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ChevronRight, Sparkles } from 'lucide-react-native';
+import { ChevronRight, MapPin, Plus, Shuffle, Sparkles, Target } from 'lucide-react-native';
 import { CategoryChip } from '@/components/ui/CategoryChip';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { useSmartPickHistory } from '@/hooks/useSmartPickHistory';
 import { SMART_PICK_ENGINES, SMART_PICK_OCCASIONS, SMART_PICK_TIMES, SMART_PICK_VIBES } from '@/constants/smartPick';
-import { EngineCard } from './EngineCard';
+import { MatchByInfo } from './MatchByInfo';
 import type { SmartPickFormState, SmartPickMode } from '../types';
 import { PageSectionTitle } from '@/components/ui/PageSectionTitle';
 import { UserSearchInput } from '@/components/ui/UserSearchInput';
 import type { searchUserDAO } from '@/http/account-api/types';
+import { LocationPickerChip } from '@/components/ui/LocationInputModal';
+import type { Location as GeoLocation } from '@/http/list-api/types';
 
 interface SmartPickFormProps {
   formState: SmartPickFormState;
@@ -22,7 +25,18 @@ interface SmartPickFormProps {
   onSkip: () => void;
   isSubmitting: boolean;
   errorMessage: string | null;
+  cityLabel: string;
+  isLocationLoading: boolean;
+  onLocationSelected: (location: GeoLocation) => void;
 }
+
+const ENGINE_ICONS = {
+  'My Personality Match': Target,
+  'Try Something Opposite': Shuffle,
+  'Local Vibes': MapPin,
+} as const;
+
+const LABEL_CLASS = 'normal-case tracking-normal';
 
 export function SmartPickForm({
   formState,
@@ -33,9 +47,13 @@ export function SmartPickForm({
   onSkip,
   isSubmitting,
   errorMessage,
+  cityLabel,
+  isLocationLoading,
+  onLocationSelected,
 }: SmartPickFormProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const [showPeople, setShowPeople] = useState(formState.linkedUsers.length > 0);
   const { conversations, isPending: isHistoryPending } = useSmartPickHistory();
 
   const canSubmit = Boolean(
@@ -63,15 +81,21 @@ export function SmartPickForm({
           end={{ x: 1, y: 1 }}
           style={{ padding: 18 }}
         >
-          <View className="mb-2 flex-row items-center gap-1.5">
-            <Sparkles size={12} color="#fff" />
-            <Text className="font-geist-medium text-sm uppercase tracking-[0.16em] text-white">
-              {t('smartPick.welcomeEyebrow')}
-            </Text>
+          <View className="mb-2 flex-row items-center justify-between">
+            <View className="flex-row items-center gap-1.5">
+              <Sparkles size={12} color="#fff" />
+              <Text className="font-geist-medium text-sm uppercase tracking-[0.16em] text-white">
+                {t('smartPick.welcomeEyebrow')}
+              </Text>
+            </View>
+            <LocationPickerChip
+              cityLabel={cityLabel}
+              isLoading={isLocationLoading}
+              onLocationSelected={onLocationSelected}
+            />
           </View>
           <Text className="font-geist-semibold text-2xl mt-2 leading-6 text-white">
-            {t('smartPick.welcomeTitle')}{' '}
-            <Text className="font-fraunces italic">{t('smartPick.welcomeTitleAccent')}</Text>
+            {t('smartPick.welcomeTitle')}
           </Text>
           <Text className="mt-2 font-geist leading-5 text-white/85">
             {t('smartPick.welcomeDetail')}
@@ -81,9 +105,7 @@ export function SmartPickForm({
 
       {/* Occasion */}
       <View className="gap-3">
-        <PageSectionTitle>
-          {t('smartPick.occasionQuestion')}
-        </PageSectionTitle>
+        <PageSectionTitle className={LABEL_CLASS}>{t('smartPick.occasionQuestion')}</PageSectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {SMART_PICK_OCCASIONS.map((occasion) => (
             <CategoryChip
@@ -98,9 +120,7 @@ export function SmartPickForm({
 
       {/* Time of day */}
       <View className="gap-3">
-        <PageSectionTitle>
-          {t('smartPick.timeQuestion')}
-        </PageSectionTitle>
+        <PageSectionTitle className={LABEL_CLASS}>{t('smartPick.timeQuestion')}</PageSectionTitle>
         <View className="flex-row flex-wrap gap-2">
           {SMART_PICK_TIMES.map((time) => (
             <CategoryChip
@@ -113,75 +133,102 @@ export function SmartPickForm({
         </View>
       </View>
 
-      {/* Matching engine */}
+      {/* Who's going */}
       <View className="gap-3">
-        <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
-          {t('smartPick.engineQuestion')}
-        </Text>
-        <View className="flex-row flex-wrap gap-2">
-          <CategoryChip
-            label={t('smartPick.modePersonality')}
-            isSelected={formState.mode === 'Personality'}
-            onPress={() => handleModeChange('Personality')}
-          />
-          <CategoryChip
-            label={t('smartPick.modeVibes')}
-            isSelected={formState.mode === 'Vibe'}
-            onPress={() => handleModeChange('Vibe')}
-          />
+        <PageSectionTitle className={LABEL_CLASS}>{t('smartPick.linkProfileLabel')}</PageSectionTitle>
+        <View className="flex-row items-center justify-between gap-3">
+          <Text
+            className="min-w-0 flex-1 font-geist-medium text-base text-ink dark:text-gray-100"
+            numberOfLines={1}
+          >
+            {formState.linkedUsers.length > 0
+              ? formState.linkedUsers.map((user) => user.name).join(', ')
+              : t('smartPick.justMe')}
+          </Text>
+          <Pressable
+            onPress={() => setShowPeople((open) => !open)}
+            className="flex-row items-center gap-1.5 rounded-xl border border-dashed border-gray-400 px-4 py-2.5 cursor-pointer dark:border-gray-500"
+          >
+            <Plus size={16} color="#9CA3AF" />
+            <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+              {t('smartPick.addPeople')}
+            </Text>
+          </Pressable>
         </View>
-        {formState.mode === 'Personality' ? (
-          <View className="gap-2.5">
-            {SMART_PICK_ENGINES.map((option) => (
-              <EngineCard
-                key={option.value}
-                option={option}
-                isSelected={formState.engine === option.value}
-                onPress={() => onChange({ engine: option.value })}
-              />
-            ))}
-          </View>
-        ) : (
-          <View className="flex-row flex-wrap gap-2">
-            {SMART_PICK_VIBES.map((vibe) => (
-              <CategoryChip
-                key={vibe}
-                label={vibe}
-                isSelected={formState.vibe === vibe}
-                onPress={() => onChange({ vibe })}
-              />
-            ))}
-          </View>
-        )}
+        {showPeople ? (
+          <UserSearchInput
+            selectedUsers={formState.linkedUsers}
+            onAddUser={onAddLinkedUser}
+            onRemoveUser={onRemoveLinkedUser}
+            className="gap-2"
+            placeholderKey="smartPick.linkProfileSearchPlaceholder"
+            showSelectedLabel={false}
+          />
+        ) : null}
       </View>
 
-      {/* Link profile (optional) */}
-      <View className="gap-2.5">
-        <View className="flex-row items-baseline gap-1.5">
-          <PageSectionTitle>
-            {t('smartPick.linkProfileLabel')}
-          </PageSectionTitle>
-          <Text className="font-geist text-[11px] text-gray-400 dark:text-gray-500">
-            {t('common.optional')}
-          </Text>
+      {/* Matching engine */}
+      <View className="gap-3">
+        <PageSectionTitle
+          className={LABEL_CLASS}
+          info={<MatchByInfo />}
+          right={
+            <View className="flex-row rounded-xl bg-soft p-1 dark:bg-gray-800">
+              {(['Personality', 'Vibe'] as const).map((mode) => {
+                const isActive = formState.mode === mode;
+                return (
+                  <Pressable
+                    key={mode}
+                    onPress={() => handleModeChange(mode)}
+                    className={`rounded-lg px-3.5 py-1.5 cursor-pointer ${
+                      isActive ? 'bg-white dark:bg-gray-900' : ''
+                    }`}
+                  >
+                    <Text
+                      className={`font-geist-medium text-sm ${
+                        isActive ? 'text-ink dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'
+                      }`}
+                    >
+                      {mode === 'Personality' ? t('smartPick.modePersonality') : t('smartPick.modeVibes')}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          }
+        >
+          {t('smartPick.engineQuestion')}
+        </PageSectionTitle>
+        <View className="flex-row flex-wrap gap-2">
+          {formState.mode === 'Personality'
+            ? SMART_PICK_ENGINES.map((option) => {
+                const Icon = ENGINE_ICONS[option.value];
+                const isSelected = formState.engine === option.value;
+                return (
+                  <CategoryChip
+                    key={option.value}
+                    label={option.name}
+                    isSelected={isSelected}
+                    onPress={() => onChange({ engine: option.value })}
+                    icon={<Icon size={16} color={isSelected ? '#fff' : '#9CA3AF'} />}
+                  />
+                );
+              })
+            : SMART_PICK_VIBES.map((vibe) => (
+                <CategoryChip
+                  key={vibe}
+                  label={vibe}
+                  isSelected={formState.vibe === vibe}
+                  onPress={() => onChange({ vibe })}
+                />
+              ))}
         </View>
-        <Text className="font-fraunces text-[11.5px] italic leading-[1.45] text-gray-400 dark:text-gray-500">
-          {t('smartPick.linkProfileHelper')}
-        </Text>
-        <UserSearchInput
-          selectedUsers={formState.linkedUsers}
-          onAddUser={onAddLinkedUser}
-          onRemoveUser={onRemoveLinkedUser}
-          className="gap-2"
-          placeholderKey="smartPick.linkProfileSearchPlaceholder"
-          showSelectedLabel={false}
-        />
       </View>
 
       {/* Previous picks */}
       <Pressable
         onPress={() => router.push('/(app)/(stack)/smart-pick/history' as never)}
-        className="flex-row items-center justify-between rounded-2xl bg-soft px-4 py-3.5 cursor-pointer dark:bg-gray-800"
+        className="flex-row items-center justify-between border-t border-gray-200 pt-4 cursor-pointer dark:border-gray-700"
       >
         <Text className="font-geist text-[13px] text-gray-600 dark:text-gray-300">
           <Text className="font-geist-medium text-ink dark:text-gray-100">
@@ -198,19 +245,12 @@ export function SmartPickForm({
         <Text className="font-geist text-sm text-error">{errorMessage}</Text>
       ) : null}
 
-      {/* CTA row. Not position:absolute-sticky like the mockup — this tab
-          already sits under the floating bottom nav bar (GuardedFooter),
-          and stacking a second absolute footer on top of that risked
-          overlapping it. Generous bottom padding above keeps it clear. */}
-      <View className="flex-row gap-2">
-        <LocalNotesButton
-          label={t('smartPick.skip')}
-          onPress={onSkip}
-          variant="light"
-          isRounded
-          isWidthFull={false}
-          className="px-5"
-        />
+      <View className="gap-2">
+        {!canSubmit ? (
+          <Text className="text-center font-geist text-[13px] text-gray-500 dark:text-gray-400">
+            {t('smartPick.chooseMatchHint')}
+          </Text>
+        ) : null}
         <LocalNotesButton
           label={t('smartPick.getRecommendations')}
           onPress={onSubmit}
@@ -218,7 +258,6 @@ export function SmartPickForm({
           isRounded
           disabled={!canSubmit}
           loading={isSubmitting}
-          className="flex-1"
         />
       </View>
     </View>
