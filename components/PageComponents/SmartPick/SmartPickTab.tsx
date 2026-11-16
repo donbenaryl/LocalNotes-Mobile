@@ -12,8 +12,12 @@ import type { searchUserDAO } from '@/http/account-api/types';
 import { EMPTY_SMART_PICK_FORM, type SmartPickFormState } from './types';
 import { View } from 'react-native';
 
+/** Room for the people-search results dropdown and selected badges above the keyboard. */
+const PEOPLE_SEARCH_EXTRA_SPACE = 240;
+
 export function SmartPickTab() {
   const [step, setStep] = useState<'form' | 'result'>('form');
+  const [isPeopleOpen, setIsPeopleOpen] = useState(false);
   const [formState, setFormState] = useState<SmartPickFormState>(EMPTY_SMART_PICK_FORM);
   const { cityLabel, isLoading: isLocationLoading, coordinates, onLocationSelected } =
     useSelectableLocation();
@@ -36,7 +40,7 @@ export function SmartPickTab() {
 
   const submit = async (linkedUserIds: string[]) => {
     const hasSelection =
-      formState.mode === 'Personality' ? formState.engine : formState.vibe;
+      formState.mode === 'Personality' ? formState.engine : formState.vibes.length > 0;
     if (!formState.occasion || !formState.timeOfDay || !hasSelection) return;
 
     const dto: ConversationRequest = {
@@ -44,7 +48,8 @@ export function SmartPickTab() {
       time_of_day: formState.timeOfDay,
       orientation: formState.mode.toUpperCase() as ConversationRequest['orientation'],
       personality: formState.mode === 'Personality' ? formState.engine : null,
-      vibe: formState.mode === 'Vibe' ? formState.vibe : null,
+      vibe: formState.mode === 'Vibe' ? (formState.vibes[0] ?? null) : null,
+      vibes: formState.mode === 'Vibe' ? formState.vibes : [],
       linked_users: linkedUserIds,
       is_free_text: false,
       ...(coordinates ? { lat: coordinates.latitude, lng: coordinates.longitude } : {}),
@@ -102,6 +107,7 @@ export function SmartPickTab() {
       className="flex-1 bg-page dark:bg-gray-900"
       contentContainerClassName="pb-28 px-4"
       scrollToFocusedInput
+      extraKeyboardSpace={isPeopleOpen ? PEOPLE_SEARCH_EXTRA_SPACE : 0}
       showsVerticalScrollIndicator={false}
     >
       <GuardedHeader />
@@ -112,6 +118,7 @@ export function SmartPickTab() {
         onRemoveLinkedUser={handleRemoveLinkedUser}
         onSubmit={handleSubmit}
         onSkip={handleSkip}
+        onPeopleOpenChange={setIsPeopleOpen}
         isSubmitting={isCreating}
         errorMessage={error}
         cityLabel={cityLabel}

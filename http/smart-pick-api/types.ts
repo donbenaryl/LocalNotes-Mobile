@@ -132,7 +132,9 @@ export interface ConversationRequest {
   time_of_day: string;
   orientation: OrientationType;
   personality: string | null;
+  /** Legacy single vibe (first of `vibes`) for older backends. */
   vibe: string | null;
+  vibes?: string[];
   linked_users: string[];
   is_free_text: boolean;
   lat?: number;

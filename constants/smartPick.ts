@@ -28,6 +28,9 @@ export interface SmartPickEngineOption {
   detail: string;
 }
 
+/** Max vibes a user can select; vibes rank results, they never exclude them. */
+export const MAX_SMART_PICK_VIBES = 3;
+
 export const SMART_PICK_ENGINES: SmartPickEngineOption[] = [
   {
     value: 'My Personality Match',

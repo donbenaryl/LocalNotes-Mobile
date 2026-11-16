@@ -1168,6 +1168,7 @@ const en = {
     addPeople: 'Add people',
     matchByVibesHint: 'Vibes: skip personality and pick up to 3 moods.',
     chooseMatchHint: 'Choose how to match to continue',
+    vibesCounter: 'Pick up to {{max}} · {{count}}/{{max}} selected. Vibes rank results, they never exclude them.',
     linkProfileHelper:
       "Add anyone you're going with. We'll pick something that works for all of you.",
     linkProfileSearchPlaceholder: 'Search for users...',

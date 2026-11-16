@@ -9,7 +9,7 @@ export interface SmartPickFormState {
   timeOfDay: string | null;
   mode: SmartPickMode;
   engine: SmartPickEngineValue | null;
-  vibe: string | null;
+  vibes: string[];
   linkedUsers: searchUserDAO[];
 }
 
@@ -18,6 +18,6 @@ export const EMPTY_SMART_PICK_FORM: SmartPickFormState = {
   timeOfDay: null,
   mode: 'Personality',
   engine: null,
-  vibe: null,
+  vibes: [],
   linkedUsers: [],
 };
