@@ -29,23 +29,41 @@ const googleIosUrlScheme = (() => {
   return match ? `com.googleusercontent.apps.${match[1]}` : '';
 })();
 
+const LOCATION_WHEN_IN_USE =
+  'LocalNotes uses your location while you use the app to show nearby recommendations. For example, Home can list cafes and shops near you, and Search can find lists around your current area.';
+
+const PHOTO_LIBRARY_USAGE =
+  'LocalNotes needs access to your photo library so you can choose a profile photo from Edit Profile.';
+
+const CAMERA_USAGE =
+  'LocalNotes needs access to your camera so you can take a new profile photo from Edit Profile.';
+
+const FACE_ID_USAGE =
+  'LocalNotes uses Face ID to unlock your account on this device.';
+
+const CONTACTS_USAGE =
+  'LocalNotes uses your contacts to show which of your friends are already on LocalNotes. Phone numbers are hashed before they leave your device and are never stored.';
+
 const plugins: ExpoConfig['plugins'] = [
   'expo-router',
   'expo-secure-store',
   [
     'expo-location',
     {
-      locationWhenInUsePermission:
-        'Allow LocalNotes to use your location for nearby Smart Pick recommendations.',
+      locationWhenInUsePermission: LOCATION_WHEN_IN_USE,
+      // Do not request Always permission; omit Always strings so Expo does not
+      // inject generic "Allow $(PRODUCT_NAME) to access your location" copy.
+      isIosBackgroundLocationEnabled: false,
+      isAndroidBackgroundLocationEnabled: false,
     },
   ],
   [
     'expo-image-picker',
     {
-      photosPermission:
-        'LocalNotes needs access to your photo library to update your profile photo.',
-      cameraPermission:
-        'LocalNotes needs access to your camera to take a profile photo.',
+      photosPermission: PHOTO_LIBRARY_USAGE,
+      cameraPermission: CAMERA_USAGE,
+      // Microphone is unused; avoid a generic NSMicrophoneUsageDescription.
+      microphonePermission: false,
     },
   ],
   [
@@ -60,10 +78,16 @@ const plugins: ExpoConfig['plugins'] = [
   [
     'expo-local-authentication',
     {
-      faceIDPermission:
-        'LocalNotes uses Face ID to unlock your account on this device.',
+      faceIDPermission: FACE_ID_USAGE,
     },
   ],
+  [
+    'expo-contacts',
+    {
+      contactsPermission: CONTACTS_USAGE,
+    },
+  ],
+  'expo-video',
   '@bacons/apple-targets',
 ];
 
@@ -74,12 +98,28 @@ if (googleIosUrlScheme) {
   ]);
 }
 
+const iosInfoPlist: NonNullable<ExpoConfig['ios']>['infoPlist'] = {
+  NSLocationWhenInUseUsageDescription: LOCATION_WHEN_IN_USE,
+  NSPhotoLibraryUsageDescription: PHOTO_LIBRARY_USAGE,
+  NSCameraUsageDescription: CAMERA_USAGE,
+  NSFaceIDUsageDescription: FACE_ID_USAGE,
+  NSContactsUsageDescription: CONTACTS_USAGE,
+};
+
+if (IS_DEV) {
+  iosInfoPlist.NSAppTransportSecurity = {
+    NSAllowsArbitraryLoads: true,
+  };
+  iosInfoPlist.NSLocalNetworkUsageDescription =
+    'Connect to local development server';
+}
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: IS_DEV ? 'LocalNotes (Dev)' : 'LocalNotes',
   slug: IS_DEV ? 'LocalNotesMobile-dev' : 'LocalNotesMobile',
   owner: 'akaxcile99',
-  version: '1.0.0',
+  version: '1.0.4',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
@@ -97,21 +137,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ? 'com.localnotes.mobile.dev'
       : 'com.localnotes.mobile',
     usesAppleSignIn: true,
-    infoPlist: {
-      NSLocationWhenInUseUsageDescription:
-        'LocalNotes uses your location to show nearby businesses in Smart Pick.',
-      NSPhotoLibraryUsageDescription:
-        'LocalNotes needs access to your photo library to update your profile photo.',
-      NSCameraUsageDescription:
-        'LocalNotes needs access to your camera to take a profile photo.',
-      NSFaceIDUsageDescription:
-        'LocalNotes uses Face ID to unlock your account on this device.',
-      // temporary fix for local development
-      NSAppTransportSecurity: {
-        NSAllowsArbitraryLoads: true,
-      },
-      NSLocalNetworkUsageDescription: 'Connect to local development server',
-    },
+    infoPlist: iosInfoPlist,
   },
   android: {
     userInterfaceStyle: 'automatic',
@@ -135,7 +161,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.READ_EXTERNAL_STORAGE',
       'android.permission.USE_BIOMETRIC',
       'android.permission.USE_FINGERPRINT',
+      'android.permission.READ_CONTACTS',
     ],
+    // expo-contacts' plugin adds WRITE_CONTACTS; we only read.
+    blockedPermissions: ['android.permission.WRITE_CONTACTS'],
   },
   web: {
     favicon: './assets/favicon.png',
