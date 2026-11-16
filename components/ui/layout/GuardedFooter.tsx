@@ -95,6 +95,7 @@ export function GuardedFooter() {
     const options: DropDownOption[] = [
       { value: 'pick', label: t('common.createPick') },
       { value: 'list', label: t('common.createList') },
+      { value: 'list-drafts', label: t('common.listDrafts') },
     ];
     if (canCreateOffer) {
       options.push({
@@ -117,6 +118,21 @@ export function GuardedFooter() {
     }
     if (value === 'offer') {
       void openCreateOfferOnWeb();
+      return;
+    }
+    if (value === 'list-drafts') {
+      // Same hand-off as a footer tab press, but always land on Drafts.
+      if (activeSection === 'saved') {
+        resetSectionTab('saved');
+        requestAnimationFrame(() =>
+          router.navigate(SECTION_ENTRY_HREF.saved),
+        );
+        return;
+      }
+      requestSection('saved');
+      requestAnimationFrame(() =>
+        navigateToSection(router, 'saved', { forceEntry: true }),
+      );
       return;
     }
     const { resetCreate, isDirty } = useListFormStore.getState();

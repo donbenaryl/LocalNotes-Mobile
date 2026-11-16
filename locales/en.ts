@@ -20,6 +20,7 @@ const en = {
     scrollToTop: 'Scroll to top',
     createPick: 'Create a Pick',
     createList: 'Create a List',
+    listDrafts: 'List Drafts',
   },
   imageUpload: {
     addPhoto: 'Add Photo',

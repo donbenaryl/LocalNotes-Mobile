@@ -11,7 +11,8 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { Plus } from 'lucide-react-native';
+import { List, Plus } from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import type { DropDownOption } from '@/components/ui/DropDown';
 import { FOOTER_BAR_HEIGHT } from '@/constants/layout';
@@ -25,7 +26,12 @@ const UNMOUNT_BUFFER_MS = 40;
 
 const OPEN_SPRING = { damping: 20, stiffness: 300, mass: 0.7 };
 
-const ITEM_SHADOW = Platform.select({
+/** Per-option icon overrides; anything not listed uses "+". */
+const OPTION_ICONS: Record<string, LucideIcon> = {
+  'list-drafts': List,
+};
+
+const ITEM_SHADOW =Platform.select({
   ios: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -60,6 +66,7 @@ function FloatingItem({
   onPress,
 }: FloatingItemProps) {
   const progress = useSharedValue(0);
+  const Icon = OPTION_ICONS[option.value] ?? Plus;
 
   useEffect(() => {
     cancelAnimation(progress);
@@ -97,7 +104,7 @@ function FloatingItem({
         size="sm"
         isRounded
         isWidthFull={false}
-        leftIcon={<Plus size={18} color="white" strokeWidth={2.5} />}
+        leftIcon={<Icon size={18} color="white" strokeWidth={2.5} />}
         className="min-w-[120px]"
       />
     </Animated.View>
