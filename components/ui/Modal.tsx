@@ -52,6 +52,8 @@ interface ModalProps {
   /** Content shown above the sheet. As a function, it receives the 0→1 open progress. */
   topContent?: ReactNode | ((progress: Animated.Value) => ReactNode);
   sheetHeightRatio?: number;
+  /** Content-sized sheet capped at this fraction of the window (and by the space above the keyboard). */
+  sheetMaxHeightRatio?: number;
   /** Merged onto the bottom sheet column (e.g. override default `pb-10`). */
   sheetClassName?: string;
   backdropOpacityValue?: number;
@@ -72,6 +74,7 @@ export function Modal({
   keyboardAvoidanceEnabled = true,
   topContent,
   sheetHeightRatio,
+  sheetMaxHeightRatio,
   sheetClassName,
   backdropOpacityValue = 0.5,
   backdropColor = '#1C1917',
@@ -222,6 +225,11 @@ export function Modal({
   const configuredSheetMaxHeight =
     isBottom && sheetHeightRatio != null ? height * sheetHeightRatio : undefined;
   const hasFixedSheetHeight = configuredSheetMaxHeight != null;
+  const contentSheetMaxHeight =
+    isBottom && !hasFixedSheetHeight && sheetMaxHeightRatio != null
+      ? height * sheetMaxHeightRatio
+      : undefined;
+  const sheetCapHeight = configuredSheetMaxHeight ?? contentSheetMaxHeight;
   const useAnimatedKeyboardLift = !avoidKeyboard && isBottom;
   const windowSheetMaxHeight = height - insets.top;
 
@@ -235,22 +243,20 @@ export function Modal({
   const sheetSizeStyle = useAnimatedStyle(() => {
     if (keyboardLiftEnabled.value !== 1) {
       if (configuredSheetMaxHeight != null) {
-        return hasFixedSheetHeight
-          ? {
-              height: configuredSheetMaxHeight,
-              maxHeight: configuredSheetMaxHeight,
-              overflow: 'hidden' as const,
-            }
-          : { maxHeight: configuredSheetMaxHeight };
+        return {
+          height: configuredSheetMaxHeight,
+          maxHeight: configuredSheetMaxHeight,
+          overflow: 'hidden' as const,
+        };
+      }
+      if (contentSheetMaxHeight != null) {
+        return { maxHeight: contentSheetMaxHeight, overflow: 'hidden' as const };
       }
       return {};
     }
 
     const keyboardMax = windowSheetMaxHeight + keyboardHeightSV.value;
-    const maxH =
-      configuredSheetMaxHeight != null
-        ? Math.min(configuredSheetMaxHeight, keyboardMax)
-        : keyboardMax;
+    const maxH = sheetCapHeight != null ? Math.min(sheetCapHeight, keyboardMax) : keyboardMax;
 
     return hasFixedSheetHeight
       ? { height: maxH, maxHeight: maxH, overflow: 'hidden' as const }
@@ -357,7 +363,15 @@ export function Modal({
           </View>
         ) : null}
 
-        <View style={hasFixedSheetHeight ? styles.sheetBodyFill : styles.sheetBodyWrap}>
+        <View
+          style={
+            hasFixedSheetHeight
+              ? styles.sheetBodyFill
+              : contentSheetMaxHeight != null
+                ? styles.sheetBodyShrink
+                : styles.sheetBodyWrap
+          }
+        >
           {children}
           {footer ? (
             <BottomWrapper className="-mx-8 bg-white dark:bg-gray-900">
@@ -493,6 +507,11 @@ const styles = StyleSheet.create({
   },
   sheetBodyWrap: {
     position: 'relative',
+  },
+  sheetBodyShrink: {
+    position: 'relative',
+    flexShrink: 1,
+    minHeight: 0,
   },
   androidSheetHost: {
     zIndex: 30,

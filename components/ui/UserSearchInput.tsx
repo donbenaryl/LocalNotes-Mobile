@@ -20,6 +20,10 @@ interface UserSearchInputProps {
   className?: string;
   placeholderKey?: string;
   showSelectedLabel?: boolean;
+  /** Caps the height of the results list so it scrolls instead of growing its container. */
+  resultsClassName?: string;
+  /** Caps the height of the selected-users area so it scrolls instead of growing its container. */
+  selectedClassName?: string;
 }
 
 export function UserSearchInput({
@@ -29,6 +33,8 @@ export function UserSearchInput({
   className = 'mt-3 gap-3 border-t border-brand/20 pt-3',
   placeholderKey = 'listForm.placeholders.searchUsers',
   showSelectedLabel = true,
+  resultsClassName = 'max-h-40',
+  selectedClassName,
 }: UserSearchInputProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
@@ -81,7 +87,7 @@ export function UserSearchInput({
   };
 
   return (
-    <View className={className}>
+    <View className={className} style={{ flexShrink: 1, minHeight: 0 }}>
       <View className="flex-row items-end gap-2">
         <View className="flex-1">
           <TextInput
@@ -100,7 +106,12 @@ export function UserSearchInput({
       ) : null}
 
       {showResults && availableResults.length > 0 ? (
-        <ScrollView className="max-h-40" nestedScrollEnabled>
+        <ScrollView
+          className={resultsClassName}
+          style={{ flexShrink: 1 }}
+          nestedScrollEnabled
+          keyboardShouldPersistTaps="handled"
+        >
           <View className="gap-1">
             {availableResults.map((user) => (
               <Pressable
@@ -119,30 +130,38 @@ export function UserSearchInput({
       ) : null}
 
       {selectedUsers.length > 0 ? (
-        <View className="gap-2">
+        <View className="gap-2" style={{ flexShrink: 1, minHeight: 0 }}>
           {showSelectedLabel ? (
             <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
               {t('listForm.fields.selectedUsers')}
             </Text>
           ) : null}
-          <View className="flex-row flex-wrap gap-2">
-            {selectedUsers.map((user) => (
-              <Badge
-                key={user.id}
-                label={user.name}
-                variant="primary"
-                rightIcon={
-                  <Pressable
-                    onPress={() => onRemoveUser(user.id)}
-                    hitSlop={8}
-                    className="cursor-pointer"
-                  >
-                    <X size={14} color="#FF6B1A" />
-                  </Pressable>
-                }
-              />
-            ))}
-          </View>
+          <ScrollView
+            className={selectedClassName}
+            style={{ flexShrink: 1 }}
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View className="flex-row flex-wrap gap-2">
+              {selectedUsers.map((user) => (
+                <Badge
+                  key={user.id}
+                  label={user.name}
+                  variant="primary"
+                  rightIcon={
+                    <Pressable
+                      onPress={() => onRemoveUser(user.id)}
+                      hitSlop={8}
+                      className="cursor-pointer"
+                    >
+                      <X size={14} color="#FF6B1A" />
+                    </Pressable>
+                  }
+                />
+              ))}
+            </View>
+          </ScrollView>
         </View>
       ) : null}
     </View>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -9,9 +9,9 @@ import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { useSmartPickHistory } from '@/hooks/useSmartPickHistory';
 import { MAX_SMART_PICK_VIBES, SMART_PICK_ENGINES, SMART_PICK_OCCASIONS, SMART_PICK_TIMES, SMART_PICK_VIBES } from '@/constants/smartPick';
 import { MatchByInfo } from './MatchByInfo';
+import { SmartPickPeopleSheet } from './SmartPickPeopleSheet';
 import type { SmartPickFormState, SmartPickMode } from '../types';
 import { PageSectionTitle } from '@/components/ui/PageSectionTitle';
-import { UserSearchInput } from '@/components/ui/UserSearchInput';
 import type { searchUserDAO } from '@/http/account-api/types';
 import { LocationPickerChip } from '@/components/ui/LocationInputModal';
 import type { Location as GeoLocation } from '@/http/list-api/types';
@@ -23,8 +23,6 @@ interface SmartPickFormProps {
   onRemoveLinkedUser: (userId: string) => void;
   onSubmit: () => void;
   onSkip: () => void;
-  /** Lets the parent reserve scroll room above the keyboard while people search is open. */
-  onPeopleOpenChange?: (isOpen: boolean) => void;
   isSubmitting: boolean;
   errorMessage: string | null;
   cityLabel: string;
@@ -47,7 +45,6 @@ export function SmartPickForm({
   onRemoveLinkedUser,
   onSubmit,
   onSkip,
-  onPeopleOpenChange,
   isSubmitting,
   errorMessage,
   cityLabel,
@@ -56,7 +53,7 @@ export function SmartPickForm({
 }: SmartPickFormProps) {
   const { t } = useTranslation();
   const router = useRouter();
-  const [showPeople, setShowPeople] = useState(formState.linkedUsers.length > 0);
+  const [isPeopleSheetOpen, setIsPeopleSheetOpen] = useState(false);
   const { conversations, isPending: isHistoryPending } = useSmartPickHistory();
 
   const canSubmit = Boolean(
@@ -83,17 +80,7 @@ export function SmartPickForm({
     }
   };
 
-  const handleTogglePeople = () => {
-    const next = !showPeople;
-    setShowPeople(next);
-    onPeopleOpenChange?.(next);
-  };
-
-  useEffect(() => {
-    onPeopleOpenChange?.(showPeople);
-    return () => onPeopleOpenChange?.(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const closePeopleSheet = () => setIsPeopleSheetOpen(false);
 
   return (
     <View className="gap-6 pb-10 pt-4 bg-page dark:bg-gray-900">
@@ -170,7 +157,7 @@ export function SmartPickForm({
               : t('smartPick.justMe')}
           </Text>
           <Pressable
-            onPress={handleTogglePeople}
+            onPress={() => setIsPeopleSheetOpen(true)}
             className="flex-row items-center gap-1.5 rounded-xl border border-dashed border-gray-400 px-4 py-2.5 cursor-pointer dark:border-gray-500"
           >
             <Plus size={16} color="#9CA3AF" />
@@ -179,16 +166,13 @@ export function SmartPickForm({
             </Text>
           </Pressable>
         </View>
-        {showPeople ? (
-          <UserSearchInput
-            selectedUsers={formState.linkedUsers}
-            onAddUser={onAddLinkedUser}
-            onRemoveUser={onRemoveLinkedUser}
-            className="gap-2"
-            placeholderKey="smartPick.linkProfileSearchPlaceholder"
-            showSelectedLabel={false}
-          />
-        ) : null}
+        <SmartPickPeopleSheet
+          visible={isPeopleSheetOpen}
+          onClose={closePeopleSheet}
+          selectedUsers={formState.linkedUsers}
+          onAddUser={onAddLinkedUser}
+          onRemoveUser={onRemoveLinkedUser}
+        />
       </View>
 
       {/* Matching engine */}
