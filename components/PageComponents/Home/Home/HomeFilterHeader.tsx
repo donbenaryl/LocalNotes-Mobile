@@ -156,37 +156,6 @@ export function HomeFilterHeader({
         )}
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerClassName="flex-row items-center gap-1.5"
-      >
-        {(contentType === "businesses"
-          ? BUSINESS_FILTER_OPTIONS
-          : FILTER_OPTIONS
-        ).map((filter) => (
-          <LocalNotesButton
-            key={filter}
-            label={t(FILTER_LABEL_KEYS[filter])}
-            onPress={() => {
-              if (filter === "category") {
-                setIsCategoryModalOpen(true);
-              } else if (filter === "personality_match") {
-                setIsMatchModalOpen(true);
-              } else if (filter === "vibe") {
-                setIsVibeModalOpen(true);
-              } else {
-                onFilterChange(filter);
-              }
-            }}
-            variant={activeFilters.includes(filter) ? "dark" : "light"}
-            size="xs"
-            isRounded
-            isWidthFull={false}
-          />
-        ))}
-      </ScrollView>
-
       <MatchThreshhold
         isVisible={isMatchModalOpen}
         onClose={() => setIsMatchModalOpen(false)}
