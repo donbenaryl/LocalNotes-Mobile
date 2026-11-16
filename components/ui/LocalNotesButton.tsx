@@ -11,6 +11,7 @@ interface LocalNotesButtonProps {
   size?: LocalNotesButtonSize;
   disabled?: boolean;
   className?: string;
+  textClassName?: string;
   isRounded?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
@@ -55,6 +56,7 @@ export function LocalNotesButton({
   size = "md",
   disabled = false,
   className = "",
+  textClassName = "",
   isRounded = false,
   leftIcon,
   rightIcon,
@@ -70,8 +72,11 @@ export function LocalNotesButton({
       : "bg-disabled dark:bg-gray-700"
     : VARIANT_CONTAINER_CLASS[variant];
 
-  const textClass =
-    isDisabled && !isDanger ? "text-white" : VARIANT_TEXT_CLASS[variant];
+  const textClass = textClassName
+    ? textClassName
+    : isDisabled && !isDanger
+      ? "text-white"
+      : VARIANT_TEXT_CLASS[variant];
 
   const spinnerColor = variant === "light" ? "#191B1C" : "#FFFFFF";
 
@@ -84,7 +89,11 @@ export function LocalNotesButton({
     >
       <View className="shrink-0 flex-row items-center justify-center gap-2">
         {leftIcon ? <View className="shrink-0">{leftIcon}</View> : null}
-        {label ? <Text className={`shrink-0 font-geist ${SIZE_TEXT_CLASS[size]} ${textClass}`}>{label}</Text> : null}
+        {label ? (
+          <Text className={`shrink-0 font-geist ${SIZE_TEXT_CLASS[size]} ${textClass}`}>
+            {label}
+          </Text>
+        ) : null}
         {loading ? (
           <View className="shrink-0">
             <ActivityIndicator size="small" color={spinnerColor} />

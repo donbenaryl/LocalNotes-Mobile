@@ -42,8 +42,12 @@ export default function AppLayout() {
     };
   }, [isAuthenticated, isSessionLocked, user]);
 
-  if (!isAuthenticated || isSessionLocked) {
+  if (isSessionLocked) {
     return <Redirect href="/sign-in" />;
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect href="/welcome" />;
   }
 
   if (isHydrating) {

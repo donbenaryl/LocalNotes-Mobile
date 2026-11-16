@@ -69,7 +69,7 @@ export async function hydrateUserProfile(
 }
 
 export async function bootstrapSession(): Promise<
-  '/sign-in' | '/personality' | '/home'
+  '/welcome' | '/sign-in' | '/personality' | '/home'
 > {
   await useAuthStore.getState().loadToken();
   await useBiometricStore.getState().load();
@@ -78,7 +78,7 @@ export async function bootstrapSession(): Promise<
   const biometricEnabled = useBiometricStore.getState().enabled;
 
   if (!isAuthenticated) {
-    return '/sign-in';
+    return '/welcome';
   }
 
   if (biometricEnabled) {
@@ -96,7 +96,7 @@ export async function bootstrapSession(): Promise<
   const hydrated = await hydrateUserProfile();
   if (!hydrated) {
     await useAuthStore.getState().clearAuth();
-    return '/sign-in';
+    return '/welcome';
   }
 
   const personalityName = useAuthStore.getState().user?.personalityName;

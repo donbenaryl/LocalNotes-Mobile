@@ -115,7 +115,7 @@ export default function AccountSettingsMenu() {
   const handleSignOut = async () => {
     queryClient.removeQueries({ queryKey: ['profile'] });
     await clearAuth();
-    router.replace('/sign-in');
+    router.replace('/welcome');
   };
 
   const handleToggleAppearance = () => {

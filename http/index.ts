@@ -60,7 +60,7 @@ function drainQueue(token: string): void {
 
 async function forceLogout(): Promise<void> {
   await useAuthStore.getState().clearAuth();
-  router.replace('/sign-in');
+  router.replace('/welcome');
 }
 
 async function attemptTokenRefresh(): Promise<string> {

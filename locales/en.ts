@@ -84,6 +84,22 @@ const en = {
     getStarted: 'Get Started',
   },
   auth: {
+    welcome: {
+      headlineLine1: 'Less hype.',
+      headlineLine2: 'More your type.',
+      headlineA11y: 'Less hype. More your type.',
+      subtitle:
+        'Skip the generic reviews. Find places picked by people who share your taste.',
+      createAccount: 'Create account',
+      signIn: 'Sign in',
+      legalPrefix: 'By continuing, you agree to our ',
+      terms: 'Terms',
+      legalSeparator: ', ',
+      privacy: 'Privacy Policy',
+      legalAnd: ' and ',
+      guidelines: 'Community Guidelines',
+      legalSuffix: '.',
+    },
     signIn: {
       title: 'Discover spots that',
       subtitle: 'match your taste.',
