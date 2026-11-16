@@ -214,6 +214,7 @@ export interface MatchHistogramDAO {
 export interface searchUserDAO{
   id:string;
   name:string;
+  profile_image_url?: string | null;
 }
 
 export interface usernameSearchDTO {

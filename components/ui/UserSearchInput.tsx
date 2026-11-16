@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Plus, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { TextInput } from '@/components/ui/TextInput';
 import accountService from '@/http/account-api/account.services';
@@ -119,9 +120,16 @@ export function UserSearchInput({
                 onPress={() => handleSelect(user)}
                 className="flex-row items-center justify-between rounded-lg px-3 py-2 dark:bg-gray-800 cursor-pointer"
               >
-                <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
-                  {user.name}
-                </Text>
+                <View className="flex-1 flex-row items-center gap-2">
+                  <Avatar
+                    name={user.name}
+                    src={user.profile_image_url ?? undefined}
+                    size="xs"
+                  />
+                  <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                    {user.name}
+                  </Text>
+                </View>
                 <Plus size={18} color="#FF6B1A" />
               </Pressable>
             ))}
@@ -149,6 +157,13 @@ export function UserSearchInput({
                   key={user.id}
                   label={user.name}
                   variant="primary"
+                  leftIcon={
+                    <Avatar
+                      name={user.name}
+                      src={user.profile_image_url ?? undefined}
+                      size="xs"
+                    />
+                  }
                   rightIcon={
                     <Pressable
                       onPress={() => onRemoveUser(user.id)}
