@@ -274,7 +274,9 @@ export function NextActionsSection({
 
   const renderNoAction = () => {
     if (!brief || suggested) return null;
-    const line = noActionLine(brief.status, brief.insight?.params?.already_tracking === true);
+    const line =
+      noActionLine(brief.status, brief.insight?.params?.already_tracking === true) ??
+      (active ? null : 'noAction');
     if (!line) return null;
     return (
       <Text className="px-5 pb-1 pt-1 font-geist text-[12.5px] text-gray-500 dark:text-gray-400">
