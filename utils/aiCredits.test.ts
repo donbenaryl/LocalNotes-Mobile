@@ -182,8 +182,12 @@ describe('history and usage page helpers', () => {
 
   it('maps features to labels with a fallback', () => {
     expect(featureLabelKey('copilot_question')).toBe('businessHome.aiCredits.features.copilot_question');
+    expect(featureLabelKey('suggest_description')).toBe(
+      'businessHome.aiCredits.features.suggest_description',
+    );
     expect(featureLabelKey('campaign_draft')).toBe('businessHome.aiCredits.features.other');
     expect(typeof lookup(featureLabelKey('copilot_question'))).toBe('string');
+    expect(typeof lookup(featureLabelKey('suggest_description'))).toBe('string');
     expect(typeof lookup(featureLabelKey('zzz'))).toBe('string');
   });
 

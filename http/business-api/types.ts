@@ -717,6 +717,12 @@ export type AiCreditsPricingDAO = {
   monthly_per_branch: number;
 };
 
+export type SuggestDescriptionQuotaDAO = {
+  used: number;
+  cap: number;
+  remaining: number;
+};
+
 export type AiCreditsDAO = {
   enabled: boolean;
   branch_id: string;
@@ -730,6 +736,18 @@ export type AiCreditsDAO = {
   resets_at: string;
   warn: boolean;
   pricing: AiCreditsPricingDAO;
+  /** Monthly hard cap for AI description drafts (feature `suggest_description`). */
+  suggest_description?: SuggestDescriptionQuotaDAO;
+};
+
+export type SuggestDescriptionDAO = {
+  description: string;
+  credits_charged: number;
+  remaining_credits: number;
+  suggestions_used: number;
+  suggestions_cap: number;
+  suggestions_remaining: number;
+  credits: AiCreditsDAO;
 };
 
 export type AiCreditsFeatureUsageDAO = {

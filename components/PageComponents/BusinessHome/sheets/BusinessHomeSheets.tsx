@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { EditBranchHoursModal } from '@/components/PageComponents/Profile/EditBranchHoursModal';
 import { useMentionWeekdays } from '@/hooks/useMentionWeekdays';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
+import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnWeb';
 import { useUpdateBranchHours } from '@/hooks/useUpdateBranchHours';
+import { useAiCredits } from '@/hooks/useAiCredits';
+import { useSuggestBusinessDescription } from '@/hooks/useSuggestBusinessDescription';
 import { useBusinessStore } from '@/stores/useBusinessStore';
+import { useToastStore } from '@/stores/useToastStore';
+import businessService from '@/http/business-api/business.service';
 import { closedMentionedDays } from '@/utils/openingHours';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { ProfileHealthSection } from '../sections/FreeCampaignSections';
@@ -44,10 +49,15 @@ export function BusinessHomeSheets({
 }: BusinessHomeSheetsProps) {
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
+  const openInsightsOnWeb = useOpenBusinessInsightsOnWeb();
+  const showToast = useToastStore((s) => s.show);
   const businessId = useBusinessStore((s) => s.businessId);
   const businessInfo = useBusinessStore((s) => s.businessInfo);
   const selectedBranchId = useBusinessStore((s) => s.selectedBranchId);
+  const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
   const [hoursEditorOpen, setHoursEditorOpen] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const [savingDraft, setSavingDraft] = useState(false);
 
   const selectedBranch =
     businessInfo?.branches?.find((item) => item.id === selectedBranchId) ??
@@ -58,9 +68,53 @@ export function BusinessHomeSheets({
   );
   const canFetchMentionWeekdays = Boolean(businessId && selectedBranch?.id);
 
+  const profileOpen = activeSheet === 'profile';
+  const { data: credits } = useAiCredits({ isPaid: isPaidMember && profileOpen });
+  const suggestMutation = useSuggestBusinessDescription();
+
+  const suggestQuota = credits?.suggest_description;
+  const suggestionsUsed = suggestQuota?.used ?? 0;
+  const suggestionsLeft = suggestQuota?.remaining ?? 0;
+  const atSuggestCap = isPaidMember && suggestQuota != null && suggestionsLeft < 1;
+  const generating = suggestMutation.isPending;
+
   useEffect(() => {
-    if (activeSheet === 'profile' && canFetchMentionWeekdays) void refetchMentionWeekdays();
-  }, [activeSheet, canFetchMentionWeekdays, refetchMentionWeekdays]);
+    if (profileOpen && canFetchMentionWeekdays) void refetchMentionWeekdays();
+  }, [profileOpen, canFetchMentionWeekdays, refetchMentionWeekdays]);
+
+  const runSuggest = useCallback(async () => {
+    if (!isPaidMember) {
+      void openInsightsOnWeb();
+      return;
+    }
+    if (atSuggestCap || generating) return;
+    try {
+      const result = await suggestMutation.mutateAsync();
+      setDraft(result.description);
+    } catch (error) {
+      const statusCode =
+        error && typeof error === 'object' && 'statusCode' in error
+          ? Number((error as { statusCode?: number }).statusCode)
+          : undefined;
+      const message =
+        statusCode === 429 &&
+        error instanceof Error &&
+        /description drafts/i.test(error.message)
+          ? t('businessHome.sheets.profile.suggestCap')
+          : statusCode === 429
+            ? t('businessHome.sheets.profile.suggestCredits')
+            : t('businessHome.sheets.profile.suggestFailed');
+      showToast({ type: 'error', message });
+    }
+  }, [
+    atSuggestCap,
+    generating,
+    isPaidMember,
+    openInsightsOnWeb,
+    showToast,
+    suggestMutation,
+    t,
+  ]);
 
   const hoursGapDays = useMemo(
     () => closedMentionedDays(mentionWeekdays?.mentioned_days ?? [], selectedBranch?.opening_hours),
@@ -79,17 +133,46 @@ export function BusinessHomeSheets({
     setHoursEditorOpen(true);
   };
 
-  const showComingSoon = () => {
-    Alert.alert(
-      t('businessHome.comingSoonTitle'),
-      t('businessHome.comingSoonMessage'),
-    );
+  const onUseDraft = async () => {
+    if (!isPaidMember) {
+      void openInsightsOnWeb();
+      return;
+    }
+    if (!draft?.trim() || savingDraft) return;
+    setSavingDraft(true);
+    try {
+      const res = await businessService.updateBusiness({ bio: draft.trim() });
+      if (res.error || !res.data?.data) {
+        throw new Error(res.error?.message ?? t('businessHome.sheets.profile.useDraftFailed'));
+      }
+      await refreshBusinessInfo();
+      showToast({ type: 'success', message: t('businessHome.sheets.profile.useDraftSuccess') });
+      onClose();
+    } catch (error) {
+      showToast({
+        type: 'error',
+        message:
+          error instanceof Error
+            ? error.message
+            : t('businessHome.sheets.profile.useDraftFailed'),
+      });
+    } finally {
+      setSavingDraft(false);
+    }
   };
+
+  const draftText = draft?.trim() ?? '';
+  const hasDraft = draftText.length > 0;
+  const showPreview = generating || hasDraft;
+  const draftPreview = generating ? t('businessHome.sheets.profile.draftLoading') : draftText;
+
+  const canUseDraft = Boolean(draft?.trim()) && !generating && !savingDraft && isPaidMember;
+  const canRelaunch = isPaidMember && !generating && !savingDraft && !atSuggestCap;
 
   return (
     <>
       <Modal
-        visible={activeSheet === 'profile'}
+        visible={profileOpen}
         onClose={onClose}
         title={t('businessHome.sheets.profile.title')}
       >
@@ -125,26 +208,73 @@ export function BusinessHomeSheets({
             <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
               {t('businessHome.sheets.profile.descriptionBody')}
             </Text>
-            <View className="mt-2 rounded-xl bg-soft p-3 dark:bg-gray-900">
-              <Text className="font-fraunces text-sm italic text-gray-700 dark:text-gray-300">
-                {t('businessHome.sheets.profile.draft')}
+            {isPaidMember && suggestQuota != null ? (
+              <Text
+                className={`mt-2 font-geist text-xs ${
+                  atSuggestCap
+                    ? 'text-gray-400 dark:text-gray-500'
+                    : 'text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                {atSuggestCap
+                  ? t('businessHome.sheets.profile.exhausted')
+                  : t('businessHome.sheets.profile.usedLeft', {
+                      used: suggestionsUsed,
+                      left: suggestionsLeft,
+                    })}
               </Text>
-            </View>
+            ) : null}
+            {!isPaidMember ? (
+              <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.profile.upgradeForDrafts')}
+              </Text>
+            ) : null}
+            {showPreview ? (
+              <View className="mt-2 rounded-xl bg-soft p-3 dark:bg-gray-900">
+                <Text
+                  className={`font-fraunces text-sm italic ${
+                    hasDraft && !generating
+                      ? 'text-gray-700 dark:text-gray-300'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {draftPreview}
+                </Text>
+              </View>
+            ) : null}
             <View className="mt-2 flex-row flex-wrap gap-1.5">
-              <LocalNotesButton
-                label={t('businessHome.sheets.profile.useDraft')}
-                onPress={showComingSoon}
-                variant="dark"
-                size="xs"
-                isWidthFull={false}
-              />
-              <LocalNotesButton
-                label={t('businessHome.buttons.editRelaunch')}
-                onPress={showComingSoon}
-                variant="light"
-                size="xs"
-                isWidthFull={false}
-              />
+              {hasDraft ? (
+                <>
+                  <LocalNotesButton
+                    label={t('businessHome.sheets.profile.useDraft')}
+                    onPress={() => void onUseDraft()}
+                    variant="dark"
+                    size="xs"
+                    isWidthFull={false}
+                    disabled={!canUseDraft && isPaidMember}
+                    loading={savingDraft}
+                  />
+                  <LocalNotesButton
+                    label={t('businessHome.buttons.editRelaunch')}
+                    onPress={() => void runSuggest()}
+                    variant="light"
+                    size="xs"
+                    isWidthFull={false}
+                    disabled={isPaidMember && !canRelaunch}
+                    loading={generating}
+                  />
+                </>
+              ) : (
+                <LocalNotesButton
+                  label={t('businessHome.sheets.profile.generate')}
+                  onPress={() => void runSuggest()}
+                  variant="dark"
+                  size="xs"
+                  isWidthFull={false}
+                  disabled={isPaidMember && !canRelaunch}
+                  loading={generating}
+                />
+              )}
             </View>
           </BusinessHomeCard>
         </SheetScroll>

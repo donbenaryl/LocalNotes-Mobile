@@ -47,6 +47,7 @@ import type {
     BusinessAlertActionDAO,
     AiCreditsDAO,
     AiCreditsDetailDAO,
+    SuggestDescriptionDAO,
     CopilotThreadSummaryDAO,
     CopilotThreadDAO,
     CopilotMessageDAO,
@@ -508,6 +509,13 @@ class BusinessService extends AppHttpService{
             method: "get",
             path: `/${businessId}/branches/${branchId}/ai-credits/`,
             query: { detail: 1 },
+        });
+    }
+
+    async suggestBusinessDescription(businessId: string, branchId: string) {
+        return await this.SendRequest<SuggestDescriptionDAO>({
+            method: "post",
+            path: `/${businessId}/branches/${branchId}/suggest-description/`,
         });
     }
 

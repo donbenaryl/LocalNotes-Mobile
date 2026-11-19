@@ -162,7 +162,7 @@ export function historyMonthLabel(periodStart: string, locale = 'en-US'): string
 // Usage page helpers
 // ---------------------------------------------------------------------------
 
-const KNOWN_FEATURES = ['copilot_question'];
+const KNOWN_FEATURES = ['copilot_question', 'suggest_description'];
 
 export function featureLabelKey(feature: string): string {
   return KNOWN_FEATURES.includes(feature)

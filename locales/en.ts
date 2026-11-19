@@ -2263,6 +2263,7 @@ const en = {
       },
       features: {
         copilot_question: 'Copilot',
+        suggest_description: 'Description draft',
         other: 'AI',
       },
       howCalculated: {
@@ -2307,10 +2308,18 @@ const en = {
           'Customers mentioned you on {{days}}, but your hours show you closed or not set those days. Searches can\'t surface you confidently until they\'re set.',
         descriptionTitle: 'Refresh your description',
         descriptionBody:
-          'Your bio doesn\'t mention the words customers actually search for. AI draft:',
-        draft:
-          '"A quiet Roosevelt Row coffee bar for slow mornings and long study sessions — house cardamom buns at 7, rotating guest espresso, window seats worth waiting for."',
+          'Generate a fresh bio with AI, written from your business data, like the words customers actually search for to find you.',
+        usedLeft: '{{used}} used · {{left}} left this month',
+        exhausted: 'No AI drafts left this month. Resets next month.',
+        draftLoading: 'Writing a draft…',
+        generate: 'Generate description',
         useDraft: 'Use draft',
+        useDraftSuccess: 'Description updated.',
+        useDraftFailed: "Couldn't save the description.",
+        suggestFailed: "Couldn't generate a description. Try again.",
+        suggestCap: "You've used all your AI description drafts this month.",
+        suggestCredits: "You've used all your AI credits this month.",
+        upgradeForDrafts: 'Upgrade this location to get AI description drafts.',
       },
       plans: {
         title: '⚑ Action plans',
