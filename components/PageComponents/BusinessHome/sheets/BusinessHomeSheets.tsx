@@ -11,6 +11,7 @@ import { useUpdateBranchHours } from '@/hooks/useUpdateBranchHours';
 import { useAiCredits } from '@/hooks/useAiCredits';
 import { useSuggestBusinessDescription } from '@/hooks/useSuggestBusinessDescription';
 import { useBusinessStore } from '@/stores/useBusinessStore';
+import { useDescriptionDraftStore } from '@/stores/useDescriptionDraftStore';
 import { useToastStore } from '@/stores/useToastStore';
 import businessService from '@/http/business-api/business.service';
 import { closedMentionedDays } from '@/utils/openingHours';
@@ -56,7 +57,10 @@ export function BusinessHomeSheets({
   const selectedBranchId = useBusinessStore((s) => s.selectedBranchId);
   const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
   const [hoursEditorOpen, setHoursEditorOpen] = useState(false);
-  const [draft, setDraft] = useState<string | null>(null);
+  const draft = useDescriptionDraftStore((s) => (businessId ? s.drafts[businessId] : undefined));
+  const setDraft = useDescriptionDraftStore((s) => s.setDraft);
+  const clearDraft = useDescriptionDraftStore((s) => s.clearDraft);
+  const loadDrafts = useDescriptionDraftStore((s) => s.load);
   const [savingDraft, setSavingDraft] = useState(false);
 
   const selectedBranch =
@@ -82,6 +86,10 @@ export function BusinessHomeSheets({
     if (profileOpen && canFetchMentionWeekdays) void refetchMentionWeekdays();
   }, [profileOpen, canFetchMentionWeekdays, refetchMentionWeekdays]);
 
+  useEffect(() => {
+    void loadDrafts();
+  }, [loadDrafts]);
+
   const runSuggest = useCallback(async () => {
     if (!isPaidMember) {
       void openInsightsOnWeb();
@@ -90,7 +98,7 @@ export function BusinessHomeSheets({
     if (atSuggestCap || generating) return;
     try {
       const result = await suggestMutation.mutateAsync();
-      setDraft(result.description);
+      if (businessId) setDraft(businessId, result.description);
     } catch (error) {
       const statusCode =
         error && typeof error === 'object' && 'statusCode' in error
@@ -108,9 +116,11 @@ export function BusinessHomeSheets({
     }
   }, [
     atSuggestCap,
+    businessId,
     generating,
     isPaidMember,
     openInsightsOnWeb,
+    setDraft,
     showToast,
     suggestMutation,
     t,
@@ -138,13 +148,14 @@ export function BusinessHomeSheets({
       void openInsightsOnWeb();
       return;
     }
-    if (!draft?.trim() || savingDraft) return;
+    if (!businessId || !draft?.trim() || savingDraft) return;
     setSavingDraft(true);
     try {
       const res = await businessService.updateBusiness({ bio: draft.trim() });
       if (res.error || !res.data?.data) {
         throw new Error(res.error?.message ?? t('businessHome.sheets.profile.useDraftFailed'));
       }
+      clearDraft(businessId);
       await refreshBusinessInfo();
       showToast({ type: 'success', message: t('businessHome.sheets.profile.useDraftSuccess') });
       onClose();
@@ -252,7 +263,6 @@ export function BusinessHomeSheets({
                     size="xs"
                     isWidthFull={false}
                     disabled={!canUseDraft && isPaidMember}
-                    loading={savingDraft}
                   />
                   <LocalNotesButton
                     label={t('businessHome.buttons.editRelaunch')}
@@ -261,7 +271,6 @@ export function BusinessHomeSheets({
                     size="xs"
                     isWidthFull={false}
                     disabled={isPaidMember && !canRelaunch}
-                    loading={generating}
                   />
                 </>
               ) : (
