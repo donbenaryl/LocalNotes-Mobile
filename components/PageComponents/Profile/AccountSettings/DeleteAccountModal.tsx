@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { Modal } from '@/components/ui/Modal';
 import { TextInput } from '@/components/ui/TextInput';
+import { isDeleteConfirmValid } from '@/utils/deleteAccount';
 
-const CONFIRM_WORD = 'DELETE';
 
 interface DeleteAccountModalProps {
   visible: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (password?: string) => void;
   isLoading?: boolean;
 }
 
@@ -22,14 +22,16 @@ export function DeleteAccountModal({
 }: DeleteAccountModalProps) {
   const { t } = useTranslation();
   const [confirmText, setConfirmText] = useState('');
+  const [password, setPassword] = useState('');
 
   useEffect(() => {
     if (!visible) {
       setConfirmText('');
+      setPassword('');
     }
   }, [visible]);
 
-  const canConfirm = confirmText === CONFIRM_WORD;
+  const canConfirm = isDeleteConfirmValid(confirmText);
 
   return (
     <Modal
@@ -48,10 +50,24 @@ export function DeleteAccountModal({
         autoCapitalize="characters"
         autoCorrect={false}
         editable={!isLoading}
-        containerClassName="mb-6"
+        containerClassName="mb-4"
         labelClassName="normal-case"
-   
       />
+      <TextInput
+        label={t('accountSettings.menu.deleteAccountPasswordLabel')}
+        placeholder={t('accountSettings.menu.deleteAccountPasswordPlaceholder')}
+        value={password}
+        onChangeText={setPassword}
+        isPassword
+        autoCapitalize="none"
+        autoCorrect={false}
+        editable={!isLoading}
+        containerClassName="mb-2"
+        labelClassName="normal-case"
+      />
+      <Text className="mb-6 font-geist text-xs text-gray-500 dark:text-gray-400">
+        {t('accountSettings.menu.deleteAccountPasswordHint')}
+      </Text>
       <View className="flex-row gap-3">
         <LocalNotesButton
           label={t('accountSettings.menu.deleteAccountCancel')}
@@ -63,7 +79,7 @@ export function DeleteAccountModal({
         />
         <LocalNotesButton
           label={t('accountSettings.menu.deleteAccountConfirm')}
-          onPress={onConfirm}
+          onPress={() => onConfirm(password)}
           variant="danger"
           size="sm"
           disabled={!canConfirm || isLoading}

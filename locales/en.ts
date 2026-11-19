@@ -367,6 +367,11 @@ const en = {
       deleteAccountTypeLabel: 'Type "DELETE" to confirm',
       deleteAccountConfirm: 'Delete',
       deleteAccountCancel: 'Cancel',
+      deleteAccountPasswordLabel: 'Password',
+      deleteAccountPasswordPlaceholder: 'Enter your password',
+      deleteAccountPasswordHint: 'Signed in with Google or Apple? Leave this blank.',
+      deleteAccountSuccess: 'Your account has been deleted.',
+      deleteAccountFailed: 'Could not delete your account. Please try again.',
       comingSoon: 'Coming soon',
     },
     notifications: {

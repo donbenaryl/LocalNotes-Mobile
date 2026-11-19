@@ -33,6 +33,9 @@ import { useLocaleStore } from '@/stores/useLocaleStore';
 import { useThemeStore } from '@/stores/useThemeStore';
 import { useReviewConnections } from '@/hooks/useProfileReviews';
 import { toast } from '@/components/ui/Toast';
+import { useDeleteAccount } from '@/hooks/useDeleteAccount';
+import { DELETE_CONFIRM_WORD } from '@/utils/deleteAccount';
+import { performSessionCleanup } from '@/utils/sessionCleanup';
 import { isBusinessAccountType } from '@/utils/businessAccount';
 import { AccountSettingsCard } from './AccountSettingsCard';
 import { DeleteAccountModal } from './DeleteAccountModal';
@@ -45,6 +48,7 @@ export default function AccountSettingsMenu() {
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { mutate: deleteAccount, isPending: isDeletingAccount } = useDeleteAccount();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const authAccountType = useAuthStore((s) => s.accountType);
   const theme = useThemeStore((s) => s.theme);
@@ -113,8 +117,11 @@ export default function AccountSettingsMenu() {
   };
 
   const handleSignOut = async () => {
-    queryClient.removeQueries({ queryKey: ['profile'] });
-    await clearAuth();
+    await performSessionCleanup({
+      removeProfileQuery: () => queryClient.removeQueries({ queryKey: ['profile'] }),
+      clearAuth,
+      setBiometricEnabled,
+    });
     router.replace('/welcome');
   };
 
@@ -144,9 +151,11 @@ export default function AccountSettingsMenu() {
     }
   };
 
-  const handleConfirmDeleteAccount = () => {
-    // API not available yet — confirm shell only
-    setDeleteModalVisible(false);
+  const handleConfirmDeleteAccount = (password?: string) => {
+    deleteAccount(
+      { confirmText: DELETE_CONFIRM_WORD, password },
+      { onSuccess: () => setDeleteModalVisible(false) },
+    );
   };
 
   return (
@@ -336,6 +345,7 @@ export default function AccountSettingsMenu() {
         visible={deleteModalVisible}
         onClose={() => setDeleteModalVisible(false)}
         onConfirm={handleConfirmDeleteAccount}
+        isLoading={isDeletingAccount}
       />
 
       <HomeLocationFormModal

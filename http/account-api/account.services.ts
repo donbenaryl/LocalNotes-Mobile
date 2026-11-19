@@ -33,6 +33,7 @@ import type {
   PhoneVerifyDTO,
   ContactsMatchDTO,
   ContactMatchPersonDAO,
+  DeleteAccountDTO,
 } from "./types";
 import type { UnifiedSearchPersonDAO } from "../search-api/type";
 
@@ -46,6 +47,13 @@ class AccountService extends AppHttpService {
     return await this.SendRequest<profileItemDAO>({
       method: "get",
       path: "/profile",
+    });
+  }
+  async deleteAccount(dto: DeleteAccountDTO) {
+    return await this.SendRequest<null, DeleteAccountDTO>({
+      method: "delete",
+      path: "/delete-account",
+      body: dto,
     });
   }
   async completeOnboarding(dto: completeOnboardingDTO) {

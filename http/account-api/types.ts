@@ -157,6 +157,8 @@ export interface completeOnboardingIndividualDTO {
 }
 
 export type completeOnboardingDTO = completeOnboardingIndividualDTO | FormData;
+
+export type DeleteAccountDTO = { confirm: string; password?: string };
 export interface topCreatorItem {
   id: string;
   name: string;
