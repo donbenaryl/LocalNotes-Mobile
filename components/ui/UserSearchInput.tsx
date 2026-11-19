@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   Text,
@@ -13,6 +14,13 @@ import { Badge } from '@/components/ui/Badge';
 import { TextInput } from '@/components/ui/TextInput';
 import accountService from '@/http/account-api/account.services';
 import type { searchUserDAO } from '@/http/account-api/types';
+import { resolveImageUrl } from '@/utils/httpHelpers';
+
+export interface ShareInfo {
+  title: string;
+  subtitle?: string;
+  imageUrl?: string | null;
+}
 
 interface UserSearchInputProps {
   selectedUsers: searchUserDAO[];
@@ -25,6 +33,8 @@ interface UserSearchInputProps {
   resultsClassName?: string;
   /** Caps the height of the selected-users area so it scrolls instead of growing its container. */
   selectedClassName?: string;
+  /** Optional preview of the content being shared. */
+  shareInfo?: ShareInfo | null;
 }
 
 export function UserSearchInput({
@@ -36,6 +46,7 @@ export function UserSearchInput({
   showSelectedLabel = true,
   resultsClassName = 'max-h-40',
   selectedClassName,
+  shareInfo,
 }: UserSearchInputProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
@@ -87,8 +98,47 @@ export function UserSearchInput({
     setShowResults(false);
   };
 
+  const resolvedShareImage = resolveImageUrl(shareInfo?.imageUrl ?? undefined);
+
   return (
     <View className={className} style={{ flexShrink: 1, minHeight: 0 }}>
+      {shareInfo ? (
+        <View className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-soft/60 px-3 py-2.5 dark:border-gray-700 dark:bg-gray-800/60">
+          {resolvedShareImage ? (
+            <Image
+              source={{ uri: resolvedShareImage }}
+              className="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-700"
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="h-12 w-12 items-center justify-center rounded-lg bg-brand/10">
+              <Text className="font-geist-bold text-sm text-brand">
+                {shareInfo.title.slice(0, 1).toUpperCase()}
+              </Text>
+            </View>
+          )}
+          <View className="min-w-0 flex-1">
+            <Text className="font-geist text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+              {t('share.sharingLabel')}
+            </Text>
+            <Text
+              className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+              numberOfLines={1}
+            >
+              {shareInfo.title}
+            </Text>
+            {shareInfo.subtitle ? (
+              <Text
+                className="font-geist text-xs text-gray-500 dark:text-gray-400"
+                numberOfLines={2}
+              >
+                {shareInfo.subtitle}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
+
       <View className="flex-row items-end gap-2">
         <View className="flex-1">
           <TextInput

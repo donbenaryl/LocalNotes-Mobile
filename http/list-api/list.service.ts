@@ -77,12 +77,22 @@ class ListService extends AppHttpService{
         path:`/${listId}/save`,
       })
     }
-     async shareList(listId:string, medium:string | null){
+     async shareList(
+      listId: string,
+      body: { medium?: string | null; user_ids?: string[] } = {},
+    ){
       return await this.SendRequest({
         method:"post",
         path:`/${listId}/share`,
-        body: { medium }
+        body,
       })
+    }
+    async shareListItem(itemId: string, userIds: string[]) {
+      return await this.SendRequest({
+        method: "post",
+        path: `/items/${itemId}/share`,
+        body: { user_ids: userIds },
+      });
     }
         async likeUnlikeList(listId:string){
       return await this.SendRequest({

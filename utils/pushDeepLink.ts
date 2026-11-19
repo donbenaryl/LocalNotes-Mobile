@@ -44,9 +44,14 @@ export function resolveDeepLinkPath(rawLink: string | null | undefined): string 
   if (!link) return null;
 
   if (link.startsWith('/lists/')) return null;
+  if (link.startsWith('/notes/')) return null;
   if (link.startsWith('/profile/')) {
     const userId = link.replace('/profile/', '').split('/')[0];
     if (userId) return withViewOrigin(`/profile/${userId}`, 'notification');
+  }
+  if (link.startsWith('/business/')) {
+    const businessId = link.replace('/business/', '').split('/')[0]?.split('?')[0];
+    if (businessId) return withViewOrigin(`/business/${businessId}`, 'notification');
   }
   if (link.startsWith('/home/spotlight')) return '/(app)/(tabs)/home/spotlight';
   if (link.startsWith('/home/offers')) return '/(app)/(tabs)/home/offers';

@@ -23,6 +23,8 @@ interface CardHeroProps {
   titleSize?: string;
   /** Subtitle text size class — e.g. `text-sm` or `text-md` */
   subtitleSize?: string;
+  /** Optional node rendered beside the title (e.g. verified badge). */
+  titleAccessory?: ReactNode;
   topLeft?: ReactNode;
   topRight?: ReactNode;
   /** Opens card detail when the hero image/title is tapped (subtitle stays interactive). */
@@ -129,12 +131,42 @@ export function CardHero({
   aspectClassName = "aspect-[16/12]",
   titleSize = "text-3xl",
   subtitleSize = "text-md",
+  titleAccessory,
   topLeft,
   topRight,
   onPress,
   className,
 }: CardHeroProps) {
   const gradientRgb = useImageGradientColor(imageUrl);
+
+  const titleText = (
+    <Text
+      className={twMerge(
+        "font-geist-bold capitalize text-white flex-1",
+        titleSize,
+      )}
+      numberOfLines={2}
+    >
+      {title}
+    </Text>
+  );
+
+  const titleRow = title ? (
+    <View className="flex-row items-center gap-1.5">
+      {onPress ? (
+        <Pressable
+          onPress={onPress}
+          accessibilityRole="button"
+          className="min-w-0 flex-1 cursor-pointer"
+        >
+          {titleText}
+        </Pressable>
+      ) : (
+        <View className="min-w-0 flex-1">{titleText}</View>
+      )}
+      {titleAccessory}
+    </View>
+  ) : null;
 
   return (
     <View
@@ -181,29 +213,7 @@ export function CardHero({
       ) : null}
 
       <View className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-3.5 pt-8" pointerEvents="box-none">
-        {title ? (
-          onPress ? (
-            <Pressable onPress={onPress} accessibilityRole="button" className="cursor-pointer">
-              <Text
-                className={twMerge(
-                  "font-geist-bold capitalize text-white",
-                  titleSize,
-                )}
-              >
-                {title}
-              </Text>
-            </Pressable>
-          ) : (
-            <Text
-              className={twMerge(
-                "font-geist-bold capitalize text-white",
-                titleSize,
-              )}
-            >
-              {title}
-            </Text>
-          )
-        ) : null}
+        {titleRow}
 
         {subtitleNode ? (
           <View className={title ? "mt-0.5" : undefined} pointerEvents="auto">

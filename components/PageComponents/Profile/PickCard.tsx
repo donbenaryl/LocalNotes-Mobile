@@ -1,16 +1,28 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { BadgeCheck, Bookmark, List } from "lucide-react-native";
+import {
+  BadgeCheck,
+  Bookmark,
+  Edit,
+  Flag,
+  List,
+  Share2,
+  Trash2,
+} from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { CardHero } from "@/components/ui/CardHero";
-import { CardOptionsMenu } from "@/components/ui/CardOptionsMenu";
+import {
+  CardOptionsMenu,
+  type CardOptionsMenuItem,
+} from "@/components/ui/CardOptionsMenu";
 import { ConfirmDeleteModal } from "@/components/ui/ConfirmDeleteModal";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
-import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
+import { ShareToUsersSheet } from "@/components/ui/ShareToUsersSheet";
+import { ReportUserSheet } from "@/components/PageComponents/Safety/ReportUserSheet";
 import { PickDetailModal } from "./PickDetailModal";
 import { PickFormModal } from "./PickFormModal";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -84,8 +96,6 @@ function formatLocationLabel(location: ListItemPublic["location"]): string | nul
 }
 
 function PickCardOwnerRow({ data }: { data: ListItemPublic }) {
-  const { t } = useTranslation();
-
   if (!data.owner && data.list_usage_count <= 0) return null;
 
   return (
@@ -144,6 +154,10 @@ function PickCardBody({
   const bodyPaddingClass =
     !heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1";
 
+  const verifiedBadge = data.is_verified ? (
+    <BadgeCheck size={14} color="#FF6B1A" />
+  ) : null;
+
   return (
     <View className="w-full">
       {heroImageUrl ? (
@@ -151,6 +165,7 @@ function PickCardBody({
           imageUrl={heroImageUrl}
           title={data.business_name ?? ""}
           onPress={onOpenDetail}
+          titleAccessory={verifiedBadge}
           subtitleNode={
             data.categories.length > 0 ? (
               <PickCardCategoriesScroll
@@ -168,19 +183,14 @@ function PickCardBody({
 
       <View className={bodyPaddingClass}>
         {showTitleInBody ? (
-          <View
-            className={
-              padForMatchOverlay
-                ? "flex-row items-center gap-1.5"
-                : "flex-row items-center gap-1.5 pr-16"
-            }
-          >
+          <View className="flex-row items-center gap-1.5 pr-10">
             <Text
               className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
               numberOfLines={1}
             >
               {data.business_name}
             </Text>
+            {verifiedBadge}
           </View>
         ) : null}
 
@@ -239,13 +249,19 @@ export function PickCard({
   // Hidden on your own picks; otherwise always shown, with a missing score as 0%.
   const showMatch = !data.is_owner;
   const personalityMatch = getEmbeddedMatchPercent(data.owner) ?? 0;
+  const shareTitle =
+    data.business_name?.trim() || t("profile.picks.untitled");
+  const primaryImageUrl = thumbnails[0]
+    ? (resolveImageUrl(thumbnails[0].url) ?? thumbnails[0].url)
+    : null;
 
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isFavorite, setIsFavorite] = useState(data.is_favorite ?? false);
-  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     setIsFavorite(data.is_favorite ?? false);
@@ -274,18 +290,72 @@ export function PickCard({
     onRefresh?.();
   };
 
-  const handleToggleFavorite = async () => {
+  const handleToggleFavorite = useCallback(async () => {
     const nextFavorite = !isFavorite;
     setIsFavorite(nextFavorite);
-    setIsTogglingFavorite(true);
     const { error } = await listService.setListItemFavorite(data.id, nextFavorite);
-    setIsTogglingFavorite(false);
 
     if (error) {
       setIsFavorite(!nextFavorite);
       showToast({ type: "error", message: error.message ?? t("profile.picks.favoriteError") });
     }
-  };
+  }, [data.id, isFavorite, showToast, t]);
+
+  const menuItems = useMemo((): CardOptionsMenuItem[] => {
+    const favoriteItem: CardOptionsMenuItem = {
+      kind: "action",
+      key: "favorite",
+      label: isFavorite ? t("profile.picks.saved") : t("profile.picks.save"),
+      icon: Bookmark,
+      variant: isFavorite ? "brand" : "default",
+      onPress: () => void handleToggleFavorite(),
+    };
+
+    const shareItem: CardOptionsMenuItem = {
+      kind: "action",
+      key: "share",
+      label: t("listDetail.share"),
+      icon: Share2,
+      onPress: () => setShareOpen(true),
+    };
+
+    if (canManage) {
+      return [
+        {
+          kind: "action",
+          key: "edit",
+          label: t("profile.lists.edit"),
+          icon: Edit,
+          onPress: () => setIsEditOpen(true),
+        },
+        favoriteItem,
+        shareItem,
+        {
+          kind: "action",
+          key: "delete",
+          label: t("profile.lists.delete"),
+          icon: Trash2,
+          variant: "destructive",
+          onPress: () => setIsDeleteOpen(true),
+        },
+      ];
+    }
+
+    const items: CardOptionsMenuItem[] = [favoriteItem, shareItem];
+
+    if (!data.is_owner && data.owner) {
+      items.push({
+        kind: "action",
+        key: "report",
+        label: t("listDetail.report"),
+        icon: Flag,
+        variant: "destructive",
+        onPress: () => setReportOpen(true),
+      });
+    }
+
+    return items;
+  }, [canManage, data.is_owner, data.owner, handleToggleFavorite, isFavorite, t]);
 
   const actionIconBackingStyle = {
     backgroundColor: colorScheme === "dark" ? "rgba(17,24,39,0.8)" : "rgba(255,255,255,0.9)",
@@ -317,46 +387,11 @@ export function PickCard({
             </View>
           ) : null}
 
-          <View className="absolute right-2 top-2 z-10 flex-row items-center gap-1">
-            {!data.is_owner && data.owner ? (
-              <ReportFlagButton
-                userId={data.owner.id}
-                displayName={data.owner.name}
-                contentType="pick"
-                contentId={data.id}
-                size={14}
-                className="rounded-full p-1.5 cursor-pointer"
-                style={actionIconBackingStyle}
-              />
-            ) : null}
-            {!canManage && (
-              <Pressable
-                onPress={() => void handleToggleFavorite()}
-                disabled={isTogglingFavorite}
-                className="rounded-full p-1.5 cursor-pointer"
-                style={actionIconBackingStyle}
-              >
-                <Bookmark
-                  size={14}
-                  color={isFavorite ? "#EF4444" : "#374151"}
-                  fill={isFavorite ? "#EF4444" : "transparent"}
-                />
-              </Pressable>
-            )}
-            {data.is_verified ? (
-              <BadgeCheck size={14} color="#FF6B1A" />
-            ) : null}
-            {canManage && (
-              <View className="rounded-full" style={actionIconBackingStyle}>
-                <CardOptionsMenu
-                  onPin={() => void handleToggleFavorite()}
-                  pinIcon={Bookmark}
-                  onEdit={() => setIsEditOpen(true)}
-                  onDelete={() => setIsDeleteOpen(true)}
-                  isDeleting={isDeleting}
-                />
-              </View>
-            )}
+          <View
+            className="absolute right-2 top-2 z-10 rounded-full"
+            style={actionIconBackingStyle}
+          >
+            <CardOptionsMenu items={menuItems} isDeleting={isDeleting} />
           </View>
         </WhiteBox>
       </Pressable>
@@ -368,7 +403,7 @@ export function PickCard({
         viewOrigin={viewOrigin}
       />
 
-      {canManage && (
+      {canManage ? (
         <>
           <PickFormModal
             visible={isEditOpen}
@@ -390,7 +425,29 @@ export function PickCard({
             message={t("profile.picks.deletePickMessage")}
           />
         </>
-      )}
+      ) : null}
+
+      {!data.is_owner && data.owner ? (
+        <ReportUserSheet
+          visible={reportOpen}
+          onClose={() => setReportOpen(false)}
+          userId={data.owner.id}
+          displayName={data.owner.name}
+          contentType="pick"
+          contentId={data.id}
+        />
+      ) : null}
+
+      <ShareToUsersSheet
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        target={data.id ? { kind: "pick", itemId: data.id } : null}
+        shareInfo={{
+          title: shareTitle,
+          subtitle: data.description ?? undefined,
+          imageUrl: primaryImageUrl,
+        }}
+      />
     </>
   );
 }

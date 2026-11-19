@@ -108,10 +108,11 @@ class NotesService extends AppHttpService {
     });
   }
 
-  async shareNote(noteId: string) {
+  async shareNote(noteId: string, userIds?: string[]) {
     return await this.SendRequest<null>({
       method: "post",
       path: `/${noteId}/share`,
+      body: userIds?.length ? { user_ids: userIds } : undefined,
     });
   }
 

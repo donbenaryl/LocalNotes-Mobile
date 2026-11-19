@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import {
   Pressable,
-  Share,
   Text,
   View,
 } from "react-native";
@@ -18,6 +17,7 @@ import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { CardHero } from "@/components/ui/CardHero";
 import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
+import { ShareToUsersSheet } from "@/components/ui/ShareToUsersSheet";
 import { toast } from "@/components/ui/Toast";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import notesService from "@/http/notes-api/notes.service";
@@ -191,16 +191,14 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
     }
   }, [isLiking, isLiked, likes, offer.id, applyLikePatch]);
 
-  const handleShare = useCallback(async () => {
-    try {
-      const message = [offer.title, offer.content].filter(Boolean).join("\n");
-      await Share.share({ message, title: offer.title });
-    } catch (error) {
-      console.error("Failed to share offer:", error);
-    }
-  }, [offer.title, offer.content]);
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const handleShare = useCallback(() => {
+    setShareOpen(true);
+  }, []);
 
   return (
+    <>
     <Pressable onPress={handlePress} accessibilityRole="button">
       <WhiteBox className="overflow-hidden p-0">
         {hasHero ? (
@@ -323,7 +321,10 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
           </Pressable>
 
           <Pressable
-            onPress={() => void handleShare()}
+            onPress={(e) => {
+              e.stopPropagation?.();
+              handleShare();
+            }}
             accessibilityRole="button"
             accessibilityLabel={t("listDetail.share")}
             className="cursor-pointer flex-row items-center gap-1.5"
@@ -357,6 +358,18 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
         </View>
       </WhiteBox>
     </Pressable>
+
+    <ShareToUsersSheet
+      visible={shareOpen}
+      onClose={() => setShareOpen(false)}
+      target={{ kind: "offer", noteId: offer.id }}
+      shareInfo={{
+        title: offer.title ?? t("share.sheetTitle"),
+        subtitle: offer.content ?? undefined,
+        imageUrl: imageSrc,
+      }}
+    />
+    </>
   );
 }
 

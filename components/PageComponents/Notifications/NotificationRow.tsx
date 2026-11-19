@@ -9,6 +9,7 @@ import {
   Bell,
   Building2,
   BellRing,
+  Share2,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
@@ -44,6 +45,12 @@ function getBadgeConfig(type: string): BadgeConfig {
       return { icon: Building2, bgClass: 'bg-emerald-700' };
     case 'BUSINESS_CLAIM_REJECTED':
       return { icon: Building2, bgClass: 'bg-rose-600' };
+    case 'LIST_SHARED_WITH_YOU':
+    case 'PROFILE_SHARED_WITH_YOU':
+    case 'PICK_SHARED_WITH_YOU':
+    case 'OFFER_SHARED_WITH_YOU':
+    case 'PLACE_SHARED_WITH_YOU':
+      return { icon: Share2, bgClass: 'bg-violet-600' };
     default:
       return { icon: Bell, bgClass: 'bg-gray-600' };
   }
@@ -71,6 +78,16 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
         return t('notifications.actions.spotlightFeatured');
       case 'BUSINESS_VIEWED':
         return t('notifications.actions.businessViewed');
+      case 'LIST_SHARED_WITH_YOU':
+        return t('notifications.actions.sharedList');
+      case 'PROFILE_SHARED_WITH_YOU':
+        return t('notifications.actions.sharedProfile');
+      case 'PICK_SHARED_WITH_YOU':
+        return t('notifications.actions.sharedPick');
+      case 'OFFER_SHARED_WITH_YOU':
+        return t('notifications.actions.sharedOffer');
+      case 'PLACE_SHARED_WITH_YOU':
+        return t('notifications.actions.sharedPlace');
       default:
         return t('notifications.actions.fallback');
     }
@@ -80,7 +97,8 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
     !!item.related_list?.name &&
     (item.notification_type === 'LIST_WAS_SAVED' ||
       item.notification_type === 'LIST_WAS_LIKED' ||
-      item.notification_type === 'SPOTLIGHT_FEATURED');
+      item.notification_type === 'SPOTLIGHT_FEATURED' ||
+      item.notification_type === 'LIST_SHARED_WITH_YOU');
 
   return (
     <TouchableOpacity

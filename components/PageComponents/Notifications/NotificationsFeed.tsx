@@ -25,6 +25,12 @@ import listService from '@/http/list-api/list.service';
 import type { notificationItemDAO } from '@/http/account-api/types';
 import type { ListItemPublic } from '@/http/list-api/types';
 import { hydrateUserProfile } from '@/services/authBootstrap';
+import {
+  extractListIdFromDeepLink,
+  extractNoteIdFromDeepLink,
+  navigateFromPushData,
+} from '@/services/pushNotifications';
+import { useOfferDetailModalStore } from '@/stores/useOfferDetailModalStore';
 import { withViewOrigin } from '@/utils/viewTracking';
 
 const FILTERS: { id: NotificationFilter; labelKey: string }[] = [
@@ -38,6 +44,7 @@ const FILTERS: { id: NotificationFilter; labelKey: string }[] = [
 const PICK_NOTIFICATION_TYPES = new Set([
   'FOLLOWED_USER_NEW_LIST_ITEM',
   'FOLLOWED_USER_LIST_ITEM_UPDATED',
+  'PICK_SHARED_WITH_YOU',
 ]);
 
 export default function NotificationsFeed() {
@@ -91,7 +98,28 @@ export default function NotificationsFeed() {
       return;
     }
 
-    if (item.related_list?.id) {
+    const deepLink = item.deep_link?.trim() ?? '';
+    const noteIdFromLink = extractNoteIdFromDeepLink(deepLink);
+    if (noteIdFromLink || item.notification_type === 'OFFER_SHARED_WITH_YOU') {
+      const noteId = noteIdFromLink;
+      if (noteId) {
+        useOfferDetailModalStore.getState().open(noteId, 'notification');
+        return;
+      }
+    }
+
+    if (deepLink.startsWith('/business/') || deepLink.startsWith('/profile/')) {
+      navigateFromPushData({ deepLink });
+      return;
+    }
+
+    const listIdFromLink = extractListIdFromDeepLink(deepLink);
+    if (listIdFromLink) {
+      setListModalId(listIdFromLink);
+      return;
+    }
+
+    if (item.related_list?.id && item.notification_type !== 'PICK_SHARED_WITH_YOU') {
       setListModalId(item.related_list.id);
       return;
     }
@@ -112,7 +140,9 @@ export default function NotificationsFeed() {
         setPickDetail(response.data.data);
       } catch (error) {
         console.error('Failed to load pick from notification:', error);
-        if (item.related_account?.id) {
+        if (item.related_list?.id) {
+          setListModalId(item.related_list.id);
+        } else if (item.related_account?.id) {
           router.push(
             withViewOrigin(
               `/profile/${item.related_account.id}`,

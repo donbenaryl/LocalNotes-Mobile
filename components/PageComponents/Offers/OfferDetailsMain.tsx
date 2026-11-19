@@ -28,6 +28,7 @@ import { AppRefreshControl } from "@/components/ui/AppRefreshControl";
 import { ImageFullScreen, type MediaItem } from "@/components/ui/ImageFullScreen";
 import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { Badge } from "@/components/ui/Badge";
+import { ShareToUsersSheet } from "@/components/ui/ShareToUsersSheet";
 import { usePlayableVideoUri } from "@/hooks/usePlayableVideoUri";
 import notesService from "@/http/notes-api/notes.service";
 import type { NoteDAO } from "@/http/notes-api/types";
@@ -213,6 +214,7 @@ export function OfferDetailsMain({
   const [isLiking, setIsLiking] = useState(false);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [isDownloadingQr, setIsDownloadingQr] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const qrShareCardRef = useRef<View>(null);
 
   const viewedNoteIdRef = useRef<string | null>(null);
@@ -337,14 +339,9 @@ export function OfferDetailsMain({
     }
   }, [noteId, isLiking, isLiked, likes, applyLikePatch]);
 
-  const handleShare = useCallback(async () => {
+  const handleShare = useCallback(() => {
     if (!offer) return;
-    try {
-      const message = [offer.title, offer.content].filter(Boolean).join("\n");
-      await Share.share({ message, title: offer.title });
-    } catch (error) {
-      console.error("Failed to share offer:", error);
-    }
+    setShareOpen(true);
   }, [offer]);
 
   const handleBusinessPress = useCallback(() => {
@@ -789,7 +786,7 @@ export function OfferDetailsMain({
                   </Pressable>
 
                   <Pressable
-                    onPress={() => void handleShare()}
+                    onPress={handleShare}
                     accessibilityRole="button"
                     accessibilityLabel={t("listDetail.share")}
                     className="cursor-pointer flex-row items-center gap-1.5"
@@ -855,6 +852,21 @@ export function OfferDetailsMain({
           />
         </View>
       ) : null}
+
+      <ShareToUsersSheet
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        target={noteId ? { kind: "offer", noteId } : null}
+        shareInfo={
+          offer
+            ? {
+                title: offer.title || t("offers.detail.title"),
+                subtitle: offer.content ?? undefined,
+                imageUrl: offer.imageUrl ?? null,
+              }
+            : null
+        }
+      />
     </>
   );
 }

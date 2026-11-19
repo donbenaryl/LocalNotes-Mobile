@@ -286,6 +286,7 @@ export interface notificationItemDAO {
   related_list: RelatedList | null;
   related_list_item: RelatedListItem | null;
   text: string | null;
+  deep_link?: string | null;
   created_at: string;
   id: string;
   is_read: boolean;

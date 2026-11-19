@@ -1,9 +1,11 @@
-import { Image, Pressable, Share, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Bookmark, Navigation, Share2 } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
+import { ShareToUsersSheet } from '@/components/ui/ShareToUsersSheet';
 import { useListFormStore } from '@/stores/useListFormStore';
 import { useToastStore } from '@/stores/useToastStore';
 import { mapSmartPickResultToPickDraft } from '@/utils/listPickMappers';
@@ -54,14 +56,13 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
     router.push('/(app)/(stack)/lists/new' as never);
   };
 
-  const handleShare = async () => {
-    try {
-      await Share.share({
-        message: reasonText ? `${name} — ${reasonText}` : name,
-      });
-    } catch {
-      // User dismissed the share sheet — nothing to do.
-    }
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const pickId = pick?.id;
+  const businessId = pick?.business?.id;
+
+  const handleShare = () => {
+    setShareOpen(true);
   };
 
   return (
@@ -156,7 +157,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
           />
           <LocalNotesButton
             label=""
-            onPress={() => void handleShare()}
+            onPress={handleShare}
             variant="light"
             size="md"
             leftIcon={
@@ -165,13 +166,28 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
                 color={colorScheme === 'dark' ? '#FFF' : '#191B1C'}
               />
             }
-    
             isRounded
             isWidthFull={false}
           />
-  
         </View>
       </View>
+
+      <ShareToUsersSheet
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        target={
+          pickId
+            ? { kind: 'pick', itemId: pickId }
+            : businessId
+              ? { kind: 'business', businessId }
+              : null
+        }
+        shareInfo={{
+          title: name,
+          subtitle: reasonText ?? undefined,
+          imageUrl: photoUrl,
+        }}
+      />
     </View>
   );
 }

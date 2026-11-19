@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   InteractionManager,
   Platform,
-  Share,
   Text,
   View,
 } from "react-native";
@@ -19,8 +18,8 @@ import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import type { ViewOrigin } from "@/http/types";
-import { withViewOrigin } from "@/utils/viewTracking";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import { ShareToUsersSheet } from "@/components/ui/ShareToUsersSheet";
 import {
   SectionPager,
   type SectionPagerPage,
@@ -275,6 +274,7 @@ function MainProfileContent({
   const [actionsOpen, setActionsOpen] = useState(false);
   const [blockOpen, setBlockOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const displayName =
     (isBusinessPage ? business?.name : profile?.name)?.trim() ||
@@ -416,41 +416,9 @@ function MainProfileContent({
     }
   }, [router]);
 
-  const handleShare = useCallback(async () => {
-    if (isBusinessPage) {
-      if (!primaryBusinessId) return;
-      try {
-        await Share.share({
-          message: `${displayName} on LocalNotes\n${withViewOrigin(
-            `/businesses/${primaryBusinessId}`,
-            "share_link",
-          )}`,
-        });
-      } catch {
-        // User dismissed share sheet.
-      }
-      return;
-    }
-
-    if (!profileUserId) return;
-    const username = profile?.username ? `@${profile.username}` : displayName;
-    try {
-      await Share.share({
-        message: `${username} on LocalNotes\n${withViewOrigin(
-          `/profile/${profileUserId}`,
-          "share_link",
-        )}`,
-      });
-    } catch {
-      // User dismissed share sheet.
-    }
-  }, [
-    displayName,
-    isBusinessPage,
-    primaryBusinessId,
-    profile?.username,
-    profileUserId,
-  ]);
+  const handleShare = useCallback(() => {
+    setShareOpen(true);
+  }, []);
 
   const blockMutation = useMutation({
     mutationFn: () => accountService.blockUser(profileUserId),
@@ -549,9 +517,7 @@ function MainProfileContent({
             isOwnProfile={isOwnProfile}
             isBusinessPage={isBusinessPage}
             onEditPress={() => router.push("/(app)/(stack)/edit-profile")}
-            onSharePress={() => {
-              void handleShare();
-            }}
+            onSharePress={handleShare}
             onMorePress={
               showOtherActionsSheet
                 ? () => setActionsOpen(true)
@@ -623,6 +589,29 @@ function MainProfileContent({
           />
         </>
       ) : null}
+
+      <ShareToUsersSheet
+        visible={shareOpen}
+        onClose={() => setShareOpen(false)}
+        target={
+          isBusinessPage && primaryBusinessId
+            ? { kind: "business", businessId: primaryBusinessId }
+            : profileUserId
+              ? { kind: "profile", userId: profileUserId }
+              : null
+        }
+        shareInfo={{
+          title: displayName,
+          subtitle: isBusinessPage
+            ? undefined
+            : profile?.username
+              ? `@${profile.username}`
+              : undefined,
+          imageUrl: isBusinessPage
+            ? business?.logo
+            : profile?.profile_image_url,
+        }}
+      />
     </View>
   );
 }

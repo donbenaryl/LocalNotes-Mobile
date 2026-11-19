@@ -10,6 +10,7 @@ import {
 import listService from '@/http/list-api/list.service';
 import { hydrateUserProfile } from '@/services/authBootstrap';
 import { useListDetailModalStore } from '@/stores/useListDetailModalStore';
+import { useOfferDetailModalStore } from '@/stores/useOfferDetailModalStore';
 import { parseRichPushData, type RichPushData } from '@/types/pushNotification';
 import { resolveDeepLinkPath } from '@/utils/pushDeepLink';
 
@@ -95,6 +96,13 @@ export function extractListIdFromDeepLink(deepLink: string | null | undefined): 
   return listId || null;
 }
 
+export function extractNoteIdFromDeepLink(deepLink: string | null | undefined): string | null {
+  const link = deepLink?.trim();
+  if (!link?.startsWith('/notes/')) return null;
+  const noteId = link.replace('/notes/', '').split('/')[0]?.split('?')[0];
+  return noteId || null;
+}
+
 function resolveDeepLink(data: RichPushData): Href | null {
   return resolveDeepLinkPath(data.deepLink) as Href | null;
 }
@@ -120,6 +128,13 @@ export function navigateFromPushData(data: RichPushData): void {
   if (listId) {
     router.push('/(app)/(tabs)/home' as Href);
     useListDetailModalStore.getState().open(listId, 'notification');
+    return;
+  }
+
+  const noteId = extractNoteIdFromDeepLink(link);
+  if (noteId) {
+    router.push('/(app)/(tabs)/home/offers' as Href);
+    useOfferDetailModalStore.getState().open(noteId, 'notification');
     return;
   }
 

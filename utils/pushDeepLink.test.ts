@@ -42,7 +42,9 @@ describe('resolveDeepLinkPath', () => {
     expect(resolveDeepLinkPath('/notifications')).toBe('/(app)/(stack)/notifications');
     expect(resolveDeepLinkPath('/claim-business')).toBe('/(app)/(stack)/claim-business');
     expect(resolveDeepLinkPath('/profile/u1')).toBe('/profile/u1?origin=notification');
+    expect(resolveDeepLinkPath('/business/b1')).toBe('/business/b1?origin=notification');
     expect(resolveDeepLinkPath('/lists/abc')).toBeNull();
+    expect(resolveDeepLinkPath('/notes/n1')).toBeNull();
     expect(resolveDeepLinkPath('')).toBeNull();
     expect(resolveDeepLinkPath(undefined)).toBeNull();
   });

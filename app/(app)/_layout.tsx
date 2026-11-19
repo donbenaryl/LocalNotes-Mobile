@@ -1,10 +1,12 @@
 import { Redirect, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { OfferDetailsMain } from '@/components/PageComponents/Offers/OfferDetailsMain';
 import { ListDetailModal } from '@/components/ui/ListDetailModal';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useListDetailModalStore } from '../../stores/useListDetailModalStore';
+import { useOfferDetailModalStore } from '../../stores/useOfferDetailModalStore';
 import { hydrateUserProfile } from '../../services/authBootstrap';
 
 export default function AppLayout() {
@@ -15,6 +17,9 @@ export default function AppLayout() {
   const listModalId = useListDetailModalStore((s) => s.listId);
   const listModalViewOrigin = useListDetailModalStore((s) => s.viewOrigin);
   const closeListModal = useListDetailModalStore((s) => s.close);
+  const offerModalId = useOfferDetailModalStore((s) => s.noteId);
+  const offerModalViewOrigin = useOfferDetailModalStore((s) => s.viewOrigin);
+  const closeOfferModal = useOfferDetailModalStore((s) => s.close);
   usePushNotifications();
 
   useEffect(() => {
@@ -67,6 +72,12 @@ export default function AppLayout() {
         listId={listModalId}
         onClose={closeListModal}
         viewOrigin={listModalViewOrigin ?? undefined}
+      />
+      <OfferDetailsMain
+        visible={Boolean(offerModalId)}
+        noteId={offerModalId ?? undefined}
+        onClose={closeOfferModal}
+        viewOrigin={offerModalViewOrigin ?? undefined}
       />
     </>
   );

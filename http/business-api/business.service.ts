@@ -169,6 +169,13 @@ class BusinessService extends AppHttpService{
             path: `/branches/${branchId}`,
         });
     }
+    async shareBusiness(businessId: string, userIds: string[]) {
+      return await this.SendRequest({
+        method: "post",
+        path: `/${businessId}/share`,
+        body: { user_ids: userIds },
+      });
+    }
     async getBusinessById(businessId: string) {
         return await this.SendRequest<BusinessItemDAO>({
             method: "get",

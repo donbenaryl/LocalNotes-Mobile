@@ -1,17 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
 import type { RefObject } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Bookmark, Heart, MessageCircle } from "lucide-react-native";
+import { Bookmark, Heart, MessageCircle, Share2 } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { ListCommentsSheet } from "@/components/PageComponents/List/ListDetails/ListCommentsSheet";
 import { PersonalityMatchPill } from "@/components/ui/PersonalityMatchPill";
+import { getPickImageUrl } from "@/components/ui/ListPickSection";
+import { ShareToUsersSheet } from "@/components/ui/ShareToUsersSheet";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO } from "@/http/list-api/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { ScreenRect } from "@/types/layout";
 import { cn } from "@/utils/cn";
+import { resolveImageUrl } from "@/utils/httpHelpers";
+
+function getListShareImageUrl(list: ListItemDAO): string | null {
+  const cover = resolveImageUrl(list.image_url);
+  if (cover) return cover;
+
+  for (const item of list.items ?? []) {
+    const itemImage = getPickImageUrl(item);
+    if (itemImage) return itemImage;
+  }
+
+  return null;
+}
 
 interface ListEngagementRowProps {
   list: ListItemDAO;
@@ -43,6 +58,7 @@ export function ListEngagementRow({
   const [isSaving, setIsSaving] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const [commentsOriginRect, setCommentsOriginRect] = useState<ScreenRect | null>(
     null,
   );
@@ -248,6 +264,16 @@ export function ListEngagementRow({
           </Text>
         </Pressable>
 
+        <Pressable
+          onPress={() => setIsShareOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={t("share.sheetTitle")}
+          className="cursor-pointer flex-row items-center gap-1.5"
+          hitSlop={4}
+        >
+          <Share2 size={13} color={iconMuted} />
+        </Pressable>
+
         <View className="flex-1" />
 
         {matchPercent !== undefined ? (
@@ -276,6 +302,17 @@ export function ListEngagementRow({
         }}
         onCommentCountChange={handleCommentCountChange}
         originRect={commentsOriginRect}
+      />
+
+      <ShareToUsersSheet
+        visible={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        target={{ kind: "list", listId: list.id }}
+        shareInfo={{
+          title: list.name,
+          subtitle: list.account?.name,
+          imageUrl: getListShareImageUrl(list),
+        }}
       />
     </>
   );

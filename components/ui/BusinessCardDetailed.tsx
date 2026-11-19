@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { ChevronUp, MapPin } from "lucide-react-native";
+import { ChevronUp, MapPin, Share2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { CardHero } from "@/components/ui/CardHero";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { ListAuthorRow } from "@/components/ui/ListAuthorRow";
 import { ScrollableContainer } from "@/components/ui/ScrollableContainer";
+import { ShareToUsersSheet } from "@/components/ui/ShareToUsersSheet";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useThemeStore } from "@/stores/useThemeStore";
@@ -90,6 +91,7 @@ export function BusinessCardDetailed({
     onFollowChange,
   );
   const [branchesExpanded, setBranchesExpanded] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     setBranchesExpanded(false);
@@ -108,6 +110,7 @@ export function BusinessCardDetailed({
     Boolean(currentUserId) && business.owner_account_id === currentUserId;
   const listCount = business.list_count ?? 0;
   const followerCount = business.follower_count ?? 0;
+  const shareCount = business.share_count ?? 0;
   const isDark = theme === "dark";
   const iconColor = isDark ? "#9CA3AF" : "#6B7280";
   const showHeroFollow = Boolean(logoUrl) && !isOwnBusiness;
@@ -120,7 +123,12 @@ export function BusinessCardDetailed({
     router.push(withViewOrigin(`/business/${business.id}`, viewOrigin) as never);
   };
 
+  const handleShare = useCallback(() => {
+    setShareOpen(true);
+  }, []);
+
   return (
+    <>
     <WhiteBox className="overflow-hidden p-0">
       <Pressable
         onPress={handleOpen}
@@ -269,22 +277,56 @@ export function BusinessCardDetailed({
         </View>
       ) : null}
 
-      <Pressable
-        onPress={handleOpen}
-        accessibilityRole="button"
-        accessibilityLabel={business.name}
+      <View
         className={`flex-row items-center gap-3 px-4 pb-3 ${
           showIdentityBlock || hasLocation ? "pt-1" : "pt-3"
         }`}
       >
-        <Text className="font-geist-medium text-xs text-gray-500 dark:text-gray-400">
-          {t("home.business.listsCount", { count: listCount })}
-        </Text>
-        <Text className="text-xs text-gray-300 dark:text-gray-600">·</Text>
-        <Text className="font-geist-medium text-xs text-gray-500 dark:text-gray-400">
-          {t("home.business.followersCount", { count: followerCount })}
-        </Text>
-      </Pressable>
+        <Pressable
+          onPress={handleOpen}
+          accessibilityRole="button"
+          accessibilityLabel={business.name}
+          className="cursor-pointer flex-row items-center gap-3"
+        >
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+            {t("home.business.listsCount", { count: listCount })}
+          </Text>
+          <Text className="text-sm text-gray-300 dark:text-gray-600">·</Text>
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+            {t("home.business.followersCount", { count: followerCount })}
+          </Text>
+        </Pressable>
+
+        <Text className="text-sm text-gray-300 dark:text-gray-600">·</Text>
+
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation?.();
+            handleShare();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={t("profile.info.shareBusiness")}
+          className="cursor-pointer flex-row items-center gap-1.5"
+          hitSlop={4}
+        >
+          <Share2 size={11} color={iconColor} />
+          {/* <Text className="font-geist-semibold text-sm text-gray-500 dark:text-gray-400">
+            {shareCount}
+          </Text> */}
+        </Pressable>
+      </View>
     </WhiteBox>
+
+    <ShareToUsersSheet
+      visible={shareOpen}
+      onClose={() => setShareOpen(false)}
+      target={{ kind: "business", businessId: business.id }}
+      shareInfo={{
+        title: business.name,
+        subtitle: business.bio ?? undefined,
+        imageUrl: logoUrl,
+      }}
+    />
+    </>
   );
 }

@@ -7,7 +7,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Share,
   Text,
   View,
   useWindowDimensions,
@@ -16,7 +15,6 @@ import {
   ChevronRight,
   MapPin,
   Navigation,
-  Share as ShareIcon,
   X,
 } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -36,7 +34,6 @@ import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
-import { ReportFlagButton } from "@/components/PageComponents/Safety/ReportFlagButton";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { isBusinessAccountType } from "@/utils/businessAccount";
 import type { ViewOrigin } from "@/http/types";
@@ -160,7 +157,6 @@ export function PickDetailModal({
   const { height, width } = useWindowDimensions();
   const isDark = colorScheme === "dark";
   const directionsIconColor = isDark ? "#141413" : "#FFFFFF";
-  const actionIconColor = isDark ? "#E5E7EB" : "#374151";
   const [isImageFullScreenVisible, setIsImageFullScreenVisible] =
     useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -172,7 +168,6 @@ export function PickDetailModal({
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
   const [isListDetailOpen, setIsListDetailOpen] = useState(false);
   const [selectedListId, setSelectedListId] = useState<string | null>(null);
-  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     setPhotoIndex(0);
@@ -331,15 +326,6 @@ export function PickDetailModal({
     openInMaps(data.location.latitude, data.location.longitude, title);
   }, [hasCoords, data.location, title]);
 
-  const handleShare = useCallback(async () => {
-    try {
-      const message = [title, data.description].filter(Boolean).join("\n");
-      await Share.share({ message, title });
-    } catch (error) {
-      console.error("Failed to share pick:", error);
-    }
-  }, [title, data.description]);
-
   const handleCarouselScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (carouselWidth <= 0) return;
@@ -354,7 +340,7 @@ export function PickDetailModal({
   const isImageViewerOpen =
     isImageFullScreenVisible && photos.length > 0;
   const isPickSheetVisible =
-    visible && !isImageViewerOpen && !isListDetailOpen && !reportOpen;
+    visible && !isImageViewerOpen && !isListDetailOpen;
 
   const sheetMaxHeight = Math.max(height, 1) * 0.7;
   const appearsInCount =
@@ -581,8 +567,8 @@ export function PickDetailModal({
             </View>
           ) : null}
 
-          <View className="mt-3.5 flex-row justify-end gap-2.5 px-4">
-            {hasCoords ? (
+          {hasCoords ? (
+            <View className="mt-3.5 flex-row justify-end gap-2.5 px-4">
               <Pressable
                 onPress={handleDirections}
                 accessibilityRole="button"
@@ -593,29 +579,8 @@ export function PickDetailModal({
                   {t("profile.picks.directions")}
                 </Text>
               </Pressable>
-            ) : null}
-
-            {(!data.is_owner && data.owner) ? (
-              <ReportFlagButton
-                userId={data.owner.id}
-                displayName={data.owner.name}
-                contentType="pick"
-                contentId={data.id}
-                size={16}
-                className="h-[46px] w-[46px] cursor-pointer items-center justify-center rounded-full border-[1.5px] border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
-                onOpenChange={setReportOpen}
-              />
-            ) : null}
-
-            <Pressable
-              onPress={() => void handleShare()}
-              accessibilityRole="button"
-              accessibilityLabel={t("listDetail.share")}
-              className="h-[46px] w-[46px] cursor-pointer items-center justify-center rounded-full border-[1.5px] border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
-            >
-              <ShareIcon size={16} color={actionIconColor} />
-            </Pressable>
-          </View>
+            </View>
+          ) : null}
 
           {canClaimBusiness ? (
             <Pressable
@@ -690,6 +655,7 @@ export function PickDetailModal({
           setIsImageFullScreenVisible(false);
         }}
       />
+
     </>
   );
 }

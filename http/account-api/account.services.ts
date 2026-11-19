@@ -101,6 +101,13 @@ class AccountService extends AppHttpService {
       path: `/${userId}/follow`,
     });
   }
+  async shareProfile(userId: string, userIds: string[]) {
+    return await this.SendRequest({
+      method: "post",
+      path: `/${userId}/share`,
+      body: { user_ids: userIds },
+    });
+  }
   async getNotification(dto:notificationDTO) {
     return await this.SendRequest<notificationItemDAO[]>({
       method: "get",
