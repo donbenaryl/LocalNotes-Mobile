@@ -2902,6 +2902,16 @@ const en = {
     termsOfService: 'Terms of Service',
     communityGuidelines: 'Community Guidelines',
   },
+  forceUpdate: {
+    eyebrow: 'New version available',
+    title: 'Update required',
+    message:
+      'A newer version of LocalNotes is required to continue. Update from the store to keep using the app.',
+    updateCta: 'Update now',
+    storeHintIos: 'Opens the App Store',
+    storeHintAndroid: 'Opens Google Play',
+    openStoreError: 'Couldn’t open the store. Try again.',
+  },
 } as const;
 
 export default en;

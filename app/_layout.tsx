@@ -1,6 +1,7 @@
 import '../services/i18n';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
+import type { Href } from 'expo-router';
 import { AppState, type AppStateStatus, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -23,6 +24,10 @@ import { useAccountSettingsStore } from '../stores/useAccountSettingsStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useBiometricStore } from '../stores/useBiometricStore';
 import { ToastViewport } from '../components/ui/Toast';
+import {
+  checkForceUpdateRequired,
+  isForceUpdateScreenActive,
+} from '../utils/appVersionGate';
 import '../global.css';
 
 const queryClient = new QueryClient();
@@ -78,6 +83,9 @@ export default function RootLayout() {
       'change',
       (nextState: AppStateStatus) => {
         const wasActive = appState.current === 'active';
+        const becameActive =
+          appState.current.match(/inactive|background/) &&
+          nextState === 'active';
         appState.current = nextState;
 
         if (wasActive && nextState === 'background') {
@@ -86,6 +94,16 @@ export default function RootLayout() {
           if (isAuthenticated && biometricEnabled) {
             lockSession();
           }
+        }
+
+        if (becameActive) {
+          void (async () => {
+            if (isForceUpdateScreenActive()) return;
+            const forceUpdate = await checkForceUpdateRequired();
+            if (forceUpdate.required) {
+              router.replace('/force-update' as Href);
+            }
+          })();
         }
       },
     );
@@ -108,7 +126,12 @@ export default function RootLayout() {
                   headerShown: false,
                   contentStyle: { backgroundColor: 'transparent' },
                 }}
-              />
+              >
+                <Stack.Screen
+                  name="force-update"
+                  options={{ gestureEnabled: false, animation: 'none' }}
+                />
+              </Stack>
               <ToastViewport />
             </View>
           </QueryClientProvider>
