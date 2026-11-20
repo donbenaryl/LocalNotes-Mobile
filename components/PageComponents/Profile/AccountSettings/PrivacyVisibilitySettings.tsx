@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -57,9 +57,6 @@ export default function PrivacyVisibilitySettings() {
     },
   });
 
-  const handleComingSoon = () => {
-    Alert.alert(t('accountSettings.menu.comingSoon'));
-  };
 
   if (!hydrated) {
     return (
@@ -170,12 +167,6 @@ export default function PrivacyVisibilitySettings() {
                 '/(app)/(stack)/profile/account-settings/blocked-users',
               )
             }
-          />
-          <SettingsNavRow
-            title={t('accountSettings.privacy.hiddenLists')}
-            subtitle={t('accountSettings.privacy.hiddenListsSub')}
-            value="0"
-            onPress={handleComingSoon}
             isLast
           />
         </SettingsSection>

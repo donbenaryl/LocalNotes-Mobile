@@ -3,7 +3,6 @@ import { ProfilePicksTab } from "./ProfilePicksTab";
 import { ProfileAboutTab } from "./ProfileAboutTab";
 import { ProfileOffersTab } from "./ProfileOffersTab";
 import { ProfileReviewsTab } from "./ProfileReviewsTab";
-import { ComingSoon } from "@/components/ui/ComingSoon";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { BusinessAuthorship, ProfileTabCategory } from "@/hooks/useProfileList";
 
@@ -87,17 +86,13 @@ export function ProfileTabPanel({
     return <ProfileReviewsTab userId={userId} isOwnProfile={isOwnProfile} />;
   }
 
-  if (tab === "contributed") {
-    return <ComingSoon />;
-  }
-
   if (tab === "about") {
     return <ProfileAboutTab business={business} />;
   }
 
   if (tab === "offers") {
     if (!businessId) {
-      return <ComingSoon />;
+      return null;
     }
     return <ProfileOffersTab businessId={businessId} />;
   }

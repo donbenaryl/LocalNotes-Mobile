@@ -126,9 +126,6 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
       onPress();
       return;
     }
-    toast.info(t("alerts.comingSoonMessage"), {
-      title: t("alerts.comingSoon"),
-    });
   };
 
   const handleBusinessPress = useCallback(() => {
