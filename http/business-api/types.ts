@@ -198,6 +198,43 @@ export type BusinessRedeemsStatsDAO = {
   total_redeems: number;
 };
 
+export type CampaignResultsItemDAO = {
+  note_id: string;
+  name: string;
+  status: "active" | "ended";
+  ended_at: string | null;
+  expires_at: string | null;
+  currency: string;
+  spend_cents: number;
+  redeemed: number;
+  sales_cents: number | null;
+  roas: number | null;
+  description: string;
+  expire_after: string | null;
+  is_redeemable: boolean;
+};
+
+export type CampaignResultsInsightHeadlineKey =
+  | "better"
+  | "worse"
+  | "similar"
+  | "single"
+  | "none";
+
+export type CampaignResultsInsightDAO = {
+  status: "ready" | "insufficient";
+  headline_key: CampaignResultsInsightHeadlineKey;
+  ratio: number | null;
+  current_redeemed_per_dollar: number | null;
+  previous_redeemed_per_dollar: number | null;
+};
+
+export type BusinessCampaignResultsDAO = {
+  campaign: CampaignResultsItemDAO | null;
+  previous: CampaignResultsItemDAO | null;
+  insight: CampaignResultsInsightDAO;
+};
+
 export type BusinessDiscoveryStatsDAO = {
   search: number;
   lists: number;

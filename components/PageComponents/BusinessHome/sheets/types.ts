@@ -3,4 +3,6 @@ export type BusinessHomeSheetId =
   | 'plans'
   | 'alerts'
   | 'report'
-  | 'compare';
+  | 'compare'
+  | 'snapshot'
+  | 'setup';

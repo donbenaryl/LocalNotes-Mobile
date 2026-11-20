@@ -17,6 +17,7 @@ import type {
     BusinessUniqueUsersReachedStatsDAO,
     BusinessTotalListSavesStatsDAO,
     BusinessRedeemsStatsDAO,
+    BusinessCampaignResultsDAO,
     BusinessDiscoveryStatsDAO,
     BusinessCustomerInsightsDAO,
     BusinessDemandInsightsDAO,
@@ -270,6 +271,12 @@ class BusinessService extends AppHttpService{
             method: "get",
             path: `/${businessId}/stats/redeems`,
             query: params,
+        });
+    }
+    async getCampaignResults(businessId: string) {
+        return await this.SendRequest<BusinessCampaignResultsDAO>({
+            method: "get",
+            path: `/${businessId}/stats/campaign-results`,
         });
     }
     async getDiscoveryStats(businessId: string, params?: StatsDateRangeParams) {

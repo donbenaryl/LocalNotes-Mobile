@@ -4,6 +4,8 @@ import { BarChart3 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { Badge } from '@/components/ui/Badge';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { EditBranchHoursModal } from '@/components/PageComponents/Profile/EditBranchHoursModal';
 import { useMentionWeekdays } from '@/hooks/useMentionWeekdays';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
@@ -11,6 +13,7 @@ import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnW
 import { useUpdateBranchHours } from '@/hooks/useUpdateBranchHours';
 import { useAiCredits } from '@/hooks/useAiCredits';
 import { useBusinessMonthlyReport } from '@/hooks/useBusinessMonthlyReport';
+import { useCampaignResults } from '@/hooks/useCampaignResults';
 import {
   MONTHLY_METRICS,
   formatDelta,
@@ -18,6 +21,16 @@ import {
   headlineKey,
   reportView,
 } from '@/utils/businessMonthlyReport';
+import {
+  compareSheetView,
+  expireAfterLabelKey,
+  formatCampaignCaption,
+  formatEfficiency,
+  formatSpendCents,
+  insightCopyParams,
+  insightHeadlineI18nKey,
+  insightMeaningI18nKey,
+} from '@/utils/campaignResults';
 import { useSuggestBusinessDescription } from '@/hooks/useSuggestBusinessDescription';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useDescriptionDraftStore } from '@/stores/useDescriptionDraftStore';
@@ -25,9 +38,12 @@ import { useToastStore } from '@/stores/useToastStore';
 import businessService from '@/http/business-api/business.service';
 import { closedMentionedDays } from '@/utils/openingHours';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
+import { KeyValueRow } from '../ui/KeyValueRow';
 import { ProfileHealthSection } from '../sections/FreeCampaignSections';
 import { PlansSheetBody } from './PlansSheetBody';
 import type { BusinessHomeSheetId } from './types';
+
+const CAMPAIGN_SHEETS: BusinessHomeSheetId[] = ['compare', 'snapshot', 'setup'];
 
 interface BusinessHomeSheetsProps {
   activeSheet: BusinessHomeSheetId | null;
@@ -93,6 +109,30 @@ export function BusinessHomeSheets({
   const monthlyReport = reportQuery.data;
   const reportMonth = formatReportMonth(monthlyReport?.month_start, i18n.language);
   const reportViewState = reportView(monthlyReport);
+
+  // Same query key as Campaign Results, so open sheets reuse the card cache.
+  const campaignSheetOpen =
+    activeSheet != null && CAMPAIGN_SHEETS.includes(activeSheet);
+  const campaignQuery = useCampaignResults(businessId || undefined, {
+    enabled: campaignSheetOpen,
+  });
+  const {
+    campaign: campaignResults,
+    previous: previousCampaign,
+    insight: campaignInsight,
+  } = campaignQuery;
+  const compareView = compareSheetView({
+    isLoading: campaignQuery.isLoading,
+    isError: campaignQuery.isError,
+    campaign: campaignResults,
+    previous: previousCampaign,
+  });
+  const insightKey = campaignInsight?.headline_key ?? 'none';
+  const insightParams = insightCopyParams(
+    campaignInsight,
+    campaignResults,
+    previousCampaign,
+  );
 
   const suggestQuota = credits?.suggest_description;
   const suggestionsUsed = suggestQuota?.used ?? 0;
@@ -444,31 +484,282 @@ export function BusinessHomeSheets({
         </SheetScroll>
       </Modal>
 
+      {/* Compare Campaigns */}
       <Modal
         visible={activeSheet === 'compare'}
         onClose={onClose}
         title={t('businessHome.sheets.compare.title')}
       >
         <SheetScroll>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.compare.headline')}</Text>
-            <View className="mt-3 flex-row gap-4">
-              <View>
-                <Text className="font-geist-extrabold text-2xl text-success">15.4×</Text>
-                <Text className="text-[11px] text-gray-500">{t('businessHome.sheets.compare.campaignA')}</Text>
+          {compareView === 'error' ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.compare.error')}
+              </Text>
+              <LocalNotesButton
+                label={t('businessHome.sheets.compare.retry')}
+                onPress={() => void campaignQuery.refetch()}
+                variant="dark"
+                size="xs"
+                isWidthFull={false}
+                className="mt-2 self-start"
+              />
+            </BusinessHomeCard>
+          ) : compareView === 'loading' ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.compare.loading')}
+              </Text>
+            </BusinessHomeCard>
+          ) : compareView === 'empty' ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.compare.empty')}
+              </Text>
+            </BusinessHomeCard>
+          ) : compareView === 'single' && campaignResults ? (
+            <>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.compare.headline')}
+                </Text>
+                <View className="mt-3">
+                  <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                    {formatEfficiency(campaignInsight?.current_redeemed_per_dollar)}
+                  </Text>
+                  <Text className="mt-1 text-[11px] text-gray-500">
+                    {formatCampaignCaption(campaignResults)}
+                  </Text>
+                </View>
+              </BusinessHomeCard>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.compare.meaningTitle')}
+                </Text>
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                  {t('businessHome.sheets.compare.insufficient')}
+                </Text>
+              </BusinessHomeCard>
+            </>
+          ) : campaignResults && previousCampaign ? (
+            <>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t(insightHeadlineI18nKey(insightKey), insightParams)}
+                </Text>
+                <View className="mt-3 flex-row gap-4">
+                  <View className="flex-1">
+                    <Text className="font-geist-extrabold text-2xl text-success">
+                      {formatEfficiency(campaignInsight?.current_redeemed_per_dollar)}
+                    </Text>
+                    <Text className="mt-1 text-[11px] text-gray-500">
+                      {formatCampaignCaption(campaignResults)}
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                      {formatEfficiency(campaignInsight?.previous_redeemed_per_dollar)}
+                    </Text>
+                    <Text className="mt-1 text-[11px] text-gray-500">
+                      {formatCampaignCaption(previousCampaign)}
+                    </Text>
+                  </View>
+                </View>
+              </BusinessHomeCard>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.compare.meaningTitle')}
+                </Text>
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                  {t(insightMeaningI18nKey(insightKey), insightParams)}
+                </Text>
+              </BusinessHomeCard>
+            </>
+          ) : null}
+        </SheetScroll>
+      </Modal>
+
+      {/* Insight snapshot */}
+      <Modal
+        visible={activeSheet === 'snapshot'}
+        onClose={onClose}
+        title={t('businessHome.sheets.snapshot.title')}
+      >
+        <SheetScroll>
+          {campaignQuery.isError && !campaignResults ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.snapshot.error')}
+              </Text>
+              <LocalNotesButton
+                label={t('businessHome.sheets.snapshot.retry')}
+                onPress={() => void campaignQuery.refetch()}
+                variant="dark"
+                size="xs"
+                isWidthFull={false}
+                className="mt-2 self-start"
+              />
+            </BusinessHomeCard>
+          ) : campaignQuery.isLoading ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.snapshot.loading')}
+              </Text>
+            </BusinessHomeCard>
+          ) : !campaignResults ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.snapshot.empty')}
+              </Text>
+            </BusinessHomeCard>
+          ) : (
+            <>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.snapshot.metricsTitle')}
+                </Text>
+                <Text className="mt-1 font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+                  {campaignResults.name}
+                </Text>
+                <View className="mt-2 flex-row gap-4">
+                  <View>
+                    <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+                      {formatSpendCents(
+                        campaignResults.spend_cents,
+                        campaignResults.currency,
+                      )}
+                    </Text>
+                    <Text className="text-[10px] uppercase text-gray-500">
+                      {t('businessHome.campaign.spend')}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+                      {campaignResults.redeemed}
+                    </Text>
+                    <Text className="text-[10px] uppercase text-gray-500">
+                      {t('businessHome.campaign.redeemed')}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+                      {formatEfficiency(campaignInsight?.current_redeemed_per_dollar)}
+                    </Text>
+                    <Text className="text-[10px] uppercase text-gray-500">
+                      {t('businessHome.campaign.efficiency')}
+                    </Text>
+                  </View>
+                </View>
+              </BusinessHomeCard>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.snapshot.insightTitle')}
+                </Text>
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                  {t(insightHeadlineI18nKey(insightKey), insightParams)}
+                </Text>
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                  {t(insightMeaningI18nKey(insightKey), insightParams)}
+                </Text>
+              </BusinessHomeCard>
+            </>
+          )}
+        </SheetScroll>
+      </Modal>
+
+      {/* Campaign setup */}
+      <Modal
+        visible={activeSheet === 'setup'}
+        onClose={onClose}
+        title={t('businessHome.sheets.setup.title')}
+      >
+        <SheetScroll>
+          {campaignQuery.isError && !campaignResults ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.setup.error')}
+              </Text>
+              <LocalNotesButton
+                label={t('businessHome.sheets.setup.retry')}
+                onPress={() => void campaignQuery.refetch()}
+                variant="dark"
+                size="xs"
+                isWidthFull={false}
+                className="mt-2 self-start"
+              />
+            </BusinessHomeCard>
+          ) : campaignQuery.isLoading ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <View className="gap-2">
+                <Skeleton className="h-4 w-3/5" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-4/5" />
+                <Skeleton className="mt-1 h-6 w-24" />
               </View>
-              <View>
-                <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">4.1×</Text>
-                <Text className="text-[11px] text-gray-500">{t('businessHome.sheets.compare.campaignB')}</Text>
-              </View>
-            </View>
-          </BusinessHomeCard>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.compare.meaningTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.compare.meaningBody')}
-            </Text>
-          </BusinessHomeCard>
+            </BusinessHomeCard>
+          ) : !campaignResults ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.setup.empty')}
+              </Text>
+            </BusinessHomeCard>
+          ) : (
+            <>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+                  {campaignResults.name}
+                </Text>
+                <Text className="mt-1 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-gray-400">
+                  {campaignResults.description?.trim()
+                    ? campaignResults.description
+                    : t('businessHome.sheets.setup.noDescription')}
+                </Text>
+                <View className="mt-2.5 flex-row flex-wrap items-center gap-1.5">
+                  <Badge
+                    label={
+                      campaignResults.status === 'active'
+                        ? t('businessHome.sheets.setup.statusActive')
+                        : t('businessHome.sheets.setup.statusEnded')
+                    }
+                    variant={
+                      campaignResults.status === 'active' ? 'success' : 'secondary'
+                    }
+                  />
+                  <Badge
+                    label={`${t('businessHome.sheets.setup.redeemable')}: ${
+                      campaignResults.is_redeemable
+                        ? t('businessHome.sheets.setup.redeemableYes')
+                        : t('businessHome.sheets.setup.redeemableNo')
+                    }`}
+                    variant={campaignResults.is_redeemable ? 'primary' : 'secondary'}
+                  />
+                </View>
+              </BusinessHomeCard>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <KeyValueRow
+                  label={t('businessHome.sheets.setup.duration.label')}
+                  value={t(expireAfterLabelKey(campaignResults.expire_after))}
+                />
+                <KeyValueRow
+                  label={t('businessHome.sheets.setup.expires')}
+                  value={
+                    campaignResults.expires_at
+                      ? new Date(campaignResults.expires_at).toLocaleDateString(
+                          i18n.language,
+                        )
+                      : t('businessHome.sheets.setup.expiresNever')
+                  }
+                />
+                <KeyValueRow
+                  label={t('businessHome.sheets.setup.spend')}
+                  value={formatSpendCents(
+                    campaignResults.spend_cents,
+                    campaignResults.currency,
+                  )}
+                />
+              </BusinessHomeCard>
+            </>
+          )}
         </SheetScroll>
       </Modal>
 

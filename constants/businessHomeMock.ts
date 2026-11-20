@@ -40,12 +40,3 @@ export const BUSINESS_HOME_DISCOVERY = {
   ] as BusinessHomeDiscoveryItem[],
   insight: '"Best Study Cafés in Phoenix" is currently your strongest List source.',
 };
-
-export const BUSINESS_HOME_CAMPAIGN = {
-  status: 'Offer · ended 3 days ago',
-  name: 'Cardamom bun + cortado, $8 before 10am',
-  spend: '$50',
-  redeemed: '96',
-  sales: '$768',
-  roas: '15.4×',
-};
