@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import businessService from '@/http/business-api/business.service';
 import type { HttpServiceResolverDTO } from '@/http';
 import type { BusinessBriefActionDAO } from '@/http/business-api/types';
-import { businessWeeklyBriefQueryKey } from '@/hooks/useBusinessWeeklyBrief';
 
 export function businessBriefActionsQueryKey(businessId: string) {
   return ['business-brief-actions', businessId] as const;
@@ -24,7 +23,8 @@ function useBriefActionMutation(businessId: string, transition: Transition) {
     },
     onSettled: () =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: businessWeeklyBriefQueryKey(businessId) }),
+        // Prefix match: invalidate latest and any date-filtered brief queries.
+        queryClient.invalidateQueries({ queryKey: ['business-weekly-brief', businessId] }),
         queryClient.invalidateQueries({ queryKey: businessBriefActionsQueryKey(businessId) }),
       ]),
   });

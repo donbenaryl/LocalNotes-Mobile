@@ -68,7 +68,12 @@ export function BusinessHomeOverviewPage({
   const { t } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const businessId = useBusinessStore((s) => s.businessId);
-  const briefQuery = useBusinessWeeklyBrief({ businessId: businessId ?? '', isPaidMember });
+  const briefQuery = useBusinessWeeklyBrief({
+    businessId: businessId ?? '',
+    isPaidMember,
+    dateFrom,
+    dateTo,
+  });
   const [activeTab, setActiveTab] =
     useState<BusinessHomeOverviewTabId>('overview');
 

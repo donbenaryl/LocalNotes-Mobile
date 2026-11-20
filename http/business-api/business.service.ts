@@ -576,10 +576,11 @@ class BusinessService extends AppHttpService{
         });
     }
 
-    async getWeeklyBrief(businessId: string) {
-        return await this.SendRequest<BusinessWeeklyBriefDAO>({
+    async getWeeklyBrief(businessId: string, params?: StatsDateRangeParams) {
+        return await this.SendRequest<BusinessWeeklyBriefDAO, Record<string, unknown>, StatsDateRangeParams>({
             method: "get",
             path: `/${businessId}/brief/weekly/`,
+            query: params,
         });
     }
     async getMonthlyReport(businessId: string) {
