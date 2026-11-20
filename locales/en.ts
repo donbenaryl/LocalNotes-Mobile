@@ -1919,7 +1919,9 @@ const en = {
       memberBadge: 'Member',
       added: 'Location added.',
       note: 'Each location keeps its own public profile. One account and team can manage all locations — Business Insights membership is billed per subscribed location on the web.',
-      paidNote: '✦ "Slow service" is emerging at Scottsdale only — the playbook from your Roosevelt Row fix applies.',
+      paidNote:
+        '✦ {{leader}} leads with {{leaderCount}} picks · {{laggard}} has {{laggardCount}}.',
+      needTwoLocations: 'Add another location to compare.',
     },
     explore: {
       customers: 'Customers',
@@ -2402,6 +2404,21 @@ const en = {
             'Publish another offer to see how this campaign stacks up against a previous one.',
           none: 'Publish an offer on the web to see campaign comparison here.',
         },
+      },
+      locationsCompare: {
+        title: 'Compare locations',
+        headline: 'Customer picks by location',
+        mentions: 'Picks',
+        pickFavorites: 'Favorites',
+        defaultBadge: 'Default',
+        leadingBadge: 'Leading',
+        insight:
+          '{{leader}} leads with {{leaderCount}} picks · {{laggard}} has {{laggardCount}}.',
+        loading: 'Loading location comparison…',
+        empty: 'No pick activity yet across your locations.',
+        needTwo: 'Add another location to compare picks side by side.',
+        error: "Couldn't load location comparison.",
+        retry: 'Try again',
       },
       snapshot: {
         title: 'Campaign insight snapshot',

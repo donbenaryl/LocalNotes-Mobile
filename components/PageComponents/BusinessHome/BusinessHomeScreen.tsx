@@ -168,6 +168,7 @@ export default function BusinessHomeScreen() {
           locationRows={locationRows}
           isPaidMember={isPaidMember}
           onBack={pop}
+          onOpenSheet={openSheet}
         />
       );
       break;

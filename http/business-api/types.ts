@@ -242,6 +242,18 @@ export type BusinessDiscoveryStatsDAO = {
   discover: number;
 };
 
+export type BusinessLocationCompareItemDAO = {
+  branch_id: string;
+  name: string;
+  is_default: boolean;
+  mentions: number;
+  pick_favorites: number;
+};
+
+export type BusinessLocationCompareDAO = {
+  locations: BusinessLocationCompareItemDAO[];
+};
+
 export type BusinessInsightsTab = "customers" | "demand" | "performance";
 
 export type BusinessInsightsWindow = "7d" | "30d" | "90d";

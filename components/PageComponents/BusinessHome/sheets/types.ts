@@ -4,5 +4,6 @@ export type BusinessHomeSheetId =
   | 'alerts'
   | 'report'
   | 'compare'
+  | 'locationsCompare'
   | 'snapshot'
   | 'setup';

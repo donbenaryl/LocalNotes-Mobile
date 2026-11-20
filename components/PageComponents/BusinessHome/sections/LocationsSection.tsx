@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BusinessHomeLocationRow } from "@/constants/businessHomeMock";
@@ -7,17 +7,20 @@ import businessService from "@/http/business-api/business.service";
 import type { BusinessLocation } from "@/http/business-api/types";
 import type { OpeningHours } from "@/utils/openingHours";
 import { useBusinessStore } from "@/stores/useBusinessStore";
+import { useLocationCompare } from "@/hooks/useLocationCompare";
 import { AddBranchModal } from "@/components/PageComponents/Profile/AddBranchModal";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { toast } from "@/components/ui/Toast";
 import { BusinessHomeCard } from "../ui/BusinessHomeCard";
 import { SectionHeading } from "../ui/SectionHeading";
 import { MembershipGate } from "../ui/MembershipGate";
+import type { BusinessHomeSheetId } from "../sheets/types";
 import { MapPin } from "lucide-react-native";
 
 interface LocationsSectionProps {
   locationRows: BusinessHomeLocationRow[];
   isPaidMember: boolean;
+  onOpenSheet: (id: BusinessHomeSheetId) => void;
 }
 
 type AddLocationInput = {
@@ -29,20 +32,20 @@ type AddLocationInput = {
 export function LocationsSection({
   locationRows,
   isPaidMember,
+  onOpenSheet,
 }: LocationsSectionProps) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const selectBranch = useBusinessStore((s) => s.selectBranch);
+  const businessId = useBusinessStore((s) => s.businessId);
   const refreshBusinessInfo = useBusinessStore((s) => s.refreshBusinessInfo);
   const loadOwnedBusinesses = useBusinessStore((s) => s.loadOwnedBusinesses);
   const [addVisible, setAddVisible] = useState(false);
 
-  const showComingSoon = () => {
-    Alert.alert(
-      t("businessHome.comingSoonTitle"),
-      t("businessHome.comingSoonMessage"),
-    );
-  };
+  const canCompare = locationRows.length >= 2;
+  const { insight } = useLocationCompare(businessId || undefined, {
+    enabled: Boolean(businessId) && canCompare,
+  });
 
   const { mutateAsync: addLocation, isPending: isAdding } = useMutation({
     mutationFn: async ({ name, location, openingHours }: AddLocationInput) => {
@@ -61,6 +64,11 @@ export function LocationsSection({
     onSuccess: async (data) => {
       queryClient.setQueryData(["business-info", data.id], data);
       await Promise.all([refreshBusinessInfo(), loadOwnedBusinesses()]);
+      if (businessId) {
+        await queryClient.invalidateQueries({
+          queryKey: ["business-location-compare", businessId],
+        });
+      }
       setAddVisible(false);
       toast.success(t("businessHome.locations.added"));
     },
@@ -72,6 +80,14 @@ export function LocationsSection({
       );
     },
   });
+
+  const handleCompare = () => {
+    if (!canCompare) {
+      toast.error(t("businessHome.locations.needTwoLocations"));
+      return;
+    }
+    onOpenSheet("locationsCompare");
+  };
 
   return (
     <>
@@ -127,17 +143,25 @@ export function LocationsSection({
           {t("businessHome.locations.note")}
         </Text>
         <MembershipGate isPaidMember={isPaidMember} tier="paid">
-          <Text className="mt-1 font-geist-semibold text-[11px] leading-[1.5] text-gray-500">
-            {t("businessHome.locations.paidNote")}
-          </Text>
+          {insight ? (
+            <Text className="mt-1 font-geist-semibold text-[11px] leading-[1.5] text-gray-500">
+              {t("businessHome.locations.paidNote", {
+                leader: insight.leader.name,
+                leaderCount: insight.leader.mentions,
+                laggard: insight.laggard.name,
+                laggardCount: insight.laggard.mentions,
+              })}
+            </Text>
+          ) : null}
         </MembershipGate>
         <View className="mt-2.5 flex-row flex-wrap gap-1.5 self-end">
           <LocalNotesButton
             label={t("businessHome.buttons.compareLocations")}
-            onPress={showComingSoon}
+            onPress={handleCompare}
             variant="light"
             size="sm"
             isWidthFull={false}
+            disabled={!canCompare}
           />
           <LocalNotesButton
             label={t("businessHome.buttons.addLocation")}

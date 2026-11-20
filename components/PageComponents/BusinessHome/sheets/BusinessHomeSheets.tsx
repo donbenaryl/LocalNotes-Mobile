@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
-import { BarChart3 } from 'lucide-react-native';
+import { BarChart3, Heart, MapPin } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
+import type { BusinessLocationCompareItemDAO } from '@/http/business-api/types';
 import { EditBranchHoursModal } from '@/components/PageComponents/Profile/EditBranchHoursModal';
 import { useMentionWeekdays } from '@/hooks/useMentionWeekdays';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
@@ -14,6 +16,7 @@ import { useUpdateBranchHours } from '@/hooks/useUpdateBranchHours';
 import { useAiCredits } from '@/hooks/useAiCredits';
 import { useBusinessMonthlyReport } from '@/hooks/useBusinessMonthlyReport';
 import { useCampaignResults } from '@/hooks/useCampaignResults';
+import { useLocationCompare } from '@/hooks/useLocationCompare';
 import {
   MONTHLY_METRICS,
   formatDelta,
@@ -49,6 +52,99 @@ interface BusinessHomeSheetsProps {
   activeSheet: BusinessHomeSheetId | null;
   isPaidMember: boolean;
   onClose: () => void;
+}
+
+function LocationCompareRow({
+  row,
+  rank,
+  maxMentions,
+  isLeader,
+}: {
+  row: BusinessLocationCompareItemDAO;
+  rank: number;
+  maxMentions: number;
+  isLeader: boolean;
+}) {
+  const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const pinColor = isLeader ? '#FF6B1A' : colorScheme === 'dark' ? '#9CA3AF' : '#78716C';
+  const barWidth =
+    maxMentions > 0 ? Math.max(6, Math.round((row.mentions / maxMentions) * 100)) : 0;
+
+  return (
+    <View
+      className={`rounded-2xl border px-3.5 py-3 ${
+        isLeader
+          ? 'border-brand/30 bg-brand-tint/60 dark:border-brand/40 dark:bg-brand/10'
+          : 'border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900'
+      }`}
+    >
+      <View className="flex-row items-start gap-2.5">
+        <View
+          className={`mt-0.5 h-7 w-7 items-center justify-center rounded-full ${
+            isLeader ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'
+          }`}
+        >
+          <Text
+            className={`font-geist-bold text-[12px] ${
+              isLeader ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+            }`}
+          >
+            {rank}
+          </Text>
+        </View>
+        <View className="min-w-0 flex-1">
+          <View className="flex-row flex-wrap items-center gap-1.5">
+            <MapPin size={14} color={pinColor} />
+            <Text
+              className="max-w-[70%] font-geist-bold text-[14px] text-ink dark:text-gray-100"
+              numberOfLines={1}
+            >
+              {row.name}
+            </Text>
+            {isLeader ? (
+              <Badge label={t('businessHome.sheets.locationsCompare.leadingBadge')} variant="primary" />
+            ) : null}
+            {row.is_default ? (
+              <Badge
+                label={t('businessHome.sheets.locationsCompare.defaultBadge')}
+                variant="secondary"
+              />
+            ) : null}
+          </View>
+
+          <View className="mt-3 flex-row gap-3">
+            <View className="flex-1">
+              <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                {row.mentions}
+              </Text>
+              <Text className="mt-0.5 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
+                {t('businessHome.sheets.locationsCompare.mentions')}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <View className="flex-row items-center gap-1">
+                <Heart size={14} color={colorScheme === 'dark' ? '#9CA3AF' : '#78716C'} />
+                <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                  {row.pick_favorites}
+                </Text>
+              </View>
+              <Text className="mt-0.5 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
+                {t('businessHome.sheets.locationsCompare.pickFavorites')}
+              </Text>
+            </View>
+          </View>
+
+          <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+            <View
+              className={`h-full rounded-full ${isLeader ? 'bg-brand' : 'bg-gray-300 dark:bg-gray-600'}`}
+              style={{ width: `${barWidth}%` }}
+            />
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 }
 
 const SHEET_MAX_HEIGHT_RATIO = 0.85;
@@ -132,6 +228,20 @@ export function BusinessHomeSheets({
     campaignInsight,
     campaignResults,
     previousCampaign,
+  );
+
+  const locationsCompareOpen = activeSheet === 'locationsCompare';
+  const locationCompareQuery = useLocationCompare(businessId || undefined, {
+    enabled: locationsCompareOpen,
+  });
+  const locationRows = locationCompareQuery.locations;
+  const locationInsight = locationCompareQuery.insight;
+  const hasLocationActivity = locationRows.some(
+    (row) => row.mentions > 0 || row.pick_favorites > 0,
+  );
+  const maxLocationMentions = useMemo(
+    () => locationRows.reduce((max, row) => Math.max(max, row.mentions), 0),
+    [locationRows],
   );
 
   const suggestQuota = credits?.suggest_description;
@@ -481,6 +591,94 @@ export function BusinessHomeSheets({
               </BusinessHomeCard>
             </>
           ) : null}
+        </SheetScroll>
+      </Modal>
+
+      {/* Compare Locations */}
+      <Modal
+        visible={locationsCompareOpen}
+        onClose={onClose}
+        title={t('businessHome.sheets.locationsCompare.title')}
+      >
+        <SheetScroll>
+          {locationCompareQuery.isError ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.locationsCompare.error')}
+              </Text>
+              <LocalNotesButton
+                label={t('businessHome.sheets.locationsCompare.retry')}
+                onPress={() => void locationCompareQuery.refetch()}
+                variant="dark"
+                size="xs"
+                isWidthFull={false}
+                className="mt-2.5 self-start"
+              />
+            </BusinessHomeCard>
+          ) : locationCompareQuery.isLoading ? (
+            <View className="mt-2 gap-2.5">
+              <BusinessHomeCard className="mx-0">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="mt-3 h-3 w-full" />
+              </BusinessHomeCard>
+              {[0, 1].map((key) => (
+                <View
+                  key={key}
+                  className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3 dark:border-gray-700 dark:bg-gray-900"
+                >
+                  <View className="flex-row items-center gap-2.5">
+                    <Skeleton className="h-7 w-7 rounded-full" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </View>
+                  <View className="mt-3 flex-row gap-3">
+                    <Skeleton className="h-8 w-14" />
+                    <Skeleton className="h-8 w-14" />
+                  </View>
+                  <Skeleton className="mt-3 h-1.5 w-full rounded-full" />
+                </View>
+              ))}
+            </View>
+          ) : locationRows.length < 2 ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.locationsCompare.needTwo')}
+              </Text>
+            </BusinessHomeCard>
+          ) : !hasLocationActivity ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.locationsCompare.empty')}
+              </Text>
+            </BusinessHomeCard>
+          ) : (
+            <View className="mt-2 gap-2.5">
+              <BusinessHomeCard className="mx-0">
+                <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+                  {t('businessHome.sheets.locationsCompare.headline')}
+                </Text>
+                {locationInsight ? (
+                  <Text className="mt-1.5 font-geist text-[12.5px] leading-[1.5] text-gray-600 dark:text-gray-400">
+                    {t('businessHome.sheets.locationsCompare.insight', {
+                      leader: locationInsight.leader.name,
+                      leaderCount: locationInsight.leader.mentions,
+                      laggard: locationInsight.laggard.name,
+                      laggardCount: locationInsight.laggard.mentions,
+                    })}
+                  </Text>
+                ) : null}
+              </BusinessHomeCard>
+
+              {locationRows.map((row, index) => (
+                <LocationCompareRow
+                  key={row.branch_id}
+                  row={row}
+                  rank={index + 1}
+                  maxMentions={maxLocationMentions}
+                  isLeader={index === 0 && row.mentions > 0}
+                />
+              ))}
+            </View>
+          )}
         </SheetScroll>
       </Modal>
 
