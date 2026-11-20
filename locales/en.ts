@@ -2022,7 +2022,11 @@ const en = {
     },
     monthlyReport: {
       rowTitle: 'Monthly report',
-      ready: 'July report ready →',
+      ready: '{{month}} report ready →',
+      building: 'Preparing your {{month}} report…',
+      loading: 'Loading…',
+      insufficient: '{{month}} report: not enough data',
+      error: "Couldn't load your report. Tap to retry",
     },
     pastDue: {
       title: 'Payment issue with your membership',
@@ -2340,13 +2344,28 @@ const en = {
           'Thursday–Saturday shows the strongest growth, and your study-focused audience already fits it.',
       },
       report: {
-        title: '📊 July report',
+        title: '{{month}} report',
+        titleFallback: 'Monthly report',
         oneLineTitle: 'The month in one line',
-        oneLineBody:
-          'Your best save month yet — driven by the bun campaign and the study-list placement — with one recurring concern (Saturday service) now under active repair.',
-        improvedTitle: 'Improved ↗',
-        saves: 'Saves 2.1K · +34%',
-        redemptions: 'Verified redemptions 96 · first campaign',
+        headline:
+          'In {{month}} you had {{visitors}} profile visitors, {{savers}} savers and {{listAdds}} list adds.',
+        headlineQuiet:
+          '{{month}} was steady: {{visitors}} profile visitors with no big change from the month before.',
+        metricsTitle: 'Versus the previous month',
+        metrics: {
+          visitors: 'Profile visitors',
+          savers: 'Savers',
+          recommenders: 'Recommenders',
+          list_adds: 'List adds',
+        },
+        building: 'Your {{month}} report is being prepared. Check back in a moment.',
+        buildingNoMonth: 'Your monthly report is being prepared. Check back in a moment.',
+        insufficientTitle: 'Not enough data yet',
+        insufficientBody:
+          'We checked {{month}} but there was not enough data to build a report.',
+        insufficientProgress: '{{current}} of {{needed}} visitors needed',
+        error: "Couldn't load your report.",
+        retry: 'Try again',
       },
       compare: {
         title: '⇄ Campaign comparison',

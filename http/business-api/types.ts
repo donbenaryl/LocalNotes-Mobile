@@ -1012,3 +1012,23 @@ export type BusinessBriefActionHistoryItemDAO = BusinessBriefActiveActionDAO & {
 export type BusinessBriefActionsListDAO = {
   actions: BusinessBriefActionHistoryItemDAO[];
 };
+
+export type BusinessMonthlyMetric = "visitors" | "savers" | "recommenders" | "list_adds" | "discovered";
+
+export type BusinessMonthlyVolumeDAO = Partial<Record<BusinessMonthlyMetric, number | null>>;
+
+export type BusinessMonthlyReportDAO = {
+  /** `insight`/`quiet` = a real report; `insufficient_data` = triggered but too little data. */
+  status: BusinessBriefStatus;
+  /** ISO dates (YYYY-MM-DD). Null while `building`. */
+  month_start: string | null;
+  month_end: string | null;
+  volume: BusinessMonthlyVolumeDAO;
+  previous_volume: BusinessMonthlyVolumeDAO;
+  /** Relative change vs the previous month (0.2 = +20%); null when not comparable. */
+  deltas: Partial<Record<BusinessMonthlyMetric, number | null>>;
+  top_mover: { metric: BusinessMonthlyMetric; change: number } | null;
+  insufficient: BusinessBriefInsufficientDAO | null;
+  summary: unknown;
+  computed_at: string | null;
+};

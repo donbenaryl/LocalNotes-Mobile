@@ -1,6 +1,9 @@
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { BarChart3 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnWeb';
+import { useBusinessMonthlyReport } from '@/hooks/useBusinessMonthlyReport';
+import { formatReportMonth, reportView, rowCopyKey } from '@/utils/businessMonthlyReport';
 import { BusinessHomeCard } from '../ui/BusinessHomeCard';
 import { SectionHeading } from '../ui/SectionHeading';
 import { MembershipGate } from '../ui/MembershipGate';
@@ -8,68 +11,48 @@ import type { BusinessHomeSheetId } from '../sheets/types';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 
 interface MonthlyReportSectionProps {
+  businessId: string;
   isPaidMember: boolean;
   onOpenSheet: (id: BusinessHomeSheetId) => void;
 }
 
 export function MonthlyReportSection({
+  businessId,
   isPaidMember,
   onOpenSheet,
 }: MonthlyReportSectionProps) {
-  const { t } = useTranslation();
-
-  const showComingSoon = () => {
-    Alert.alert(
-      t('businessHome.comingSoonTitle'),
-      t('businessHome.comingSoonMessage'),
-    );
-  };
-
-  const promoteTools = [
-    { icon: '📣', labelKey: 'businessHome.shortcuts.promote' },
-    { icon: '🧾', labelKey: 'businessHome.shortcuts.campaigns' },
-    { icon: '↻', labelKey: 'businessHome.tools.repeatCampaign' },
-  ] as const;
+  const { t, i18n } = useTranslation();
+  const query = useBusinessMonthlyReport({ businessId, isPaidMember });
+  const report = query.data;
+  const view = reportView(report);
+  const month = formatReportMonth(report?.month_start, i18n.language);
+  const isError = query.isError && !report;
+  // Brand colour only for a ready report; every other state is muted.
+  const statusClass =
+    view === 'report' ? 'text-brand' : 'text-gray-500 dark:text-gray-400';
 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="paid">
       <SectionHeading title={t('businessHome.sections.monthlyReport')} />
       <BusinessHomeCard>
         <Pressable
-          onPress={() => onOpenSheet('report')}
+          onPress={() => (isError ? void query.refetch() : onOpenSheet('report'))}
           accessibilityRole="button"
           className="flex-row items-center gap-2.5 py-1"
         >
-          <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
-            📊 {t('businessHome.monthlyReport.rowTitle')}
-          </Text>
-          <Text className="font-geist-extrabold text-xs text-brand">
-            {t('businessHome.monthlyReport.ready')}
+          <View className="flex-1 flex-row items-center gap-1.5">
+            <BarChart3 size={16} color="#FF6B1A" />
+            <Text className="font-geist-bold text-[13px] text-ink dark:text-gray-100">
+              {t('businessHome.monthlyReport.rowTitle')}
+            </Text>
+          </View>
+          <Text className={`font-geist-extrabold text-xs ${statusClass}`}>
+            {isError
+              ? t('businessHome.monthlyReport.error')
+              : t(rowCopyKey(view), { month })}
           </Text>
         </Pressable>
       </BusinessHomeCard>
-      {/* <Text className="px-5 pb-1.5 pt-3 font-geist-extrabold text-[10px] uppercase tracking-widest text-gray-500">
-        {t('businessHome.sections.promoteTools')}
-      </Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerClassName="gap-1.5 px-4 pb-1"
-      >
-        {promoteTools.map((tool) => (
-          <Pressable
-            key={tool.labelKey}
-            onPress={showComingSoon}
-            accessibilityRole="button"
-            className="min-h-10 flex-row items-center gap-1.5 rounded-full bg-paper px-3.5 dark:bg-gray-800"
-          >
-            <Text>{tool.icon}</Text>
-            <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
-              {t(tool.labelKey)}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView> */}
     </MembershipGate>
   );
 }

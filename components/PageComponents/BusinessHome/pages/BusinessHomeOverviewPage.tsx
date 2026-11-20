@@ -199,6 +199,7 @@ export function BusinessHomeOverviewPage({
             onOpenSheet={onOpenSheet}
           />
           <MonthlyReportSection
+            businessId={businessId ?? ''}
             isPaidMember={isPaidMember}
             onOpenSheet={onOpenSheet}
           />

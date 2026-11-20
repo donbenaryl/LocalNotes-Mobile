@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View, useWindowDimensions } from 'react-native';
+import { BarChart3 } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -9,6 +10,14 @@ import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 import { useOpenBusinessInsightsOnWeb } from '@/hooks/useOpenBusinessInsightsOnWeb';
 import { useUpdateBranchHours } from '@/hooks/useUpdateBranchHours';
 import { useAiCredits } from '@/hooks/useAiCredits';
+import { useBusinessMonthlyReport } from '@/hooks/useBusinessMonthlyReport';
+import {
+  MONTHLY_METRICS,
+  formatDelta,
+  formatReportMonth,
+  headlineKey,
+  reportView,
+} from '@/utils/businessMonthlyReport';
 import { useSuggestBusinessDescription } from '@/hooks/useSuggestBusinessDescription';
 import { useBusinessStore } from '@/stores/useBusinessStore';
 import { useDescriptionDraftStore } from '@/stores/useDescriptionDraftStore';
@@ -48,7 +57,7 @@ export function BusinessHomeSheets({
   isPaidMember,
   onClose,
 }: BusinessHomeSheetsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const openCreateOfferOnWeb = useOpenCreateOfferOnWeb();
   const openInsightsOnWeb = useOpenBusinessInsightsOnWeb();
   const showToast = useToastStore((s) => s.show);
@@ -75,6 +84,15 @@ export function BusinessHomeSheets({
   const profileOpen = activeSheet === 'profile';
   const { data: credits } = useAiCredits({ isPaid: isPaidMember && profileOpen });
   const suggestMutation = useSuggestBusinessDescription();
+  // Same query key as the Analytics row, so an open sheet reads the cached report.
+  const reportQuery = useBusinessMonthlyReport({
+    businessId: businessId ?? '',
+    isPaidMember,
+    enabled: activeSheet === 'report',
+  });
+  const monthlyReport = reportQuery.data;
+  const reportMonth = formatReportMonth(monthlyReport?.month_start, i18n.language);
+  const reportViewState = reportView(monthlyReport);
 
   const suggestQuota = credits?.suggest_description;
   const suggestionsUsed = suggestQuota?.used ?? 0;
@@ -331,20 +349,98 @@ export function BusinessHomeSheets({
       <Modal
         visible={activeSheet === 'report'}
         onClose={onClose}
-        title={t('businessHome.sheets.report.title')}
+        titleIcon={<BarChart3 size={22} color="#FF6B1A" />}
+        title={
+          reportMonth
+            ? t('businessHome.sheets.report.title', { month: reportMonth })
+            : t('businessHome.sheets.report.titleFallback')
+        }
       >
         <SheetScroll>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.report.oneLineTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
-              {t('businessHome.sheets.report.oneLineBody')}
-            </Text>
-          </BusinessHomeCard>
-          <BusinessHomeCard className="mx-0 mt-2">
-            <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.report.improvedTitle')}</Text>
-            <Text className="mt-1 font-geist-bold text-xs text-success">{t('businessHome.sheets.report.saves')}</Text>
-            <Text className="font-geist-bold text-xs text-success">{t('businessHome.sheets.report.redemptions')}</Text>
-          </BusinessHomeCard>
+          {reportQuery.isError && !monthlyReport ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.report.error')}
+              </Text>
+              <LocalNotesButton
+                label={t('businessHome.sheets.report.retry')}
+                onPress={() => void reportQuery.refetch()}
+                variant="dark"
+                size="xs"
+                isWidthFull={false}
+                className="mt-2 self-start"
+              />
+            </BusinessHomeCard>
+          ) : reportViewState === 'loading' || reportViewState === 'building' ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+                {reportMonth
+                  ? t('businessHome.sheets.report.building', { month: reportMonth })
+                  : t('businessHome.sheets.report.buildingNoMonth')}
+              </Text>
+            </BusinessHomeCard>
+          ) : reportViewState === 'insufficient' && monthlyReport ? (
+            <BusinessHomeCard className="mx-0 mt-2">
+              <Text className="font-geist-extrabold text-sm">
+                {t('businessHome.sheets.report.insufficientTitle')}
+              </Text>
+              <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                {t('businessHome.sheets.report.insufficientBody', { month: reportMonth })}
+              </Text>
+              {monthlyReport.insufficient ? (
+                <Text className="mt-1 font-geist-bold text-xs text-gray-600 dark:text-gray-400">
+                  {t('businessHome.sheets.report.insufficientProgress', {
+                    current: monthlyReport.insufficient.current,
+                    needed: monthlyReport.insufficient.needed,
+                  })}
+                </Text>
+              ) : null}
+            </BusinessHomeCard>
+          ) : monthlyReport ? (
+            <>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.report.oneLineTitle')}
+                </Text>
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                  {t(headlineKey(monthlyReport.status), {
+                    month: reportMonth,
+                    visitors: monthlyReport.volume.visitors ?? 0,
+                    savers: monthlyReport.volume.savers ?? 0,
+                    listAdds: monthlyReport.volume.list_adds ?? 0,
+                  })}
+                </Text>
+              </BusinessHomeCard>
+              <BusinessHomeCard className="mx-0 mt-2">
+                <Text className="font-geist-extrabold text-sm">
+                  {t('businessHome.sheets.report.metricsTitle')}
+                </Text>
+                {MONTHLY_METRICS.map((metric) => {
+                  const delta = monthlyReport.deltas[metric];
+                  const label = formatDelta(delta);
+                  return (
+                    <View key={metric} className="mt-1.5 flex-row items-baseline gap-2">
+                      <Text className="flex-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                        {t(`businessHome.sheets.report.metrics.${metric}`)}
+                      </Text>
+                      <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                        {monthlyReport.volume[metric] ?? 0}
+                      </Text>
+                      {label ? (
+                        <Text
+                          className={`font-geist-bold text-xs ${
+                            (delta ?? 0) > 0 ? 'text-success' : 'text-gray-500 dark:text-gray-400'
+                          }`}
+                        >
+                          {label}
+                        </Text>
+                      ) : null}
+                    </View>
+                  );
+                })}
+              </BusinessHomeCard>
+            </>
+          ) : null}
         </SheetScroll>
       </Modal>
 

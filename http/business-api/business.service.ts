@@ -25,6 +25,7 @@ import type {
     BusinessInsightInterpretationDAO,
     OwnedBusinessDAO,
     BusinessWeeklyBriefDAO,
+    BusinessMonthlyReportDAO,
     BusinessBriefActionDAO,
     BusinessBriefActionsListDAO,
     StatsDateRangeParams,
@@ -579,6 +580,12 @@ class BusinessService extends AppHttpService{
         return await this.SendRequest<BusinessWeeklyBriefDAO>({
             method: "get",
             path: `/${businessId}/brief/weekly/`,
+        });
+    }
+    async getMonthlyReport(businessId: string) {
+        return await this.SendRequest<BusinessMonthlyReportDAO>({
+            method: "get",
+            path: `/${businessId}/brief/monthly/`,
         });
     }
     async startBriefAction(businessId: string, actionId: string) {

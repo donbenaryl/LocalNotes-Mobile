@@ -42,6 +42,8 @@ interface ModalProps {
   syncEnterWithKeyboard?: boolean;
   children: ReactNode;
   title?: string;
+  /** Optional icon rendered before the bottom-sheet title. */
+  titleIcon?: ReactNode;
   position?: 'bottom' | 'center' | 'fullscreen';
   footer?: ReactNode;
   withCloseIcon?: boolean;
@@ -67,6 +69,7 @@ export function Modal({
   syncEnterWithKeyboard = false,
   children,
   title,
+  titleIcon,
   position = 'bottom',
   footer,
   withCloseIcon = false,
@@ -336,6 +339,7 @@ export function Modal({
 
         {title ? (
           <View className="flex-row items-center justify-between mb-4 pt-2">
+            {titleIcon ? <View className="mr-2">{titleIcon}</View> : null}
             <Text className="font-geist-bold text-xl text-gray-900 dark:text-gray-100 flex-1 pr-4">
               {title}
             </Text>
