@@ -68,7 +68,7 @@ export function ProfileVitalBar({
     profile?.id ?? "",
     !isOwnProfile && !isBusinessMode && Boolean(profile?.id),
   );
-  const showMatch = !isOwnProfile && !isBusinessMode && !isMatchLoading;
+  const showMatch = !isOwnProfile && !isBusinessMode && !isMatchLoading && matchPercent != null;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);
   const clampedMatch = clampPercent(matchPercent ?? 0);
 

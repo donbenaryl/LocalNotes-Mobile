@@ -246,9 +246,9 @@ export function PickCard({
   const canManage = !readOnly && data.is_owner;
   const thumbnails = data.images ?? [];
   const locationLabel = formatLocationLabel(data.location);
-  // Hidden on your own picks; otherwise always shown, with a missing score as 0%.
+  // Hidden on your own picks; otherwise shown; a missing score renders nothing (pill returns null).
   const showMatch = !data.is_owner;
-  const personalityMatch = getEmbeddedMatchPercent(data.owner) ?? 0;
+  const personalityMatch = getEmbeddedMatchPercent(data.owner);
   const shareTitle =
     data.business_name?.trim() || t("profile.picks.untitled");
   const primaryImageUrl = thumbnails[0]

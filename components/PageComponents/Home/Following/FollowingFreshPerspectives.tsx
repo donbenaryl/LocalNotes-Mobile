@@ -47,18 +47,19 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
         }
       : null,
   );
-  const matchValue = clampPercent(user.match ?? 0);
-  const matchColor = getMatchPercentColor(matchValue);
+  const matchValue = user.match == null ? null : clampPercent(user.match);
+  const matchColor = getMatchPercentColor(matchValue ?? 0);
+  const matchForTone = matchValue ?? 0;
   const isDark = colorScheme === "dark";
   const badgeTextColor = isDark
-    ? matchValue <= 40
+    ? matchForTone <= 40
       ? "#FCA5A5"
-      : matchValue <= 69
+      : matchForTone <= 69
         ? "#F3D19C"
         : "#B7E4C7"
     : matchColor;
   const badgeBackground = isDark
-    ? matchValue > 69
+    ? matchForTone > 69
       ? "#1B4332"
       : `${matchColor}55`
     : `${matchColor}26`;
@@ -125,11 +126,13 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
             count: user.posts_this_month ?? 0,
           })}
         </Text>
-        <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: badgeBackground }}>
-          <Text className="font-geist-bold text-xs" style={{ color: badgeTextColor }}>
-            {matchValue}%
-          </Text>
-        </View>
+        {matchValue != null ? (
+          <View className="rounded-lg px-2.5 py-1" style={{ backgroundColor: badgeBackground }}>
+            <Text className="font-geist-bold text-xs" style={{ color: badgeTextColor }}>
+              {matchValue}%
+            </Text>
+          </View>
+        ) : null}
       </View>
     </Pressable>
   );

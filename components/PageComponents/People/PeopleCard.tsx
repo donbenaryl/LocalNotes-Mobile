@@ -22,9 +22,9 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const role = data.personality_name ?? "";
-  const matchValue = getPeopleMatchPercent(data) ?? 0;
+  const matchValue = getPeopleMatchPercent(data);
   const roleColor = getPersonalityRoleColor(role);
-  const matchColor = getMatchPercentColor(matchValue);
+  const matchColor = getMatchPercentColor(matchValue ?? 0);
   const gradientColors = getPersonalityGradientColors(data.personality_color);
   const blurb =
     data.personality_description?.trim() || data.bio?.trim() || "";
@@ -77,17 +77,19 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
                 ) : null}
               </View>
 
-              <View
-                className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-                style={{ backgroundColor: `${matchColor}24` }}
-              >
-                <Text
-                  className="font-geist-bold text-[9.5px] leading-3"
-                  style={{ color: matchColor }}
+              {matchValue != null ? (
+                <View
+                  className="shrink-0 rounded-[5px] px-1.5 py-0.5"
+                  style={{ backgroundColor: `${matchColor}24` }}
                 >
-                  {matchValue}%
-                </Text>
-              </View>
+                  <Text
+                    className="font-geist-bold text-[9.5px] leading-3"
+                    style={{ color: matchColor }}
+                  >
+                    {matchValue}%
+                  </Text>
+                </View>
+              ) : null}
             </View>
 
             {blurb ? (

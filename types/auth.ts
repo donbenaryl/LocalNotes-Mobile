@@ -6,6 +6,8 @@ export interface User {
   hasCompletedQuiz: boolean;
   personalityName?: string | null;
   personalityColor?: Record<string, number> | null;
+  /** `inferred` = auto-filled from activity; absent on older APIs. */
+  personalitySource?: 'quiz' | 'inferred' | null;
   profileImageUrl?: string | null;
   createdAt: string;
 }

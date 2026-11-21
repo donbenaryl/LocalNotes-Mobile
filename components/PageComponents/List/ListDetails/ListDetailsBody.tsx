@@ -26,7 +26,7 @@ export function ListDetailsBody({ list, viewOrigin }: ListDetailsBodyProps) {
   const isOwnList = currentUserId === list.account.id;
   const items = list.items ?? [];
   const locationLabel = formatListLocation(list.location);
-  const personalityMatch = getListMatchPercent(list) ?? 0;
+  const personalityMatch = getListMatchPercent(list);
 
   const [selectedPick, setSelectedPick] = useState<ListItemPublic | null>(null);
   const [isPickDetailOpen, setIsPickDetailOpen] = useState(false);

@@ -32,6 +32,8 @@ export interface profileItemDAO {
   profile_image_url:string;
   personality_name?: string | null;
   personality_color?: Record<string, number> | null;
+  personality_source?: 'quiz' | 'inferred' | null;
+  personality_confidence?: number | null;
   created_at?: string;
   date_of_birth?: string | null;
   /** Whether the current session follows this account (when applicable). */
@@ -128,6 +130,8 @@ interface TraitScore {
 export interface UserProfileData {
   color_breakdown: ColorBreakdown;
   trait_scores: TraitScore[];
+  /** Additive: guessed scores (same shape as trait_scores) when source is "inferred". */
+  inferred_trait_scores?: TraitScore[];
   tags:string;
   description:string;
 }
@@ -169,6 +173,8 @@ export interface topCreatorItem {
   list_count: number;
   personality_name?: string | null;
   personality_color?: Record<string, number> | null;
+  personality_source?: 'quiz' | 'inferred' | null;
+  personality_confidence?: number | null;
   bio?: string | null;
 }
 

@@ -8,6 +8,7 @@ import { authenticateWithBiometrics } from './biometricAuth';
 import { mapProfileToUser } from '../utils/mapProfileToUser';
 import { isBusinessAccountType } from '../utils/businessAccount';
 import { getPostAuthRoute } from '../utils/personality';
+import { getPersonalitySkipCount } from '../utils/personalitySkips';
 
 export async function hydrateBusinessInfo(
   accountType: string | undefined,
@@ -99,6 +100,9 @@ export async function bootstrapSession(): Promise<
     return '/welcome';
   }
 
-  const personalityName = useAuthStore.getState().user?.personalityName;
-  return getPostAuthRoute(personalityName);
+  const sessionUser = useAuthStore.getState().user;
+  return getPostAuthRoute(sessionUser?.personalityName, {
+    source: sessionUser?.personalitySource,
+    skipCount: await getPersonalitySkipCount(),
+  });
 }

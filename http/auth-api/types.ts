@@ -40,5 +40,7 @@ export type signInDAO ={
     profile_image_url:string;
     personality_name?: string | null;
     personality_color?: Record<string, number> | null;
+    personality_source?: 'quiz' | 'inferred' | null;
+    personality_confidence?: number | null;
     created_at?: string;
 }

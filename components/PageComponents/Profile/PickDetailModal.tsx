@@ -222,7 +222,7 @@ export function PickDetailModal({
   const categoryLabel = formatCategoryLabel(data);
   // Server-computed against the pick's owner; hidden on your own picks.
   const showMatch = !data.is_owner;
-  const personalityMatch = getEmbeddedMatchPercent(data.owner) ?? 0;
+  const personalityMatch = getEmbeddedMatchPercent(data.owner);
   const hasCoords =
     data.location?.latitude != null &&
     data.location?.longitude != null &&

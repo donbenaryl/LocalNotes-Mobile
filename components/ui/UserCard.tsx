@@ -11,7 +11,7 @@ import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 interface UserCardProps {
   name: string;
   role: string;
-  match: number;
+  match?: number | null;
   personalityDescription: string;
   avatarUrl?: string | null;
   personalityColor?: Record<string, number> | null;
@@ -31,9 +31,9 @@ export function UserCard({
   isSelected,
   onPress,
 }: UserCardProps) {
-  const matchValue = clampPercent(match ?? 0);
+  const matchValue = match == null ? null : clampPercent(match);
   const roleColor = getPersonalityRoleColor(role);
-  const matchColor = getMatchPercentColor(matchValue);
+  const matchColor = getMatchPercentColor(matchValue ?? 0);
   const gradientColors = getPersonalityGradientColors(personalityColor);
 
   return (
@@ -76,17 +76,19 @@ export function UserCard({
               {role}
             </Text>
           </View>
-          <View
-            className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-            style={{ backgroundColor: `${matchColor}24` }}
-          >
-            <Text
-              className="font-geist-bold text-[9.5px] leading-3"
-              style={{ color: matchColor }}
+          {matchValue != null ? (
+            <View
+              className="shrink-0 rounded-[5px] px-1.5 py-0.5"
+              style={{ backgroundColor: `${matchColor}24` }}
             >
-              {matchValue}%
-            </Text>
-          </View>
+              <Text
+                className="font-geist-bold text-[9.5px] leading-3"
+                style={{ color: matchColor }}
+              >
+                {matchValue}%
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         <Text

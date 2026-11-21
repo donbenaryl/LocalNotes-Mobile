@@ -23,7 +23,8 @@ import {
   QUESTION_GROUPS,
 } from "@/constants/personality";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
-import { hasCompletedPersonalityQuiz } from "@/utils/personality";
+import { hasPersonality } from "@/utils/personality";
+import { recordPersonalitySkip } from "@/utils/personalitySkips";
 import {
   buildAnswersFromTraitScores,
   buildTouchedFromAnswers,
@@ -49,7 +50,7 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
     () => QUESTION_GROUPS.flatMap((group) => group.items),
     [],
   );
-  const shouldHydrate = hasCompletedPersonalityQuiz(user?.personalityName);
+  const shouldHydrate = hasPersonality(user?.personalityName, user?.personalitySource);
 
   const profileQuery = useQuery({
     queryKey: ["personality-profile"],
@@ -61,7 +62,10 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
   });
 
   useEffect(() => {
-    const traitScores = profileQuery.data?.trait_scores;
+    // Quiz scores win; otherwise pre-fill from the inferred guess so the user can adjust it.
+    const traitScores = profileQuery.data?.trait_scores?.length
+      ? profileQuery.data.trait_scores
+      : profileQuery.data?.inferred_trait_scores;
     if (!traitScores?.length) {
       return;
     }
@@ -72,6 +76,8 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
   }, [profileQuery.data, allQuestions]);
 
   const answeredCount = Object.keys(touched).length;
+  const showInferredHint =
+    !profileQuery.data?.trait_scores?.length && !!profileQuery.data?.inferred_trait_scores?.length;
 
   const setAnswer = (questionId: number, nextValue: number) => {
     setAnswers((prev) => ({ ...prev, [questionId]: nextValue }));
@@ -279,7 +285,13 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
             {t("personality.header")} . {allQuestions.length}Q
           </Text>
           <Pressable
-            onPress={onComplete}
+            onPress={() => {
+              // Count skips only while the profile is still empty (drives the launch gate).
+              if (!hasPersonality(user?.personalityName, user?.personalitySource)) {
+                void recordPersonalitySkip();
+              }
+              onComplete();
+            }}
             className="flex-row items-center gap-1 cursor-pointer"
           >
             <Text className="font-geist-semibold text-base text-gray-500 dark:text-gray-300">
@@ -295,6 +307,11 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
         contentContainerStyle={{ paddingBottom: 90 }}
         showsVerticalScrollIndicator={false}
       >
+        {showInferredHint ? (
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-300 mb-4">
+            {t("personality.inferredPrefillHint")}
+          </Text>
+        ) : null}
         {QUESTION_GROUPS.map((group) => (
           <View key={group.sectionKey} className="mb-3">
             <View className="flex-row items-center justify-between mb-3">

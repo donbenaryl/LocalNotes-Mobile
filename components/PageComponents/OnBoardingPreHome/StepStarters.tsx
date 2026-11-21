@@ -151,7 +151,7 @@ export function StepStarters() {
                       <UserCard
                         name={person.name}
                         role={person.personality_name ?? t("preHomeOnboarding.step2.roleFallback")}
-                        match={person.match ?? 0}
+                        match={person.match ?? null}
                         personalityDescription={
                           person.personality_description?.trim() ||
                           person.bio?.trim() ||

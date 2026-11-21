@@ -9,6 +9,7 @@ import { authenticateWithBiometrics } from '@/services/biometricAuth';
 import { hydrateUserProfile } from '@/services/authBootstrap';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getPostAuthRoute } from '@/utils/personality';
+import { getPersonalitySkipCount } from '@/utils/personalitySkips';
 import { toast } from '@/components/ui/Toast';
 
 export function FaceSignIn() {
@@ -38,8 +39,13 @@ export function FaceSignIn() {
         return;
       }
 
-      const personalityName = useAuthStore.getState().user?.personalityName;
-      router.replace(getPostAuthRoute(personalityName) as Href);
+      const sessionUser = useAuthStore.getState().user;
+      router.replace(
+        getPostAuthRoute(sessionUser?.personalityName, {
+          source: sessionUser?.personalitySource,
+          skipCount: await getPersonalitySkipCount(),
+        }) as Href,
+      );
     } finally {
       setPending(false);
     }

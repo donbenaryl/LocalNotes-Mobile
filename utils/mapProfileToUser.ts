@@ -11,6 +11,7 @@ export function mapProfileToUser(profile: profileItemDAO): User {
     hasCompletedQuiz: Boolean(profile.personality_name),
     personalityName: profile.personality_name ?? null,
     personalityColor: profile.personality_color ?? null,
+    personalitySource: profile.personality_source ?? null,
     profileImageUrl: profile.profile_image_url,
     createdAt: profile.created_at ?? '',
   };
@@ -25,6 +26,7 @@ export function mapSignInDaoToUser(dao: signInDAO): User {
     hasCompletedQuiz: dao.has_completed_walkthrough,
     personalityName: dao.personality_name ?? null,
     personalityColor: dao.personality_color ?? null,
+    personalitySource: dao.personality_source ?? null,
     profileImageUrl: dao.profile_image_url,
     createdAt: dao.created_at ?? '',
   };

@@ -16,10 +16,10 @@ export function MatchBadge({
 }: MatchBadgeProps) {
   const { matchPercent, isLoading } = useSimilarScores(userId, enabled);
 
-  // Held back only while fetching — a resolved-but-absent score shows as 0%.
+  // Held back while fetching; an absent score renders nothing (pill returns null).
   if (!enabled || isLoading) {
     return null;
   }
 
-  return <PersonalityMatchPill percent={matchPercent ?? 0} size="md" />;
+  return <PersonalityMatchPill percent={matchPercent} size="md" />;
 }

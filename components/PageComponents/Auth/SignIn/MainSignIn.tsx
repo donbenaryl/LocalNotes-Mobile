@@ -20,6 +20,7 @@ import { useAuthStore } from '../../../../stores/useAuthStore';
 import { FaceSignIn } from './FaceSignIn';
 import { mapSignInDaoToUser } from '../../../../utils/mapProfileToUser';
 import { getPostAuthRoute } from '../../../../utils/personality';
+import { getPersonalitySkipCount } from '../../../../utils/personalitySkips';
 import { hydrateBusinessInfo } from '../../../../services/authBootstrap';
 import { useSocialAuth } from '@/hooks/useSocialAuth';
 import { useBiometricStore } from '@/stores/useBiometricStore';
@@ -92,7 +93,12 @@ export function MainSignIn() {
       await setAuth(mapSignInDaoToUser(dao), dao.token, dao.refresh_token);
       await hydrateBusinessInfo(dao.account_type);
       unlockSession();
-      router.replace(getPostAuthRoute(dao.personality_name) as Href);
+      router.replace(
+        getPostAuthRoute(dao.personality_name, {
+          source: dao.personality_source,
+          skipCount: await getPersonalitySkipCount(),
+        }) as Href,
+      );
     },
     onError: (error: Error) => {
       toast.error(error.message, { title: t('alerts.signInFailed') });

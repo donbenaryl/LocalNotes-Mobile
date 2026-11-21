@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { Calendar, MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +22,7 @@ import {
   getPersonalityGradientColors,
 } from '@/utils/personalityRing';
 import { getMatchPercentColor } from '@/utils/matchScore';
+import { isInferredPersonality } from '@/utils/personality';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
 import type { BusinessItemDAO, BusinessLocation } from '@/http/business-api/types';
@@ -209,6 +211,7 @@ function UserProfileInfo({
   isOwnProfile: boolean;
 }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const { colorScheme } = useColorScheme();
   const authAccountType = useAuthStore((s) => s.accountType);
   const isDark = colorScheme === 'dark';
@@ -232,7 +235,7 @@ function UserProfileInfo({
     monthDelta,
     topTypes,
   } = useBusinessOwnerProfileInsights(isOwnProfile, accountType);
-  const showTasteMatch = !isOwnProfile && !isMatchLoading;
+  const showTasteMatch = !isOwnProfile && !isMatchLoading && matchPercent != null;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);
 
   const locationLabel = formatLocationLabel(profile.location);
@@ -311,6 +314,23 @@ function UserProfileInfo({
               >
                 {profile.personality_name}
               </Text>
+            ) : null}
+            {profile.personality_name && isInferredPersonality(profile.personality_source) ? (
+              <Text className="mt-0.5 font-geist-medium text-[11.5px] text-gray-400 dark:text-gray-500">
+                {t('personality.basedOnActivity')}
+              </Text>
+            ) : null}
+            {isOwnProfile && isInferredPersonality(profile.personality_source) ? (
+              <Pressable
+                onPress={() =>
+                  router.push({ pathname: '/personality', params: { isRetake: 'true' } })
+                }
+                className="mt-1 cursor-pointer"
+              >
+                <Text className="font-geist-semibold text-[12.5px] text-brand">
+                  {t('personality.takeQuizCta')}
+                </Text>
+              </Pressable>
             ) : null}
           </View>
         </View>

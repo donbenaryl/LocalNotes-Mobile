@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 
 interface PersonalityMatchPillProps {
-  /** Server-computed personality match, 0-100. Always renders; null shows as 0%. */
+  /** Server-computed personality match, 0-100. Null / missing renders nothing (unknown is not 0%). */
   percent?: number | null;
   size?: "sm" | "md";
   /**
@@ -16,14 +16,15 @@ interface PersonalityMatchPillProps {
 /**
  * Presentational only — pass a precomputed 0-100 percent (never fetches).
  * Which metric that percent represents is chosen by MATCH_SCORE_MODE helpers.
- * Always renders — callers gate on ownership, not on the percent being absent.
+ * Renders nothing when percent is null/undefined — unknown is not 0%.
  */
 export function PersonalityMatchPill({
   percent,
   size = "sm",
   variant = "inline",
 }: PersonalityMatchPillProps) {
-  const clamped = clampPercent(percent ?? 0);
+  if (percent == null) return null;
+  const clamped = clampPercent(percent);
   const color = getMatchPercentColor(clamped);
 
   if (variant === "overlay" || variant === "overlayCompact") {

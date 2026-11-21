@@ -290,10 +290,13 @@ const en = {
     skip: 'Skip',
     seeResult: 'See result',
     answered: 'answered',
+    inferredPrefillHint: "We guessed your vibe from your activity. Adjust anything that's off.",
     analyzing: 'Analyzing your results...',
     yourPersonality: 'Your Personality',
     tapToFlip: 'Tap to flip',
     retake: 'Retake Quiz',
+    basedOnActivity: 'Based on your activity',
+    takeQuizCta: 'Take the quiz for a sharper match',
     complete: 'Complete',
     sections: {
       vibeAtmosphere: 'Vibe & Atmosphere',
