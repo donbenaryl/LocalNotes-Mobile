@@ -4,6 +4,7 @@ import type { Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { LocalNotesText } from '@/components/ui/LocalNotesText';
 
 export function WelcomeFixedChrome() {
   const router = useRouter();
@@ -14,20 +15,13 @@ export function WelcomeFixedChrome() {
 
   return (
     <View className="absolute inset-0" pointerEvents="box-none">
-      <Text
-        accessibilityRole="header"
-        accessibilityLabel="LocalNotes"
-        className="absolute self-center font-geist-extrabold text-[25px]"
+      <View className="absolute self-center font-geist-extrabold text-[25px]"
         style={{
           top: logoTop,
-          textShadowColor: 'rgba(0,0,0,0.47)',
-          textShadowOffset: { width: 1.3, height: 1.3 },
-          textShadowRadius: 2,
         }}
       >
-        <Text className="text-brand">Local</Text>
-        <Text className="text-white">Notes</Text>
-      </Text>
+        <LocalNotesText variant="brand" size="lg" withShadow/>
+      </View>
 
       <View
         className="absolute left-0 right-0 px-5"
@@ -36,7 +30,7 @@ export function WelcomeFixedChrome() {
       >
         <View className="mb-6" accessibilityLabel={t('auth.welcome.headlineA11y')}>
           <Text
-            className="font-geist-extrabold text-[50px] leading-[54px] text-white"
+            className="font-geist-extrabold text-6xl leading-[50px] text-white"
             maxFontSizeMultiplier={1.15}
             adjustsFontSizeToFit
             numberOfLines={1}
@@ -50,7 +44,7 @@ export function WelcomeFixedChrome() {
             {t('auth.welcome.headlineLine1')}
           </Text>
           <Text
-            className="mt-1 font-fraunces text-[45px] leading-[50px] text-brand"
+            className="italic text-6xl leading-[50px] text-brand"
             maxFontSizeMultiplier={1.15}
             adjustsFontSizeToFit
             numberOfLines={1}
@@ -64,14 +58,14 @@ export function WelcomeFixedChrome() {
             {t('auth.welcome.headlineLine2')}
           </Text>
           <Text
-            className="mt-6 max-w-[342px] font-geist text-[15px] leading-[22px] text-[#F0ECE8]"
+            className="mt-2 max-w-[342px] font-geist text-xl leading-[22px] text-[#F0ECE8]"
             maxFontSizeMultiplier={1.3}
           >
             {t('auth.welcome.subtitle')}
           </Text>
         </View>
 
-        <View className="gap-[13px]">
+        <View className="gap-3">
           <LocalNotesButton
             label={t('auth.welcome.createAccount')}
             onPress={() => router.push('/sign-up' as Href)}

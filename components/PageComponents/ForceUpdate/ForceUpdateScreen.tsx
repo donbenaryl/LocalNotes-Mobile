@@ -88,10 +88,10 @@ export function ForceUpdateScreen() {
             <LocalNotesButton
               label={t('forceUpdate.updateCta')}
               onPress={onUpdate}
-              variant="light"
+              variant="brand"
               size="lg"
               isWidthFull
-              leftIcon={<ArrowUpFromLine size={18} color="#141413" strokeWidth={2} />}
+              leftIcon={<ArrowUpFromLine size={18} color="white" strokeWidth={2} />}
             />
             <Text className="text-center font-geist text-sm text-white/70">
               {storeHint}

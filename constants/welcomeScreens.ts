@@ -57,7 +57,7 @@ export const WELCOME_SCREENS: WelcomeScreenConfig[] = [
     captionTopPt: 83.3,
     chip: { name: 'Kenji', matchPct: 76 },
     list: {
-      topPt: 276.7,
+      topPt: 245,
       title: "Kenji's taste-over-ambiance eats",
       count: 9,
       rows: [

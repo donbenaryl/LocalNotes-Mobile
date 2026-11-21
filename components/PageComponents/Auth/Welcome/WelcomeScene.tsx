@@ -37,7 +37,7 @@ function ListCard({
 }: NonNullable<WelcomeScreenConfig['list']>) {
   return (
     <View
-      className="absolute left-[20px] right-[20px] rounded-[13px] border border-white/20 bg-[#0F0C0A]/70 px-[15px] mt-5 py-[11px]"
+      className="absolute left-[20px] right-[20px] rounded-[13px] border border-white/20 bg-[#0F0C0A]/70 px-[15px] mt-16 py-[11px]"
       style={{ top: topPt, height: WELCOME_LIST_CARD_HEIGHT }}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
@@ -115,7 +115,7 @@ export function WelcomeScene({ screen, showListCard }: WelcomeSceneProps) {
         style={{ top: captionTop }}
       >
         <Text
-          className="font-geist-medium text-md uppercase tracking-[2px] text-white/75"
+          className="font-geist-medium text-md uppercase tracking-[2px] text-white/75 mt-5"
           style={{
             textShadowColor: 'rgba(0,0,0,0.47)',
             textShadowOffset: { width: 1, height: 1 },
@@ -125,7 +125,7 @@ export function WelcomeScene({ screen, showListCard }: WelcomeSceneProps) {
           {screen.label}
         </Text>
         <Text
-          className="mt-[9px] font-geist-bold text-4xl leading-[34px] text-white"
+          className="mt-[9px] font-geist-bold text-5xl leading-[46px] text-white"
           style={{
             textShadowColor: 'rgba(0,0,0,0.59)',
             textShadowOffset: { width: 1.3, height: 1.3 },
