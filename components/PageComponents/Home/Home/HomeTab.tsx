@@ -157,7 +157,7 @@ type HomeLocationMode = "auto" | "city" | "all";
 
 export function HomeTab() {
   const { t, i18n } = useTranslation();
-  const [contentType, setContentType] = useState<HomeContentType>("lists");
+  const [contentType, setContentType] = useState<HomeContentType>("picks");
   const [activeFilters, setActiveFilters] = useState<HomeListFilter[]>([]);
   const [matchThreshold, setMatchThreshold] = useState<number | null>(null);
   const [matchPriorities, setMatchPriorities] = useState<MatchPriorities>({});

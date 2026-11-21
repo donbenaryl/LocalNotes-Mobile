@@ -127,8 +127,8 @@ export function HomeFilterHeader({
           value={contentType}
           onChange={onContentTypeChange}
           options={[
-            { value: "lists", label: t("home.contentType.lists") },
             { value: "picks", label: t("home.contentType.picks") },
+            { value: "lists", label: t("home.contentType.lists") },
             { value: "businesses", label: t("home.contentType.businesses") },
           ]}
         />
