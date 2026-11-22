@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { Text, View, type LayoutChangeEvent } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,12 +6,22 @@ import { useTranslation } from 'react-i18next';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { LocalNotesText } from '@/components/ui/LocalNotesText';
 
-export function WelcomeFixedChrome() {
+interface WelcomeFixedChromeProps {
+  onBottomChromeTop?: (y: number) => void;
+}
+
+export function WelcomeFixedChrome({
+  onBottomChromeTop,
+}: WelcomeFixedChromeProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
   const logoTop = Math.max(insets.top + 4, 37);
+
+  const handleBottomChromeLayout = (event: LayoutChangeEvent) => {
+    onBottomChromeTop?.(event.nativeEvent.layout.y);
+  };
 
   return (
     <View className="absolute inset-0" pointerEvents="box-none">
@@ -27,6 +37,7 @@ export function WelcomeFixedChrome() {
         className="absolute left-0 right-0 px-5"
         style={{ bottom: insets.bottom + 8 }}
         pointerEvents="box-none"
+        onLayout={handleBottomChromeLayout}
       >
         <View className="mb-6" accessibilityLabel={t('auth.welcome.headlineA11y')}>
           <Text

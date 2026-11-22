@@ -4,7 +4,9 @@ export const WELCOME_ROTATION_INTERVAL_MS = 5000;
 export const WELCOME_CROSSFADE_MS = 800;
 export const WELCOME_SHORT_SCREEN_HEIGHT = 700;
 /** Approx height of bottom headline + subtitle + buttons + legal + padding. */
-export const WELCOME_BOTTOM_CHROME_HEIGHT = 340;
+export const WELCOME_BOTTOM_CHROME_HEIGHT = 370;
+/** Extra top offset applied when positioning ListCard (replaces mt-16). */
+export const WELCOME_LIST_CARD_TOP_OFFSET = 64;
 export const WELCOME_LIST_CARD_HEIGHT = 185;
 export const WELCOME_LOGO_HEIGHT = 28;
 export const WELCOME_SCENE_BELOW_LOGO_GAP = 12;

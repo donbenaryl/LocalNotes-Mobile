@@ -40,6 +40,7 @@ const FADE_CONFIG = {
 export function WelcomeScreen() {
   const { height } = useWindowDimensions();
   const showListCard = height >= WELCOME_SHORT_SCREEN_HEIGHT;
+  const [bottomChromeTop, setBottomChromeTop] = useState<number | null>(null);
 
   const startIndex = useMemo(
     () => randomStartIndex(WELCOME_SCREENS.length),
@@ -253,7 +254,11 @@ export function WelcomeScreen() {
           className="absolute inset-0 h-full w-full"
           resizeMode="cover"
         />
-        <WelcomeScene screen={screen0} showListCard={showListCard} />
+        <WelcomeScene
+          screen={screen0}
+          showListCard={showListCard}
+          bottomChromeTop={bottomChromeTop}
+        />
       </Animated.View>
 
       <Animated.View className="absolute inset-0" style={slot1Style}>
@@ -262,7 +267,11 @@ export function WelcomeScreen() {
           className="absolute inset-0 h-full w-full"
           resizeMode="cover"
         />
-        <WelcomeScene screen={screen1} showListCard={showListCard} />
+        <WelcomeScene
+          screen={screen1}
+          showListCard={showListCard}
+          bottomChromeTop={bottomChromeTop}
+        />
       </Animated.View>
 
       <View className="absolute inset-0" pointerEvents="none">
@@ -273,7 +282,7 @@ export function WelcomeScreen() {
         />
       </View>
 
-      <WelcomeFixedChrome />
+      <WelcomeFixedChrome onBottomChromeTop={setBottomChromeTop} />
     </View>
   );
 }

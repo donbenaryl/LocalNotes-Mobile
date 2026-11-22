@@ -4,6 +4,7 @@ import type { WelcomeScreenConfig } from '@/constants/welcomeScreens';
 import {
   WELCOME_BOTTOM_CHROME_HEIGHT,
   WELCOME_LIST_CARD_HEIGHT,
+  WELCOME_LIST_CARD_TOP_OFFSET,
   WELCOME_LOGO_HEIGHT,
   WELCOME_SCENE_BELOW_LOGO_GAP,
   WELCOME_SHORT_SCREEN_HEIGHT,
@@ -12,6 +13,7 @@ import {
 interface WelcomeSceneProps {
   screen: WelcomeScreenConfig;
   showListCard: boolean;
+  bottomChromeTop: number | null;
 }
 
 function MatchChip({ name, matchPct }: { name: string; matchPct: number }) {
@@ -37,8 +39,11 @@ function ListCard({
 }: NonNullable<WelcomeScreenConfig['list']>) {
   return (
     <View
-      className="absolute left-[20px] right-[20px] rounded-[13px] border border-white/20 bg-[#0F0C0A]/70 px-[15px] mt-16 py-[11px]"
-      style={{ top: topPt, height: WELCOME_LIST_CARD_HEIGHT }}
+      className="absolute left-[20px] right-[20px] rounded-[13px] border border-white/20 bg-[#0F0C0A]/70 px-[15px] py-[11px]"
+      style={{
+        top: topPt + WELCOME_LIST_CARD_TOP_OFFSET,
+        height: WELCOME_LIST_CARD_HEIGHT,
+      }}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
@@ -77,7 +82,11 @@ function ListCard({
   );
 }
 
-export function WelcomeScene({ screen, showListCard }: WelcomeSceneProps) {
+export function WelcomeScene({
+  screen,
+  showListCard,
+  bottomChromeTop,
+}: WelcomeSceneProps) {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -88,15 +97,15 @@ export function WelcomeScene({ screen, showListCard }: WelcomeSceneProps) {
 
   const isShort = height < WELCOME_SHORT_SCREEN_HEIGHT;
   const sceneBottomLimit =
-    height - insets.bottom - WELCOME_BOTTOM_CHROME_HEIGHT;
+    bottomChromeTop ?? height - insets.bottom - WELCOME_BOTTOM_CHROME_HEIGHT;
   // Caption + chip roughly occupy ~120pt below captionTop before a card can start.
   const minListTop = captionTop + 120;
   const listTop = screen.list
     ? Math.max(screen.list.topPt, minListTop)
     : 0;
-  const listFits =
-    !!screen.list &&
-    listTop + WELCOME_LIST_CARD_HEIGHT <= sceneBottomLimit;
+  const cardBottom =
+    listTop + WELCOME_LIST_CARD_TOP_OFFSET + WELCOME_LIST_CARD_HEIGHT;
+  const listFits = !!screen.list && cardBottom <= sceneBottomLimit - 8;
 
   const list =
     showListCard && !isShort && listFits && screen.list
