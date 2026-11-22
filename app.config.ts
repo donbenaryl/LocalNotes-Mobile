@@ -45,6 +45,16 @@ const CONTACTS_USAGE =
   'LocalNotes uses your contacts to show which of your friends are already on LocalNotes. Phone numbers are hashed before they leave your device and are never stored.';
 
 const plugins: ExpoConfig['plugins'] = [
+  './plugins/withOptionalPortraitFeature',
+  [
+    'expo-build-properties',
+    {
+      android: {
+        enableMinifyInReleaseBuilds: true,
+        enableShrinkResourcesInReleaseBuilds: true,
+      },
+    },
+  ],
   'expo-router',
   'expo-secure-store',
   [
@@ -157,14 +167,18 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.ACCESS_COARSE_LOCATION',
       'android.permission.ACCESS_FINE_LOCATION',
       'android.permission.CAMERA',
-      'android.permission.READ_MEDIA_IMAGES',
       'android.permission.READ_EXTERNAL_STORAGE',
       'android.permission.USE_BIOMETRIC',
       'android.permission.USE_FINGERPRINT',
       'android.permission.READ_CONTACTS',
     ],
     // expo-contacts' plugin adds WRITE_CONTACTS; we only read.
-    blockedPermissions: ['android.permission.WRITE_CONTACTS'],
+    // READ_MEDIA_* blocked so Play uses the system photo picker policy path.
+    blockedPermissions: [
+      'android.permission.WRITE_CONTACTS',
+      'android.permission.READ_MEDIA_IMAGES',
+      'android.permission.READ_MEDIA_VIDEO',
+    ],
   },
   web: {
     favicon: './assets/favicon.png',

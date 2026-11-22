@@ -12,9 +12,9 @@ Root: `LocalNotesMobile/`. All Expo / React Native work belongs here.
 
 Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMerge`). Prefer `npx expo install <pkg>` for Expo-compatible versions.
 
-**Do not invent** tooling that is not installed: FlashList, Jest/Vitest, Sentry/`expo-error-reporter`, `expo-updates`.
+**Do not invent** tooling that is not installed: FlashList, Vitest, Sentry/`expo-error-reporter`, `expo-updates`. Jest + jest-expo **are** installed for pure-logic unit tests under `utils/` / `hooks/` (`npm test`) — extend those patterns; no component RTL harness yet.
 
-**No payment processing in this app.** Mobile must never call a Stripe SDK, `/checkout`, or any other payment/charge endpoint directly — that would expose the app to Apple/Google in-app-purchase commission requirements. Paid features (e.g. publishing a business "Offer") must hand off to `LocalNotes-Frontend` via `Linking.openURL` (using `getWebAppUrl()` from `http/environment.config.ts`) to complete the purchase. See `hooks/useOpenCreateOfferOnWeb.ts` for the pattern.
+**No payment processing in this app.** Mobile must never call a Stripe SDK, `/checkout`, or any other payment/charge endpoint directly — that would expose the app to Apple/Google in-app-purchase commission requirements. Paid features (offers, spotlight bids, Business Insights) must hand off to `LocalNotes-Frontend` via `Linking.openURL` (using `getWebAppUrl()` from `http/environment.config.ts`). See `hooks/useOpenCreateOfferOnWeb.ts`, `useOpenSpotlightBidOnWeb`, `useOpenBusinessInsightsOnWeb`.
 
 ---
 
@@ -22,7 +22,7 @@ Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMer
 
 | Area | Location |
 |------|----------|
-| Routes | `app/` — `(auth)/` (public), `(app)/(tabs)/`, `(app)/(stack)/` |
+| Routes | `app/` — `(auth)/` (public), `(app)/(tabs)/`, `(app)/(stack)/`, `force-update` |
 | Screen bodies | `components/PageComponents/<Feature>/` |
 | Shared UI | `components/ui/` |
 | Hooks / stores | `hooks/`, `stores/` |
@@ -37,9 +37,10 @@ Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMer
 
 ## Routing
 
-- **Root:** `app/_layout.tsx` (fonts, QueryClient, theme/locale); `app/index.tsx` splash → `bootstrapSession()` → `/sign-in` | `/personality` | `/home`.
-- **`(auth)/`:** public auth screens (sign-in, sign-up, OTP…). Thin files re-export PageComponents.
-- **`(app)/`:** auth gate — `!isAuthenticated` or `isSessionLocked` → `/sign-in`. Children: `(tabs)/` and `(stack)/`.
+- **Root:** `app/_layout.tsx` (fonts, QueryClient, theme/locale/auth/biometric; re-checks force-update on AppState foreground); `app/index.tsx` splash → **force-update check** → `bootstrapSession()` → `/welcome` | `/sign-in` | `/personality` | `/home`.
+- **`(auth)/`:** public auth screens (welcome, sign-in, sign-up, OTP…). Thin files re-export PageComponents. `welcome` is the primary unauthenticated landing.
+- **`(app)/`:** auth gate — `isSessionLocked` → `/sign-in`; `!isAuthenticated` → `/welcome`. Children: `(tabs)/` and `(stack)/`.
+- **Force update:** `app/force-update.tsx` → `ForceUpdateScreen`; gated via `utils/appVersionGate.ts` + `http/app-api/app-version.service.ts` (`GET /mobile/version`).
 - **Section chrome:** `SectionShellPager` + `GuardedFooter` + `constants/swipeNavigation.ts` / `useSectionRouteStore`. Expo Tabs keep URL/deep-link sync; they are not the primary swipe UI.
 - Use Expo Router only (`router.push`, `<Link href="...">`); typed params with `useLocalSearchParams`.
 
@@ -47,10 +48,10 @@ Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMer
 
 ## API and auth
 
-- **Base URL:** `getApiBaseUrl()` in `http/environment.config.ts` — `Constants.expoConfig.extra.apiUrl`, normalized to end with `/api`. Mapbox: `EXPO_PUBLIC_MAPBOX_TOKEN`. `apiUrl` is often hardcoded in `app.config.ts` for device LAN; changing it usually needs a **native rebuild**.
-- **HTTP:** `http/index.ts` — `AppHttpService` (Bearer + 401 refresh queue) and `PublicHttpService`. Refresh: `POST …/accounts/token/refresh` with `{ refresh_token }`; failure → `clearAuth` + `router.replace('/sign-in')`.
+- **Base URL:** `getApiBaseUrl()` in `http/environment.config.ts` — `Constants.expoConfig.extra.apiUrl`, normalized to end with `/api`. Web handoff: `getWebAppUrl()` / `extra.webAppUrl`. Mapbox: `EXPO_PUBLIC_MAPBOX_TOKEN`. `apiUrl` is often hardcoded in `app.config.ts` for device LAN; changing it usually needs a **native rebuild**.
+- **HTTP:** `http/index.ts` — `AppHttpService` (Bearer + 401 refresh queue) and `PublicHttpService`. Refresh: `POST …/accounts/token/refresh` with `{ refresh_token }`; failure → `clearAuth` + `router.replace('/welcome')`.
 - **Feature APIs:** extend `http/<domain>-api/*.service(s).ts`. Hooks call these via TanStack Query — never raw axios in screens.
-- **`services/`:** device/orchestration only — `authBootstrap`, `socialAuth`, `biometricAuth`, `i18n`, `pushNotifications`. Do **not** extend legacy `services/authService.ts` for new work; use `http/auth-api/auth.service.ts`.
+- **`services/`:** device/orchestration only — `authBootstrap`, `socialAuth`, `biometricAuth`, `i18n`, `pushNotifications`, `googleReviewsAuth`. Do **not** extend legacy `services/authService.ts` for new work; use `http/auth-api/auth.service.ts`.
 - **Session:** `useAuthStore` (tokens in SecureStore) + optional biometric `lockSession` (lock ≠ logout). Personality gate: `utils/personality.ts`.
 
 ---
@@ -67,7 +68,7 @@ Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMer
 
 - Prefer **`className`** for static styles. Reserve `style` / `StyleSheet` for values NativeWind cannot express (animated values, `absoluteFillObject`, hairline borders).
 - Semantic tokens in `tailwind.config.js` (`page`, `soft`, `ink`, `brand`, …) — not ad-hoc magic colors.
-- Theme: `useThemeStore` → AsyncStorage `app_theme`; `app/_layout.tsx` calls `loadTheme()` then NativeWind `setColorScheme`. Use `dark:` variants; never branch on `theme` to swap `className` strings. Reuse `ThemeToggle`.
+- Theme: `useThemeStore` → AsyncStorage `app_theme`; `app/_layout.tsx` calls `loadTheme()` then NativeWind `colorScheme.set(theme)` (default `'dark'`). Use `dark:` variants; never branch on `theme` to swap `className` strings. Reuse `ThemeToggle`.
 - Compose classes with `cn()`. Use `cursor-pointer` on interactive controls where applicable.
 
 ---
@@ -110,7 +111,7 @@ Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMer
 
 From `LocalNotesMobile/`:
 
-- `npm run start` | `dev` | `ios` | `android` | `web`
+- `npm run start` | `dev` | `ios` | `android` | `web` | `lint` | `test`
 - Dev variants: `ios:dev`, `android:dev`, `ios:run:dev` (`APP_VARIANT=development`)
 
 Builds: EAS Build — not deprecated `expo build`. Use `npx expo` (not `expo-cli`).
