@@ -14,9 +14,14 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import {
+  FOOTER_BAR_HEIGHT,
+  FOOTER_BOTTOM_OVERHANG,
+  FOOTER_MIN_INSET,
+} from '@/constants/layout';
 
-/** Clears GuardedFooter nav bar (~64) + create FAB overlap + breathing room. */
-const FOOTER_CLEARANCE = 60;
+/** Visible gap between the top of the GuardedFooter bar and this button. */
+const FOOTER_GAP = 12;
 
 const ENTER_SPRING = {
   damping: 16,
@@ -112,7 +117,15 @@ export function ScrollToTopButton({ visible, onPress }: ScrollToTopButtonProps) 
       pointerEvents={visible ? 'box-none' : 'none'}
       className="absolute right-4 z-30"
       style={[
-        { bottom: Math.max(insets.bottom, 12) + FOOTER_CLEARANCE },
+        {
+          // Top edge of the footer bar, derived from the same geometry
+          // GuardedFooter uses so the two can't drift apart per platform.
+          bottom:
+            Math.max(insets.bottom, FOOTER_MIN_INSET) +
+            FOOTER_BAR_HEIGHT -
+            FOOTER_BOTTOM_OVERHANG +
+            FOOTER_GAP,
+        },
         animatedStyle,
       ]}
     >

@@ -12,7 +12,11 @@ import { useTranslation } from 'react-i18next';
 import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { brandColor } from '@/constants/colors';
-import { FOOTER_BAR_HEIGHT, FOOTER_MIN_INSET } from '@/constants/layout';
+import {
+  FOOTER_BAR_HEIGHT,
+  FOOTER_BOTTOM_OVERHANG,
+  FOOTER_MIN_INSET,
+} from '@/constants/layout';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
 import { useSectionRouteStore } from '@/stores/useSectionRouteStore';
@@ -168,8 +172,8 @@ export function GuardedFooter() {
 
   return (
     <View
-      className="absolute -bottom-4 left-0 right-0 z-10 items-center px-4"
-      style={{ paddingBottom: bottomInset }}
+      className="absolute left-0 right-0 z-10 items-center px-4"
+      style={{ bottom: -FOOTER_BOTTOM_OVERHANG, paddingBottom: bottomInset }}
       pointerEvents="box-none"
     >
       <View className="relative w-full max-w-md">
