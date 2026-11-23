@@ -24,6 +24,7 @@ import { useAccountSettingsStore } from '../stores/useAccountSettingsStore';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useBiometricStore } from '../stores/useBiometricStore';
 import { ToastViewport } from '../components/ui/Toast';
+import { SplashOverlay } from '../components/ui/SplashOverlay';
 import {
   checkForceUpdateRequired,
   isForceUpdateScreenActive,
@@ -133,6 +134,7 @@ export default function RootLayout() {
                 />
               </Stack>
               <ToastViewport />
+              <SplashOverlay />
             </View>
           </QueryClientProvider>
         </KeyboardProvider>

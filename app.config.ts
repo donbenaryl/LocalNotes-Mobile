@@ -136,9 +136,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   scheme: 'localnotes',
   splash: {
-    image: './assets/splash-icon.png',
+    image: './assets/images/logo/ln-icon-light.png',
     resizeMode: 'contain',
-    backgroundColor: '#141413',
+    backgroundColor: '#F7F3EC',
+    dark: {
+      image: './assets/images/logo/ln-icon-dark.png',
+      backgroundColor: '#161412',
+    },
   },
   ios: {
     supportsTablet: true,

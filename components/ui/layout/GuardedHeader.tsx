@@ -7,11 +7,13 @@ import { useAuthStore } from "../../../stores/useAuthStore";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { Avatar } from "../Avatar";
 import { LocalNotesText } from "../LocalNotesText";
+import { useSplashTarget } from "@/hooks/useSplashTarget";
 
 export function GuardedHeader() {
   const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
+  const logo = useSplashTarget('home');
 
   const handleOpenNotifications = () => {
     router.push("/(app)/(stack)/notifications" as never);
@@ -26,7 +28,13 @@ export function GuardedHeader() {
     <View
       className="bg-page dark:bg-dk-page pt-2 pb-3 flex-row items-center justify-between"
     >
-      <LocalNotesText size="sm" />
+      <View
+        ref={logo.ref}
+        onLayout={logo.onLayout}
+        style={{ opacity: logo.hidden ? 0 : 1 }}
+      >
+        <LocalNotesText size="sm" />
+      </View>
       <View className="flex-row items-center gap-3">
         <TouchableOpacity
           onPress={handleOpenNotifications}

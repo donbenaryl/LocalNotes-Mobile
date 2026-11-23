@@ -1,47 +1,43 @@
-import { Text, View, type LayoutChangeEvent } from 'react-native';
+import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { LocalNotesText } from '@/components/ui/LocalNotesText';
+import { useSplashTarget } from '@/hooks/useSplashTarget';
 
-interface WelcomeFixedChromeProps {
-  onBottomChromeTop?: (y: number) => void;
-}
-
-export function WelcomeFixedChrome({
-  onBottomChromeTop,
-}: WelcomeFixedChromeProps) {
+export function WelcomeFixedChrome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
   const logoTop = Math.max(insets.top + 4, 37);
 
-  const handleBottomChromeLayout = (event: LayoutChangeEvent) => {
-    onBottomChromeTop?.(event.nativeEvent.layout.y);
-  };
+  const logo = useSplashTarget('welcome');
 
   return (
     <View className="absolute inset-0" pointerEvents="box-none">
-      <View className="absolute self-center font-geist-extrabold text-[25px]"
+      <View
+        ref={logo.ref}
+        onLayout={logo.onLayout}
+        className="absolute self-center font-geist-extrabold text-[25px]"
         style={{
           top: logoTop,
+          opacity: logo.hidden ? 0 : 1,
         }}
       >
-        <LocalNotesText variant="brand" size="lg" withShadow/>
+        <LocalNotesText variant="cream" size="lg" withShadow/>
       </View>
 
       <View
         className="absolute left-0 right-0 px-5"
         style={{ bottom: insets.bottom + 8 }}
         pointerEvents="box-none"
-        onLayout={handleBottomChromeLayout}
       >
         <View className="mb-6" accessibilityLabel={t('auth.welcome.headlineA11y')}>
           <Text
-            className="font-geist-extrabold text-6xl leading-[50px] text-white"
+            className="font-geist-extrabold text-6xl leading-[50px] text-page"
             maxFontSizeMultiplier={1.15}
             adjustsFontSizeToFit
             numberOfLines={1}
@@ -55,7 +51,7 @@ export function WelcomeFixedChrome({
             {t('auth.welcome.headlineLine1')}
           </Text>
           <Text
-            className="italic text-6xl leading-[50px] text-white"
+            className="italic text-6xl leading-[50px] text-page"
             maxFontSizeMultiplier={1.15}
             adjustsFontSizeToFit
             numberOfLines={1}
@@ -69,7 +65,7 @@ export function WelcomeFixedChrome({
             {t('auth.welcome.headlineLine2')}
           </Text>
           <Text
-            className="mt-2 max-w-[342px] font-geist text-xl leading-[22px] text-[#F0ECE8]"
+            className="mt-2 max-w-[342px] font-geist text-xl leading-[22px] text-[#DDD5C8]"
             maxFontSizeMultiplier={1.3}
           >
             {t('auth.welcome.subtitle')}
@@ -80,10 +76,12 @@ export function WelcomeFixedChrome({
           <LocalNotesButton
             label={t('auth.welcome.createAccount')}
             onPress={() => router.push('/sign-up' as Href)}
-            variant="brand"
+            variant="light"
             size="lg"
+            className="!border-page !bg-page dark:!border-page dark:!bg-page"
+            textClassName="!text-ink dark:!text-ink"
           />
-          <View className="overflow-hidden rounded-xl border border-white/30 bg-[#141416]/75">
+          <View className="overflow-hidden rounded-xl border border-white/30 bg-white/10">
             <LocalNotesButton
               label={t('auth.welcome.signIn')}
               onPress={() => router.push('/sign-in' as Href)}
@@ -95,12 +93,12 @@ export function WelcomeFixedChrome({
         </View>
 
         <Text
-          className="mt-5 text-center font-geist leading-[17px] text-[#B9B6B2]"
+          className="mt-5 text-center font-geist leading-[17px] text-[#A79E92]"
           maxFontSizeMultiplier={1.3}
         >
           {t('auth.welcome.legalPrefix')}
           <Text
-            className="text-white underline"
+            className="text-page underline"
             onPress={() => router.push('/terms' as Href)}
             accessibilityRole="link"
           >
@@ -108,7 +106,7 @@ export function WelcomeFixedChrome({
           </Text>
           {t('auth.welcome.legalSeparator')}
           <Text
-            className="text-white underline"
+            className="text-page underline"
             onPress={() => router.push('/privacy-policy' as Href)}
             accessibilityRole="link"
           >
@@ -116,7 +114,7 @@ export function WelcomeFixedChrome({
           </Text>
           {t('auth.welcome.legalAnd')}
           <Text
-            className="text-white underline"
+            className="text-page underline"
             onPress={() => router.push('/community-guidelines' as Href)}
             accessibilityRole="link"
           >

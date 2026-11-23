@@ -1,6 +1,6 @@
 import { Text, View, type TextStyle } from 'react-native';
 
-type LocalNotesTextVariant = 'default' | 'light' | 'brand' | 'brandOnDark';
+type LocalNotesTextVariant = 'default' | 'light' | 'brand' | 'brandOnDark' | 'cream';
 
 interface LocalNotesTextProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -21,6 +21,8 @@ const variantLocalClasses: Record<LocalNotesTextVariant, string> = {
   brand: 'text-ink dark:text-dk-text',
   // Always light — used on dark splash / force-update surfaces.
   brandOnDark: 'text-gray-100',
+  // Redesign cream (#F7F3EC) — used on the welcome photo.
+  cream: 'text-page',
 };
 
 const variantNotesClasses: Record<LocalNotesTextVariant, string> = {
@@ -28,6 +30,7 @@ const variantNotesClasses: Record<LocalNotesTextVariant, string> = {
   light: 'text-white',
   brand: 'text-white',
   brandOnDark: 'text-white',
+  cream: 'text-page',
 };
 
 const textShadowStyle: TextStyle = {
