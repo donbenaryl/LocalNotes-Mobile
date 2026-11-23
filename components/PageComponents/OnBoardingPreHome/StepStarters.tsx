@@ -107,7 +107,7 @@ export function StepStarters() {
           <Text
             className={
               isReady
-                ? "text-brand"
+                ? "text-brand dark:text-gray-100"
                 : "text-gray-400 dark:text-gray-500"
             }
           >
@@ -180,7 +180,7 @@ export function StepStarters() {
       <PageFooterWrapper>
         <Text className="font-geist-medium text-sm text-center text-gray-500 dark:text-gray-400 mb-2">
           {selected.size} of {people.length} selected
-          {isReady && <Text className="text-brand"> · ready to go</Text>}
+          {isReady && <Text className="text-brand dark:text-gray-100"> · ready to go</Text>}
         </Text>
         <LocalNotesButton
           label={t("preHomeOnboarding.step2.cta")}

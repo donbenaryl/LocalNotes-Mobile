@@ -27,9 +27,9 @@ module.exports = {
         paper: '#ffffff',
         ink: '#141413',
         brand: {
-          DEFAULT: '#FF6B1A',
-          dark: '#c2410c',
-          tint: '#FFF1E8',
+          DEFAULT: '#141413',
+          dark: '#000000',
+          tint: '#F3F4F6',
         },
         explorer: '#0F6E56',
         connector: '#534AB7',

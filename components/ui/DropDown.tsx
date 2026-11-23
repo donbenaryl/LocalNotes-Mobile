@@ -147,14 +147,14 @@ export function DropDown({
                     className={cn(
                       "font-geist text-base text-center flex-1 pr-3",
                       isSelected
-                        ? "font-geist-medium text-brand"
+                        ? "font-geist-medium text-brand dark:text-gray-100"
                         : "text-ink dark:text-gray-100",
                     )}
                   >
                     {option.label}
                   </Text>
                   {isSelected ? (
-                    <Check size={18} color="#FF6B1A" strokeWidth={2.5} />
+                    <Check size={18} color="#141413" strokeWidth={2.5} />
                   ) : null}
                 </Pressable>
               );

@@ -1,6 +1,7 @@
 import { Pressable } from "react-native";
 import { Bookmark } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
+import { brandColor } from "@/constants/colors";
 
 interface FollowingBookmarkButtonProps {
   active: boolean;
@@ -16,7 +17,9 @@ export function FollowingBookmarkButton({
   accessibilityLabel,
 }: FollowingBookmarkButtonProps) {
   const { colorScheme } = useColorScheme();
-  const idleColor = colorScheme === "dark" ? "#D1D5DB" : "#4B5563";
+  const isDark = colorScheme === "dark";
+  const idleColor = isDark ? "#D1D5DB" : "#4B5563";
+  const activeColor = brandColor(isDark);
 
   return (
     <Pressable
@@ -30,8 +33,8 @@ export function FollowingBookmarkButton({
     >
       <Bookmark
         size={18}
-        color={active ? "#FF6B1A" : idleColor}
-        fill={active ? "#FF6B1A" : "transparent"}
+        color={active ? activeColor : idleColor}
+        fill={active ? activeColor : "transparent"}
       />
     </Pressable>
   );

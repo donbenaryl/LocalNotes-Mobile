@@ -8,10 +8,11 @@ import { toast } from "@/components/ui/Toast";
 import { FACEBOOK_BLUE, FacebookIcon } from "@/components/ui/icons/FacebookIcon";
 import { getWebAppUrl } from "@/http/environment.config";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { BRAND } from "@/constants/colors";
 import { ConnectNowModal } from "./ConnectNow/ConnectNowModal";
 import { FindContactsModal } from "./FindContacts/FindContactsModal";
 
-type FindFriendsOptionId = "connectNow" | "inviteFriends" | "findContacts" | "findFacebook";
+type FindFriendsOptionId = "connectNow" | "inviteFriends" | "findContacts";
 
 interface FindFriendsOption {
   id: FindFriendsOptionId;
@@ -21,7 +22,6 @@ interface FindFriendsOption {
 
 const ICON_SIZE = 24;
 const ICON_COLOR = "#FFFFFF";
-const BRAND_ORANGE = "#FF6B1A";
 /** iOS can't present a second RN Modal until the first has finished dismissing. */
 const MODAL_HANDOFF_DELAY_MS = 350;
 
@@ -40,11 +40,6 @@ const OPTIONS: FindFriendsOption[] = [
     id: "findContacts",
     color: "#4CAF3D",
     icon: <Contact2Icon size={ICON_SIZE} color={ICON_COLOR} />,
-  },
-  {
-    id: "findFacebook",
-    color: FACEBOOK_BLUE,
-    icon: <FacebookIcon />,
   },
 ];
 
@@ -108,11 +103,11 @@ export function FollowingFindFriends() {
         accessibilityLabel={t("home.following.findFriends.rowLabel")}
         className="mt-4 cursor-pointer flex-row items-center gap-3 rounded-2xl bg-soft px-4 py-4 dark:bg-gray-800/60"
       >
-        <BookUser size={22} color={BRAND_ORANGE} />
-        <Text className="flex-1 font-geist-semibold text-base text-brand">
+        <BookUser size={22} color={BRAND} />
+        <Text className="flex-1 font-geist-semibold text-base text-brand dark:text-gray-100">
           {t("home.following.findFriends.rowLabel")}
         </Text>
-        <ChevronRight size={20} color={BRAND_ORANGE} />
+        <ChevronRight size={20} color={BRAND} />
       </Pressable>
 
       <Modal

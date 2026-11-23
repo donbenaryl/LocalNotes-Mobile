@@ -100,7 +100,7 @@ export function FollowButton({
   }
 
   if (loading) {
-    return <ActivityIndicator size="small" color="#FF6B1A" />;
+    return <ActivityIndicator size="small" color="#141413" />;
   }
 
   return (
@@ -109,7 +109,7 @@ export function FollowButton({
       accessibilityRole="button"
       className="cursor-pointer rounded-full bg-brand-tint px-2.5 py-1 dark:bg-brand/20"
     >
-      <Text className="font-geist-semibold text-brand">{label}</Text>
+      <Text className="font-geist-semibold text-brand dark:text-gray-100">{label}</Text>
     </Pressable>
   );
 }

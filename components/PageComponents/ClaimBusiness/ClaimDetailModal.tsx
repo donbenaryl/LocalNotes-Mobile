@@ -247,7 +247,7 @@ export function ClaimDetailModal({
                   className="cursor-pointer flex-row items-center gap-2"
                 >
                   <FileText size={18} color={iconColor} />
-                  <Text className="font-geist-semibold text-[13px] text-brand">
+                  <Text className="font-geist-semibold text-[13px] text-brand dark:text-gray-100">
                     {t('claimBusiness.detail.openPdf')}
                   </Text>
                 </Pressable>

@@ -7,10 +7,10 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+import { BRAND } from "@/constants/colors";
 import { cn } from "@/utils/cn";
 
 const MIN_THUMB_HEIGHT = 24;
-const BRAND_ORANGE = "#FF6B1A";
 
 function computeThumbMetrics(contentH: number, layoutH: number) {
   "worklet";
@@ -44,7 +44,7 @@ interface ScrollableContainerProps extends Omit<
   className?: string;
   /** Extra NativeWind classes for the ScrollView only. */
   contentClassName?: string;
-  /** Scrollbar thumb color. Defaults to brand orange. */
+  /** Scrollbar thumb color. Defaults to brand. */
   indicatorColor?: string;
 }
 
@@ -57,7 +57,7 @@ export function ScrollableContainer({
   children,
   className,
   contentClassName,
-  indicatorColor = BRAND_ORANGE,
+  indicatorColor = BRAND,
   nestedScrollEnabled = true,
   onContentSizeChange,
   onLayout,

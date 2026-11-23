@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Settings } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { BRAND } from "@/constants/colors";
 import { cn } from "@/utils/cn";
 import type { ReviewProviderId } from "@/http/reviews-api/types";
 
@@ -140,10 +141,10 @@ export function ReviewSourceChips({
           onPress={onManagePress}
           accessibilityRole="button"
           accessibilityLabel={t("profile.reviews.manageAccounts")}
-          className="ml-1 flex-row items-center gap-1 rounded-full bg-[#FFF1E8] px-3 py-1.5 dark:bg-brand/20"
+          className="ml-1 flex-row items-center gap-1 rounded-full bg-brand-tint px-3 py-1.5 dark:bg-brand/20"
         >
-          <Settings size={11} color="#FF6B1A" strokeWidth={2.4} />
-          <Text className="font-geist-bold text-xs text-brand">
+          <Settings size={11} color={BRAND} strokeWidth={2.4} />
+          <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
             {t("profile.reviews.manageAccounts")}
           </Text>
         </Pressable>

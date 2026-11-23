@@ -69,7 +69,7 @@ export function CopilotCostSheet({
           accessibilityState={{ expanded }}
           className="mt-4 active:opacity-70"
         >
-          <Text className="font-geist-bold text-sm text-brand">
+          <Text className="font-geist-bold text-sm text-brand dark:text-gray-100">
             {expanded
               ? t('businessHome.copilot.costSheet.hideCalculation')
               : t('businessHome.copilot.costSheet.showCalculation')}
@@ -99,7 +99,7 @@ export function CopilotCostSheet({
           accessibilityRole="link"
           className="mt-2 active:opacity-70"
         >
-          <Text className="font-geist-bold text-sm text-brand">
+          <Text className="font-geist-bold text-sm text-brand dark:text-gray-100">
             {t('businessHome.copilot.costSheet.howLink')}
           </Text>
         </Pressable>

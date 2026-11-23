@@ -42,7 +42,7 @@ function ActivitySection({
       </Text>
       {loading && (
         <View className="items-center py-8">
-          <ActivityIndicator size="large" color="#FF6B1A" />
+          <ActivityIndicator size="large" color="#141413" />
         </View>
       )}
       {error && !loading && (

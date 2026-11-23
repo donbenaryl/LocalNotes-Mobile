@@ -82,7 +82,7 @@ export function PlansSheetBody({ enabled }: PlansSheetBodyProps) {
         </BusinessHomeCard>
       ))}
       {past.length > 0 ? (
-        <Text className="mt-4 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark">
+        <Text className="mt-4 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
           {t('businessHome.sheets.plans.pastTitle')}
         </Text>
       ) : null}
@@ -93,7 +93,7 @@ export function PlansSheetBody({ enabled }: PlansSheetBodyProps) {
               {t(actionCopyKeys(a.key).title, actionParams(a, tr))}
             </Text>
             <View className="rounded-full bg-brand-tint px-2.5 py-1 dark:bg-brand/20">
-              <Text className="font-geist-semibold text-[11px] text-brand-dark">
+              <Text className="font-geist-semibold text-[11px] text-brand-dark dark:text-gray-100">
                 {t(pastPlanChipKey(a.status, a.result?.verdict))}
               </Text>
             </View>

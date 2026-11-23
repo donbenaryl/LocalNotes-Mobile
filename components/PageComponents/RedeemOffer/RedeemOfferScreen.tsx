@@ -368,7 +368,7 @@ export default function RedeemOfferScreen() {
               </Text>
               {isUsed ? (
                 <>
-                  <Text className="font-geist-semibold text-sm text-brand">
+                  <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
                     {t('redeemOffer.statusUsed')}
                   </Text>
                   <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
@@ -406,7 +406,7 @@ export default function RedeemOfferScreen() {
 
           {redeemedQuery.isPending && redeemedItems.length === 0 ? (
             <View className="items-center py-6">
-              <ActivityIndicator color="#FF6B1A" />
+              <ActivityIndicator color="#141413" />
               <Text className="mt-2 font-geist text-sm text-gray-500 dark:text-gray-400">
                 {t('redeemOffer.historyLoading')}
               </Text>

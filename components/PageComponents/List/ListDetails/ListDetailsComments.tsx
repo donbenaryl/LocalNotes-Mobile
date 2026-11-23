@@ -287,7 +287,7 @@ export function ListDetailsComments({
                     onPress={() => void toggleReplies(comment.id)}
                     className="cursor-pointer"
                   >
-                    <Text className="font-geist-semibold text-xs text-brand">
+                    <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
                       {isExpanded
                         ? t("listDetail.hideReplies")
                         : t("listDetail.viewReplies", {
@@ -337,7 +337,7 @@ export function ListDetailsComments({
                 onPress={() => setReplyTo(null)}
                 className="cursor-pointer"
               >
-                <Text className="font-geist-semibold text-xs text-brand">
+                <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
                   {t("listDetail.cancelReply")}
                 </Text>
               </Pressable>

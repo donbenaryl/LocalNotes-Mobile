@@ -34,7 +34,7 @@ function DiscoveryProgressRow({
         <Text className="font-geist-bold text-[13px] text-ink dark:text-gray-100">
           {label}
         </Text>
-        <Text className="font-geist-bold text-[13px] text-brand">{`${percent}%`}</Text>
+        <Text className="font-geist-bold text-[13px] text-brand dark:text-gray-100">{`${percent}%`}</Text>
       </View>
       <ProgressBar percent={percent} />
     </View>
@@ -93,7 +93,7 @@ export function HowPeopleFindYouSection({
           />
         ))}
         <Pressable onPress={() => setExpanded((v) => !v)} accessibilityRole="button">
-          <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
+          <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
             {t('businessHome.discovery.seeDetails')}
           </Text>
         </Pressable>

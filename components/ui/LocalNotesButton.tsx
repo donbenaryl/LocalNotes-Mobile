@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { useColorScheme } from "nativewind";
+import { BRAND } from "@/constants/colors";
 
 type LocalNotesButtonSize = "xs" | "sm" | "md" | "lg";
 type LocalNotesButtonVariant = "dark" | "light" | "brand" | "danger" | "ghost";
@@ -36,7 +38,7 @@ const SIZE_TEXT_CLASS: Record<LocalNotesButtonSize, string> = {
 const VARIANT_CONTAINER_CLASS: Record<LocalNotesButtonVariant, string> = {
   dark: "bg-ink dark:bg-paper border border-ink dark:border-paper",
   light: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
-  brand: "bg-brand border-brand",
+  brand: "bg-brand dark:bg-gray-100 border border-brand dark:border-gray-100",
   danger: "bg-red-700 border border-red-700",
   ghost: "bg-transparent border border-transparent",
 };
@@ -44,7 +46,7 @@ const VARIANT_CONTAINER_CLASS: Record<LocalNotesButtonVariant, string> = {
 const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
   dark: "text-white dark:text-ink",
   light: "text-ink dark:text-gray-100",
-  brand: "text-white",
+  brand: "text-white dark:text-ink",
   danger: "text-white",
   ghost: "text-gray-500 dark:text-gray-400",
 };
@@ -63,6 +65,8 @@ export function LocalNotesButton({
   isWidthFull = true,
   loading = false,
 }: LocalNotesButtonProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === "dark";
   const isDisabled = disabled || loading;
   const isDanger = variant === "danger";
 
@@ -78,7 +82,10 @@ export function LocalNotesButton({
       ? "text-white"
       : VARIANT_TEXT_CLASS[variant];
 
-  const spinnerColor = variant === "light" ? "#191B1C" : "#FFFFFF";
+  const spinnerColor =
+    variant === "light" || (variant === "brand" && isDark)
+      ? BRAND
+      : "#FFFFFF";
 
   return (
     <TouchableOpacity

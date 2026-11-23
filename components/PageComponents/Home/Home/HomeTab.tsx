@@ -579,7 +579,7 @@ export function HomeTab() {
                   <View className="mb-2.5 flex-row items-baseline justify-between">
                     <PageSectionTitle>{t("home.forYou.eyebrow")}</PageSectionTitle>
                     {topMatchPercent != null ? (
-                      <Text className="font-geist-bold text-xs text-brand">
+                      <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
                         {t("home.forYou.match", { percent: topMatchPercent })}
                       </Text>
                     ) : null}

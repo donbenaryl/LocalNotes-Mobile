@@ -42,6 +42,7 @@ import type { ViewOrigin } from "@/http/types";
 import { resolveViewOrigin, withViewOrigin } from "@/utils/viewTracking";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import { toast } from "@/components/ui/Toast";
+import { brandColor } from "@/constants/colors";
 import { RedeemQrShareCard } from "./RedeemQrShareCard";
 
 function patchOfferListCaches(
@@ -187,7 +188,9 @@ export function OfferDetailsMain({
   const queryClient = useQueryClient();
   const router = useRouter();
   const businessId = useBusinessStore((s) => s.businessId);
-  const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
+  const isDark = colorScheme === "dark";
+  const iconMuted = isDark ? "#9CA3AF" : "#57534E";
+  const iconBrand = brandColor(isDark);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   // Guard against a 0/negative maxHeight on first Modal presentation.
@@ -672,7 +675,7 @@ export function OfferDetailsMain({
                 </Text>
 
                 {showRedeem ? (
-                  <View className="mb-4 rounded-xl border border-brand/30 bg-orange-50 px-4 py-3 dark:border-brand/40 dark:bg-gray-800">
+                  <View className="mb-4 rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:border-brand/40 dark:bg-gray-800">
                     {myRedemption?.used_at ? (
                       <Text className="font-geist text-sm text-gray-700 dark:text-gray-300">
                         {t("offers.detail.alreadyUsed")}
@@ -770,14 +773,14 @@ export function OfferDetailsMain({
                   >
                     <Heart
                       size={14}
-                      color={isLiked ? "#FF6B1A" : iconMuted}
-                      fill={isLiked ? "#FF6B1A" : "transparent"}
+                      color={isLiked ? iconBrand : iconMuted}
+                      fill={isLiked ? iconBrand : "transparent"}
                     />
                     <Text
                       className={cn(
                         "font-geist-semibold text-[13px]",
                         isLiked
-                          ? "text-brand"
+                          ? "text-brand dark:text-gray-100"
                           : "text-gray-500 dark:text-gray-400",
                       )}
                     >

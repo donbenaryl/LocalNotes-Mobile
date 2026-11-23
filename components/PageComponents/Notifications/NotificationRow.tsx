@@ -105,7 +105,7 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
       onPress={() => onPress(item)}
       activeOpacity={0.7}
       className={`flex-row items-start gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800 cursor-pointer ${
-        unread ? 'bg-orange-50/40 dark:bg-orange-950/20' : ''
+        unread ? 'bg-brand-tint/40 dark:bg-gray-800/40' : ''
       }`}
     >
       <View className="relative mt-0.5 w-2 shrink-0 items-center">

@@ -24,6 +24,7 @@ import notesService from "@/http/notes-api/notes.service";
 import type { NoteDAO } from "@/http/notes-api/types";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import type { OfferCardItem } from "@/types/offer";
+import { brandColor } from "@/constants/colors";
 import { cn } from "@/utils/cn";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { resolveImageUrl } from "@/utils/httpHelpers";
@@ -119,7 +120,9 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
     setLikes(offer.likes);
   }, [offer.id, offer.isLiked, offer.likes]);
 
-  const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
+  const isDark = colorScheme === "dark";
+  const iconMuted = isDark ? "#9CA3AF" : "#57534E";
+  const iconBrand = brandColor(isDark);
 
   const handlePress = () => {
     if (onPress) {
@@ -302,14 +305,14 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
           >
             <Heart
               size={13}
-              color={isLiked ? "#FF6B1A" : iconMuted}
-              fill={isLiked ? "#FF6B1A" : "transparent"}
+              color={isLiked ? iconBrand : iconMuted}
+              fill={isLiked ? iconBrand : "transparent"}
             />
             <Text
               className={cn(
                 "font-geist-semibold text-[12.5px]",
                 isLiked
-                  ? "text-brand"
+                  ? "text-brand dark:text-gray-100"
                   : "text-gray-500 dark:text-gray-400",
               )}
             >

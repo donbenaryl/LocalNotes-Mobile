@@ -147,7 +147,7 @@ export default function BusinessAiCreditsPage() {
           <Text
             onPress={() => setHowOpen(true)}
             accessibilityRole="link"
-            className="mt-3 font-geist-bold text-sm text-brand"
+            className="mt-3 font-geist-bold text-sm text-brand dark:text-gray-100"
           >
             {t('businessHome.aiCredits.page.seeCalculation')}
           </Text>

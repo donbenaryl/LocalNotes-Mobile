@@ -13,6 +13,7 @@ import listService from "@/http/list-api/list.service";
 import type { ListItemDAO } from "@/http/list-api/types";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { ScreenRect } from "@/types/layout";
+import { brandColor } from "@/constants/colors";
 import { cn } from "@/utils/cn";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 
@@ -179,8 +180,10 @@ export function ListEngagementRow({
     [patchListDetailCache],
   );
 
-  const iconMuted = colorScheme === "dark" ? "#9CA3AF" : "#57534E";
-  const iconDim = colorScheme === "dark" ? "#6B7280" : "#A8A29E";
+  const isDark = colorScheme === "dark";
+  const iconMuted = isDark ? "#9CA3AF" : "#57534E";
+  const iconDim = isDark ? "#6B7280" : "#A8A29E";
+  const iconBrand = brandColor(isDark);
 
   return (
     <>
@@ -206,14 +209,14 @@ export function ListEngagementRow({
         >
           <Bookmark
             size={13}
-            color={isSaved ? "#FF6B1A" : iconMuted}
-            fill={isSaved ? "#FF6B1A" : "transparent"}
+            color={isSaved ? iconBrand : iconMuted}
+            fill={isSaved ? iconBrand : "transparent"}
           />
           <Text
             className={cn(
               "font-geist-semibold text-[12.5px]",
               isSaved
-                ? "text-brand"
+                ? "text-brand dark:text-gray-100"
                 : "text-gray-500 dark:text-gray-400",
             )}
           >
@@ -234,14 +237,14 @@ export function ListEngagementRow({
         >
           <Heart
             size={13}
-            color={isLiked ? "#FF6B1A" : iconMuted}
-            fill={isLiked ? "#FF6B1A" : "transparent"}
+            color={isLiked ? iconBrand : iconMuted}
+            fill={isLiked ? iconBrand : "transparent"}
           />
           <Text
             className={cn(
               "font-geist-semibold text-[12.5px]",
               isLiked
-                ? "text-brand"
+                ? "text-brand dark:text-gray-100"
                 : "text-gray-500 dark:text-gray-400",
             )}
           >

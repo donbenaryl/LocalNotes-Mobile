@@ -174,7 +174,7 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
               className={
                 cooldown > 0
                   ? "font-geist-medium text-sm text-gray-400 dark:text-gray-500"
-                  : "font-geist-medium text-sm text-brand"
+                  : "font-geist-medium text-sm text-brand dark:text-gray-100"
               }
             >
               {cooldown > 0
@@ -218,14 +218,14 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
         >
           {t("phoneVerification.consentPrefix")}
           <Text
-            className="font-geist-semibold text-brand underline"
+            className="font-geist-semibold text-brand dark:text-gray-100 underline"
             onPress={() => void WebBrowser.openBrowserAsync(`${LEGAL_WEBSITE}/terms`)}
           >
             {t("phoneVerification.consentTerms")}
           </Text>
           {t("phoneVerification.consentAnd")}
           <Text
-            className="font-geist-semibold text-brand underline"
+            className="font-geist-semibold text-brand dark:text-gray-100 underline"
             onPress={() => void WebBrowser.openBrowserAsync(`${LEGAL_WEBSITE}/privacy`)}
           >
             {t("phoneVerification.consentPrivacy")}

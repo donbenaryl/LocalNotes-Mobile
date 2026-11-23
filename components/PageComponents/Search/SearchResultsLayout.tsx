@@ -223,7 +223,7 @@ export function SearchResultsLayout<T>({
               style={styles.fill}
               className="items-center justify-center gap-2 py-16"
             >
-              <ActivityIndicator size="large" color="#FF6B1A" />
+              <ActivityIndicator size="large" color="#141413" />
               <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
                 {t("search.loading")}
               </Text>

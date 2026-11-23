@@ -28,8 +28,8 @@ export function DraftsSmartSuggestion() {
   };
 
   return (
-    <WhiteBox className="mb-4 border-brand/20 bg-orange-50 dark:bg-gray-800">
-      <Text className="mb-1 font-geist-bold text-[10px] uppercase tracking-widest text-brand">
+    <WhiteBox className="mb-4 border-brand/20 bg-brand-tint dark:bg-gray-800">
+      <Text className="mb-1 font-geist-bold text-[10px] uppercase tracking-widest text-brand dark:text-gray-100">
         {t("saved.drafts.smartSuggestEyebrow")}
       </Text>
       <Text className="mb-1 font-geist-semibold text-base text-ink dark:text-gray-100">
@@ -57,7 +57,7 @@ export function DraftsSmartSuggestion() {
             </Text>
           </Pressable>
           <Pressable onPress={handleMakeList} className="cursor-pointer">
-            <Text className="font-geist-semibold text-sm text-brand">
+            <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
               {t("saved.drafts.makeList")}
             </Text>
           </Pressable>

@@ -227,7 +227,7 @@ export function CardHero({
               </Text>
             ) : null}
             {subtitleExtra ? (
-              <Text className="font-geist-medium text-xs text-[#FFCFA8]">
+              <Text className="font-geist-medium text-xs text-[#E5E7EB]">
                 {subtitle ? " " : ""}
                 {subtitleExtra}
               </Text>

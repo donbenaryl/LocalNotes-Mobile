@@ -325,7 +325,7 @@ export function LocationInputModal({
                 Choose a location
               </Text>
               <Pressable onPress={handleClose} hitSlop={8} className="cursor-pointer">
-                <Text className="font-geist-semibold text-base text-brand">Done</Text>
+                <Text className="font-geist-semibold text-base text-brand dark:text-gray-100">Done</Text>
               </Pressable>
             </View>
 
@@ -414,7 +414,7 @@ export function LocationInputModal({
                             className="flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-gray-800 cursor-pointer"
                           >
                             <View className="w-10 h-10 rounded-full bg-brand-tint dark:bg-brand/20 items-center justify-center shrink-0">
-                              <Bookmark size={18} color="#FF6B1A" />
+                              <Bookmark size={18} color="#141413" />
                             </View>
                             <View className="flex-1">
                               <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">

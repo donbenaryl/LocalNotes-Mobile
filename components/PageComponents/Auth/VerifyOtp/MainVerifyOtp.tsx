@@ -94,7 +94,7 @@ export function MainVerifyOtp() {
               activeOpacity={0.7}
               className="cursor-pointer"
             >
-              <Text className="text-brand font-geist-medium text-lg leading-tight mt-[-2] ml-1">
+              <Text className="text-brand dark:text-gray-100 font-geist-medium text-lg leading-tight mt-[-2] ml-1">
                 {resendMutation.isPending ? t('common.sending') : t('auth.verifyOtp.resend')}
               </Text>
             </TouchableOpacity>

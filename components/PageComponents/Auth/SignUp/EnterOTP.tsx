@@ -125,7 +125,7 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
           activeOpacity={0.7}
           className="cursor-pointer"
         >
-          <Text className="text-brand font-geist-medium underline relative top-1 pl-1">
+          <Text className="text-brand dark:text-gray-100 font-geist-medium underline relative top-1 pl-1">
             {resendLoading ? t('auth.signUp.resending') : t('auth.signUp.resendCode')}
           </Text>
         </TouchableOpacity>

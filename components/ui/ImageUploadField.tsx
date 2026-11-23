@@ -177,7 +177,7 @@ export function ImageUploadField({
             onPress={() => void pickImage("library")}
             className="flex-row items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 cursor-pointer"
           >
-            <ImageIcon size={20} color="#FF6B1A" />
+            <ImageIcon size={20} color="#141413" />
             <Text className="font-geist text-sm text-ink dark:text-gray-100">
               {t("imageUpload.chooseFromLibrary")}
             </Text>
@@ -186,7 +186,7 @@ export function ImageUploadField({
             onPress={() => void pickImage("camera")}
             className="flex-row items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 cursor-pointer"
           >
-            <Camera size={20} color="#FF6B1A" />
+            <Camera size={20} color="#141413" />
             <Text className="font-geist text-sm text-ink dark:text-gray-100">
               {t("imageUpload.takePhoto")}
             </Text>

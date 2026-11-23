@@ -55,7 +55,7 @@ export function WelcomeFixedChrome({
             {t('auth.welcome.headlineLine1')}
           </Text>
           <Text
-            className="italic text-6xl leading-[50px] text-brand"
+            className="italic text-6xl leading-[50px] text-white"
             maxFontSizeMultiplier={1.15}
             adjustsFontSizeToFit
             numberOfLines={1}

@@ -42,7 +42,7 @@ export function SmartPickSummaryBar({ messages, isStretch, onBack }: SmartPickSu
                     isAccent
                       ? isStretch
                         ? 'text-connector'
-                        : 'text-brand-dark'
+                        : 'text-brand-dark dark:text-gray-100'
                       : 'text-gray-600 dark:text-gray-300'
                   }`}
                 >

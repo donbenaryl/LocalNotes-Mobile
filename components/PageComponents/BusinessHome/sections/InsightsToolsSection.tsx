@@ -64,7 +64,7 @@ export function InsightsToolsSection({
             variant="light"
             size="xs"
             isWidthFull={false}
-            leftIcon={<Text className="text-brand">{tool.icon}</Text>}
+            leftIcon={<Text className="text-brand dark:text-gray-100">{tool.icon}</Text>}
           />
         ))}
       </ScrollView>

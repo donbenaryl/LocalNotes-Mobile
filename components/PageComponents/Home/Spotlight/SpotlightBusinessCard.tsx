@@ -75,7 +75,7 @@ export function SpotlightBusinessCard({
               </Text>
               {business.is_verified ? (
                 <View role="img" aria-label={t("spotlight.verified")}>
-                  <BadgeCheck size={13} color="#FF6B1A" />
+                  <BadgeCheck size={13} color="#141413" />
                 </View>
               ) : null}
             </View>

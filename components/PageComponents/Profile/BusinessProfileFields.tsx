@@ -190,7 +190,7 @@ export function OpeningHoursEditor({
                   accessibilityRole="button"
                   hitSlop={8}
                 >
-                  <Text className="font-geist text-xs text-brand">
+                  <Text className="font-geist text-xs text-brand dark:text-gray-100">
                     {t("editProfile.business.hoursClear")}
                   </Text>
                 </Pressable>
@@ -488,7 +488,7 @@ export function BusinessProfileFields({
                 accessibilityRole="button"
                 className="mt-3 self-start"
               >
-                <Text className="font-geist-semibold text-xs text-brand">
+                <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
                   {t("editProfile.business.editBranchHours")}
                 </Text>
               </Pressable>

@@ -78,14 +78,14 @@ function PriorityChip({
 }) {
   return (
     <View className="flex-row items-center gap-1.5 rounded-full border border-brand/45 bg-brand/15 px-2.5 py-1.5">
-      <Text className="font-geist-bold text-[12.5px] text-brand">{label}</Text>
+      <Text className="font-geist-bold text-[12.5px] text-brand dark:text-gray-100">{label}</Text>
       <Pressable
         onPress={onRemove}
         hitSlop={8}
         accessibilityRole="button"
         accessibilityLabel={`Remove ${label}`}
       >
-        <Text className="text-brand text-xs opacity-80">✕</Text>
+        <Text className="text-brand dark:text-gray-100 text-xs opacity-80">✕</Text>
       </Pressable>
     </View>
   );
@@ -112,7 +112,7 @@ function PrioritySegment({
       <Text
         className={`text-center text-[13.5px] leading-tight ${
           isActive
-            ? "font-geist-bold text-brand"
+            ? "font-geist-bold text-brand dark:text-gray-100"
             : "font-geist text-gray-500 dark:text-gray-400"
         }`}
       >
@@ -331,7 +331,7 @@ export function MatchThreshhold({
         {/* Big number display */}
         <View className="items-center mb-5 mt-1">
           <View className="flex-row items-end">
-            <Text className="font-geist-bold text-7xl pt-1 text-brand leading-none">
+            <Text className="font-geist-bold text-7xl pt-1 text-brand dark:text-gray-100 leading-none">
               {displayValue}
             </Text>
             <Text className="font-geist text-2xl text-gray-400 mb-2 ml-0.5">%</Text>
@@ -385,11 +385,11 @@ export function MatchThreshhold({
         <Slider
           value={sliderValue}
           onChange={handleSliderChange}
-          colors={["#D1D5DB", "#FF6B1A"]}
+          colors={["#D1D5DB", "#141413"]}
           min={0}
           max={100}
           step={5}
-          thumbBorderColor="#FF6B1A"
+          thumbBorderColor="#141413"
           containerClassName="mb-1"
         />
 

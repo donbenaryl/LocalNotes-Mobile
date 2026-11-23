@@ -112,7 +112,7 @@ export function UserSearchInput({
             />
           ) : (
             <View className="h-12 w-12 items-center justify-center rounded-lg bg-brand/10">
-              <Text className="font-geist-bold text-sm text-brand">
+              <Text className="font-geist-bold text-sm text-brand dark:text-gray-100">
                 {shareInfo.title.slice(0, 1).toUpperCase()}
               </Text>
             </View>
@@ -153,7 +153,7 @@ export function UserSearchInput({
       </View>
 
       {isSearching ? (
-        <ActivityIndicator size="small" color="#FF6B1A" />
+        <ActivityIndicator size="small" color="#141413" />
       ) : null}
 
       {showResults && availableResults.length > 0 ? (
@@ -180,7 +180,7 @@ export function UserSearchInput({
                     {user.name}
                   </Text>
                 </View>
-                <Plus size={18} color="#FF6B1A" />
+                <Plus size={18} color="#141413" />
               </Pressable>
             ))}
           </View>
@@ -220,7 +220,7 @@ export function UserSearchInput({
                       hitSlop={8}
                       className="cursor-pointer"
                     >
-                      <X size={14} color="#FF6B1A" />
+                      <X size={14} color="#141413" />
                     </Pressable>
                   }
                 />

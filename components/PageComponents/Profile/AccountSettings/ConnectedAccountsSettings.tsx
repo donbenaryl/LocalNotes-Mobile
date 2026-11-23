@@ -183,7 +183,7 @@ export default function ConnectedAccountsSettings() {
 
         {isPending ? (
           <View className="items-center py-10">
-            <ActivityIndicator color="#FF6B1A" />
+            <ActivityIndicator color="#141413" />
           </View>
         ) : (
           <>

@@ -98,7 +98,7 @@ export function BusinessHomeSpotlightPage({
     >
       <View className="mt-2 px-4">
         <View className="mb-3 self-start rounded-full bg-brand-tint px-2.5 py-1">
-          <Text className="font-geist-bold text-[11px] text-brand">
+          <Text className="font-geist-bold text-[11px] text-brand dark:text-gray-100">
             {statusLabel(round, isLoading, isError, t)}
           </Text>
         </View>

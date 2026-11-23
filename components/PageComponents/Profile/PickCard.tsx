@@ -155,7 +155,7 @@ function PickCardBody({
     !heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1";
 
   const verifiedBadge = data.is_verified ? (
-    <BadgeCheck size={14} color="#FF6B1A" />
+    <BadgeCheck size={14} color="#141413" />
   ) : null;
 
   return (

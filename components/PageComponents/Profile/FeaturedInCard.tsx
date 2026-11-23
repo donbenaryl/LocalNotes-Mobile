@@ -20,7 +20,7 @@ export function FeaturedInCard({
     <View className="mt-3 rounded-2xl border border-gray-200 bg-soft px-4 py-3.5 dark:border-gray-700 dark:bg-gray-800">
       <View className="flex-row items-center gap-1.5">
         <View className="h-[5px] w-[5px] rotate-45 bg-brand" />
-        <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-brand-dark dark:text-brand">
+        <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-brand-dark dark:text-gray-100 dark:text-brand dark:text-gray-100">
           {t('profile.info.featuredIn.eyebrow')}
         </Text>
       </View>

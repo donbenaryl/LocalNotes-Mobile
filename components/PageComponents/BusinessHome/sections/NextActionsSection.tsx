@@ -138,7 +138,7 @@ export function NextActionsSection({
             </Text>
           </View>
         </View>
-        <Text className="mt-2.5 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark">
+        <Text className="mt-2.5 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
           {t('businessHome.action.recommendedStep')}
         </Text>
         <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">
@@ -232,13 +232,13 @@ export function NextActionsSection({
             <Text className="mt-1.5 font-geist-semibold text-[11px] text-gray-500">
               {t('businessHome.action.source', { period, ...foot })}
             </Text>
-            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark">
+            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
               {t('businessHome.action.recommendedStep')}
             </Text>
             <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">
               {t(keys.step, params)}
             </Text>
-            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark">
+            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
               {t('businessHome.action.measure')}
             </Text>
             <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">

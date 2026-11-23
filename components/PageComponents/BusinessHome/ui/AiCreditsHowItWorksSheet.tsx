@@ -57,7 +57,7 @@ export function AiCreditsHowItWorksSheet({
 
           {(['count', 'weight', 'divide', 'limits'] as const).map((step, index) => (
             <View key={step} className="mt-3 flex-row gap-3">
-              <Text className="font-geist-extrabold text-sm text-brand">{index + 1}</Text>
+              <Text className="font-geist-extrabold text-sm text-brand dark:text-gray-100">{index + 1}</Text>
               <Text className="flex-1 font-geist text-[13px] leading-[1.55] text-ink dark:text-gray-100">
                 {t(`${base}.steps.${step}`, params)}
               </Text>
@@ -94,7 +94,7 @@ export function AiCreditsHowItWorksSheet({
         </ScrollView>
       ) : (
         <View className="items-center py-10">
-          <ActivityIndicator color="#FF6B1A" />
+          <ActivityIndicator color="#141413" />
         </View>
       )}
     </Modal>

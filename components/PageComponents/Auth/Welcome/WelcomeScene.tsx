@@ -50,7 +50,7 @@ function ListCard({
       <Text className="font-geist-bold text-lg text-white" numberOfLines={1}>
         {title}
       </Text>
-      <Text className="mt-0.5 font-geist-semibold text-brand">
+      <Text className="mt-0.5 font-geist-semibold text-white">
         {count} picks
       </Text>
       <View className="mt-3 gap-[9px]">

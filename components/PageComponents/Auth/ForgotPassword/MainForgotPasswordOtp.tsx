@@ -83,7 +83,7 @@ export function MainForgotPasswordOtp() {
               activeOpacity={0.7}
               className="cursor-pointer"
             >
-              <Text className="text-brand font-geist-medium text-lg leading-tight mt-[-2]">
+              <Text className="text-brand dark:text-gray-100 font-geist-medium text-lg leading-tight mt-[-2]">
                 {resendMutation.isPending ? t('common.sending') : t('auth.verifyOtp.resend')}
               </Text>
             </TouchableOpacity>

@@ -11,6 +11,7 @@ import { useRouter, usePathname } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { LayoutGrid, Bookmark, Search, Plus, Star } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
+import { brandColor } from '@/constants/colors';
 import { FOOTER_BAR_HEIGHT, FOOTER_MIN_INSET } from '@/constants/layout';
 import { usePickModalStore } from '@/stores/usePickModalStore';
 import { useListFormStore } from '@/stores/useListFormStore';
@@ -28,7 +29,6 @@ import type { DropDownOption } from '@/components/ui/DropDown';
 import { FloatingActionButtons } from '@/components/ui/layout/FloatingActionButtons';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
 
-const BRAND = '#FF6B1A';
 const INACTIVE_LIGHT = '#4B5563';
 const INACTIVE_DARK = '#D1D5DB';
 
@@ -79,7 +79,9 @@ export function GuardedFooter() {
   const { colorScheme } = useColorScheme();
   const router = useRouter();
   const pathname = usePathname();
-  const inactiveColor = colorScheme === 'dark' ? INACTIVE_DARK : INACTIVE_LIGHT;
+  const isDark = colorScheme === 'dark';
+  const inactiveColor = isDark ? INACTIVE_DARK : INACTIVE_LIGHT;
+  const activeColor = brandColor(isDark);
   const openPickModal = usePickModalStore((s) => s.open);
   const [isCreatePickerOpen, setIsCreatePickerOpen] = useState(false);
   const storeSection = useSectionRouteStore((s) => s.activeSection);
@@ -201,7 +203,7 @@ export function GuardedFooter() {
             }
 
             const isActive = activeSection === tab.id;
-            const iconColor = isActive ? BRAND : inactiveColor;
+            const iconColor = isActive ? activeColor : inactiveColor;
 
             return (
               <TouchableOpacity
@@ -219,7 +221,7 @@ export function GuardedFooter() {
                   />
                   <Text
                     className={`mt-0.5 text-[10px] font-geist ${
-                      isActive ? 'text-brand' : 'text-gray-600 dark:text-gray-300'
+                      isActive ? 'text-brand dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'
                     }`}
                     numberOfLines={1}
                   >

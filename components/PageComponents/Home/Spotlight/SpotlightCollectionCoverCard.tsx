@@ -173,10 +173,10 @@ export function SpotlightCollectionCoverCard({ collection }: SpotlightCollection
           accessibilityLabel={t("spotlight.collectionFooterCta")}
           className="cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-100 bg-gray-50 px-4 py-3.5 dark:border-gray-800 dark:bg-gray-900/60"
         >
-          <Text className="font-geist-semibold text-xs text-brand">
+          <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
             {t("spotlight.collectionFooterCta")}
           </Text>
-          <ChevronRight size={14} color="#FF6B1A" />
+          <ChevronRight size={14} color="#141413" />
         </Pressable> */}
       </WhiteBox>
 

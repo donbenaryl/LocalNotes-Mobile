@@ -12,7 +12,7 @@ export function WhiteBox({ children, className, isSelected = false }: WhiteBoxPr
     <View
       className={cn(
         "rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 overflow-hidden",
-        isSelected && "border-brand bg-orange-50 dark:border-brand",
+        isSelected && "border-brand bg-brand-tint dark:border-brand",
         className,
       )}
     >

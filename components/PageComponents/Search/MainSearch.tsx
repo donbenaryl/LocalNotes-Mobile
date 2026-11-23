@@ -292,7 +292,7 @@ export default function MainSearch() {
                     accessibilityLabel={t("common.search")}
                     className="cursor-pointer py-2"
                   >
-                    <Text className="font-geist-semibold text-sm text-brand">
+                    <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
                       {t("common.search")}
                     </Text>
                   </Pressable>

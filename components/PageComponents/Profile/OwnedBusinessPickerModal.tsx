@@ -46,7 +46,7 @@ export function OwnedBusinessPickerModal({
       >
         {isLoading && businesses.length === 0 ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" color="#FF6B1A" />
+            <ActivityIndicator size="small" color="#141413" />
           </View>
         ) : error && businesses.length === 0 ? (
           <View className="items-center py-6">
@@ -105,7 +105,7 @@ export function OwnedBusinessPickerModal({
         )}
         {isSaving ? (
           <View className="items-center py-3">
-            <ActivityIndicator size="small" color="#FF6B1A" />
+            <ActivityIndicator size="small" color="#141413" />
           </View>
         ) : null}
       </ScrollView>

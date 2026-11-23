@@ -327,7 +327,7 @@ function UserProfileInfo({
                 }
                 className="mt-1 cursor-pointer"
               >
-                <Text className="font-geist-semibold text-[12.5px] text-brand">
+                <Text className="font-geist-semibold text-[12.5px] text-brand dark:text-gray-100">
                   {t('personality.takeQuizCta')}
                 </Text>
               </Pressable>

@@ -26,7 +26,7 @@ export function PageTitleHeading({
   return (
     <View className={`w-full ${containerClassName}`}>
       {stepTitle && (
-        <Text className="font-geist-semibold text-[11px] tracking-[0.18em] uppercase text-brand mt-6 mb-4">
+        <Text className="font-geist-semibold text-[11px] tracking-[0.18em] uppercase text-brand dark:text-gray-100 mt-6 mb-4">
           {stepTitle}
         </Text>
       )}
@@ -51,7 +51,7 @@ export function PageTitleHeading({
           >
             {title + " "}
             {subtitle && (
-              <Text className="text-4xl ml-2 text-brand italic leading-tight">
+              <Text className="text-4xl ml-2 text-brand dark:text-gray-100 italic leading-tight">
                 {subtitle}
               </Text>
             )}

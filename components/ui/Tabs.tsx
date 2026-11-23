@@ -7,6 +7,7 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 import { useColorScheme } from 'nativewind';
+import { BRAND, BRAND_ON_DARK } from '@/constants/colors';
 import { cn } from '@/utils/cn';
 
 export interface TabItem {
@@ -30,7 +31,6 @@ interface TabsProps {
   equalWidth?: boolean;
 }
 
-const BRAND = '#FF6B1A';
 const MUTED_ICON = '#6B7280';
 
 function tabItemClassName(equalWidth: boolean, isActive?: boolean) {
@@ -156,10 +156,12 @@ export function Tabs({
   const { colorScheme } = useColorScheme();
   // Equal-width mode matches segmented controls: brand for active label.
   const activeTextColor = equalWidth
-    ? BRAND
+    ? colorScheme === 'dark'
+      ? BRAND_ON_DARK
+      : BRAND
     : colorScheme === 'dark'
-      ? '#F3F4F6'
-      : '#141413';
+      ? BRAND_ON_DARK
+      : BRAND;
   const inactiveTextColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
 
   const items = highlightIndex
@@ -194,7 +196,7 @@ export function Tabs({
                 textClassName,
                 isActive
                   ? equalWidth
-                    ? 'font-geist-bold text-brand'
+                    ? 'font-geist-bold text-brand dark:text-gray-100'
                     : 'font-geist-bold text-ink dark:text-gray-100'
                   : 'font-geist-semibold text-gray-500 dark:text-gray-400',
               )}

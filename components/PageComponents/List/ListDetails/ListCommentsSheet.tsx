@@ -62,7 +62,7 @@ export function ListCommentsSheet({
   const gradientColors = getPersonalityGradientColors(
     list.account.personality_color,
   );
-  const accentColor = gradientColors[0] ?? "#FF6B1A";
+  const accentColor = gradientColors[0] ?? "#141413";
   const picksCount = list.items?.length ?? 0;
   const locationLabel = formatListLocation(list.location);
   const topPicksLabel = (list.items ?? [])

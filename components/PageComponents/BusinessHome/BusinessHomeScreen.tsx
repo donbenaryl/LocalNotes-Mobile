@@ -404,7 +404,7 @@ export default function BusinessHomeScreen() {
         className="items-center justify-center bg-page dark:bg-gray-900"
       >
         <Stack.Screen options={{ gestureEnabled: !needsLocalSwipe }} />
-        <ActivityIndicator size="large" color="#FF6B1A" />
+        <ActivityIndicator size="large" color="#141413" />
       </View>
     );
   }

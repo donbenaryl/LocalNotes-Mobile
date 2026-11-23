@@ -40,7 +40,7 @@ export function Tags({
               variant="primary"
               rightIcon={
                 <Pressable onPress={() => onRemoveInnerTag(tag)} className="cursor-pointer">
-                  <X size={12} color="#FF6B1A" />
+                  <X size={12} color="#141413" />
                 </Pressable>
               }
             />

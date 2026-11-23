@@ -229,7 +229,7 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
         <View className="flex-1">
           {loading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#FF6B1A" />
+              <ActivityIndicator size="large" color="#141413" />
             </View>
           ) : chat.error && errorCode !== 404 ? (
             <View className="flex-1 items-center justify-center gap-3 px-6">
@@ -286,9 +286,9 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
                     className="items-center pb-2 active:opacity-70"
                   >
                     {chat.isFetchingOlder ? (
-                      <ActivityIndicator size="small" color="#FF6B1A" />
+                      <ActivityIndicator size="small" color="#141413" />
                     ) : (
-                      <Text className="font-geist-bold text-xs text-brand">
+                      <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
                         {t('businessHome.copilot.loadOlder')}
                       </Text>
                     )}

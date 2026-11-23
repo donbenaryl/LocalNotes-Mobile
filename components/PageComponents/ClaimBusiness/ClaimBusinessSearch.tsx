@@ -279,7 +279,7 @@ export default function ClaimBusinessSearch({
     if (activeQuery.isPending) {
       return (
         <View className="items-center py-16">
-          <ActivityIndicator color="#FF6B1A" />
+          <ActivityIndicator color="#141413" />
         </View>
       );
     }
@@ -354,7 +354,7 @@ export default function ClaimBusinessSearch({
           onEndReachedThreshold={0.4}
           ListFooterComponent={
             businessesQuery.isFetchingNextPage ? (
-              <ActivityIndicator className="py-4" color="#FF6B1A" />
+              <ActivityIndicator className="py-4" color="#141413" />
             ) : null
           }
         />
@@ -374,7 +374,7 @@ export default function ClaimBusinessSearch({
           onEndReachedThreshold={0.4}
           ListFooterComponent={
             picksQuery.isFetchingNextPage ? (
-              <ActivityIndicator className="py-4" color="#FF6B1A" />
+              <ActivityIndicator className="py-4" color="#141413" />
             ) : null
           }
         />

@@ -343,7 +343,7 @@ export function ListForm({ step, listId }: ListFormProps) {
         edges={["bottom"]}
         className="flex-1 items-center justify-center bg-page dark:bg-gray-900"
       >
-        <ActivityIndicator size="large" color="#FF6B1A" />
+        <ActivityIndicator size="large" color="#141413" />
         <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
           {t("common.pleaseWait")}
         </Text>
@@ -537,7 +537,7 @@ export function ListForm({ step, listId }: ListFormProps) {
           >
             <Text
               className={`font-geist-medium text-sm ${
-                isDraftValid && !isSaving ? "text-brand" : "text-gray-300 dark:text-gray-600"
+                isDraftValid && !isSaving ? "text-brand dark:text-gray-100" : "text-gray-300 dark:text-gray-600"
               }`}
             >
               {t("listForm.saveDraft")}
@@ -656,8 +656,8 @@ export function ListForm({ step, listId }: ListFormProps) {
               onPress={openCreatePick}
               className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 py-3 dark:border-gray-600 cursor-pointer"
             >
-              <Plus size={18} color="#FF6B1A" />
-              <Text className="font-geist-medium text-sm text-brand">
+              <Plus size={18} color="#141413" />
+              <Text className="font-geist-medium text-sm text-brand dark:text-gray-100">
                 {t("profile.picks.addPick")}
               </Text>
             </Pressable>

@@ -7,6 +7,7 @@ import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import { useSpotlightListSave } from "@/hooks/useSpotlightListSave";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
+import { BRAND } from "@/constants/colors";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getListMatchPercent } from "@/utils/matchScore";
 import type { SpotlightListEntityDAO } from "@/http/spotlight-api/type";
@@ -77,8 +78,8 @@ export function SpotlightListsHeroCard({
         <View className="h-8 w-8 items-center justify-center rounded-full bg-white/95">
           <Bookmark
             size={15}
-            color={isSaved ? "#FF6B1A" : "#141413"}
-            fill={isSaved ? "#FF6B1A" : "transparent"}
+            color={BRAND}
+            fill={isSaved ? BRAND : "transparent"}
           />
         </View>
       </Pressable>

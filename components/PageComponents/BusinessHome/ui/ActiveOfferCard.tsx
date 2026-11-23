@@ -57,7 +57,7 @@ export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
                 <Play size={20} color="#FFFFFF" fill="#FFFFFF" />
               </View>
             ) : (
-              <Tag size={22} color="#FF6B1A" />
+              <Tag size={22} color="#141413" />
             )}
           </View>
 

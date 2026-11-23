@@ -126,7 +126,7 @@ export function ThankYouContent({ embedded = false }: ThankYouContentProps) {
       <WhiteBox className="gap-3 p-4">
         <View className="flex-row items-start gap-3">
           <View className="h-11 w-11 items-center justify-center rounded-full bg-brand-tint">
-            <HeartHandshake size={22} color="#FF6B1A" />
+            <HeartHandshake size={22} color="#141413" />
           </View>
           <View className="min-w-0 flex-1 gap-1.5">
             <View className="flex-row flex-wrap items-center gap-2">
@@ -135,7 +135,7 @@ export function ThankYouContent({ embedded = false }: ThankYouContentProps) {
               </Text>
               {hasRecipients ? (
                 <View className="rounded-full bg-brand-tint px-2.5 py-0.5">
-                  <Text className="font-geist-semibold text-xs text-brand">
+                  <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
                     {eligibleCount}
                   </Text>
                 </View>

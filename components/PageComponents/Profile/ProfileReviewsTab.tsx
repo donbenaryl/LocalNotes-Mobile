@@ -5,6 +5,7 @@ import { MessageSquareQuote } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { EmptyScreen } from "@/components/ui/EmptyScreen";
+import { BRAND } from "@/constants/colors";
 import {
   useProfileReviews,
   useReviewConnections,
@@ -129,8 +130,8 @@ export function ProfileReviewsTab({
   if (isOwnProfile && !anyConnected) {
     return (
       <View className="items-center px-7 py-10">
-        <View className="mb-4 h-[120px] w-[120px] items-center justify-center rounded-[30px] bg-[#FFF1E8] dark:bg-brand/15">
-          <MessageSquareQuote size={48} color="#FF6B1A" />
+        <View className="mb-4 h-[120px] w-[120px] items-center justify-center rounded-[30px] bg-brand-tint dark:bg-brand/15">
+          <MessageSquareQuote size={48} color={BRAND} />
         </View>
         <Text className="mb-2 text-center font-geist-bold text-[21px] leading-[1.2] text-ink dark:text-gray-100">
           {t("profile.reviews.emptyTitle")}
@@ -167,7 +168,7 @@ export function ProfileReviewsTab({
 
       {googleConnection?.sync_status === "syncing" ? (
         <View className="mb-2 flex-row items-center justify-center gap-2 px-4">
-          <ActivityIndicator size="small" color="#FF6B1A" />
+          <ActivityIndicator size="small" color="#141413" />
           <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
             {t("profile.reviews.syncing")}
           </Text>

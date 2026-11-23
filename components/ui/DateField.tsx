@@ -105,7 +105,7 @@ export function DateField({
           onPress={() => setShowPicker(false)}
           className="mt-2 self-end cursor-pointer"
         >
-          <Text className="font-geist-semibold text-brand text-sm">Done</Text>
+          <Text className="font-geist-semibold text-brand dark:text-gray-100 text-sm">Done</Text>
         </Pressable>
       ) : null}
     </View>

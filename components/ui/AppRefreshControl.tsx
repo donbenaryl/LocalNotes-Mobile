@@ -1,6 +1,5 @@
 import { RefreshControl, type RefreshControlProps } from "react-native";
-
-const REFRESH_TINT = "#FF6B1A";
+import { BRAND } from "@/constants/colors";
 
 interface AppRefreshControlProps
   extends Pick<RefreshControlProps, "refreshing" | "onRefresh" | "enabled"> {}
@@ -15,8 +14,8 @@ export function AppRefreshControl({
       refreshing={refreshing}
       onRefresh={onRefresh}
       enabled={enabled}
-      tintColor={REFRESH_TINT}
-      colors={[REFRESH_TINT]}
+      tintColor={BRAND}
+      colors={[BRAND]}
     />
   );
 }

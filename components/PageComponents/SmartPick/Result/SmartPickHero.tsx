@@ -36,7 +36,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
   const photoUrl = resolveImageUrl(pick?.images[0]?.url);
   const reasonText = result.description || pick?.description;
   const reasonEyebrow = t(isStretch ? 'smartPick.whyThisStretches' : 'smartPick.whyThisMatch');
-  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark';
+  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-gray-100';
   const reasonBoxClass = isStretch ? 'bg-connector-tint dark:bg-connector-tint/5' : 'bg-cream dark:bg-gray-800';
   const ctaColorClass = isStretch ? 'bg-connector' : 'bg-brand';
   const { colorScheme } = useColorScheme();

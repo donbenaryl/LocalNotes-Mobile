@@ -10,6 +10,7 @@ import { useSpotlightImageFallback } from "@/hooks/useSpotlightImageFallback";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import listService from "@/http/list-api/list.service";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
+import { BRAND } from "@/constants/colors";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getEmbeddedMatchPercent } from "@/utils/matchScore";
 import type { ListItemPublic } from "@/http/list-api/types";
@@ -145,8 +146,8 @@ export function SpotlightPickPosterCard({ pick }: SpotlightPickPosterCardProps) 
           <View className="h-8 w-8 items-center justify-center rounded-full bg-white/95">
             <Bookmark
               size={15}
-              color={isSaved ? "#FF6B1A" : "#141413"}
-              fill={isSaved ? "#FF6B1A" : "transparent"}
+              color={BRAND}
+              fill={isSaved ? BRAND : "transparent"}
             />
           </View>
         </Pressable>
@@ -172,7 +173,7 @@ export function SpotlightPickPosterCard({ pick }: SpotlightPickPosterCardProps) 
 
           {pick.quote ? (
             <Text
-              className="mt-[3px] text-sm italic leading-[15px] text-[#FFCFA8]"
+              className="mt-[3px] text-sm italic leading-[15px] text-[#E5E7EB]"
               numberOfLines={2}
             >
               &ldquo;{pick.quote}&rdquo;

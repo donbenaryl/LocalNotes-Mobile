@@ -123,7 +123,7 @@ export function LocationsSection({
                     : ""}
                 </Text>
                 {row.isPaid ? (
-                  <Text className="mt-0.5 font-geist-semibold text-[11px] text-brand">
+                  <Text className="mt-0.5 font-geist-semibold text-[11px] text-brand dark:text-gray-100">
                     ✦ {t("businessHome.locations.memberBadge")}
                   </Text>
                 ) : null}

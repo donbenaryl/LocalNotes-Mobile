@@ -163,7 +163,7 @@ export default function ClaimBusinessStart() {
             onRefresh={() => {
               void onRefresh();
             }}
-            tintColor="#FF6B1A"
+            tintColor="#141413"
           />
         }
       >
@@ -186,7 +186,7 @@ export default function ClaimBusinessStart() {
 
         {claimsQuery.isPending ? (
           <View className="items-center py-10">
-            <ActivityIndicator color="#FF6B1A" />
+            <ActivityIndicator color="#141413" />
           </View>
         ) : claimsQuery.isError ? (
           <View className="items-center gap-3 py-8">

@@ -42,7 +42,7 @@ export function CopilotMessageBubble({
         className="flex-row items-center gap-2 self-start rounded-2xl bg-white px-3.5 py-3 dark:bg-gray-800"
         accessibilityLiveRegion="polite"
       >
-        <ActivityIndicator size="small" color="#FF6B1A" />
+        <ActivityIndicator size="small" color="#141413" />
         <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-gray-300">
           {t(progressLabelKey(message.progress))}
         </Text>
@@ -88,7 +88,7 @@ export function CopilotMessageBubble({
                 accessibilityRole="link"
                 className="rounded-full bg-soft px-2.5 py-1 active:opacity-70 dark:bg-gray-800"
               >
-                <Text className="font-geist-semibold text-[11px] text-brand">{label}</Text>
+                <Text className="font-geist-semibold text-[11px] text-brand dark:text-gray-100">{label}</Text>
               </Pressable>
             ) : (
               <View key={key} className="rounded-full bg-soft px-2.5 py-1 dark:bg-gray-800">

@@ -17,6 +17,7 @@ import {
 } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
+import { brandColor } from "@/constants/colors";
 
 interface CardOptionsMenuActionItem {
   kind: "action";
@@ -114,8 +115,8 @@ export function CardOptionsMenu({
   };
 
   const isDark = colorScheme === "dark";
-  const iconColorDefault = isDark ? "#F3F4F6" : "#141413";
-  const iconColorBrand = "#FF6B1A";
+  const iconColorDefault = brandColor(isDark);
+  const iconColorBrand = brandColor(isDark);
   const iconColorDestructive = "#EF4444";
   const hasCustomItems = Boolean(menuItems?.length);
 
@@ -147,7 +148,7 @@ export function CardOptionsMenu({
       return {
         pressable:
           "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
-        text: "font-geist text-sm text-brand",
+        text: "font-geist text-sm text-brand dark:text-gray-100",
         iconColor: iconColorBrand,
       };
     }
@@ -260,7 +261,7 @@ export function CardOptionsMenu({
                         className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
                       >
                         <PinIcon size={15} color={iconColorBrand} />
-                        <Text className="font-geist text-sm text-brand">
+                        <Text className="font-geist text-sm text-brand dark:text-gray-100">
                           {t("profile.lists.pin")}
                         </Text>
                       </Pressable>

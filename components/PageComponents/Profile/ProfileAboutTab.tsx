@@ -254,7 +254,7 @@ export function ProfileAboutTab({ business }: ProfileAboutTabProps) {
   if (!storeBusinessInfo) {
     return (
       <View className="items-center px-4 py-12">
-        <ActivityIndicator size="small" color="#FF6B1A" />
+        <ActivityIndicator size="small" color="#141413" />
         <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
           {t('profile.about.loading')}
         </Text>

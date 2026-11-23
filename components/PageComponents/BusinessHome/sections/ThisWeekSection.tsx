@@ -126,7 +126,7 @@ export function ThisWeekSection({
                 key={chip}
                 className="rounded-full bg-brand-tint px-2.5 py-1 dark:bg-brand/20"
               >
-                <Text className="font-geist-semibold text-[11.5px] text-brand-dark">{chip}</Text>
+                <Text className="font-geist-semibold text-[11.5px] text-brand-dark dark:text-gray-100">{chip}</Text>
               </View>
             ))}
           </View>
@@ -160,7 +160,7 @@ export function ThisWeekSection({
           <View className="h-[22px] w-[22px] items-center justify-center rounded-md bg-brand">
             <Sparkles size={12} color="#fff" />
           </View>
-          <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-widest text-brand-dark">
+          <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-widest text-brand-dark dark:text-gray-100">
             {t('businessHome.brief.kicker', { period })}
           </Text>
         </View>
@@ -179,7 +179,7 @@ export function ThisWeekSection({
               <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
                 {row.label}
               </Text>
-              <Text className="font-geist-semibold text-xs text-brand">{row.value}</Text>
+              <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">{row.value}</Text>
               {row.was ? (
                 <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
                   {row.was}

@@ -1,9 +1,9 @@
 export const COLORS = {
-  primary: '#F97316',       // orange
-  primaryLight: '#FED7AA',  // orange-200
-  primaryDark: '#EA580C',   // orange-600
+  primary: '#141413', // brand / ink
+  primaryLight: '#F3F4F6', // brand tint / gray-100
+  primaryDark: '#000000',
 
-  black: '#111827',         // gray-900
+  black: '#111827', // gray-900
   white: '#FFFFFF',
 
   gray50: '#F9FAFB',
@@ -22,7 +22,20 @@ export const COLORS = {
   warning: '#EAB308',
 } as const;
 
+/** Brand accent (light mode) — matches Tailwind `brand` / `ink`. */
+export const BRAND = '#141413';
+/** Brand accent on dark surfaces — matches gray-100. */
+export const BRAND_ON_DARK = '#F3F4F6';
+/** Soft brand fill — matches Tailwind `brand-tint`. */
+export const BRAND_TINT = '#F3F4F6';
+/** Deeper brand emphasis — matches Tailwind `brand-dark`. */
+export const BRAND_DARK = '#000000';
+
 export const ICON_COLOR_LIGHT = '#191B1C';
 export const ICON_COLOR_DARK = '#F3F4F6';
 
 export type ColorKey = keyof typeof COLORS;
+
+export function brandColor(isDark: boolean): string {
+  return isDark ? BRAND_ON_DARK : BRAND;
+}

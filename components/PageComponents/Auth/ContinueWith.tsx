@@ -65,7 +65,7 @@ export function ContinueWith({
           hitSlop={8}
           className="cursor-pointer"
         >
-          <Text className="font-geist-bold text-brand">{linkText}</Text>
+          <Text className="font-geist-bold text-brand dark:text-gray-100">{linkText}</Text>
         </TouchableOpacity>
       </View>
 

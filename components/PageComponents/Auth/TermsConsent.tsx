@@ -24,7 +24,7 @@ export function TermsConsent({
   return (
     <View className={className}>
       {showBadge ? (
-        <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-brand-dark mb-2.5">
+        <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-brand-dark dark:text-gray-100 mb-2.5">
           {t('auth.consent.badge')}
         </Text>
       ) : null}
@@ -38,21 +38,21 @@ export function TermsConsent({
           <Text className="font-geist-semibold text-[15px] leading-snug text-ink dark:text-gray-100">
             {t('auth.consent.prefix')}
             <Text
-              className="font-geist-semibold text-[15px] text-brand underline cursor-pointer"
+              className="font-geist-semibold text-[15px] text-brand dark:text-gray-100 underline cursor-pointer"
               onPress={() => router.push('/terms' as Href)}
             >
               {t('auth.consent.terms')}
             </Text>
             {t('auth.consent.separator')}
             <Text
-              className="font-geist-semibold text-[15px] text-brand underline cursor-pointer"
+              className="font-geist-semibold text-[15px] text-brand dark:text-gray-100 underline cursor-pointer"
               onPress={() => router.push('/privacy-policy' as Href)}
             >
               {t('auth.consent.privacy')}
             </Text>
             {t('auth.consent.andSeparator')}
             <Text
-              className="font-geist-semibold text-[15px] text-brand underline cursor-pointer"
+              className="font-geist-semibold text-[15px] text-brand dark:text-gray-100 underline cursor-pointer"
               onPress={() => router.push('/community-guidelines' as Href)}
             >
               {t('auth.consent.guidelines')}

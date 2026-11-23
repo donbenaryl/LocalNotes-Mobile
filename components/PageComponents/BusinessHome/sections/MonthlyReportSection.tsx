@@ -29,7 +29,7 @@ export function MonthlyReportSection({
   const isError = query.isError && !report;
   // Brand colour only for a ready report; every other state is muted.
   const statusClass =
-    view === 'report' ? 'text-brand' : 'text-gray-500 dark:text-gray-400';
+    view === 'report' ? 'text-brand dark:text-gray-100' : 'text-gray-500 dark:text-gray-400';
 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="paid">
@@ -41,7 +41,7 @@ export function MonthlyReportSection({
           className="flex-row items-center gap-2.5 py-1"
         >
           <View className="flex-1 flex-row items-center gap-1.5">
-            <BarChart3 size={16} color="#FF6B1A" />
+            <BarChart3 size={16} color="#141413" />
             <Text className="font-geist-bold text-[13px] text-ink dark:text-gray-100">
               {t('businessHome.monthlyReport.rowTitle')}
             </Text>

@@ -18,12 +18,12 @@ import { AppScrollView } from '@/components/ui/AppScrollView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { SettingsNavRow } from '@/components/PageComponents/Profile/AccountSettings/SettingsNavRow';
 import { SettingsSection } from '@/components/PageComponents/Profile/AccountSettings/SettingsSection';
+import { brandColor } from '@/constants/colors';
 
 const SUPPORT_PHONE = '+1 602-564-4777';
 const SUPPORT_PHONE_HREF = 'tel:+16025644777';
 const SUPPORT_EMAIL = 'support@localnotesapp.com';
 const SUPPORT_ADDRESS = '732 S 6th St Ste N, Las Vegas, NV 89101';
-const BRAND = '#FF6B1A';
 
 function ContactMethodRow({
   icon: Icon,
@@ -41,6 +41,7 @@ function ContactMethodRow({
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
   const mutedIcon = isDark ? '#9CA3AF' : '#6B7280';
+  const accentIcon = brandColor(isDark);
 
   const row = (
     <View
@@ -57,7 +58,7 @@ function ContactMethodRow({
       >
         <Icon
           size={17}
-          color={onPress ? BRAND : mutedIcon}
+          color={onPress ? accentIcon : mutedIcon}
           strokeWidth={2.1}
         />
       </View>
@@ -68,7 +69,7 @@ function ContactMethodRow({
         <Text
           className={`font-geist-medium text-[14px] leading-5 ${
             onPress
-              ? 'text-brand'
+              ? 'text-brand dark:text-gray-100'
               : 'text-ink dark:text-gray-200'
           }`}
         >

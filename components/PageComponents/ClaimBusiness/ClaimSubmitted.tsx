@@ -14,8 +14,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { BRAND } from '@/constants/colors';
 
-const BRAND = '#FF6B1A';
 const EASE_OUT = Easing.out(Easing.cubic);
 
 function SuccessMark() {
@@ -130,7 +130,7 @@ export default function ClaimSubmitted() {
             .easing(EASE_OUT)}
           className="mt-8 w-full max-w-[340px] overflow-hidden rounded-2xl border border-brand/15 bg-brand-tint/60 px-4 py-4 dark:border-brand/25 dark:bg-brand/10"
         >
-          <Text className="mb-3 font-geist-semibold text-[11px] uppercase tracking-wider text-brand dark:text-brand">
+          <Text className="mb-3 font-geist-semibold text-[11px] uppercase tracking-wider text-brand dark:text-gray-100 dark:text-brand dark:text-gray-100">
             {t('claimBusiness.submitted.nextTitle')}
           </Text>
           <NextStepRow

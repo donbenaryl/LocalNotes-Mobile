@@ -41,7 +41,7 @@ export function PageSectionTitle({
               accessibilityRole="button"
               className="cursor-pointer"
             >
-              <Info size={15} color={isInfoOpen ? "#FF6B1A" : "#9CA3AF"} />
+              <Info size={15} color={isInfoOpen ? "#141413" : "#9CA3AF"} />
             </Pressable>
           ) : null}
         </View>

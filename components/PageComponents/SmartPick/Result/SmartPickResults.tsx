@@ -49,7 +49,7 @@ export function SmartPickResults({ conversation, onBack, coordinates }: SmartPic
                 />
                 <Text
                   className={`font-geist-bold text-[10.5px] uppercase tracking-[0.14em] ${
-                    isStretch ? 'text-connector' : 'text-brand-dark'
+                    isStretch ? 'text-connector' : 'text-brand-dark dark:text-gray-100'
                   }`}
                 >
                   {t(isStretch ? 'smartPick.outsideUsualEyebrow' : 'smartPick.forYouEyebrow')}

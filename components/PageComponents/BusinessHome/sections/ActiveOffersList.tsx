@@ -37,7 +37,7 @@ export function ActiveOffersList() {
           accessibilityRole="button"
           className="mt-1 active:opacity-70"
         >
-          <Text className="font-geist-semibold text-xs text-brand">
+          <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
             {t('common.retry')}
           </Text>
         </Pressable>

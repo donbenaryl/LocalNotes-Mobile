@@ -166,7 +166,7 @@ export function OffersTab() {
     <Badge
       label={t("offers.followedBadge")}
       variant="primary"
-      leftIcon={<Star size={12} color="#FF6B1A" />}
+      leftIcon={<Star size={12} color="#141413" />}
     />
   );
 
@@ -199,14 +199,14 @@ export function OffersTab() {
         ) : (
           <>
             <OffersSection
-              icon={<Clock size={20} color="#FF6B1A" />}
+              icon={<Clock size={20} color="#141413" />}
               title={t("offers.sections.expiringSoon.title")}
               subtitle={t("offers.sections.expiringSoon.subtitle")}
               offers={sections.expiringSoon}
               onOfferPress={setSelectedOfferId}
             />
             <OffersSection
-              icon={<Star size={20} color="#FB923C" />}
+              icon={<Star size={20} color="#141413" />}
               title={t("offers.sections.followed.title")}
               subtitle={t("offers.sections.followed.subtitle")}
               offers={sections.followed}

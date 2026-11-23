@@ -14,6 +14,7 @@ import type {
   BusinessAlertDAO,
   BusinessAlertsDAO,
 } from '@/http/business-api/types';
+import { BRAND } from '@/constants/colors';
 
 /** Minimal i18n surface, so the helpers below stay pure and testable without react-i18next. */
 export type AlertTranslate = (key: string, options?: Record<string, unknown>) => string;
@@ -89,8 +90,8 @@ export type BusinessAlertVisual = {
 
 const VISUAL_BRAND: BusinessAlertVisual = {
   icon: BellRing,
-  iconColor: '#FF6B1A',
-  badgeClass: 'bg-orange-100 dark:bg-orange-950/50',
+  iconColor: BRAND,
+  badgeClass: 'bg-brand-tint dark:bg-gray-800',
   accentClass: 'border-l-4 border-l-brand',
 };
 const VISUAL_POSITIVE: Omit<BusinessAlertVisual, 'icon'> = {

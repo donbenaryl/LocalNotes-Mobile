@@ -104,7 +104,7 @@ export function LinkExistingPicksSection({
 
       {isLoading ? (
         <View className="flex-row items-center gap-2 py-2">
-          <ActivityIndicator size="small" color="#FF6B1A" />
+          <ActivityIndicator size="small" color="#141413" />
           <Text className="font-geist text-sm text-gray-400">
             {t('listForm.linkPicks.loading')}
           </Text>
@@ -160,7 +160,7 @@ export function LinkExistingPicksSection({
                     ) : null}
                     {pick.owner ? <ListPickCreatorRow owner={pick.owner} /> : null}
                   </View>
-                  <Plus size={20} color="#FF6B1A" />
+                  <Plus size={20} color="#141413" />
                 </Pressable>
               );
             })}

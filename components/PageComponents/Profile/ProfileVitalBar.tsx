@@ -18,6 +18,7 @@ import {
   getDominantPersonalityColor,
   getPersonalityGradientColors,
 } from "@/utils/personalityRing";
+import { brandColor } from "@/constants/colors";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 import type { profileItemDAO } from "@/http/account-api/types";
 import type { BusinessItemDAO } from "@/http/business-api/types";
@@ -60,7 +61,7 @@ export function ProfileVitalBar({
     ? undefined
     : getPersonalityGradientColors(profile?.personality_color);
   const accentColor = isBusinessMode
-    ? "#FF6B1A"
+    ? brandColor(isDark)
     : getDominantPersonalityColor(profile?.personality_color);
   const accentSoftBorder = hexToRgba(accentColor, isDark ? 0.35 : 0.22);
 

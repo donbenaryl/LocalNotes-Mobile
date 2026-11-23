@@ -281,7 +281,7 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
     <View className="flex-1">
       <PageHeader hideBack={hideBack}>
         <View className="flex-row items-center justify-between">
-          <Text className="font-geist-semibold text-[12px] tracking-[0.16em] uppercase text-brand">
+          <Text className="font-geist-semibold text-[12px] tracking-[0.16em] uppercase text-brand dark:text-gray-100">
             {t("personality.header")} . {allQuestions.length}Q
           </Text>
           <Pressable

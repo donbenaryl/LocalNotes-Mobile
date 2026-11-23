@@ -20,17 +20,17 @@ export function SmartPickNoResults({
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark';
+  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-gray-100';
   const dotBgClass = isStretch ? 'bg-connector' : 'bg-brand';
-  const iconColor = isStretch ? '#534AB7' : '#c2410c';
+  const iconColor = isStretch ? '#534AB7' : isDark ? '#F3F4F6' : '#000000';
   const iconBgClass = isStretch ? 'bg-[#E8E6F4] dark:bg-gray-800' : 'bg-brand-tint dark:bg-gray-800';
   const gradientColors = isStretch
     ? isDark
       ? (['#1a1830', '#111827'] as const)
       : (['#E8E6F4', '#f5f4ef'] as const)
     : isDark
-      ? (['#2a1a10', '#111827'] as const)
-      : (['#FFF1E8', '#F3EBDD'] as const);
+      ? (['#1F2937', '#111827'] as const)
+      : (['#F3F4F6', '#F3EBDD'] as const);
 
   return (
     <View className="gap-4">

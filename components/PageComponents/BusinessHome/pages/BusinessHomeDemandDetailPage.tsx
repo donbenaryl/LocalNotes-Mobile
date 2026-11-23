@@ -84,7 +84,7 @@ export default function BusinessHomeDemandDetailPage() {
                             </Text>
                             <Text
                               className={`font-geist-semibold text-xs ${
-                                (row.delta_pct ?? 0) > 0 ? 'text-brand' : 'text-gray-500'
+                                (row.delta_pct ?? 0) > 0 ? 'text-brand dark:text-gray-100' : 'text-gray-500'
                               }`}
                             >
                               {[formatCompactNumber(row.volume), delta].filter(Boolean).join(' · ')}

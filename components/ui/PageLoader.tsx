@@ -1,7 +1,6 @@
 import { ActivityIndicator, Text, View } from 'react-native';
+import { BRAND } from '@/constants/colors';
 import { cn } from '@/utils/cn';
-
-const BRAND_COLOR = '#FF6B1A';
 
 interface PageLoaderProps {
   /** Default: true — flex-1 page background, centered spinner */
@@ -18,7 +17,7 @@ export function PageLoader({
   message,
   className,
 }: PageLoaderProps) {
-  const spinner = <ActivityIndicator size={size} color={BRAND_COLOR} />;
+  const spinner = <ActivityIndicator size={size} color={BRAND} />;
 
   if (!fullPage) {
     return spinner;

@@ -55,7 +55,7 @@ export function MentionedText({
                     )
                 : undefined
             }
-            className="font-geist-semibold text-brand"
+            className="font-geist-semibold text-brand dark:text-gray-100"
           >
             @{part}
           </Text>

@@ -80,7 +80,7 @@ export function FindFriendsUsersModal<T extends UnifiedSearchPersonDAO>({
     if (isLoading) {
       return (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" color="#FF6B1A" />
+          <ActivityIndicator size="small" color="#141413" />
         </View>
       );
     }

@@ -9,6 +9,7 @@ import DateTimePicker, {
   type DateType,
 } from 'react-native-ui-datepicker';
 import { Modal } from '@/components/ui/Modal';
+import { BRAND, BRAND_DARK, BRAND_ON_DARK, BRAND_TINT } from '@/constants/colors';
 import { formatPeriodLabel, isoFromPickerValue } from '@/utils/dateIso';
 import { cn } from '@/utils/cn';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -70,7 +71,7 @@ export function DateRangePicker({
       range_start_label: 'text-white',
       range_end_label: 'text-white',
       range_middle: 'bg-transparent',
-      range_middle_label: 'text-brand-dark dark:text-brand-tint',
+      range_middle_label: 'text-brand-dark dark:text-gray-100 dark:text-brand-tint',
       disabled_label: 'text-gray-400 dark:text-gray-500 opacity-50',
       outside_label: 'text-gray-400 dark:text-gray-500',
       today: 'bg-soft dark:bg-gray-800',
@@ -90,14 +91,18 @@ export function DateRangePicker({
   const styles = useMemo(
     () => ({
       ...defaultStyles,
-      selected: { backgroundColor: '#FF6B1A' },
+      selected: { backgroundColor: BRAND },
       selected_label: { color: '#FFFFFF' },
-      range_start: { backgroundColor: '#FF6B1A' },
-      range_end: { backgroundColor: '#FF6B1A' },
+      range_start: { backgroundColor: BRAND },
+      range_end: { backgroundColor: BRAND },
       range_start_label: { color: '#FFFFFF' },
       range_end_label: { color: '#FFFFFF' },
-      range_fill: { backgroundColor: colorScheme === 'dark' ? '#c2410c' : '#FFF1E8' },
-      range_middle_label: { color: colorScheme === 'dark' ? '#FFF1E8' : '#c2410c' },
+      range_fill: {
+        backgroundColor: colorScheme === 'dark' ? BRAND_DARK : BRAND_TINT,
+      },
+      range_middle_label: {
+        color: colorScheme === 'dark' ? BRAND_ON_DARK : BRAND_DARK,
+      },
     }),
     [colorScheme, defaultStyles],
   );

@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { brandColor, BRAND } from '@/constants/colors';
 import type { BusinessLocationCompareItemDAO } from '@/http/business-api/types';
 import { EditBranchHoursModal } from '@/components/PageComponents/Profile/EditBranchHoursModal';
 import { useMentionWeekdays } from '@/hooks/useMentionWeekdays';
@@ -67,7 +68,11 @@ function LocationCompareRow({
 }) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const pinColor = isLeader ? '#FF6B1A' : colorScheme === 'dark' ? '#9CA3AF' : '#78716C';
+  const pinColor = isLeader
+    ? brandColor(colorScheme === 'dark')
+    : colorScheme === 'dark'
+      ? '#9CA3AF'
+      : '#78716C';
   const barWidth =
     maxMentions > 0 ? Math.max(6, Math.round((row.mentions / maxMentions) * 100)) : 0;
 
@@ -499,7 +504,7 @@ export function BusinessHomeSheets({
       <Modal
         visible={activeSheet === 'report'}
         onClose={onClose}
-        titleIcon={<BarChart3 size={22} color="#FF6B1A" />}
+        titleIcon={<BarChart3 size={22} color={BRAND} />}
         title={
           reportMonth
             ? t('businessHome.sheets.report.title', { month: reportMonth })

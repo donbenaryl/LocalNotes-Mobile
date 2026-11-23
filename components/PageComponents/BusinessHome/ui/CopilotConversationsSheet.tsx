@@ -116,7 +116,7 @@ export function CopilotConversationsSheet({
 
       {query.isPending ? (
         <View className="items-center py-10">
-          <ActivityIndicator color="#FF6B1A" />
+          <ActivityIndicator color="#141413" />
         </View>
       ) : query.isError ? (
         <View className="items-center gap-3 py-8">
@@ -146,7 +146,7 @@ export function CopilotConversationsSheet({
             if (query.hasNextPage && !query.isFetchingNextPage) void query.fetchNextPage();
           }}
           ListFooterComponent={
-            query.isFetchingNextPage ? <ActivityIndicator className="py-3" color="#FF6B1A" /> : null
+            query.isFetchingNextPage ? <ActivityIndicator className="py-3" color="#141413" /> : null
           }
           renderItem={({ item }) => {
             const active = item.id === activeThreadId;

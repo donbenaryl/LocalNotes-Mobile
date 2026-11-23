@@ -20,7 +20,7 @@ export function FilterHeader({
         <Text className="font-geist-bold text-2xl text-ink dark:text-gray-100">
           {title}{" "}
         </Text>
-        <Text className="italic text-2xl text-brand">{accentTitle}</Text>
+        <Text className="italic text-2xl text-brand dark:text-gray-100">{accentTitle}</Text>
       </View>
       {actionLabel && onAction ? (
         <LocalNotesButton

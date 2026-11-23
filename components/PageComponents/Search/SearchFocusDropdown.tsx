@@ -128,7 +128,7 @@ export function SearchFocusDropdown({
                     accessibilityLabel={t("search.clear")}
                     className="cursor-pointer py-1"
                   >
-                    <Text className="font-geist-medium text-sm text-brand">
+                    <Text className="font-geist-medium text-sm text-brand dark:text-gray-100">
                       {t("search.clear")}
                     </Text>
                   </Pressable>
@@ -240,7 +240,7 @@ export function SearchFocusDropdown({
                           numberOfLines={1}
                           className="font-geist text-sm text-gray-500 dark:text-gray-400"
                         >
-                          <Text className="font-geist-medium text-brand">
+                          <Text className="font-geist-medium text-brand dark:text-gray-100">
                             {t("search.matchPercent", {
                               percent: pick.matchPercent,
                             })}

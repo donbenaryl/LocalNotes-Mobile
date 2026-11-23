@@ -105,7 +105,7 @@ export function BusinessSwitcherSheet({
 
         {isFetchingOwned && ownedBusinesses.length === 0 ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" color="#FF6B1A" />
+            <ActivityIndicator size="small" color="#141413" />
             <Text className="mt-2 font-geist text-xs text-gray-500">
               {t('businessHome.switcher.loading')}
             </Text>
@@ -172,7 +172,7 @@ export function BusinessSwitcherSheet({
 
         {isSaving ? (
           <View className="items-center py-3">
-            <ActivityIndicator size="small" color="#FF6B1A" />
+            <ActivityIndicator size="small" color="#141413" />
           </View>
         ) : null}
 

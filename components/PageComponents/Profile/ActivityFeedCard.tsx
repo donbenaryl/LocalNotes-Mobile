@@ -27,7 +27,7 @@ const ACTION_CONFIG: Record<
   save: { label: "saved", icon: Bookmark, color: "#EAB308" },
   share: { label: "shared", icon: Share2, color: "#A855F7" },
   comment: { label: "commented on", icon: MessageCircle, color: "#3B82F6" },
-  follow: { label: "followed", icon: UserPlus, color: "#FF6B1A" },
+  follow: { label: "followed", icon: UserPlus, color: "#141413" },
 };
 
 export function ActivityFeedCard({ item }: ActivityFeedCardProps) {

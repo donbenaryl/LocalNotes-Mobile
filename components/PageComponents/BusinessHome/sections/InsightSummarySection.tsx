@@ -54,7 +54,7 @@ export function InsightSummarySection({
           <>
             <Text className={BODY_CLASS}>{t('businessHome.insight.auto.error')}</Text>
             <Pressable onPress={() => void query.refetch()} accessibilityRole="button" hitSlop={8}>
-              <Text className="mt-1.5 font-geist-semibold text-xs text-brand">
+              <Text className="mt-1.5 font-geist-semibold text-xs text-brand dark:text-gray-100">
                 {t('businessHome.insight.auto.retry')}
               </Text>
             </Pressable>

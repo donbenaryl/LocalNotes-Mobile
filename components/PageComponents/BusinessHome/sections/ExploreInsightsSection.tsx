@@ -125,7 +125,7 @@ export function ExploreInsightsSection({
                     onPress={() => openDetail('/business-customers-detail', data.window)}
                     accessibilityRole="button"
                   >
-                    <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
+                    <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
                       {t('businessHome.explore.viewAllCustomers')}
                     </Text>
                   </Pressable>
@@ -246,7 +246,7 @@ export function ExploreInsightsSection({
                           </Text>
                           <Text
                             className={`font-geist-semibold text-xs ${
-                              (row.delta_pct ?? 0) > 0 ? 'text-brand' : 'text-gray-500'
+                              (row.delta_pct ?? 0) > 0 ? 'text-brand dark:text-gray-100' : 'text-gray-500'
                             }`}
                           >
                             {[formatCompactNumber(row.volume), delta].filter(Boolean).join(' · ')}
@@ -270,7 +270,7 @@ export function ExploreInsightsSection({
                   onPress={() => openDetail('/business-demand-detail', data.window)}
                   accessibilityRole="button"
                 >
-                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
+                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
                     {t('businessHome.explore.viewDemandReport')}
                   </Text>
                 </Pressable>
@@ -398,7 +398,7 @@ export function ExploreInsightsSection({
                   onPress={() => openDetail('/business-performance-detail', data.window)}
                   accessibilityRole="button"
                 >
-                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand underline">
+                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
                     {t('businessHome.explore.viewPerformanceReport')}
                   </Text>
                 </Pressable>

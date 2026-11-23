@@ -103,7 +103,7 @@ export function CampaignResultsSection({
 
     return (
       <>
-        <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand">
+        <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand dark:text-gray-100">
           {statusLabel(campaign, t)}
         </Text>
         <Text className="mt-1 font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
@@ -158,7 +158,7 @@ export function CampaignResultsSection({
         </View>
         <MembershipGate isPaidMember={isPaidMember} tier="free">
           <Text className="mt-2 border-t border-gray-100 pt-2 font-geist text-[11px] leading-[1.55] text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            <Text className="font-geist-bold text-brand">
+            <Text className="font-geist-bold text-brand dark:text-gray-100">
               {t('businessHome.campaign.unlockInsights')}
             </Text>
           </Text>
@@ -170,7 +170,7 @@ export function CampaignResultsSection({
           {/* Compare Campaign Button */}
           <Text
             onPress={() => onOpenSheet('compare')}
-            className="font-geist-extrabold text-[11px] text-brand underline"
+            className="font-geist-extrabold text-[11px] text-brand dark:text-gray-100 underline"
           >
             {t('businessHome.campaign.compare')}
           </Text>
@@ -190,7 +190,7 @@ export function CampaignResultsSection({
             accessibilityRole="button"
             className="active:opacity-80"
           >
-            <Text className="font-geist-semibold text-xs text-brand">
+            <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
               {t('businessHome.campaign.createOffer')}
             </Text>
           </Pressable>

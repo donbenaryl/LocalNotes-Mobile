@@ -71,7 +71,7 @@ export function SpotlightBidCard() {
             {content.badge}
           </Text>
         ) : null}
-        <Text className="mt-2 font-geist-semibold text-xs text-brand">
+        <Text className="mt-2 font-geist-semibold text-xs text-brand dark:text-gray-100">
           {t('businessHome.promoteTab.spotlightCta')}
         </Text>
       </Pressable>

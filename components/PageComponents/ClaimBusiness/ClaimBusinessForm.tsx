@@ -504,7 +504,7 @@ export default function ClaimBusinessForm() {
             </Text>
             {badge ? (
               <View className="rounded-md bg-brand-tint px-1.5 py-0.5 dark:bg-brand/30">
-                <Text className="font-geist-bold text-[10px] uppercase tracking-wide text-brand">
+                <Text className="font-geist-bold text-[10px] uppercase tracking-wide text-brand dark:text-gray-100">
                   {badge}
                 </Text>
               </View>
@@ -561,7 +561,7 @@ export default function ClaimBusinessForm() {
             <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
               {t("claimBusiness.form.timelineVerify")}
             </Text>
-            <Text className="mt-0.5 font-geist text-[12px] text-brand">
+            <Text className="mt-0.5 font-geist text-[12px] text-brand dark:text-gray-100">
               {t("claimBusiness.form.timelineInProgress")}
             </Text>
           </View>
@@ -609,7 +609,7 @@ export default function ClaimBusinessForm() {
             {renderBusinessCard()}
             <Text className="font-geist-bold text-[26px] leading-8 text-ink dark:text-gray-100 mt-2">
               {t("claimBusiness.form.heroLead")}{" "}
-              <Text className="font-fraunces text-[26px] text-brand">
+              <Text className="font-fraunces text-[26px] text-brand dark:text-gray-100">
                 {t("claimBusiness.form.heroEm")}
               </Text>
             </Text>
@@ -668,7 +668,7 @@ export default function ClaimBusinessForm() {
 
         {step === "email" ? (
           <>
-            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand">
+            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand dark:text-gray-100">
               {t("claimBusiness.form.stepCodeSent")}
             </Text>
             <Text className="mt-2 font-geist-bold text-[24px] text-ink dark:text-gray-100">
@@ -683,14 +683,14 @@ export default function ClaimBusinessForm() {
             <Text className="mt-4 font-geist text-[13px] text-gray-600 dark:text-gray-300">
               {t("claimBusiness.form.didntGetIt")}{" "}
               <Text
-                className="font-geist-semibold text-brand"
+                className="font-geist-semibold text-brand dark:text-gray-100"
                 onPress={() => startEmailMutation.mutate()}
               >
                 {t("claimBusiness.form.resendCode")}
               </Text>
               {" · "}
               <Text
-                className="font-geist-semibold text-brand"
+                className="font-geist-semibold text-brand dark:text-gray-100"
                 onPress={() => setStep("paths")}
               >
                 {t("claimBusiness.form.tryDifferentPath")}
@@ -702,7 +702,7 @@ export default function ClaimBusinessForm() {
 
         {step === "phone" ? (
           <>
-            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand">
+            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand dark:text-gray-100">
               {t("claimBusiness.form.stepCodeCalled")}
             </Text>
             <Text className="mt-2 font-geist-bold text-[24px] text-ink dark:text-gray-100">
@@ -717,14 +717,14 @@ export default function ClaimBusinessForm() {
             <Text className="mt-4 font-geist text-[13px] text-gray-600 dark:text-gray-300">
               {t("claimBusiness.form.didntGetIt")}{" "}
               <Text
-                className="font-geist-semibold text-brand"
+                className="font-geist-semibold text-brand dark:text-gray-100"
                 onPress={() => startPhoneMutation.mutate()}
               >
                 {t("claimBusiness.form.resendCall")}
               </Text>
               {" · "}
               <Text
-                className="font-geist-semibold text-brand"
+                className="font-geist-semibold text-brand dark:text-gray-100"
                 onPress={() => setStep("paths")}
               >
                 {t("claimBusiness.form.tryDifferentPath")}
@@ -766,7 +766,7 @@ export default function ClaimBusinessForm() {
                     />
                   ) : (
                     <View className="flex-row items-center gap-3 px-4 py-4">
-                      <FileText size={20} color="#FF6B1A" />
+                      <FileText size={20} color="#141413" />
                       <Text
                         className="min-w-0 flex-1 font-geist text-sm text-ink dark:text-gray-100"
                         numberOfLines={1}
@@ -872,7 +872,7 @@ export default function ClaimBusinessForm() {
               onPress={() => setStep("paths")}
               className="mt-2 cursor-pointer"
             >
-              <Text className="font-geist-semibold text-[13px] text-brand">
+              <Text className="font-geist-semibold text-[13px] text-brand dark:text-gray-100">
                 {t("claimBusiness.form.tryDifferentPath")}
               </Text>
             </Pressable>

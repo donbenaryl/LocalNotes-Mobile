@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useBusinessFollow } from "@/hooks/useBusinessFollow";
 import type { BusinessItemDAO } from "@/http/business-api/types";
+import { brandColor } from "@/constants/colors";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { withViewOrigin } from "@/utils/viewTracking";
 
@@ -38,7 +39,9 @@ export function BusinessCard({
   const { t } = useTranslation();
   const router = useRouter();
   const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#D1D5DB" : "#6B7280";
+  const isDark = colorScheme === "dark";
+  const iconColor = isDark ? "#D1D5DB" : "#6B7280";
+  const iconBrand = brandColor(isDark);
   const { isFollowed, isToggling, toggle } = useBusinessFollow(
     data.id,
     data.is_followed ?? false,
@@ -142,12 +145,12 @@ export function BusinessCard({
           }`}
         >
           {isToggling ? (
-            <ActivityIndicator size="small" color="#FF6B1A" />
+            <ActivityIndicator size="small" color={iconBrand} />
           ) : (
             <Bookmark
               size={13}
-              color={isFollowed ? "#FF6B1A" : iconColor}
-              fill={isFollowed ? "#FF6B1A" : "transparent"}
+              color={isFollowed ? iconBrand : iconColor}
+              fill={isFollowed ? iconBrand : "transparent"}
             />
           )}
         </Pressable>

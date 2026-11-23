@@ -99,9 +99,9 @@ function FollowListRow({
           className="active:opacity-70"
         >
           {isLoading ? (
-            <ActivityIndicator size="small" color="#FF6B1A" />
+            <ActivityIndicator size="small" color="#141413" />
           ) : (
-            <Text className="font-geist-bold text-[13px] text-brand">
+            <Text className="font-geist-bold text-[13px] text-brand dark:text-gray-100">
               {isOwnProfile
                 ? t("profile.followList.followBack")
                 : t("profile.followList.follow")}
@@ -214,7 +214,7 @@ export function FollowersFollowingModal({
               onPress={() => void refetch()}
               className="active:opacity-70"
             >
-              <Text className="font-geist-semibold text-sm text-brand">
+              <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
                 {t("common.continue")}
               </Text>
             </Pressable>

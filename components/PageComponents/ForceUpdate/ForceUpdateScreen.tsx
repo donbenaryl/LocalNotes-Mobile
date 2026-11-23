@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowUpFromLine } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { LocalNotesText } from '@/components/ui/LocalNotesText';
+import { BRAND } from '@/constants/colors';
 import { useToastStore } from '@/stores/useToastStore';
 import {
   getCachedForceUpdateStoreUrl,
@@ -17,7 +19,9 @@ const FORCE_UPDATE_BG = require('@/assets/welcome/backgrounds/screen3_bg.jpg');
 
 export function ForceUpdateScreen() {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
   const showToast = useToastStore((s) => s.show);
+  const ctaIconColor = colorScheme === 'dark' ? BRAND : '#FFFFFF';
 
   useEffect(() => {
     setForceUpdateScreenActive(true);
@@ -73,7 +77,7 @@ export function ForceUpdateScreen() {
           </View>
 
           <View className="flex-1 items-center justify-center">
-            <Text className="mb-4 font-geist-bold uppercase tracking-[0.18em] text-brand">
+            <Text className="mb-4 font-geist-bold uppercase tracking-[0.18em] text-gray-100">
               {t('forceUpdate.eyebrow')}
             </Text>
             <Text className="mb-3 text-center font-madimi text-4xl leading-tight text-white">
@@ -91,7 +95,9 @@ export function ForceUpdateScreen() {
               variant="brand"
               size="lg"
               isWidthFull
-              leftIcon={<ArrowUpFromLine size={18} color="white" strokeWidth={2} />}
+              leftIcon={
+                <ArrowUpFromLine size={18} color={ctaIconColor} strokeWidth={2} />
+              }
             />
             <Text className="text-center font-geist text-sm text-white/70">
               {storeHint}

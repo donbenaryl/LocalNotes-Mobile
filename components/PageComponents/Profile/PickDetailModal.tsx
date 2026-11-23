@@ -588,7 +588,7 @@ export function PickDetailModal({
               accessibilityRole="button"
               className="mx-4 mt-3 cursor-pointer rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:bg-brand/15"
             >
-              <Text className="text-center font-geist-semibold text-[13px] text-brand">
+              <Text className="text-center font-geist-semibold text-[13px] text-brand dark:text-gray-100">
                 {t("claimBusiness.entry.claimThisBusiness")}
               </Text>
             </Pressable>
@@ -626,7 +626,7 @@ export function PickDetailModal({
                     accessibilityRole="button"
                     className="cursor-pointer self-start px-1"
                   >
-                    <Text className="font-geist-semibold text-sm text-brand">
+                    <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
                       {t("profile.lists.retry")}
                     </Text>
                   </Pressable>

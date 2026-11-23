@@ -181,7 +181,7 @@ export default function NotificationsFeed() {
             <Text
               className={`font-geist-semibold text-[12.5px] ${
                 hasUnread && !isMarkingAllRead
-                  ? 'text-brand'
+                  ? 'text-brand dark:text-gray-100'
                   : 'text-gray-400 dark:text-gray-500'
               }`}
             >
@@ -210,7 +210,7 @@ export default function NotificationsFeed() {
 
       {isPending && !isRefetching ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#FF6B1A" />
+          <ActivityIndicator color="#141413" />
         </View>
       ) : (
         <AppScrollView
@@ -223,7 +223,7 @@ export default function NotificationsFeed() {
               onRefresh={() => {
                 void refetch();
               }}
-              tintColor="#FF6B1A"
+              tintColor="#141413"
             />
           }
         >

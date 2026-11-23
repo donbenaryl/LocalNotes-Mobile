@@ -51,7 +51,7 @@ export default function BlockedUsersSettings() {
             {t("accountSettings.privacy.blockedUsersLoadError")}
           </Text>
           <Pressable onPress={() => void refetch()} className="active:opacity-70">
-            <Text className="font-geist-semibold text-sm text-brand">
+            <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
               {t("common.continue")}
             </Text>
           </Pressable>

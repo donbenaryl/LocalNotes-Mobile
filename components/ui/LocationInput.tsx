@@ -434,7 +434,7 @@ export function LocationInput({
 
             const rowContent = (
               <View className={rowClassName}>
-                <MapPin size={18} color="#FF6B1A" className="mt-0.5 shrink-0" />
+                <MapPin size={18} color="#141413" className="mt-0.5 shrink-0" />
                 <View className="flex-1">
                   <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
                     {place.primary_text}
@@ -513,7 +513,7 @@ export function LocationInput({
       <Pressable
         onPress={handleUseCurrentLocation}
         disabled={isGeolocating}
-        className={`flex-row items-center gap-3 bg-orange-50 rounded-2xl border-2 px-4 py-3.5 mb-4 cursor-pointer ${
+        className={`flex-row items-center gap-3 bg-brand-tint rounded-2xl border-2 px-4 py-3.5 mb-4 cursor-pointer ${
           isGeolocating
             ? "border-brand/30 bg-white dark:bg-gray-900 opacity-60"
             : "border-brand/30 bg-white dark:bg-gray-900"
@@ -530,7 +530,7 @@ export function LocationInput({
           <Text className="font-geist-bold text-[15px] text-ink dark:text-gray-100">
             Use my current location
           </Text>
-          <Text className="font-geist text-sm text-brand">
+          <Text className="font-geist text-sm text-brand dark:text-gray-100">
             {isGeolocating ? "Detecting..." : "GPS-detected"}
           </Text>
         </View>

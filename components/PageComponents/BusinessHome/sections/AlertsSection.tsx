@@ -144,7 +144,7 @@ export function AlertsSection({
         <SectionHeading title={t('businessHome.sections.alerts')} />
         {query.isPending ? (
           <View className="items-center py-6">
-            <ActivityIndicator color="#FF6B1A" />
+            <ActivityIndicator color="#141413" />
           </View>
         ) : query.isError ? (
           <BusinessHomeCard>

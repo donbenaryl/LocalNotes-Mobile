@@ -24,7 +24,7 @@ function RecipientRow({ recipient }: { recipient: ThankYouRecipientDAO }) {
   return (
     <View className="flex-row items-center gap-3 py-2">
       <View className="h-9 w-9 items-center justify-center rounded-full bg-brand-tint">
-        <Text className="font-geist-semibold text-sm text-brand">{initial}</Text>
+        <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">{initial}</Text>
       </View>
       <View className="min-w-0 flex-1 gap-0.5">
         <Text
@@ -72,7 +72,7 @@ export function ThankYouWhoGetsThanked({
 
       {isLoading ? (
         <View className="items-center py-4">
-          <ActivityIndicator color="#FF6B1A" />
+          <ActivityIndicator color="#141413" />
         </View>
       ) : isError ? (
         <Text className="font-geist text-sm leading-5 text-gray-500 dark:text-gray-400">
@@ -81,7 +81,7 @@ export function ThankYouWhoGetsThanked({
       ) : !hasRecipients ? (
         <View className="items-center gap-2 py-4">
           <View className="h-12 w-12 items-center justify-center rounded-full bg-brand-tint">
-            <HeartHandshake size={24} color="#FF6B1A" />
+            <HeartHandshake size={24} color="#141413" />
           </View>
           <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
             {t('thankYou.who.emptyTitle')}

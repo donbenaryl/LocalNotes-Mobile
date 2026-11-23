@@ -87,7 +87,7 @@ export function SmartPickForm({
       {/* Welcome banner */}
       <View className="overflow-hidden rounded-[18px]">
         <LinearGradient
-          colors={['#FF6B1A', '#c2410c']}
+          colors={['#141413', '#000000']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ padding: 18 }}

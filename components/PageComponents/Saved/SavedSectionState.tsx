@@ -38,7 +38,7 @@ export function SavedSectionState({
     if (pendingContent) return <>{pendingContent}</>;
     return (
       <View className="items-center justify-center gap-3 py-12">
-        <ActivityIndicator size="large" color="#FF6B1A" />
+        <ActivityIndicator size="large" color="#141413" />
         <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
           {t("profile.lists.loading")}
         </Text>

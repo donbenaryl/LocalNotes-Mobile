@@ -59,7 +59,7 @@ export function CopilotComposer({
             {t('businessHome.copilot.exhaustedBanner', { allowance: credits.allowance, date })}
           </Text>
           <Pressable onPress={onOpenCredits} accessibilityRole="link" hitSlop={8}>
-            <Text className="font-geist-bold text-xs text-brand">
+            <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
               {t('businessHome.copilot.seeCredits')}
             </Text>
           </Pressable>
@@ -70,7 +70,7 @@ export function CopilotComposer({
             {t('businessHome.copilot.lowBanner')}
           </Text>
           <Pressable onPress={onOpenCredits} accessibilityRole="link" hitSlop={8}>
-            <Text className="font-geist-bold text-xs text-brand">
+            <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
               {t('businessHome.copilot.seeCredits')}
             </Text>
           </Pressable>
@@ -83,7 +83,7 @@ export function CopilotComposer({
             {t('businessHome.copilot.longConversationHint')}
           </Text>
           <Pressable onPress={onNewChat} accessibilityRole="button" hitSlop={8}>
-            <Text className="font-geist-bold text-xs text-brand">
+            <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
               {t('businessHome.copilot.newChat')}
             </Text>
           </Pressable>
@@ -125,7 +125,7 @@ export function CopilotComposer({
             {t('businessHome.copilot.creditsHint')}
           </Text>
           <Pressable onPress={onOpenHow} accessibilityRole="link" hitSlop={8}>
-            <Text className="font-geist-bold text-[11px] text-brand">
+            <Text className="font-geist-bold text-[11px] text-brand dark:text-gray-100">
               {t('businessHome.copilot.creditsHowLink')}
             </Text>
           </Pressable>

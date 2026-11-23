@@ -97,7 +97,7 @@ export function CountryPickerModal({
         >
           {item.name} (+{item.dialCode})
         </Text>
-        {isSelected ? <Check size={18} color="#FF6B1A" strokeWidth={2.5} /> : null}
+        {isSelected ? <Check size={18} color="#141413" strokeWidth={2.5} /> : null}
       </Pressable>
     );
   };
