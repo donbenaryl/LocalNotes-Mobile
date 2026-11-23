@@ -37,8 +37,8 @@ function tabItemClassName(equalWidth: boolean, isActive?: boolean) {
   return cn(
     'flex-row items-center gap-2 border-b-2 pb-3',
     equalWidth
-      ? 'flex-1 justify-center px-2'
-      : 'relative mr-4 cursor-pointer px-2 pr-4',
+      ? 'flex-1 justify-center px-1'
+      : 'relative mr-4 cursor-pointer px-1 pr-4',
     // Animated path sets border color via style; static path uses isActive.
     isActive === true && 'border-brand',
     isActive === false && 'border-transparent',
