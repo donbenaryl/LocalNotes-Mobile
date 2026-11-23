@@ -189,7 +189,7 @@ export function GuardedFooter() {
         >
           <TouchableOpacity
             onPress={() => setIsCreatePickerOpen((open) => !open)}
-            className="h-16 w-16 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-dk-page dark:bg-[#F5F2EA] relative -top-5"
+            className="h-16 w-16 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-black dark:bg-[#F5F2EA] relative -top-5"
             style={FAB_SHADOW}
           >
             <Plus
@@ -201,7 +201,7 @@ export function GuardedFooter() {
         </View>
 
         <View
-          className="w-full flex-row items-center rounded-full border border-gray-200/90 bg-page/95 dark:border-dk-border/90 dark:bg-dk-page/95"
+          className="w-full flex-row items-center rounded-full border border-gray-200/90 bg-page/95 dark:border-dk-border/90 dark:bg-dk-card"
      
           style={[{ height: FOOTER_BAR_HEIGHT }, BAR_SHADOW]}
         >

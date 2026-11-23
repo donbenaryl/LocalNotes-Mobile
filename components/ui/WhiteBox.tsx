@@ -11,7 +11,7 @@ export function WhiteBox({ children, className, isSelected = false }: WhiteBoxPr
   return (
     <View
       className={cn(
-        "rounded-2xl border border-gray-200 bg-card p-4 dark:border-dk-line dark:bg-dk-page overflow-hidden",
+        "rounded-2xl border border-gray-200 bg-card p-4 dark:border-dk-line dark:bg-dk-card overflow-hidden",
         isSelected && "border-brand bg-brand-tint dark:border-brand",
         className,
       )}

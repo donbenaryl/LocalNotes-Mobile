@@ -11,13 +11,15 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { useColorScheme } from 'nativewind';
 import { List, Plus } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import type { DropDownOption } from '@/components/ui/DropDown';
+import { BRAND } from '@/constants/colors';
 import { FOOTER_BAR_HEIGHT } from '@/constants/layout';
 
-const GAP_ABOVE_FAB = 16;
+const GAP_ABOVE_FAB = 24;
 const SLIDE_DISTANCE = 32;
 const OPEN_STAGGER_MS = 55;
 const CLOSE_STAGGER_MS = 50;
@@ -66,7 +68,9 @@ function FloatingItem({
   onPress,
 }: FloatingItemProps) {
   const progress = useSharedValue(0);
+  const { colorScheme } = useColorScheme();
   const Icon = OPTION_ICONS[option.value] ?? Plus;
+  const iconColor = colorScheme === 'dark' ? BRAND : '#FFFFFF';
 
   useEffect(() => {
     cancelAnimation(progress);
@@ -104,7 +108,7 @@ function FloatingItem({
         size="sm"
         isRounded
         isWidthFull={false}
-        leftIcon={<Icon size={18} color="white" strokeWidth={2.5} />}
+        leftIcon={<Icon size={18} color={iconColor} strokeWidth={2.5} />}
         className="min-w-[120px]"
       />
     </Animated.View>
