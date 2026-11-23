@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
-import { Check, MapPin } from 'lucide-react-native';
+import { Building2, Check, MapPin } from 'lucide-react-native';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { useBusinessStore } from '@/stores/useBusinessStore';
@@ -29,7 +29,7 @@ export function BusinessSwitcherSheet({
 }: BusinessSwitcherSheetProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const checkColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
+  const iconColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
   const ownedBusinesses = useBusinessStore((s) => s.ownedBusinesses);
   const businessId = useBusinessStore((s) => s.businessId);
   const selectedBranchId = useBusinessStore((s) => s.selectedBranchId);
@@ -57,8 +57,6 @@ export function BusinessSwitcherSheet({
       ownedBusinesses[0],
     [ownedBusinesses, draftBusinessId],
   );
-
-  const branches = draftBusiness?.branches ?? [];
 
   const commitSelection = async (nextBusinessId: string, branchId: string | null) => {
     setIsSaving(true);
@@ -99,9 +97,19 @@ export function BusinessSwitcherSheet({
         contentContainerClassName="pb-4"
         className="max-h-[70vh]"
       >
-        <Text className="font-geist-extrabold text-[10px] uppercase tracking-[0.08em] text-gray-500 dark:text-dk-muted">
+        <Text className="font-geist-bold text-xl text-gray-900 dark:text-dk-text flex-1 pr-4 mb-2">
           {t('businessHome.switcher.yourBusinesses')}
         </Text>
+
+        {saveError ? (
+          <Text className="mb-2 font-geist text-sm text-error">{saveError}</Text>
+        ) : null}
+
+        {isSaving ? (
+          <View className="items-center py-3">
+            <ActivityIndicator size="small" color="#1A1714" />
+          </View>
+        ) : null}
 
         {isFetchingOwned && ownedBusinesses.length === 0 ? (
           <View className="items-center py-8">
@@ -130,82 +138,77 @@ export function BusinessSwitcherSheet({
         ) : (
           ownedBusinesses.map((item, index) => {
             const isDraft = item.id === draftBusiness?.id;
+            const itemBranches = item.branches ?? [];
+
             return (
-              <Pressable
+              <View
                 key={item.id}
-                onPress={() => onBusinessPress(item.id)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isDraft }}
-                className={`flex-row items-center justify-between py-3 cursor-pointer ${
-                  index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
-                }`}
+                className={index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''}
               >
-                <View className="min-w-0 flex-1 flex-row items-center gap-1.5 pr-3">
-                  <Text
-                    className="font-geist-bold text-[15px] text-ink dark:text-dk-text"
-                    numberOfLines={1}
-                  >
-                    {item.name}
-                  </Text>
-                  {isDraft ? (
-                    <Check size={14} color={checkColor} strokeWidth={2.6} />
-                  ) : null}
-                </View>
-                <Text className="font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted">
-                  {t('businessHome.switcher.locationCount', {
-                    count: item.location_count ?? item.branches.length,
-                    role: item.role,
-                  })}
-                </Text>
-              </Pressable>
-            );
-          })
-        )}
-
-        <Text className="mt-3 font-geist-extrabold text-[10px] uppercase tracking-[0.08em] text-gray-500 dark:text-dk-muted">
-          {t('businessHome.switcher.locations')}
-        </Text>
-
-        {saveError ? (
-          <Text className="mt-2 font-geist text-sm text-error">{saveError}</Text>
-        ) : null}
-
-        {isSaving ? (
-          <View className="items-center py-3">
-            <ActivityIndicator size="small" color="#1A1714" />
-          </View>
-        ) : null}
-
-        {branches.length === 0 ? (
-          <Text className="py-4 font-geist text-sm text-gray-500">
-            {t('businessHome.switcher.noLocations')}
-          </Text>
-        ) : (
-          branches.map((branch, index) => {
-            const isSelected =
-              draftBusiness?.id === businessId && branch.id === selectedBranchId;
-            const label = branchLabel(branch);
-            return (
-              <Pressable
-                key={branch.id}
-                onPress={() => onLocationPress(branch.id)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-                className={`flex-row items-center gap-2 py-3 cursor-pointer ${
-                  index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
-                }`}
-              >
-                <MapPin size={14} color="#EF4444" strokeWidth={2.2} />
-                <Text
-                  className="flex-1 font-geist-bold text-[15px] text-ink dark:text-dk-text"
-                  numberOfLines={1}
+                <Pressable
+                  onPress={() => onBusinessPress(item.id)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isDraft }}
+                  className="flex-row items-center justify-between py-3 cursor-pointer"
                 >
-                  {label}
-                </Text>
-                {isSelected ? (
-                  <Check size={14} color={checkColor} strokeWidth={2.6} />
+                  <View className="min-w-0 flex-1 flex-row items-center gap-2.5 pr-3">
+                    <Building2 size={14} color={iconColor} strokeWidth={2.2} />
+                    <Text
+                      className="min-w-0 shrink font-geist-bold text-[15px] text-ink dark:text-dk-text"
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                    {isDraft ? (
+                      <Check size={14} color={iconColor} strokeWidth={2.6} />
+                    ) : null}
+                  </View>
+                  <Text className="font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted">
+                    {t('businessHome.switcher.locationCount', {
+                      count: item.location_count ?? itemBranches.length,
+                      role: item.role,
+                    })}
+                  </Text>
+                </Pressable>
+
+                {isDraft ? (
+                  itemBranches.length === 0 ? (
+                    <Text className="pb-3 pl-4 font-geist text-sm text-gray-500">
+                      {t('businessHome.switcher.noLocations')}
+                    </Text>
+                  ) : (
+                    itemBranches.map((branch, branchIndex) => {
+                      const isSelected =
+                        item.id === businessId && branch.id === selectedBranchId;
+                      const label = branchLabel(branch);
+                      return (
+                        <Pressable
+                          key={branch.id}
+                          onPress={() => onLocationPress(branch.id)}
+                          accessibilityRole="button"
+                          accessibilityState={{ selected: isSelected }}
+                          className={`ml-3 flex-row items-center gap-2.5 py-3 pl-1 active:opacity-60 cursor-pointer ${
+                            branchIndex > 0
+                              ? 'border-t border-gray-100 dark:border-dk-border'
+                              : ''
+                          }`}
+                        >
+                          <MapPin size={14} color={iconColor} strokeWidth={2.2} />
+                          <Text
+                            className="flex-1 font-geist-bold text-[15px] text-ink dark:text-dk-text"
+                            numberOfLines={1}
+                          >
+                            {label}
+                          </Text>
+                          {isSelected ? (
+                            <Check size={14} color={iconColor} strokeWidth={2.6} />
+                          ) : null}
+                        </Pressable>
+                      );
+                    })
+                  )
                 ) : null}
-              </Pressable>
+              </View>
             );
           })
         )}
