@@ -20,6 +20,7 @@ let linkingSubscription: { remove: () => void } | null = null;
 /** Prevents double-like (toggle) when cold-start URL is delivered twice. */
 let lastHandledPushReactKey: string | null = null;
 let lastHandledPushReactAt = 0;
+let initialResponseConsumed = false;
 
 /**
  * Show banners while the app is foregrounded — without this, Expo accepts the
@@ -266,8 +267,25 @@ export function startPushReactLinkingListener(): () => void {
 
 /** Handle a cold-start notification tap once (call from authenticated shell). */
 export async function consumeInitialNotificationResponse(): Promise<void> {
+  // Once per process: the (app) layout remounts on sign-in / re-lock, and the
+  // last response would otherwise be replayed each time.
+  if (initialResponseConsumed) return;
+  initialResponseConsumed = true;
+
   const response = await Notifications.getLastNotificationResponseAsync();
-  if (response) {
-    handleNotificationResponse(response);
+  if (!response) return;
+
+  // Prevent the same response from being replayed later.
+  Notifications.clearLastNotificationResponse();
+
+  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
+    return;
   }
+
+  // On Android a plain launch can surface a stale response. Only navigate when
+  // the notification carries a resolvable deep link; otherwise stay on Home.
+  const data = parseRichPushData(response.notification.request.content.data);
+  if (!data.deepLink?.trim()) return;
+
+  handleNotificationResponse(response);
 }
