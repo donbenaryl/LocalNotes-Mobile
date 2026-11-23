@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   StyleSheet,
+  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -18,10 +19,17 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 import { LnTile } from '@/components/ui/LnTile';
+import { WORDMARK_LG_TEXT_CLASS } from '@/components/ui/LocalNotesText';
 import { useSplashStore } from '@/stores/useSplashStore';
 
 const WORD = 'LocalNotes';
 const LETTERS = WORD.split('');
+/** Same two runs as `LocalNotesText`, so kerning matches the final logo. */
+const WORDS = ['Local', 'Notes'] as const;
+/** Every string we measure: each word prefix plus each lone character. */
+const MEASURE_KEYS = WORDS.flatMap((w) =>
+  w.split('').flatMap((_, i) => [w.slice(0, i + 1), w[i]]),
+);
 const L_INDEX = 0;
 const N_INDEX = 5;
 /** Master intro clock length (ms). */
@@ -44,7 +52,9 @@ interface LetterProps {
   /** Translation that brings L (resp. N) next to the row center. */
   lOffset: SharedValue<number>;
   nOffset: SharedValue<number>;
-  onLayoutX: (index: number, x: number, width: number) => void;
+  /** Kerned x inside the row, measured from the real word run. */
+  left: number;
+  width: number;
 }
 
 function Letter({
@@ -56,7 +66,8 @@ function Letter({
   fromColor,
   lOffset,
   nOffset,
-  onLayoutX,
+  left,
+  width,
 }: LetterProps) {
   const isKey = index === L_INDEX || index === N_INDEX;
   // Non-key letters reveal left to right after L and N start sliding.
@@ -91,11 +102,10 @@ function Letter({
 
   return (
     <Animated.Text
-      className="font-madimi text-5xl pt-1"
-      style={style}
-      onLayout={(e) =>
-        onLayoutX(index, e.nativeEvent.layout.x, e.nativeEvent.layout.width)
-      }
+      className={WORDMARK_LG_TEXT_CLASS}
+      // Extra width guards against sub-pixel wrapping of absolutely placed text.
+      style={[{ position: 'absolute', top: 0, left, width: width + 6 }, style]}
+      numberOfLines={1}
     >
       {char}
     </Animated.Text>
@@ -132,10 +142,36 @@ export function SplashOverlay() {
 
   const rowW = useRef(0);
   const centerRef = useRef<View>(null);
-  const letterBox = useRef<Record<number, { x: number; width: number }>>({});
+  const [metrics, setMetrics] = useState<Record<string, number>>({});
+  const [rowH, setRowH] = useState(0);
   const [reduceMotion, setReduceMotion] = useState<boolean | null>(null);
   const [introDone, setIntroDone] = useState(false);
   const started = useRef(false);
+
+  const ready = MEASURE_KEYS.every((k) => metrics[k] > 0) && rowH > 0;
+
+  // Kerned x of every letter, taken from the real "Local" / "Notes" runs.
+  const letterX: number[] = [];
+  let rowWidth = 0;
+  if (ready) {
+    let wordStart = 0;
+    for (const w of WORDS) {
+      for (let i = 0; i < w.length; i += 1) {
+        letterX.push(wordStart + metrics[w.slice(0, i + 1)] - metrics[w[i]]);
+      }
+      wordStart += metrics[w];
+    }
+    rowWidth = wordStart;
+  }
+  rowW.current = rowWidth;
+
+  // Put L's right edge and N's left edge at the row center.
+  const lShift = ready ? rowWidth / 2 - metrics.L - letterX[L_INDEX] : 0;
+  const nShift = ready ? rowWidth / 2 - letterX[N_INDEX] : 0;
+  useEffect(() => {
+    lOffset.value = lShift;
+    nOffset.value = nShift;
+  }, [lShift, nShift, lOffset, nOffset]);
 
   useEffect(() => {
     let mounted = true;
@@ -182,7 +218,7 @@ export function SplashOverlay() {
 
   // Travel / fade once the intro is done and the destination is known.
   useEffect(() => {
-    if (!introDone || !target || started.current) return;
+    if (!introDone || !target || !ready || started.current) return;
 
     const fadeAway = () => {
       started.current = true;
@@ -241,6 +277,7 @@ export function SplashOverlay() {
   }, [
     introDone,
     target,
+    ready,
     rects,
     reduceMotion,
     baseColor,
@@ -255,20 +292,6 @@ export function SplashOverlay() {
     finish,
     setTarget,
   ]);
-
-  const recomputeCenterOffset = () => {
-    const l = letterBox.current[L_INDEX];
-    const n = letterBox.current[N_INDEX];
-    if (!l || !n || rowW.current <= 0) return;
-    // Put L's right edge and N's left edge at the row center.
-    lOffset.value = rowW.current / 2 - l.width - l.x;
-    nOffset.value = rowW.current / 2 - n.x;
-  };
-
-  const handleLetterLayout = (index: number, x: number, width: number) => {
-    letterBox.current[index] = { x, width };
-    recomputeCenterOffset();
-  };
 
   const rootStyle = useAnimatedStyle(() => ({ opacity: 1 - fadeOut.value }));
   const bgStyle = useAnimatedStyle(() => ({
@@ -309,6 +332,22 @@ export function SplashOverlay() {
           <LnTile />
         </Animated.View>
       </View>
+      {/* Hidden measurement layer: real text runs give kerned letter positions. */}
+      <View style={styles.measure} pointerEvents="none">
+        {MEASURE_KEYS.map((key, k) => (
+          <View
+            key={`${key}-${k}`}
+            style={styles.measureItem}
+            onLayout={(e) => {
+              const { width, height } = e.nativeEvent.layout;
+              setMetrics((m) => (m[key] === width ? m : { ...m, [key]: width }));
+              setRowH((h) => (h === height ? h : Math.max(h, height)));
+            }}
+          >
+            <Text className={WORDMARK_LG_TEXT_CLASS}>{key}</Text>
+          </View>
+        ))}
+      </View>
       <View
         ref={centerRef}
         collapsable={false}
@@ -316,13 +355,9 @@ export function SplashOverlay() {
         pointerEvents="none"
       >
         <Animated.View
-          style={[styles.row, wordStyle]}
-          onLayout={(e) => {
-            rowW.current = e.nativeEvent.layout.width;
-            recomputeCenterOffset();
-          }}
+          style={[styles.row, { width: rowWidth, height: rowH }, wordStyle]}
         >
-          {LETTERS.map((char, i) => (
+          {ready && LETTERS.map((char, i) => (
             <Letter
               key={`${char}-${i}`}
               char={char}
@@ -333,7 +368,8 @@ export function SplashOverlay() {
               fromColor={baseColor}
               lOffset={lOffset}
               nOffset={nOffset}
-              onLayoutX={handleLetterLayout}
+              left={letterX[i]}
+              width={metrics[char]}
             />
           ))}
         </Animated.View>
@@ -349,5 +385,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  row: { flexDirection: 'row', alignItems: 'center' },
+  row: { alignItems: 'flex-start' },
+  measure: { position: 'absolute', top: 0, left: 0, opacity: 0 },
+  measureItem: { alignSelf: 'flex-start' },
 });

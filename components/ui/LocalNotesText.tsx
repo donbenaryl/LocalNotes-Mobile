@@ -8,6 +8,9 @@ interface LocalNotesTextProps {
   withShadow?: boolean;
 }
 
+/** Shared with SplashOverlay so the animated wordmark matches the logo exactly. */
+export const WORDMARK_LG_TEXT_CLASS = 'font-madimi text-5xl pt-1';
+
 const sizeClasses: Record<NonNullable<LocalNotesTextProps['size']>, string> = {
   sm: 'text-2xl',
   md: 'text-4xl',
