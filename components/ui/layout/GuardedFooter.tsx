@@ -185,7 +185,7 @@ export function GuardedFooter() {
         >
           <TouchableOpacity
             onPress={() => setIsCreatePickerOpen((open) => !open)}
-            className="h-14 w-14 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-gray-900"
+            className="h-16 w-16 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-gray-900 relative -top-5"
             style={FAB_SHADOW}
           >
             <Plus size={26} color="white" strokeWidth={2.5} />

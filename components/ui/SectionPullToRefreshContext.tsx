@@ -91,6 +91,14 @@ export function SectionPullToRefreshProvider({
   const register = useCallback(
     (tabId: string, next: SectionPullToRefreshHandler | null) => {
       if (next) {
+        const existing = registryRef.current.get(tabId);
+        if (
+          existing &&
+          existing.onRefresh === next.onRefresh &&
+          existing.refreshing === next.refreshing
+        ) {
+          return;
+        }
         registryRef.current.set(tabId, next);
       } else {
         registryRef.current.delete(tabId);
@@ -105,6 +113,15 @@ export function SectionPullToRefreshProvider({
   const registerInfiniteScroll = useCallback(
     (tabId: string, next: SectionInfiniteScrollHandler | null) => {
       if (next) {
+        const existing = infiniteScrollRegistryRef.current.get(tabId);
+        if (
+          existing &&
+          existing.onLoadMore === next.onLoadMore &&
+          existing.hasNextPage === next.hasNextPage &&
+          existing.isFetchingNextPage === next.isFetchingNextPage
+        ) {
+          return;
+        }
         infiniteScrollRegistryRef.current.set(tabId, next);
       } else {
         infiniteScrollRegistryRef.current.delete(tabId);
@@ -162,10 +179,12 @@ export function useRegisterSectionPullToRefresh(
     onRefreshRef.current();
   }, []);
 
+  // Update without cleanup so value changes don't pass through a null handler.
   useEffect(() => {
     register(tabId, { onRefresh: stableOnRefresh, refreshing });
-    return () => register(tabId, null);
   }, [register, tabId, stableOnRefresh, refreshing]);
+
+  useEffect(() => () => register(tabId, null), [register, tabId]);
 }
 
 /** Registers infinite-scroll load-more with the parent section ScrollView when active. */
@@ -189,7 +208,6 @@ export function useRegisterSectionInfiniteScroll(
       hasNextPage,
       isFetchingNextPage,
     });
-    return () => registerInfiniteScroll(tabId, null);
   }, [
     registerInfiniteScroll,
     tabId,
@@ -197,4 +215,9 @@ export function useRegisterSectionInfiniteScroll(
     hasNextPage,
     isFetchingNextPage,
   ]);
+
+  useEffect(
+    () => () => registerInfiniteScroll(tabId, null),
+    [registerInfiniteScroll, tabId],
+  );
 }
