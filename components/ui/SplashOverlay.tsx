@@ -131,6 +131,7 @@ export function SplashOverlay() {
   const nOffset = useSharedValue(0);
 
   const rowW = useRef(0);
+  const centerRef = useRef<View>(null);
   const letterBox = useRef<Record<number, { x: number; width: number }>>({});
   const [reduceMotion, setReduceMotion] = useState<boolean | null>(null);
   const [introDone, setIntroDone] = useState(false);
@@ -208,17 +209,35 @@ export function SplashOverlay() {
 
     started.current = true;
     const scale = rowW.current > 0 ? rect.width / rowW.current : 0.5;
-    dx.value = rect.x + rect.width / 2 - screenW / 2;
-    dy.value = rect.y + rect.height / 2 - screenH / 2;
     scaleTo.value = scale;
     toColor.value = target === 'welcome' ? CREAM : baseColor;
-    travel.value = withTiming(
-      1,
-      { duration: TRAVEL_MS, easing: Easing.inOut(Easing.cubic) },
-      (done) => {
-        if (done) runOnJS(finish)();
-      },
-    );
+
+    const startTravel = (originX: number, originY: number) => {
+      dx.value = rect.x + rect.width / 2 - originX;
+      dy.value = rect.y + rect.height / 2 - originY;
+      travel.value = withTiming(
+        1,
+        { duration: TRAVEL_MS, easing: Easing.inOut(Easing.cubic) },
+        (done) => {
+          if (done) runOnJS(finish)();
+        },
+      );
+    };
+
+    // The word row is centered inside this full-screen container, so its
+    // center is the container's center. Measure it in the same (window)
+    // coordinate space as the target rect: on Android (edge-to-edge) the
+    // useWindowDimensions() size differs from the real overlay by the system
+    // bar insets, which made the wordmark overshoot upward.
+    const container = centerRef.current;
+    if (container) {
+      container.measureInWindow((x, y, w, h) => {
+        if (w > 0 && h > 0) startTravel(x + w / 2, y + h / 2);
+        else startTravel(screenW / 2, screenH / 2);
+      });
+    } else {
+      startTravel(screenW / 2, screenH / 2);
+    }
   }, [
     introDone,
     target,
@@ -290,7 +309,12 @@ export function SplashOverlay() {
           <LnTile />
         </Animated.View>
       </View>
-      <View style={styles.center} pointerEvents="none">
+      <View
+        ref={centerRef}
+        collapsable={false}
+        style={styles.center}
+        pointerEvents="none"
+      >
         <Animated.View
           style={[styles.row, wordStyle]}
           onLayout={(e) => {

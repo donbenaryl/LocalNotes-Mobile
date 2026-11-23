@@ -12,7 +12,7 @@ export function WelcomeFixedChrome() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
-  const logoTop = Math.max(insets.top + 4, 37);
+  const logoTop = Math.max(insets.top + 40, 76);
 
   const logo = useSplashTarget('welcome');
 

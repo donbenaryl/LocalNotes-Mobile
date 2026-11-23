@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Image, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -47,7 +47,9 @@ export function WelcomeScreen() {
       <LinearGradient
         colors={WELCOME_GRADIENT_COLORS}
         locations={WELCOME_GRADIENT_LOCATIONS}
-        className="absolute inset-0"
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
 
