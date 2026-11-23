@@ -109,7 +109,7 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
       }`}
     >
       <View className="relative mt-0.5 w-2 shrink-0 items-center">
-        {unread ? <View className="mt-3 h-1.5 w-1.5 rounded-full bg-brand" /> : null}
+        {unread ? <View className="mt-3 h-1.5 w-1.5 rounded-full bg-brand dark:bg-gray-100" /> : null}
       </View>
 
       <View className="relative shrink-0">

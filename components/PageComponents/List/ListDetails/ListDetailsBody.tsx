@@ -48,13 +48,13 @@ export function ListDetailsBody({ list, viewOrigin }: ListDetailsBodyProps) {
           </Text>
         </View>
       ) : (
-        <View className="mt-2 border-t border-gray-100 px-4 dark:border-dk-line">
+        <View className="mt-2 pt-2 border-t border-gray-100 px-4 dark:border-dk-line">
           {items.map((item, index) => (
             <View
               key={item.id}
               className={
                 index > 0
-                  ? "border-t border-gray-100 dark:border-dk-line"
+                  ? "border-t mt-1 pt-1 border-gray-100 dark:border-dk-line"
                   : undefined
               }
             >

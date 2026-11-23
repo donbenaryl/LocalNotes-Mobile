@@ -37,7 +37,7 @@ export function SmartPickResults({ conversation, onBack, coordinates }: SmartPic
 
   return (
     <View className="flex-1">
-      <SmartPickSummaryBar messages={conversation.messages} isStretch={isStretch} onBack={onBack} />
+      <SmartPickSummaryBar messages={conversation.messages} onBack={onBack} />
 
       <View className="gap-5 px-4 pb-10 pt-4">
         {primary ? (
@@ -45,7 +45,7 @@ export function SmartPickResults({ conversation, onBack, coordinates }: SmartPic
             <View className="gap-1">
               <View className="flex-row items-center gap-1.5">
                 <View
-                  className={`h-[5px] w-[5px] rotate-45 ${isStretch ? 'bg-connector' : 'bg-brand'}`}
+                  className={`h-[5px] w-[5px] rotate-45 ${isStretch ? 'bg-connector' : 'bg-brand dark:bg-gray-100'}`}
                 />
                 <Text
                   className={`font-geist-bold text-[10.5px] uppercase tracking-[0.14em] ${

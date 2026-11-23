@@ -62,7 +62,7 @@ export function Toggle<T extends string>({
               "cursor-pointer rounded-full",
               fullWidth && !isIconOnly ? "flex-1 items-center" : "",
               isIconOnly ? "p-1.5" : "px-4 py-2",
-              isActive ? "bg-card dark:bg-dk-elevated" : "bg-transparent",
+              isActive ? "bg-card dark:bg-gray-100" : "bg-transparent",
             )}
             style={isActive ? ACTIVE_SHADOW : undefined}
           >
@@ -77,7 +77,7 @@ export function Toggle<T extends string>({
                 className={cn(
                   "text-xs",
                   isActive
-                    ? "font-geist-bold text-ink dark:text-dk-text"
+                    ? "font-geist-bold text-ink dark:text-dk-page"
                     : "font-geist-semibold text-gray-500 dark:text-dk-muted",
                 )}
               >

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { Plus, X } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -49,6 +50,8 @@ export function UserSearchInput({
   shareInfo,
 }: UserSearchInputProps) {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === 'dark' ? '#FFFFFF' : '#1A1714';
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<searchUserDAO[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -103,7 +106,7 @@ export function UserSearchInput({
   return (
     <View className={className} style={{ flexShrink: 1, minHeight: 0 }}>
       {shareInfo ? (
-        <View className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-soft/60 px-3 py-2.5 dark:border-dk-border dark:bg-dk-card/60">
+        <View className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-soft/60 px-3 py-2.5 dark:border-dk-border dark:bg-dk-page">
           {resolvedShareImage ? (
             <Image
               source={{ uri: resolvedShareImage }}
@@ -180,7 +183,7 @@ export function UserSearchInput({
                     {user.name}
                   </Text>
                 </View>
-                <Plus size={18} color="#1A1714" />
+                <Plus size={18} color={iconColor} />
               </Pressable>
             ))}
           </View>

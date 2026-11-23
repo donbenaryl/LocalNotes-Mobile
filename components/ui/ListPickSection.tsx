@@ -139,7 +139,7 @@ export function ListPickSection({
   return (
     <View
       className={cn(
-        "rounded-2xl px-3 pt-3 bg-soft dark:bg-dk-card",
+        "rounded-2xl px-3 pt-3 bg-soft dark:bg-dk-page",
         showAll ? "pb-1" : "pb-3",
         className,
       )}

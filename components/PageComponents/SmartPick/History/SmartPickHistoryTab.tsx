@@ -1,4 +1,4 @@
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { History } from 'lucide-react-native';
@@ -17,17 +17,21 @@ export function SmartPickHistoryTab() {
     useSmartPickHistory();
 
   return (
-    <View className="flex-1">
+    <View style={styles.root} className="bg-page dark:bg-dk-page">
       <PageHeader title={t('smartPick.historyTitle')} />
 
       <AppScrollView
+        style={styles.fill}
         contentContainerClassName="gap-2.5 px-4 pb-10 pt-4"
         showsVerticalScrollIndicator={false}
+        // RefreshControl blanks flex ScrollViews on Android.
         refreshControl={
-          <AppRefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => void refetch()}
-          />
+          Platform.OS === 'android' ? undefined : (
+            <AppRefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => void refetch()}
+            />
+          )
         }
       >
         {isPending ? (
@@ -67,3 +71,8 @@ export function SmartPickHistoryTab() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  fill: { flex: 1 },
+});

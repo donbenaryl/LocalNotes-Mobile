@@ -13,13 +13,13 @@ export function CategoryChip({ label, isSelected, onPress, icon }: CategoryChipP
     <Pressable
       onPress={onPress}
       className={`flex-row items-center gap-2 rounded-full px-4 py-2 cursor-pointer ${
-        isSelected ? "bg-brand" : "bg-gray-100 dark:bg-dk-card"
+        isSelected ? "bg-brand dark:bg-gray-100" : "bg-gray-100 dark:bg-dk-card"
       }`}
     >
       {icon}
       <Text
         className={`font-geist-medium text-sm ${
-          isSelected ? "text-white" : "text-ink dark:text-dk-body"
+          isSelected ? "text-white dark:text-ink" : "text-ink dark:text-dk-body"
         }`}
       >
         {label}

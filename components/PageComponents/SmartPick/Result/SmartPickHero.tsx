@@ -37,7 +37,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
   const reasonText = result.description || pick?.description;
   const reasonEyebrow = t(isStretch ? 'smartPick.whyThisStretches' : 'smartPick.whyThisMatch');
   const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-dk-text';
-  const reasonBoxClass = isStretch ? 'bg-connector-tint dark:bg-connector-tint/5' : 'bg-cream dark:bg-dk-card';
+  const reasonBoxClass = isStretch ? 'bg-connector-tint dark:bg-connector-tint/5' : 'bg-cream dark:bg-dk-page';
   const ctaColorClass = isStretch ? 'bg-connector' : 'bg-brand';
   const { colorScheme } = useColorScheme();
 
@@ -66,7 +66,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
   };
 
   return (
-    <View className="overflow-hidden rounded-[20px] border border-gray-200 bg-card dark:border-dk-line dark:bg-dk-page">
+    <View className="overflow-hidden rounded-[20px] border border-gray-200 bg-card dark:border-dk-line dark:bg-dk-card">
       {photoUrl ? (
         <View className="relative h-[180px] w-full bg-soft dark:bg-dk-card">
           <Image source={{ uri: photoUrl }} className="h-full w-full" resizeMode="cover" />

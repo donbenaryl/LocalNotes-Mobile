@@ -325,7 +325,7 @@ export function Modal({
       <Reanimated.View
         style={[styles.sheetColumn, sheetSizeStyle]}
         className={cn(
-          'bg-card dark:bg-dk-page rounded-t-[35px] border border-transparent dark:border-dk-border/90 px-8',
+          'bg-card dark:bg-dk-card rounded-t-[35px] border border-transparent dark:border-dk-border/90 px-8',
           footer || hasFixedSheetHeight ? 'pb-0' : 'pb-10',
           sheetClassName,
         )}

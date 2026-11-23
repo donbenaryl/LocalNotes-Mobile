@@ -143,6 +143,7 @@ function PickCardBody({
   padForMatchOverlay = false,
   onOpenDetail,
 }: PickCardBodyProps) {
+  const { colorScheme } = useColorScheme();
   const primaryImage = thumbnails[0];
   const heroImageUrl = primaryImage
     ? (resolveImageUrl(primaryImage.url) ?? primaryImage.url)
@@ -155,7 +156,7 @@ function PickCardBody({
     !heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1";
 
   const verifiedBadge = data.is_verified ? (
-    <BadgeCheck size={14} color="#1A1714" />
+    <BadgeCheck size={14} color={colorScheme === "dark" ? "#FFFFFF" : "#1A1714"} />
   ) : null;
 
   return (
@@ -241,7 +242,6 @@ export function PickCard({
   viewOrigin,
 }: PickCardProps) {
   const { t } = useTranslation();
-  const { colorScheme } = useColorScheme();
   const showToast = useToastStore((s) => s.show);
   const canManage = !readOnly && data.is_owner;
   const thumbnails = data.images ?? [];
@@ -357,10 +357,6 @@ export function PickCard({
     return items;
   }, [canManage, data.is_owner, data.owner, handleToggleFavorite, isFavorite, t]);
 
-  const actionIconBackingStyle = {
-    backgroundColor: colorScheme === "dark" ? "rgba(17,24,39,0.8)" : "rgba(255,255,255,0.9)",
-  };
-
   return (
     <>
       <Pressable
@@ -387,10 +383,7 @@ export function PickCard({
             </View>
           ) : null}
 
-          <View
-            className="absolute right-2 top-2 z-10 rounded-full"
-            style={actionIconBackingStyle}
-          >
+          <View className="absolute right-2 top-2 z-10 rounded-full bg-white/90 dark:bg-dk-page/80">
             <CardOptionsMenu items={menuItems} isDeleting={isDeleting} />
           </View>
         </WhiteBox>

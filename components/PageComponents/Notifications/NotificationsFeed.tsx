@@ -247,7 +247,7 @@ export default function NotificationsFeed() {
                 <Text className="font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-dk-muted">
                   {t('notifications.sections.new')}
                 </Text>
-                <View className="h-1.5 w-1.5 rounded-full bg-brand" />
+                <View className="h-1.5 w-1.5 rounded-full bg-brand dark:bg-gray-100" />
               </View>
               {unread.map((item) => (
                 <NotificationRow

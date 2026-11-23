@@ -21,12 +21,21 @@ interface AvatarProps {
 }
 
 const sizeClasses: Record<AvatarSize, string> = {
-  xs: "h-5 w-5 text-xs",
-  sm: "h-8 w-8 text-base",
-  md: "h-10 w-10 text-xl",
-  md2: "h-14 w-14 text-2xl",
-  lg: "h-20 w-20 text-2xl",
-  xl: "h-24 w-24 text-4xl",
+  xs: "h-5 w-5",
+  sm: "h-8 w-8",
+  md: "h-10 w-10",
+  md2: "h-14 w-14",
+  lg: "h-20 w-20",
+  xl: "h-24 w-24",
+};
+
+const textSizeClasses: Record<AvatarSize, string> = {
+  xs: "text-[10px]",
+  sm: "text-base",
+  md: "text-xl",
+  md2: "text-2xl",
+  lg: "text-2xl",
+  xl: "text-4xl",
 };
 
 /** Matches Tailwind `h-*` / `w-*` pixel sizes used in `sizeClasses`. */
@@ -159,15 +168,20 @@ export function Avatar({
     );
   }
 
+  const usesDefaultColor = color === "bg-brand";
   const letterAvatar = (
     <View
       style={avatarShellStyle}
-      className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-card`}
+      className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-white`}
     >
       <View
-        className={`h-[95%] w-[95%] items-center justify-center rounded-full text-white ${color}`}
+        className={`h-[95%] w-[95%] items-center justify-center rounded-full ${color}${usesDefaultColor ? " dark:bg-white" : ""}`}
       >
-        <Text className="font-semibold text-white">{letter}</Text>
+        <Text
+          className={`font-semibold text-white ${textSizeClasses[size]}${usesDefaultColor ? " dark:text-ink" : ""}`}
+        >
+          {letter}
+        </Text>
       </View>
     </View>
   );

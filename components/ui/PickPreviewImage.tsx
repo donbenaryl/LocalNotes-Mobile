@@ -45,7 +45,7 @@ export function PickPreviewImage({
           size={size === "md" ? "md" : "xs"}
           appearance="flat"
           outerClassName="h-full w-full !bg-card !rounded-0"
-          innerClassName="bg-card dark:bg-dk-card rounded-0!"
+          innerClassName="bg-card dark:bg-gray-100 rounded-0!"
         />
       )}
     </View>

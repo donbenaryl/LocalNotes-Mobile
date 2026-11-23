@@ -546,7 +546,7 @@ export function PickDetailModal({
           )}
 
           {data.description ? (
-            <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-card">
+            <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-page">
               <Text className="font-fraunces text-[15px] italic leading-6 text-ink dark:text-dk-text">
                 “{data.description}”
               </Text>
@@ -572,7 +572,7 @@ export function PickDetailModal({
               <Pressable
                 onPress={handleDirections}
                 accessibilityRole="button"
-                className="min-h-[46px] flex-1 cursor-pointer flex-row items-center justify-center gap-1.5 rounded-full bg-ink dark:bg-dk-text"
+                className="min-h-[46px] flex-1 cursor-pointer flex-row items-center justify-center gap-1.5 rounded-xl bg-ink dark:bg-dk-text"
               >
                 <Navigation size={15} color={directionsIconColor} />
                 <Text className="font-geist-bold text-sm text-white dark:text-ink">
@@ -586,7 +586,7 @@ export function PickDetailModal({
             <Pressable
               onPress={handleClaimBusiness}
               accessibilityRole="button"
-              className="mx-4 mt-3 cursor-pointer rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:bg-brand/15"
+              className="min-h-[46px] flex-1 justify-center mx-4 mt-3 cursor-pointer rounded-xl border border-brand/30 dark:border-gray-100 bg-brand-tint px-4 py-3 dark:bg-brand/15"
             >
               <Text className="text-center font-geist-semibold text-[13px] text-brand dark:text-dk-text">
                 {t("claimBusiness.entry.claimThisBusiness")}

@@ -189,12 +189,12 @@ export function SmartPickForm({
                     key={mode}
                     onPress={() => handleModeChange(mode)}
                     className={`rounded-lg px-3.5 py-1.5 cursor-pointer ${
-                      isActive ? 'bg-card dark:bg-dk-page' : ''
+                      isActive ? 'bg-card dark:bg-gray-100' : ''
                     }`}
                   >
                     <Text
                       className={`font-geist-medium text-sm ${
-                        isActive ? 'text-ink dark:text-dk-text' : 'text-gray-500 dark:text-dk-muted'
+                        isActive ? 'text-ink dark:text-dk-page' : 'text-gray-500 dark:text-dk-muted'
                       }`}
                     >
                       {mode === 'Personality' ? t('smartPick.modePersonality') : t('smartPick.modeVibes')}

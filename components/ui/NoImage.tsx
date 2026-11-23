@@ -70,7 +70,7 @@ export function NoImage({
   const containerClassName =
     appearance === "gradient"
       ? `h-full w-full items-center justify-center bg-gray-50 dark:bg-dk-page/60 ${config.innerClassName} ${innerClassName}`
-      : `h-full w-full items-center justify-center bg-gray-200 dark:bg-dk-card/60 ${config.innerClassName} ${innerClassName}`;
+      : `h-full w-full items-center justify-center bg-card dark:bg-gray-100 ${config.innerClassName} ${innerClassName}`;
 
   return (
     <View

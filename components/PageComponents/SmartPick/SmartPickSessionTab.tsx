@@ -1,4 +1,4 @@
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -26,13 +26,13 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
     useSmartPickSession(sessionId);
 
   return (
-    <View className="flex-1" style={{ paddingTop: insets.top }}>
+    <View style={[styles.root, { paddingTop: insets.top }]} className="bg-page dark:bg-dk-page">
       {isPending ? (
-        <View className="flex-1 items-center justify-center">
+        <View style={styles.fill} className="items-center justify-center">
           <ActivityIndicator size="large" color="#1A1714" />
         </View>
       ) : isError || !conversation ? (
-        <View className="flex-1 items-center justify-center gap-3 px-6">
+        <View style={styles.fill} className="items-center justify-center gap-3 px-6">
           <Text className="font-geist text-sm text-red-500">
             {error ?? t('smartPick.sessionLoadError')}
           </Text>
@@ -46,13 +46,17 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
         </View>
       ) : (
         <AppScrollView
+          style={styles.fill}
           contentContainerClassName="pb-10"
           showsVerticalScrollIndicator={false}
+          // RefreshControl blanks flex ScrollViews on Android.
           refreshControl={
-            <AppRefreshControl
-              refreshing={isRefetching}
-              onRefresh={() => void refetch()}
-            />
+            Platform.OS === 'android' ? undefined : (
+              <AppRefreshControl
+                refreshing={isRefetching}
+                onRefresh={() => void refetch()}
+              />
+            )
           }
         >
           <SmartPickResults
@@ -65,3 +69,8 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1 },
+  fill: { flex: 1 },
+});

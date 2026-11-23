@@ -12,7 +12,7 @@ export function SmartPickHistoryRow({ conversation, onPress }: SmartPickHistoryR
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center justify-between rounded-2xl border border-gray-200 bg-card px-4 py-3.5 cursor-pointer dark:border-dk-line dark:bg-dk-page"
+      className="flex-row items-center justify-between rounded-2xl border border-gray-200 bg-card px-4 py-3.5 cursor-pointer dark:border-dk-line dark:bg-dk-card"
     >
       <View className="min-w-0 flex-1 gap-0.5">
         <Text className="font-geist-medium text-sm text-ink dark:text-dk-text" numberOfLines={2}>

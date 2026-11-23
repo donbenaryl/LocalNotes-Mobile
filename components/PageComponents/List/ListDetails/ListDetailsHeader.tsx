@@ -203,7 +203,7 @@ export function ListDetailsHeader({
       )}
 
       {notesText ? (
-        <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-card">
+        <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-page">
           <Text className="font-fraunces text-[15px] italic leading-6 text-ink dark:text-dk-text">
             “{notesText}”
           </Text>

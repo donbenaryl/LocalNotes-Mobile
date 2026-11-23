@@ -670,7 +670,7 @@ export function OfferDetailsMain({
                   </View>
                 ) : null}
 
-                <Text className="mb-3 font-geist text-[15px] leading-5 text-gray-600 dark:text-dk-body">
+                <Text className="mb-3 font-geist text-[15px] leading-5 text-gray-600 dark:text-dk-body bg-soft dark:bg-dk-page rounded-2xl p-4">
                   {offer.content ?? t("offers.noDetails")}
                 </Text>
 

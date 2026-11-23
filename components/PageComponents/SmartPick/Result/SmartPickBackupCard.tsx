@@ -31,8 +31,8 @@ export function SmartPickBackupCard({
         isExpanded
           ? isStretch
             ? 'border-connector bg-connector-tint dark:bg-connector-tint/5'
-            : 'border-brand bg-brand-tint dark:bg-brand-tint/5'
-          : 'border-gray-200 bg-card dark:border-dk-line dark:bg-dk-page'
+            : 'border-brand bg-brand-tint dark:bg-dk-card'
+          : 'border-gray-200 bg-card dark:border-dk-line dark:bg-dk-card'
       }`}
     >
       <View className="h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-soft dark:bg-dk-card">

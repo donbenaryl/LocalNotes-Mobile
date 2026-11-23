@@ -31,7 +31,7 @@ const variantStyles: Record<BadgeVariant, { container: string; text: string }> =
 
 const sizeStyles: Record<BadgeSize, { container: string; text: string }> = {
   md: {
-    container: 'gap-1 rounded-lg px-2.5 py-1.5',
+    container: 'gap-1 rounded-xl px-2.5 py-1.5',
     text: 'text-xs font-geist-medium',
   },
   lg: {
@@ -54,7 +54,7 @@ export function Badge({
 
   return (
     <View
-      className={`flex-row items-center self-start ${sizeStyle.container} ${styles.container} ${className ?? ''}`}
+      className={`flex-row items-center self-start dark:bg-dk-page ${sizeStyle.container} ${styles.container} ${className ?? ''}`}
     >
       {leftIcon}
       <Text className={`${sizeStyle.text} ${styles.text} ${textClassname ?? ''}`}>{label}</Text>
