@@ -21,11 +21,11 @@ export function EmptyScreen({
   return (
     <View className={cn('items-center gap-2 py-8', className)}>
       {icon ?? <FolderOpen size={40} color={DEFAULT_ICON_COLOR} />}
-      <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+      <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
         {title}
       </Text>
       {description ? (
-        <Text className="text-center font-geist text-xs text-gray-400 dark:text-gray-500">
+        <Text className="text-center font-geist text-xs text-gray-400 dark:text-dk-faint">
           {description}
         </Text>
       ) : null}

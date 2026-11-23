@@ -87,7 +87,7 @@ export function ProfileActionsSheet({
               accessibilityRole="button"
               className={`flex-row items-center gap-3 py-3.5 ${
                 index < rows.length - 1
-                  ? "border-b border-gray-100 dark:border-gray-800"
+                  ? "border-b border-gray-100 dark:border-dk-line"
                   : ""
               } ${isBusy ? "opacity-50" : "active:opacity-70"}`}
             >
@@ -96,7 +96,7 @@ export function ProfileActionsSheet({
                 className={`flex-1 font-geist text-[15px] ${
                   row.destructive
                     ? "text-red-500"
-                    : "text-ink dark:text-gray-100"
+                    : "text-ink dark:text-dk-text"
                 }`}
               >
                 {row.label}

@@ -36,14 +36,14 @@ export function BusinessHomeShortcuts() {
           <WhiteBox
             className={cn(
               'min-h-[46px] items-center justify-center px-1 py-2',
-              item.primary && 'border-ink bg-ink dark:border-gray-100 dark:bg-gray-100',
+              item.primary && 'border-ink bg-ink dark:border-dk-text dark:bg-dk-text',
             )}
           >
             <Text className="text-[15px]">{item.icon}</Text>
             <Text
               className={cn(
                 'font-geist-extrabold text-[11px]',
-                item.primary ? 'text-white dark:text-ink' : 'text-ink dark:text-gray-100',
+                item.primary ? 'text-white dark:text-ink' : 'text-ink dark:text-dk-text',
               )}
             >
               {t(item.labelKey)}

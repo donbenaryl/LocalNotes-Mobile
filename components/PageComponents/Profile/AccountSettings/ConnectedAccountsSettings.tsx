@@ -167,7 +167,7 @@ export default function ConnectedAccountsSettings() {
       : null;
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t('accountSettings.connectedAccounts.title')}
         onBack={() => router.back()}
@@ -177,13 +177,13 @@ export default function ConnectedAccountsSettings() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-6 pb-10 pt-4"
       >
-        <Text className="mb-4 font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mb-4 font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-dk-muted">
           {t('accountSettings.connectedAccounts.intro')}
         </Text>
 
         {isPending ? (
           <View className="items-center py-10">
-            <ActivityIndicator color="#141413" />
+            <ActivityIndicator color="#1A1714" />
           </View>
         ) : (
           <>
@@ -229,9 +229,9 @@ export default function ConnectedAccountsSettings() {
           </>
         )}
 
-        <View className="mt-2 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 dark:border-gray-800 dark:bg-gray-800/50">
-          <Text className="font-geist text-[11.5px] leading-[1.5] text-gray-600 dark:text-gray-400">
-            <Text className="font-geist-bold text-ink dark:text-gray-100">
+        <View className="mt-2 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-3 dark:border-dk-line dark:bg-dk-card/50">
+          <Text className="font-geist text-[11.5px] leading-[1.5] text-gray-600 dark:text-dk-muted">
+            <Text className="font-geist-bold text-ink dark:text-dk-text">
               {t('accountSettings.connectedAccounts.howItWorksTitle')}{' '}
             </Text>
             {t('accountSettings.connectedAccounts.howItWorksBody')}

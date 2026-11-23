@@ -17,7 +17,7 @@ export function InsightsWindowSelector({ value, onChange }: InsightsWindowSelect
     <View
       accessibilityRole="radiogroup"
       accessibilityLabel={t('businessHome.explore.windowSelectorLabel')}
-      className="flex-row rounded-xl border border-gray-200 bg-paper p-0.5 dark:border-gray-600 dark:bg-gray-800"
+      className="flex-row rounded-xl border border-gray-200 bg-paper p-0.5 dark:border-dk-border dark:bg-dk-card"
     >
       {WINDOWS.map((option) => {
         const isActive = option === value;
@@ -35,7 +35,7 @@ export function InsightsWindowSelector({ value, onChange }: InsightsWindowSelect
             <Text
               className={cn(
                 'font-geist-bold text-xs',
-                isActive ? 'text-white dark:text-ink' : 'text-gray-500 dark:text-gray-400',
+                isActive ? 'text-white dark:text-ink' : 'text-gray-500 dark:text-dk-muted',
               )}
             >
               {t(`businessHome.explore.windowOptions.${option}`)}

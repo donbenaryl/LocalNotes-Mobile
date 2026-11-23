@@ -34,12 +34,12 @@ export function ChipRow({
         <View
           key={chip.label}
           className={`rounded-full px-2.5 py-1 ${
-            chip.hot ? 'bg-brand-tint' : 'bg-soft dark:bg-gray-900'
+            chip.hot ? 'bg-brand-tint' : 'bg-soft dark:bg-dk-page'
           }`}
         >
           <Text
             className={`font-geist-bold text-xs ${
-              chip.hot ? 'text-brand-dark' : 'text-ink dark:text-gray-100'
+              chip.hot ? 'text-brand-dark' : 'text-ink dark:text-dk-text'
             }`}
           >
             {chip.label}
@@ -53,13 +53,13 @@ export function ChipRow({
 
 export function CardTitle({ children }: { children: ReactNode }) {
   return (
-    <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">{children}</Text>
+    <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">{children}</Text>
   );
 }
 
 export function SourceText({ children }: { children: ReactNode }) {
   return (
-    <Text className="mt-2 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
+    <Text className="mt-2 font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted">
       {children}
     </Text>
   );
@@ -68,7 +68,7 @@ export function SourceText({ children }: { children: ReactNode }) {
 export function SectionInsufficient({ messageKey }: { messageKey?: string }) {
   const { t } = useTranslation();
   return (
-    <Text className="mt-2 font-geist text-xs text-gray-500 dark:text-gray-400">
+    <Text className="mt-2 font-geist text-xs text-gray-500 dark:text-dk-muted">
       {t(messageKey ?? 'businessHome.explore.insufficientData')}
     </Text>
   );
@@ -88,7 +88,7 @@ function InsightsTabSkeleton({ label }: { label: string }) {
           <Skeleton className="mt-3 h-3 w-3/4" />
         </BusinessHomeCard>
       ))}
-      <Text className="mx-4 font-geist text-xs text-gray-500 dark:text-gray-400">{label}</Text>
+      <Text className="mx-4 font-geist text-xs text-gray-500 dark:text-dk-muted">{label}</Text>
     </View>
   );
 }

@@ -38,7 +38,7 @@ export function SpotlightListsSection({ section }: SpotlightListsSectionProps) {
         <SpotlightNumberSection>{t("spotlight.sections.lists.number")}</SpotlightNumberSection>
         <SpotlightSectionTitle>{t("spotlight.sections.lists.title")}</SpotlightSectionTitle>
         {section.fallback_label ? (
-          <View className="ml-auto flex-row items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 dark:bg-gray-800">
+          <View className="ml-auto flex-row items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 dark:bg-dk-card">
             <MapPin size={10} color="#5C5A50" />
             {/* fallback_label is a fully-composed, backend-formatted string
                 (e.g. "FROM ARIZONA" / "FROM GREATER PHOENIX" / "FROM AROUND
@@ -46,7 +46,7 @@ export function SpotlightListsSection({ section }: SpotlightListsSectionProps) {
                 not a bare region name, so it's rendered as-is rather than
                 run through the spotlight.fallbackChip "FROM {{region}}"
                 template (which would double the "FROM " prefix). */}
-            <Text className="font-geist-semibold text-[10px] tracking-[0.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[10px] tracking-[0.5px] text-gray-500 dark:text-dk-muted">
               {section.fallback_label}
             </Text>
           </View>

@@ -103,33 +103,33 @@ export function UserSearchInput({
   return (
     <View className={className} style={{ flexShrink: 1, minHeight: 0 }}>
       {shareInfo ? (
-        <View className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-soft/60 px-3 py-2.5 dark:border-gray-700 dark:bg-gray-800/60">
+        <View className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-soft/60 px-3 py-2.5 dark:border-dk-border dark:bg-dk-card/60">
           {resolvedShareImage ? (
             <Image
               source={{ uri: resolvedShareImage }}
-              className="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-700"
+              className="h-12 w-12 rounded-lg bg-gray-200 dark:bg-dk-elevated"
               resizeMode="cover"
             />
           ) : (
             <View className="h-12 w-12 items-center justify-center rounded-lg bg-brand/10">
-              <Text className="font-geist-bold text-sm text-brand dark:text-gray-100">
+              <Text className="font-geist-bold text-sm text-brand dark:text-dk-text">
                 {shareInfo.title.slice(0, 1).toUpperCase()}
               </Text>
             </View>
           )}
           <View className="min-w-0 flex-1">
-            <Text className="font-geist text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+            <Text className="font-geist text-[11px] uppercase tracking-wide text-gray-400 dark:text-dk-faint">
               {t('share.sharingLabel')}
             </Text>
             <Text
-              className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+              className="font-geist-semibold text-sm text-ink dark:text-dk-text"
               numberOfLines={1}
             >
               {shareInfo.title}
             </Text>
             {shareInfo.subtitle ? (
               <Text
-                className="font-geist text-xs text-gray-500 dark:text-gray-400"
+                className="font-geist text-xs text-gray-500 dark:text-dk-muted"
                 numberOfLines={2}
               >
                 {shareInfo.subtitle}
@@ -153,7 +153,7 @@ export function UserSearchInput({
       </View>
 
       {isSearching ? (
-        <ActivityIndicator size="small" color="#141413" />
+        <ActivityIndicator size="small" color="#1A1714" />
       ) : null}
 
       {showResults && availableResults.length > 0 ? (
@@ -168,7 +168,7 @@ export function UserSearchInput({
               <Pressable
                 key={user.id}
                 onPress={() => handleSelect(user)}
-                className="flex-row items-center justify-between rounded-lg px-3 py-2 dark:bg-gray-800 cursor-pointer"
+                className="flex-row items-center justify-between rounded-lg px-3 py-2 dark:bg-dk-card cursor-pointer"
               >
                 <View className="flex-1 flex-row items-center gap-2">
                   <Avatar
@@ -176,11 +176,11 @@ export function UserSearchInput({
                     src={user.profile_image_url ?? undefined}
                     size="sm"
                   />
-                  <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                  <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
                     {user.name}
                   </Text>
                 </View>
-                <Plus size={18} color="#141413" />
+                <Plus size={18} color="#1A1714" />
               </Pressable>
             ))}
           </View>
@@ -190,7 +190,7 @@ export function UserSearchInput({
       {selectedUsers.length > 0 ? (
         <View className="gap-2" style={{ flexShrink: 1, minHeight: 0 }}>
           {showSelectedLabel ? (
-            <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+            <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
               {t('listForm.fields.selectedUsers')}
             </Text>
           ) : null}
@@ -220,7 +220,7 @@ export function UserSearchInput({
                       hitSlop={8}
                       className="cursor-pointer"
                     >
-                      <X size={14} color="#141413" />
+                      <X size={14} color="#1A1714" />
                     </Pressable>
                   }
                 />

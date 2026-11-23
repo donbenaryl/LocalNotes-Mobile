@@ -71,7 +71,7 @@ export function MainForgotPassword() {
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1 bg-white dark:bg-gray-900"
+      className="flex-1 bg-card dark:bg-dk-page"
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}

@@ -26,7 +26,7 @@ export default function NotificationsSettings() {
     };
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t('accountSettings.notifications.title')}
         onBack={() => router.back()}
@@ -36,7 +36,7 @@ export default function NotificationsSettings() {
         showsVerticalScrollIndicator={false}
         contentContainerClassName="px-6 pb-10 pt-4"
       >
-        <Text className="mb-5 font-fraunces text-[12.5px] italic leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mb-5 font-fraunces text-[12.5px] italic leading-[1.5] text-gray-600 dark:text-dk-muted">
           {t('accountSettings.notifications.intro')}
         </Text>
 

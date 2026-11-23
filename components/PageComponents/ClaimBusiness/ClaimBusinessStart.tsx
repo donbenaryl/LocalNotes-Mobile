@@ -41,7 +41,7 @@ function SourceChooserCard({
   onPress: () => void;
 }) {
   const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#141413';
+  const iconColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
 
   return (
     <Pressable
@@ -51,20 +51,20 @@ function SourceChooserCard({
     >
       <WhiteBox className="p-4">
         <View className="flex-row items-start gap-3">
-          <View className="h-10 w-10 items-center justify-center rounded-xl bg-soft dark:bg-gray-700">
+          <View className="h-10 w-10 items-center justify-center rounded-xl bg-soft dark:bg-dk-elevated">
             <Icon size={18} color={iconColor} />
           </View>
           <View className="min-w-0 flex-1">
-            <Text className="font-geist-bold text-[15px] text-ink dark:text-gray-100">
+            <Text className="font-geist-bold text-[15px] text-ink dark:text-dk-text">
               {title}
             </Text>
-            <Text className="mt-1 font-geist text-[12.5px] leading-5 text-gray-500 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-[12.5px] leading-5 text-gray-500 dark:text-dk-muted">
               {subtitle}
             </Text>
           </View>
           <ChevronRight
             size={18}
-            color={colorScheme === 'dark' ? '#9CA3AF' : '#6B7280'}
+            color={colorScheme === 'dark' ? '#A79E92' : '#6C727F'}
           />
         </View>
       </WhiteBox>
@@ -89,7 +89,7 @@ function ClaimRow({
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={name}
-      className="cursor-pointer flex-row items-start gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800"
+      className="cursor-pointer flex-row items-start gap-3 border-b border-gray-100 px-4 py-3 dark:border-dk-line"
     >
       <PickPreviewImage
         imageUrl={
@@ -100,12 +100,12 @@ function ClaimRow({
       <View className="min-w-0 flex-1 flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1">
           <Text
-            className="font-geist-semibold text-[14px] text-ink dark:text-gray-100"
+            className="font-geist-semibold text-[14px] text-ink dark:text-dk-text"
             numberOfLines={1}
           >
             {name}
           </Text>
-          <Text className="mt-0.5 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+          <Text className="mt-0.5 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
             {formatRelativeTime(claim.created_at)}
           </Text>
           {claim.status === 'Rejected' && claim.rejection_note ? (
@@ -152,7 +152,7 @@ export default function ClaimBusinessStart() {
   const claims = claimsQuery.data ?? [];
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader title={t('claimBusiness.start.title')} />
       <AppScrollView
         className="flex-1"
@@ -163,7 +163,7 @@ export default function ClaimBusinessStart() {
             onRefresh={() => {
               void onRefresh();
             }}
-            tintColor="#141413"
+            tintColor="#1A1714"
           />
         }
       >
@@ -180,17 +180,17 @@ export default function ClaimBusinessStart() {
           onPress={() => setSearchModalTab('picks')}
         />
 
-        <Text className="mb-2 mt-4 font-geist-semibold text-[12px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
+        <Text className="mb-2 mt-4 font-geist-semibold text-[12px] uppercase tracking-wider text-gray-400 dark:text-dk-faint">
           {t('claimBusiness.start.yourClaims')}
         </Text>
 
         {claimsQuery.isPending ? (
           <View className="items-center py-10">
-            <ActivityIndicator color="#141413" />
+            <ActivityIndicator color="#1A1714" />
           </View>
         ) : claimsQuery.isError ? (
           <View className="items-center gap-3 py-8">
-            <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t('claimBusiness.start.loadError')}
             </Text>
             <LocalNotesButton
@@ -204,7 +204,7 @@ export default function ClaimBusinessStart() {
             />
           </View>
         ) : claims.length === 0 ? (
-          <Text className="py-6 font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="py-6 font-geist text-sm text-gray-500 dark:text-dk-muted">
             {t('claimBusiness.start.noClaims')}
           </Text>
         ) : (

@@ -32,7 +32,7 @@ export function SmartPickHistoryTab() {
       >
         {isPending ? (
           <View className="items-center justify-center py-16">
-            <ActivityIndicator size="large" color="#141413" />
+            <ActivityIndicator size="large" color="#1A1714" />
           </View>
         ) : isError ? (
           <View className="items-center gap-3 py-16">

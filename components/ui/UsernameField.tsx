@@ -22,11 +22,11 @@ interface UsernameFieldProps {
 
 function statusClassName(status: UsernameAvailabilityStatus): string {
   if (status === 'available') return 'text-green-600 dark:text-green-400';
-  if (status === 'checking') return 'text-gray-500 dark:text-gray-400';
+  if (status === 'checking') return 'text-gray-500 dark:text-dk-muted';
   if (status === 'taken' || status === 'invalid') {
     return 'text-error';
   }
-  return 'text-gray-400 dark:text-gray-500';
+  return 'text-gray-400 dark:text-dk-faint';
 }
 
 export function UsernameField({

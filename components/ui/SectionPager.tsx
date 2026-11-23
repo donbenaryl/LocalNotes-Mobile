@@ -735,7 +735,7 @@ export function SectionPager({
 
     return (
       <View
-        className="bg-page dark:bg-gray-900"
+        className="bg-page dark:bg-dk-page"
         style={fillRemaining ? styles.feedHost : undefined}
       >
         {chrome}
@@ -753,7 +753,7 @@ export function SectionPager({
 
   return (
     <View
-      className="bg-page dark:bg-gray-900"
+      className="bg-page dark:bg-dk-page"
       style={isEmbeddedHeight ? undefined : styles.fill}
     >
       {chrome}

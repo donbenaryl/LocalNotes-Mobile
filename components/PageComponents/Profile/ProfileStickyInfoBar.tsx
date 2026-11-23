@@ -32,7 +32,7 @@ export function ProfileStickyInfoBar({
 
       <View className="min-w-0 flex-1">
         <Text
-          className="font-geist-bold text-[14px] leading-5 text-ink dark:text-gray-100"
+          className="font-geist-bold text-[14px] leading-5 text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {profile.name}

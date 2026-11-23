@@ -34,13 +34,13 @@ export function OtpInput({ value, onChange }: OtpInputProps) {
           <View
             key={index}
             className={`w-[14.5%] aspect-square items-center justify-center rounded-2xl border ${
-              isFocused ? 'border-brand' : 'border-gray-200 dark:border-gray-600'
-            } bg-white dark:bg-gray-800`}
+              isFocused ? 'border-brand' : 'border-gray-200 dark:border-dk-border'
+            } bg-card dark:bg-dk-card`}
           >
             <TextInput
               editable={false}
               value={digit}
-              className="text-ink dark:text-gray-100 text-2xl font-geist-bold text-center"
+              className="text-ink dark:text-dk-text text-2xl font-geist-bold text-center"
               pointerEvents="none"
             />
           </View>

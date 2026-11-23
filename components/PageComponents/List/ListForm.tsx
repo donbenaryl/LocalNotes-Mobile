@@ -341,10 +341,10 @@ export function ListForm({ step, listId }: ListFormProps) {
     return (
       <SafeAreaView
         edges={["bottom"]}
-        className="flex-1 items-center justify-center bg-page dark:bg-gray-900"
+        className="flex-1 items-center justify-center bg-page dark:bg-dk-page"
       >
-        <ActivityIndicator size="large" color="#141413" />
-        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
+        <ActivityIndicator size="large" color="#1A1714" />
+        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t("common.pleaseWait")}
         </Text>
       </SafeAreaView>
@@ -355,9 +355,9 @@ export function ListForm({ step, listId }: ListFormProps) {
     return (
       <SafeAreaView
         edges={["bottom"]}
-        className="flex-1 items-center justify-center bg-page px-6 dark:bg-gray-900"
+        className="flex-1 items-center justify-center bg-page px-6 dark:bg-dk-page"
       >
-        <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t("listForm.loadError")}
         </Text>
         <View className="mt-4 w-full max-w-xs">
@@ -375,7 +375,7 @@ export function ListForm({ step, listId }: ListFormProps) {
     return (
       <SafeAreaView
         edges={["bottom"]}
-        className="flex-1 bg-page dark:bg-gray-900"
+        className="flex-1 bg-page dark:bg-dk-page"
       >
         <PageHeader
           title={t("listForm.shareSettingsTitle")}
@@ -385,7 +385,7 @@ export function ListForm({ step, listId }: ListFormProps) {
               hitSlop={8}
               className="h-8 w-8 items-center justify-center cursor-pointer"
             >
-              <ChevronLeft size={19} color="#141413" />
+              <ChevronLeft size={19} color="#1A1714" />
             </TouchableOpacity>
           }
         />
@@ -396,10 +396,10 @@ export function ListForm({ step, listId }: ListFormProps) {
           contentContainerStyle={{ paddingHorizontal: 24 }}
         >
           <View className="mb-6">
-            <Text className="font-geist-bold text-xl text-ink dark:text-gray-100 mt-2">
+            <Text className="font-geist-bold text-xl text-ink dark:text-dk-text mt-2">
               {t("listForm.shareHeroTitle")}
             </Text>
-            <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t("listForm.shareHeroSubtitle")}
             </Text>
           </View>
@@ -420,17 +420,17 @@ export function ListForm({ step, listId }: ListFormProps) {
                   className={`flex-row items-center gap-3 rounded-2xl border p-3 cursor-pointer ${
                     isActive
                       ? "border-brand bg-brand-tint/40"
-                      : "border-gray-200 dark:border-gray-700"
+                      : "border-gray-200 dark:border-dk-border"
                   }`}
                 >
-                  <View className="h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-gray-800">
+                  <View className="h-9 w-9 items-center justify-center rounded-full bg-card dark:bg-dk-card">
                     <Text className="text-base">{option.emoji}</Text>
                   </View>
                   <View className="min-w-0 flex-1">
-                    <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                    <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
                       {t(option.labelKey)}
                     </Text>
-                    <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
+                    <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted">
                       {t(option.descriptionKey)}
                     </Text>
                     {option.value === "Specific People" && isActive ? (
@@ -447,16 +447,16 @@ export function ListForm({ step, listId }: ListFormProps) {
             })}
           </View>
 
-          <Text className="mb-2 mt-6 font-geist-medium text-sm text-ink dark:text-gray-100">
+          <Text className="mb-2 mt-6 font-geist-medium text-sm text-ink dark:text-dk-text">
             {t("listForm.fields.permissions")}
           </Text>
-          <View className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-700">
-            <View className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+          <View className="overflow-hidden rounded-2xl border border-gray-200 dark:border-dk-border">
+            <View className="flex-row items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-dk-line">
               <View className="flex-1">
-                <Text className="font-geist text-sm text-ink dark:text-gray-100">
+                <Text className="font-geist text-sm text-ink dark:text-dk-text">
                   {t("listForm.fields.allowComments")}
                 </Text>
-                <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
+                <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted">
                   {t("listForm.fields.allowCommentsHint")}
                 </Text>
               </View>
@@ -464,10 +464,10 @@ export function ListForm({ step, listId }: ListFormProps) {
             </View>
             <View className="flex-row items-center gap-3 px-4 py-3">
               <View className="flex-1">
-                <Text className="font-geist text-sm text-ink dark:text-gray-100">
+                <Text className="font-geist text-sm text-ink dark:text-dk-text">
                   {t("listForm.fields.allowShare")}
                 </Text>
-                <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
+                <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted">
                   {t("listForm.fields.allowShareHint")}
                 </Text>
               </View>
@@ -511,7 +511,7 @@ export function ListForm({ step, listId }: ListFormProps) {
   return (
     <SafeAreaView
       edges={["bottom"]}
-      className="flex-1 bg-page dark:bg-gray-900"
+      className="flex-1 bg-page dark:bg-dk-page"
     >
       <PageHeader
         title={
@@ -523,7 +523,7 @@ export function ListForm({ step, listId }: ListFormProps) {
             hitSlop={8}
             className="cursor-pointer"
           >
-            <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
               {t("listForm.cancel")}
             </Text>
           </TouchableOpacity>
@@ -537,7 +537,7 @@ export function ListForm({ step, listId }: ListFormProps) {
           >
             <Text
               className={`font-geist-medium text-sm ${
-                isDraftValid && !isSaving ? "text-brand dark:text-gray-100" : "text-gray-300 dark:text-gray-600"
+                isDraftValid && !isSaving ? "text-brand dark:text-dk-text" : "text-gray-300 dark:text-dk-faint"
               }`}
             >
               {t("listForm.saveDraft")}
@@ -552,10 +552,10 @@ export function ListForm({ step, listId }: ListFormProps) {
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 120 }}
       >
         <View className="mb-6 mt-2">
-          <Text className="font-geist-bold text-xl text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-xl text-ink dark:text-dk-text">
             {isEditing ? t("listForm.editHeroTitle") : t("listForm.heroTitle")}{" "}
           </Text>
-          <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-dk-muted">
             {isEditing
               ? t("listForm.editHeroSubtitle")
               : t("listForm.heroSubtitle")}
@@ -654,10 +654,10 @@ export function ListForm({ step, listId }: ListFormProps) {
 
             <Pressable
               onPress={openCreatePick}
-              className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 py-3 dark:border-gray-600 cursor-pointer"
+              className="mt-3 flex-row items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-300 py-3 dark:border-dk-border cursor-pointer"
             >
-              <Plus size={18} color="#141413" />
-              <Text className="font-geist-medium text-sm text-brand dark:text-gray-100">
+              <Plus size={18} color="#1A1714" />
+              <Text className="font-geist-medium text-sm text-brand dark:text-dk-text">
                 {t("profile.picks.addPick")}
               </Text>
             </Pressable>

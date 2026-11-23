@@ -28,12 +28,12 @@ export function BlockUserModal({
         <View className="mb-4 h-12 w-12 items-center justify-center rounded-full bg-red-50 dark:bg-red-950">
           <Ban size={22} color={COLORS.error} strokeWidth={2.2} />
         </View>
-        <Text className="text-center font-geist-bold text-xl text-ink dark:text-gray-100">
+        <Text className="text-center font-geist-bold text-xl text-ink dark:text-dk-text">
           {t("profile.safety.blockTitle", { name: displayName })}
         </Text>
-        <Text className="mt-3 text-center font-geist text-sm leading-5 text-gray-600 dark:text-gray-400">
+        <Text className="mt-3 text-center font-geist text-sm leading-5 text-gray-600 dark:text-dk-muted">
           {t("profile.safety.blockBodyBefore")}
-          <Text className="font-geist-bold text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-ink dark:text-dk-text">
             {t("profile.safety.blockBodyEmphasis")}
           </Text>
           {t("profile.safety.blockBodyAfter")}

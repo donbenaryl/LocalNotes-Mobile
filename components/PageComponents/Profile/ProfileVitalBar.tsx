@@ -126,7 +126,7 @@ export function ProfileVitalBar({
 
           <View className="min-w-0 flex-1 leading-[1.15]">
             <Text
-              className="font-geist-bold text-[13.5px] text-ink dark:text-gray-100"
+              className="font-geist-bold text-[13.5px] text-ink dark:text-dk-text"
               numberOfLines={1}
             >
               {displayName}
@@ -135,7 +135,7 @@ export function ProfileVitalBar({
               <Text
                 className={
                   isBusinessMode
-                    ? "font-geist text-[11.5px] text-gray-500 dark:text-gray-400"
+                    ? "font-geist text-[11.5px] text-gray-500 dark:text-dk-muted"
                     : "font-fraunces text-[11.5px] italic"
                 }
                 style={isBusinessMode ? undefined : { color: accentColor }}
@@ -150,7 +150,7 @@ export function ProfileVitalBar({
             <View className="shrink-0 flex-row items-center gap-2">
               {showMatch ? (
                 <View
-                  className="shrink-0 flex-row items-center gap-1.5 rounded-full border bg-white px-2.5 py-1 dark:bg-gray-800"
+                  className="shrink-0 flex-row items-center gap-1.5 rounded-full border bg-card px-2.5 py-1 dark:bg-dk-card"
                   style={{ borderColor: accentSoftBorder }}
                 >
                   <View

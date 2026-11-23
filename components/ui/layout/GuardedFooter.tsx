@@ -185,15 +185,19 @@ export function GuardedFooter() {
         >
           <TouchableOpacity
             onPress={() => setIsCreatePickerOpen((open) => !open)}
-            className="h-16 w-16 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-gray-900 relative -top-5"
+            className="h-16 w-16 items-center justify-center rounded-full border-[3px] border-page bg-brand cursor-pointer dark:border-dk-page dark:bg-[#F5F2EA] relative -top-5"
             style={FAB_SHADOW}
           >
-            <Plus size={26} color="white" strokeWidth={2.5} />
+            <Plus
+              size={26}
+              color={isDark ? '#1A1816' : 'white'}
+              strokeWidth={2.5}
+            />
           </TouchableOpacity>
         </View>
 
         <View
-          className="w-full flex-row items-center rounded-full border border-gray-200/90 bg-page/95 dark:border-gray-700/90 dark:bg-gray-900/95"
+          className="w-full flex-row items-center rounded-full border border-gray-200/90 bg-page/95 dark:border-dk-border/90 dark:bg-dk-page/95"
      
           style={[{ height: FOOTER_BAR_HEIGHT }, BAR_SHADOW]}
         >
@@ -221,7 +225,7 @@ export function GuardedFooter() {
                   />
                   <Text
                     className={`mt-0.5 text-[10px] font-geist ${
-                      isActive ? 'text-brand dark:text-gray-100' : 'text-gray-600 dark:text-gray-300'
+                      isActive ? 'text-brand dark:text-dk-text' : 'text-gray-600 dark:text-dk-body'
                     }`}
                     numberOfLines={1}
                   >

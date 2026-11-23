@@ -16,15 +16,15 @@ const sizeClasses: Record<NonNullable<LocalNotesTextProps['size']>, string> = {
 };
 
 const variantLocalClasses: Record<LocalNotesTextVariant, string> = {
-  default: 'text-ink dark:text-gray-100',
+  default: 'text-ink dark:text-dk-text',
   light: 'text-white',
-  brand: 'text-ink dark:text-gray-100',
+  brand: 'text-ink dark:text-dk-text',
   // Always light — used on dark splash / force-update surfaces.
   brandOnDark: 'text-gray-100',
 };
 
 const variantNotesClasses: Record<LocalNotesTextVariant, string> = {
-  default: 'text-ink dark:text-gray-100',
+  default: 'text-ink dark:text-dk-text',
   light: 'text-white',
   brand: 'text-white',
   brandOnDark: 'text-white',

@@ -36,8 +36,8 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
   const photoUrl = resolveImageUrl(pick?.images[0]?.url);
   const reasonText = result.description || pick?.description;
   const reasonEyebrow = t(isStretch ? 'smartPick.whyThisStretches' : 'smartPick.whyThisMatch');
-  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-gray-100';
-  const reasonBoxClass = isStretch ? 'bg-connector-tint dark:bg-connector-tint/5' : 'bg-cream dark:bg-gray-800';
+  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-dk-text';
+  const reasonBoxClass = isStretch ? 'bg-connector-tint dark:bg-connector-tint/5' : 'bg-cream dark:bg-dk-card';
   const ctaColorClass = isStretch ? 'bg-connector' : 'bg-brand';
   const { colorScheme } = useColorScheme();
 
@@ -66,9 +66,9 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
   };
 
   return (
-    <View className="overflow-hidden rounded-[20px] border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+    <View className="overflow-hidden rounded-[20px] border border-gray-200 bg-card dark:border-dk-line dark:bg-dk-page">
       {photoUrl ? (
-        <View className="relative h-[180px] w-full bg-soft dark:bg-gray-800">
+        <View className="relative h-[180px] w-full bg-soft dark:bg-dk-card">
           <Image source={{ uri: photoUrl }} className="h-full w-full" resizeMode="cover" />
           <View className="absolute right-3 top-3">
             <SmartPickMatchPill percent={result.match_percentage} />
@@ -87,9 +87,9 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
         </View>
 
         <View className="gap-1">
-          <Text className="font-geist-semibold text-2xl text-ink dark:text-gray-100">{name}</Text>
+          <Text className="font-geist-semibold text-2xl text-ink dark:text-dk-text">{name}</Text>
           {category || city ? (
-            <Text className="font-geist text-[12.5px] text-gray-400 dark:text-gray-500">
+            <Text className="font-geist text-[12.5px] text-gray-400 dark:text-dk-faint">
               {[category, city].filter(Boolean).join(' · ')}
             </Text>
           ) : null}
@@ -100,7 +100,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             <Text className={`mb-1 font-geist-bold text-[9.5px] uppercase tracking-[0.14em] ${accentTextClass}`}>
               {reasonEyebrow}
             </Text>
-            <Text className="font-fraunces text-[13.5px] italic leading-[1.5] text-ink dark:text-gray-100">
+            <Text className="font-fraunces text-[13.5px] italic leading-[1.5] text-ink dark:text-dk-text">
               {reasonText}
             </Text>
           </View>
@@ -124,7 +124,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
                 pick.user.personality_color as Record<string, number> | null,
               )}
             />
-            <Text className="font-geist text-[11.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist text-[11.5px] text-gray-500 dark:text-dk-muted">
               {t('smartPick.curatedBy', { name: pick.user.name })}
             </Text>
           </View>
@@ -149,7 +149,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             leftIcon={
               <Bookmark
                 size={17}
-                color={colorScheme === 'dark' ? '#FFF' : '#191B1C'}
+                color={colorScheme === 'dark' ? '#FFF' : '#1A1714'}
               />
             }
             isRounded
@@ -163,7 +163,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             leftIcon={
               <Share2
                 size={17}
-                color={colorScheme === 'dark' ? '#FFF' : '#191B1C'}
+                color={colorScheme === 'dark' ? '#FFF' : '#1A1714'}
               />
             }
             isRounded

@@ -25,7 +25,7 @@ export default function ClaimBusinessLayout() {
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#111827' : '#fafaf7',
+          backgroundColor: colorScheme === 'dark' ? '#161412' : '#F7F3EC',
         },
       }}
     />

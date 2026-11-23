@@ -104,8 +104,8 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
     <TouchableOpacity
       onPress={() => onPress(item)}
       activeOpacity={0.7}
-      className={`flex-row items-start gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800 cursor-pointer ${
-        unread ? 'bg-brand-tint/40 dark:bg-gray-800/40' : ''
+      className={`flex-row items-start gap-3 border-b border-gray-100 px-4 py-3 dark:border-dk-line cursor-pointer ${
+        unread ? 'bg-brand-tint/40 dark:bg-dk-card/40' : ''
       }`}
     >
       <View className="relative mt-0.5 w-2 shrink-0 items-center">
@@ -122,11 +122,11 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
 
       <View className="min-w-0 flex-1">
         {item.text ? (
-          <Text className="font-geist text-[13px] leading-5 text-ink dark:text-gray-100">
+          <Text className="font-geist text-[13px] leading-5 text-ink dark:text-dk-text">
             {item.text}
           </Text>
         ) : (
-          <Text className="font-geist text-[13px] leading-5 text-ink dark:text-gray-100">
+          <Text className="font-geist text-[13px] leading-5 text-ink dark:text-dk-text">
             <Text className="font-geist-bold">{accountName}</Text>
             {item.notification_type === 'SPOTLIGHT_FEATURED' ? (
               <>
@@ -147,7 +147,7 @@ export function NotificationRow({ item, onPress }: NotificationRowProps) {
             ) : null}
           </Text>
         )}
-        <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
           {formatRelativeTime(item.created_at)}
         </Text>
       </View>

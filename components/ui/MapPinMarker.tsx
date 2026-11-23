@@ -17,7 +17,7 @@ export function MapPinMarker({
   variant = "default",
 }: MapPinMarkerProps) {
   const inactiveBg =
-    variant === "place" ? "bg-brand" : "bg-ink dark:bg-gray-100";
+    variant === "place" ? "bg-brand" : "bg-ink dark:bg-dk-text";
 
   return (
     <View className="items-center">

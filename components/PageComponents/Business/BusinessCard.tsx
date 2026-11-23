@@ -40,7 +40,7 @@ export function BusinessCard({
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
-  const iconColor = isDark ? "#D1D5DB" : "#6B7280";
+  const iconColor = isDark ? "#CFC7BB" : "#6C727F";
   const iconBrand = brandColor(isDark);
   const { isFollowed, isToggling, toggle } = useBusinessFollow(
     data.id,
@@ -68,7 +68,7 @@ export function BusinessCard({
       className="cursor-pointer"
     >
       <WhiteBox className="flex-row items-center gap-3 p-3">
-        <View className="h-12 w-12 overflow-hidden rounded-[10px] bg-soft dark:bg-gray-800">
+        <View className="h-12 w-12 overflow-hidden rounded-[10px] bg-soft dark:bg-dk-card">
           {logoUri ? (
             <Image
               source={{ uri: logoUri }}
@@ -87,7 +87,7 @@ export function BusinessCard({
         <View className="min-w-0 flex-1">
           {data.business_type ? (
             <Text
-              className="font-geist-semibold text-[10px] uppercase tracking-wide text-gray-400 dark:text-gray-500"
+              className="font-geist-semibold text-[10px] uppercase tracking-wide text-gray-400 dark:text-dk-faint"
               numberOfLines={1}
             >
               {data.business_type}
@@ -95,7 +95,7 @@ export function BusinessCard({
           ) : null}
 
           <Text
-            className="mt-0.5 font-geist-bold text-[13.5px] text-ink dark:text-gray-100"
+            className="mt-0.5 font-geist-bold text-[13.5px] text-ink dark:text-dk-text"
             numberOfLines={1}
           >
             {data.name}
@@ -103,14 +103,14 @@ export function BusinessCard({
 
           {data.bio ? (
             <Text
-              className="mt-0.5 font-geist text-[11.5px] text-gray-500 dark:text-gray-400"
+              className="mt-0.5 font-geist text-[11.5px] text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {data.bio}
             </Text>
           ) : cityLabel ? (
             <Text
-              className="mt-0.5 font-geist text-[11.5px] text-gray-500 dark:text-gray-400"
+              className="mt-0.5 font-geist text-[11.5px] text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {cityLabel}
@@ -141,7 +141,7 @@ export function BusinessCard({
           className={`h-[30px] w-[30px] items-center justify-center rounded-lg cursor-pointer ${
             isFollowed
               ? "bg-brand-tint dark:bg-brand/20"
-              : "bg-soft dark:bg-gray-800"
+              : "bg-soft dark:bg-dk-card"
           }`}
         >
           {isToggling ? (

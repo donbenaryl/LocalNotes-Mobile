@@ -97,7 +97,7 @@ export function SpotlightTab() {
     return (
       <SpotlightShell {...shellProps}>
         <View className="items-center justify-center px-6 py-20">
-          <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
+          <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-dk-muted">
             {t("spotlight.error")}
           </Text>
           <LocalNotesButton

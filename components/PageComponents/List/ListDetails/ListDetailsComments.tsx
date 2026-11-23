@@ -208,7 +208,7 @@ export function ListDetailsComments({
               <View className="min-w-0 flex-1 flex-row items-center gap-1.5">
                 <Text
                   numberOfLines={1}
-                  className="shrink font-geist-bold text-[12.5px] text-ink dark:text-gray-100"
+                  className="shrink font-geist-bold text-[12.5px] text-ink dark:text-dk-text"
                 >
                   {comment.account.name}
                 </Text>
@@ -244,7 +244,7 @@ export function ListDetailsComments({
                     className={`font-geist text-xs ${
                       likedComments.has(comment.id)
                         ? "text-red-500"
-                        : "text-gray-500 dark:text-gray-400"
+                        : "text-gray-500 dark:text-dk-muted"
                     }`}
                   >
                     {comment.likes_count}
@@ -267,7 +267,7 @@ export function ListDetailsComments({
             <MentionedText
               content={comment.content}
               mentionedAccounts={comment.mentioned_accounts}
-              className="mt-1 font-geist text-[13px] leading-5 text-gray-800 dark:text-gray-200"
+              className="mt-1 font-geist text-[13px] leading-5 text-gray-800 dark:text-dk-body"
             />
             {!isReply &&
             (list.others_can_comment || comment.replies_count > 0) ? (
@@ -277,7 +277,7 @@ export function ListDetailsComments({
                     onPress={() => setReplyTo(comment)}
                     className="cursor-pointer"
                   >
-                    <Text className="font-geist-medium text-xs text-gray-500 dark:text-gray-400">
+                    <Text className="font-geist-medium text-xs text-gray-500 dark:text-dk-muted">
                       {t("listDetail.reply")}
                     </Text>
                   </Pressable>
@@ -287,7 +287,7 @@ export function ListDetailsComments({
                     onPress={() => void toggleReplies(comment.id)}
                     className="cursor-pointer"
                   >
-                    <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+                    <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
                       {isExpanded
                         ? t("listDetail.hideReplies")
                         : t("listDetail.viewReplies", {
@@ -310,7 +310,7 @@ export function ListDetailsComments({
 
   return (
     <View className={cn("px-[18px] py-[18px]", containerClassName)}>
-      <Text className="mb-3 font-geist-bold text-[13px] text-ink dark:text-gray-100">
+      <Text className="mb-3 font-geist-bold text-[13px] text-ink dark:text-dk-text">
         {t("listDetail.comments", { count: list.comments ?? rootComments.length })}
       </Text>
 
@@ -319,7 +319,7 @@ export function ListDetailsComments({
           <PageLoader fullPage={false} size="small" />
         </View>
       ) : rootComments.length === 0 ? (
-        <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t("listDetail.noComments")}
         </Text>
       ) : (
@@ -330,14 +330,14 @@ export function ListDetailsComments({
         <View className="mt-4 gap-2">
           {replyTo ? (
             <View className="flex-row items-center justify-between">
-              <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                 {t("listDetail.replyTo", { name: replyTo.account.name })}
               </Text>
               <Pressable
                 onPress={() => setReplyTo(null)}
                 className="cursor-pointer"
               >
-                <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+                <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
                   {t("listDetail.cancelReply")}
                 </Text>
               </Pressable>
@@ -359,7 +359,7 @@ export function ListDetailsComments({
             }
             placeholderTextColor="#9CA3AF"
             multiline
-            className="min-h-[44px] rounded-xl border border-gray-200 bg-white px-3 py-2.5 font-geist text-sm text-ink dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+            className="min-h-[44px] rounded-xl border border-gray-200 bg-card px-3 py-2.5 font-geist text-sm text-ink dark:border-dk-border dark:bg-dk-card dark:text-dk-text"
           />
           <Pressable
             onPress={handleSubmit}

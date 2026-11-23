@@ -126,23 +126,23 @@ export function ThankYouContent({ embedded = false }: ThankYouContentProps) {
       <WhiteBox className="gap-3 p-4">
         <View className="flex-row items-start gap-3">
           <View className="h-11 w-11 items-center justify-center rounded-full bg-brand-tint">
-            <HeartHandshake size={22} color="#141413" />
+            <HeartHandshake size={22} color="#1A1714" />
           </View>
           <View className="min-w-0 flex-1 gap-1.5">
             <View className="flex-row flex-wrap items-center gap-2">
-              <Text className="min-w-0 flex-shrink font-geist-extrabold text-xl leading-7 text-ink dark:text-gray-100">
+              <Text className="min-w-0 flex-shrink font-geist-extrabold text-xl leading-7 text-ink dark:text-dk-text">
                 {heroTitle}
               </Text>
               {hasRecipients ? (
                 <View className="rounded-full bg-brand-tint px-2.5 py-0.5">
-                  <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+                  <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
                     {eligibleCount}
                   </Text>
                 </View>
               ) : null}
             </View>
             {!isLoadingEligible ? (
-              <Text className="font-geist text-sm leading-5 text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-sm leading-5 text-gray-500 dark:text-dk-muted">
                 {heroSubtitle}
               </Text>
             ) : null}
@@ -180,7 +180,7 @@ export function ThankYouContent({ embedded = false }: ThankYouContentProps) {
           loading={sendMutation.isPending}
         />
       ) : isEmpty ? (
-        <Text className="px-1 text-center font-geist text-sm leading-5 text-gray-500 dark:text-gray-400">
+        <Text className="px-1 text-center font-geist text-sm leading-5 text-gray-500 dark:text-dk-muted">
           {t('thankYou.sendUnavailable')}
         </Text>
       ) : null}

@@ -28,19 +28,19 @@ export function BusinessHomeMembershipPage({
     >
       <View className="mt-4">
         <BusinessHomeCard>
-          <Text className="font-geist-semibold text-xs text-gray-500 dark:text-gray-400">
+          <Text className="font-geist-semibold text-xs text-gray-500 dark:text-dk-muted">
             {t('businessHome.membershipPage.currentPlan')}
           </Text>
-          <Text className="mt-1 font-geist-extrabold text-xl text-ink dark:text-gray-100">
+          <Text className="mt-1 font-geist-extrabold text-xl text-ink dark:text-dk-text">
             {isPaidMember
               ? t('businessHome.sections.businessInsights')
               : t('businessHome.membershipPage.freePlan')}
           </Text>
-          <Text className="mt-2 font-geist text-xs leading-[1.5] text-gray-600 dark:text-gray-400">
+          <Text className="mt-2 font-geist text-xs leading-[1.5] text-gray-600 dark:text-dk-muted">
             {t('businessHome.membershipPage.freeBody')}
           </Text>
         </BusinessHomeCard>
-        <Text className="px-5 py-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+        <Text className="px-5 py-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
           {t('businessHome.membershipPage.upgradeNote')}
         </Text>
         {isPaidMember ? (

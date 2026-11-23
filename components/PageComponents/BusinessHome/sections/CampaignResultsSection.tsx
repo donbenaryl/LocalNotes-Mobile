@@ -58,7 +58,7 @@ export function CampaignResultsSection({
     if (isError) {
       return (
         <View>
-          <Text className="font-geist text-[13.5px] text-gray-600 dark:text-gray-400">
+          <Text className="font-geist text-[13.5px] text-gray-600 dark:text-dk-muted">
             {t('businessHome.campaign.loadError')}
           </Text>
           <View className="mt-2.5 flex-row">
@@ -76,7 +76,7 @@ export function CampaignResultsSection({
 
     if (!campaign) {
       return (
-        <Text className="font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t('businessHome.campaign.empty')}
         </Text>
       );
@@ -103,22 +103,22 @@ export function CampaignResultsSection({
 
     return (
       <>
-        <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand dark:text-gray-100">
+        <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand dark:text-dk-text">
           {statusLabel(campaign, t)}
         </Text>
-        <Text className="mt-1 font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+        <Text className="mt-1 font-geist-extrabold text-[15px] text-ink dark:text-dk-text">
           {campaign.name}
         </Text>
         <View className="mt-3 flex-row">
           {metrics.map((item, index) => (
             <View
               key={item.label}
-              className={`flex-1 ${index > 0 ? 'border-l border-gray-100 pl-2.5 dark:border-gray-700' : ''}`}
+              className={`flex-1 ${index > 0 ? 'border-l border-gray-100 pl-2.5 dark:border-dk-border' : ''}`}
             >
-              <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+              <Text className="font-geist-extrabold text-lg text-ink dark:text-dk-text">
                 {item.value}
               </Text>
-              <Text className="mt-0.5 font-geist-bold text-[9.5px] uppercase text-gray-500 dark:text-gray-400">
+              <Text className="mt-0.5 font-geist-bold text-[9.5px] uppercase text-gray-500 dark:text-dk-muted">
                 {item.label}
               </Text>
             </View>
@@ -157,20 +157,20 @@ export function CampaignResultsSection({
           />
         </View>
         <MembershipGate isPaidMember={isPaidMember} tier="free">
-          <Text className="mt-2 border-t border-gray-100 pt-2 font-geist text-[11px] leading-[1.55] text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            <Text className="font-geist-bold text-brand dark:text-gray-100">
+          <Text className="mt-2 border-t border-gray-100 pt-2 font-geist text-[11px] leading-[1.55] text-gray-500 dark:border-dk-border dark:text-dk-muted">
+            <Text className="font-geist-bold text-brand dark:text-dk-text">
               {t('businessHome.campaign.unlockInsights')}
             </Text>
           </Text>
         </MembershipGate>
         <MembershipGate isPaidMember={isPaidMember} tier="paid">
-          <Text className="mt-2 border-t border-gray-100 pt-2 font-geist text-[11px] leading-[1.55] text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          <Text className="mt-2 border-t border-gray-100 pt-2 font-geist text-[11px] leading-[1.55] text-gray-500 dark:border-dk-border dark:text-dk-muted">
             {t('businessHome.campaign.paidNote')}{' '}
           </Text>
           {/* Compare Campaign Button */}
           <Text
             onPress={() => onOpenSheet('compare')}
-            className="font-geist-extrabold text-[11px] text-brand dark:text-gray-100 underline"
+            className="font-geist-extrabold text-[11px] text-brand dark:text-dk-text underline"
           >
             {t('businessHome.campaign.compare')}
           </Text>
@@ -190,7 +190,7 @@ export function CampaignResultsSection({
             accessibilityRole="button"
             className="active:opacity-80"
           >
-            <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+            <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
               {t('businessHome.campaign.createOffer')}
             </Text>
           </Pressable>

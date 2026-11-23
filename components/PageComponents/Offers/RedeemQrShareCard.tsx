@@ -47,7 +47,7 @@ export const RedeemQrShareCard = forwardRef<View, RedeemQrShareCardProps>(
         >
           <Text
             style={{
-              color: "#141413",
+              color: "#1A1714",
               fontSize: 20,
               fontWeight: "800",
             }}
@@ -82,7 +82,7 @@ export const RedeemQrShareCard = forwardRef<View, RedeemQrShareCardProps>(
           {expiresLabel ? (
             <Text
               style={{
-                color: "#141413",
+                color: "#1A1714",
                 fontSize: 13,
                 fontWeight: "600",
                 marginBottom: 16,

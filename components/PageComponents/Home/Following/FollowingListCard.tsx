@@ -142,7 +142,7 @@ function FollowingListCardContent({ item, list }: FollowingListCardContentProps)
         }
       />
 
-      <View className="overflow-hidden rounded-2xl border border-gray-200 bg-soft dark:border-gray-700 dark:bg-gray-800/60">
+      <View className="overflow-hidden rounded-2xl border border-gray-200 bg-soft dark:border-dk-border dark:bg-dk-card/60">
         <Pressable
           onPress={() => setIsModalVisible(true)}
           accessibilityRole="button"
@@ -175,14 +175,14 @@ function FollowingListCardContent({ item, list }: FollowingListCardContentProps)
           ) : (
             <View className="px-3 pt-3">
               <Text
-                className="font-geist-semibold text-lg text-ink dark:text-gray-100"
+                className="font-geist-semibold text-lg text-ink dark:text-dk-text"
                 numberOfLines={2}
               >
                 {list.name}
               </Text>
               {categoriesLabel ? (
                 <Text
-                  className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
+                  className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted"
                   numberOfLines={1}
                 >
                   {categoriesLabel}
@@ -198,11 +198,11 @@ function FollowingListCardContent({ item, list }: FollowingListCardContentProps)
           personalityColor={personalityColor}
           fallbackCity={list.location?.city}
           onPickPress={handlePickPress}
-          className="mx-2.5 mt-2.5 border border-gray-200 dark:border-gray-800/60"
+          className="mx-2.5 mt-2.5 border border-gray-200 dark:border-dk-line/60"
         />
 
         <View className="flex-row items-center justify-between px-3 pb-3 pt-2.5">
-          <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
             {formatRelativeTime(item.created_at)}
           </Text>
           {matchPercent != null && !isOwnList ? (

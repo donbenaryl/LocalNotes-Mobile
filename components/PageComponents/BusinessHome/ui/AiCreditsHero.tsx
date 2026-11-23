@@ -24,13 +24,13 @@ export function AiCreditsHero({ credits, now = new Date() }: AiCreditsHeroProps)
 
   return (
     <BusinessHomeCard>
-      <Text className="font-geist-extrabold text-5xl text-ink dark:text-gray-100">
+      <Text className="font-geist-extrabold text-5xl text-ink dark:text-dk-text">
         {credits.remaining}
       </Text>
-      <Text className="font-geist-semibold text-sm text-gray-600 dark:text-gray-400">
+      <Text className="font-geist-semibold text-sm text-gray-600 dark:text-dk-muted">
         {t('businessHome.aiCredits.page.left', { count: credits.remaining })}
       </Text>
-      <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+      <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
         {t('businessHome.aiCredits.page.ofAllowance', { allowance: credits.allowance })}
       </Text>
       <ProgressBar
@@ -42,13 +42,13 @@ export function AiCreditsHero({ credits, now = new Date() }: AiCreditsHeroProps)
         })}
       />
       <View className="mt-3">
-        <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+        <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
           {t('businessHome.aiCredits.page.resetsOn', { date: reset.date })}
         </Text>
-        <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+        <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
           {reset.countdown}
         </Text>
-        <Text className="mt-1 font-geist text-xs text-gray-500 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-xs text-gray-500 dark:text-dk-muted">
           {t('businessHome.aiCredits.page.noRollover')}
         </Text>
       </View>

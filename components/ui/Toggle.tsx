@@ -45,7 +45,7 @@ export function Toggle<T extends string>({
   return (
     <View
       className={cn(
-        "flex-row gap-0.5 rounded-full bg-soft p-1 dark:bg-gray-800",
+        "flex-row gap-0.5 rounded-full bg-soft p-1 dark:bg-dk-card",
         fullWidth ? "w-full" : "",
         className,
       )}
@@ -62,14 +62,14 @@ export function Toggle<T extends string>({
               "cursor-pointer rounded-full",
               fullWidth && !isIconOnly ? "flex-1 items-center" : "",
               isIconOnly ? "p-1.5" : "px-4 py-2",
-              isActive ? "bg-white dark:bg-gray-700" : "bg-transparent",
+              isActive ? "bg-card dark:bg-dk-elevated" : "bg-transparent",
             )}
             style={isActive ? ACTIVE_SHADOW : undefined}
           >
             {Icon ? (
               <Icon
                 size={16}
-                color={isActive ? "#141413" : "#9CA3AF"}
+                color={isActive ? "#1A1714" : "#9CA3AF"}
               />
             ) : null}
             {option.label ? (
@@ -77,8 +77,8 @@ export function Toggle<T extends string>({
                 className={cn(
                   "text-xs",
                   isActive
-                    ? "font-geist-bold text-ink dark:text-gray-100"
-                    : "font-geist-semibold text-gray-500 dark:text-gray-400",
+                    ? "font-geist-bold text-ink dark:text-dk-text"
+                    : "font-geist-semibold text-gray-500 dark:text-dk-muted",
                 )}
               >
                 {option.label}
@@ -113,7 +113,7 @@ export function SwitchToggle({
       accessibilityState={{ checked: value, disabled }}
       className={cn(
         "h-[26px] w-[44px] justify-center rounded-full p-0.5 cursor-pointer",
-        value ? "bg-brand/30" : "bg-gray-200 dark:bg-gray-700",
+        value ? "bg-brand/30" : "bg-gray-200 dark:bg-dk-elevated",
         disabled ? "opacity-50" : "",
         className,
       )}

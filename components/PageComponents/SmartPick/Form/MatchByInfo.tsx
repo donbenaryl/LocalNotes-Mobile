@@ -10,13 +10,13 @@ export function MatchByInfo() {
       {SMART_PICK_ENGINES.map((engine) => (
         <Text
           key={engine.value}
-          className="font-geist text-[13px] leading-5 text-gray-600 dark:text-gray-300"
+          className="font-geist text-[13px] leading-5 text-gray-600 dark:text-dk-body"
         >
-          <Text className="font-geist-semibold text-ink dark:text-gray-100">{engine.name}</Text>
+          <Text className="font-geist-semibold text-ink dark:text-dk-text">{engine.name}</Text>
           {` · ${engine.detail}`}
         </Text>
       ))}
-      <Text className="font-geist text-[12.5px] text-gray-400 dark:text-gray-500">
+      <Text className="font-geist text-[12.5px] text-gray-400 dark:text-dk-faint">
         {t('smartPick.matchByVibesHint')}
       </Text>
     </View>

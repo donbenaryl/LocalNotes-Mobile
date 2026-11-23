@@ -116,7 +116,7 @@ export function ImageUploadField({
   return (
     <View className="gap-2">
       {displayLabel ? (
-        <Text className="font-geist-medium text-sm text-gray-700 dark:text-gray-300">
+        <Text className="font-geist-medium text-sm text-gray-700 dark:text-dk-body">
           {displayLabel}
         </Text>
       ) : null}
@@ -152,7 +152,7 @@ export function ImageUploadField({
         {canAddMore ? (
           <Pressable
             onPress={() => setShowPicker(true)}
-            className="w-20 h-20 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 items-center justify-center cursor-pointer"
+            className="w-20 h-20 rounded-xl border border-dashed border-gray-300 dark:border-dk-border items-center justify-center cursor-pointer"
           >
             <ImageIcon size={24} color="#9CA3AF" />
           </Pressable>
@@ -160,7 +160,7 @@ export function ImageUploadField({
       </ScrollView>
 
       {helperText || countHint ? (
-        <Text className="text-xs text-gray-500 dark:text-gray-400">
+        <Text className="text-xs text-gray-500 dark:text-dk-muted">
           {[helperText, countHint].filter(Boolean).join(" · ")}
         </Text>
       ) : null}
@@ -175,19 +175,19 @@ export function ImageUploadField({
         <View className="gap-3 pb-4">
           <Pressable
             onPress={() => void pickImage("library")}
-            className="flex-row items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 cursor-pointer"
+            className="flex-row items-center gap-3 rounded-xl bg-gray-50 dark:bg-dk-card px-4 py-3 cursor-pointer"
           >
-            <ImageIcon size={20} color="#141413" />
-            <Text className="font-geist text-sm text-ink dark:text-gray-100">
+            <ImageIcon size={20} color="#1A1714" />
+            <Text className="font-geist text-sm text-ink dark:text-dk-text">
               {t("imageUpload.chooseFromLibrary")}
             </Text>
           </Pressable>
           <Pressable
             onPress={() => void pickImage("camera")}
-            className="flex-row items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 px-4 py-3 cursor-pointer"
+            className="flex-row items-center gap-3 rounded-xl bg-gray-50 dark:bg-dk-card px-4 py-3 cursor-pointer"
           >
-            <Camera size={20} color="#141413" />
-            <Text className="font-geist text-sm text-ink dark:text-gray-100">
+            <Camera size={20} color="#1A1714" />
+            <Text className="font-geist text-sm text-ink dark:text-dk-text">
               {t("imageUpload.takePhoto")}
             </Text>
           </Pressable>

@@ -140,21 +140,21 @@ export function DropDown({
                     "flex-row items-center justify-between rounded-xl px-4 py-5 cursor-pointer active:opacity-80",
                     isSelected
                       ? "bg-brand-tint dark:bg-brand/20 border border-brand/30 dark:border-brand/50"
-                      : "bg-soft dark:bg-gray-800 border border-transparent",
+                      : "bg-soft dark:bg-dk-card border border-transparent",
                   )}
                 >
                   <Text
                     className={cn(
                       "font-geist text-base text-center flex-1 pr-3",
                       isSelected
-                        ? "font-geist-medium text-brand dark:text-gray-100"
-                        : "text-ink dark:text-gray-100",
+                        ? "font-geist-medium text-brand dark:text-dk-text"
+                        : "text-ink dark:text-dk-text",
                     )}
                   >
                     {option.label}
                   </Text>
                   {isSelected ? (
-                    <Check size={18} color="#141413" strokeWidth={2.5} />
+                    <Check size={18} color="#1A1714" strokeWidth={2.5} />
                   ) : null}
                 </Pressable>
               );

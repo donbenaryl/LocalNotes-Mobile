@@ -31,7 +31,7 @@ export function PersonalityMatchPill({
     return (
       <View
         accessibilityRole="text"
-        className="shrink-0 flex-row items-center gap-1.5 rounded-full border border-black/10 bg-white px-2.5 py-1"
+        className="shrink-0 flex-row items-center gap-1.5 rounded-full border border-black/10 bg-card px-2.5 py-1"
       >
         {variant === "overlay" ? (
           <View

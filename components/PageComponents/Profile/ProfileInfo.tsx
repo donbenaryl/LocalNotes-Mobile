@@ -79,7 +79,7 @@ function ExpandableBio({ bio }: { bio: string }) {
   return (
     <View className="mt-3">
       <Text
-        className="font-geist text-sm leading-[1.45] text-gray-600 dark:text-gray-300"
+        className="font-geist text-sm leading-[1.45] text-gray-600 dark:text-dk-body"
         numberOfLines={expanded ? undefined : BIO_COLLAPSE_LINES}
         onTextLayout={(event) => {
           if (expanded || truncated) return;
@@ -97,7 +97,7 @@ function ExpandableBio({ bio }: { bio: string }) {
           hitSlop={6}
           className="mt-0.5 self-start active:opacity-70"
         >
-          <Text className="font-geist-bold text-sm text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-sm text-ink dark:text-dk-text">
             {expanded ? t('profile.info.bioLess') : t('profile.info.bioMore')}
           </Text>
         </Pressable>
@@ -114,7 +114,7 @@ function BusinessProfileInfo({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
+  const mutedIconColor = isDark ? '#A79E92' : '#9EA4AF';
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const avatarImageUri = resolveImageUrl(business.logo);
@@ -158,7 +158,7 @@ function BusinessProfileInfo({
 
           <View className="min-w-0 flex-1">
             <Text
-              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-gray-100"
+              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-dk-text"
               numberOfLines={2}
             >
               {business.name}
@@ -166,7 +166,7 @@ function BusinessProfileInfo({
 
             {business.business_type ? (
               <Text
-                className="mt-0.5 font-fraunces text-[15px] italic text-gray-500 dark:text-gray-400"
+                className="mt-0.5 font-fraunces text-[15px] italic text-gray-500 dark:text-dk-muted"
                 numberOfLines={1}
               >
                 {business.business_type}
@@ -181,7 +181,7 @@ function BusinessProfileInfo({
           <View className="mt-2 flex-row items-center gap-1.5">
             <MapPin size={12} color={mutedIconColor} />
             <Text
-              className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+              className="font-geist-medium text-[12.5px] text-gray-400 dark:text-dk-faint"
               numberOfLines={1}
             >
               {locationLabel}
@@ -218,7 +218,7 @@ function UserProfileInfo({
   const accountType = profile.account_type ?? authAccountType ?? undefined;
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
   const accentColor = getDominantPersonalityColor(profile.personality_color);
-  const mutedIconColor = isDark ? '#9CA3AF' : '#A8A29E';
+  const mutedIconColor = isDark ? '#A79E92' : '#9EA4AF';
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const [followModalVisible, setFollowModalVisible] = useState(false);
@@ -300,7 +300,7 @@ function UserProfileInfo({
 
           <View className="min-w-0 flex-1">
             <Text
-              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-gray-100"
+              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-dk-text"
               numberOfLines={2}
             >
               {profile.name}
@@ -316,7 +316,7 @@ function UserProfileInfo({
               </Text>
             ) : null}
             {profile.personality_name && isInferredPersonality(profile.personality_source) ? (
-              <Text className="mt-0.5 font-geist-medium text-[11.5px] text-gray-400 dark:text-gray-500">
+              <Text className="mt-0.5 font-geist-medium text-[11.5px] text-gray-400 dark:text-dk-faint">
                 {t('personality.basedOnActivity')}
               </Text>
             ) : null}
@@ -327,7 +327,7 @@ function UserProfileInfo({
                 }
                 className="mt-1 cursor-pointer"
               >
-                <Text className="font-geist-semibold text-[12.5px] text-brand dark:text-gray-100">
+                <Text className="font-geist-semibold text-[12.5px] text-brand dark:text-dk-text">
                   {t('personality.takeQuizCta')}
                 </Text>
               </Pressable>
@@ -342,7 +342,7 @@ function UserProfileInfo({
             {joinedYear ? (
               <View className="flex-row items-center gap-1.5">
                 <Calendar size={12} color={mutedIconColor} />
-                <Text className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500">
+                <Text className="font-geist-medium text-[12.5px] text-gray-400 dark:text-dk-faint">
                   {t('profile.info.joined', { year: joinedYear })}
                 </Text>
               </View>
@@ -351,7 +351,7 @@ function UserProfileInfo({
               <View className="flex-row items-center gap-1.5">
                 <MapPin size={12} color={mutedIconColor} />
                 <Text
-                  className="font-geist-medium text-[12.5px] text-gray-400 dark:text-gray-500"
+                  className="font-geist-medium text-[12.5px] text-gray-400 dark:text-dk-faint"
                   numberOfLines={1}
                 >
                   {locationLabel}
@@ -375,7 +375,7 @@ function UserProfileInfo({
         ) : null}
 
         {showTasteMatch ? (
-          <View className="mt-3 flex-row items-start gap-2.5 rounded-2xl border border-gray-200 bg-white px-3.5 py-3 dark:border-gray-700 dark:bg-gray-800">
+          <View className="mt-3 flex-row items-start gap-2.5 rounded-2xl border border-gray-200 bg-card px-3.5 py-3 dark:border-dk-border dark:bg-dk-card">
             <View
               className="mt-0.5 h-4 w-4 items-center justify-center rounded-full"
               style={{ backgroundColor: hexToRgba(matchColor, 0.2) }}
@@ -392,7 +392,7 @@ function UserProfileInfo({
               >
                 {t('home.forYou.tasteMatch', { percent: matchPercent ?? 0 })}
               </Text>
-              <Text className="text-gray-600 dark:text-gray-400">
+              <Text className="text-gray-600 dark:text-dk-muted">
                 {' — '}
                 {t('profile.info.tasteMatchBlurb')}
               </Text>

@@ -99,15 +99,15 @@ function TimeChip({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      className="min-w-[88px] flex-1 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+      className="min-w-[88px] flex-1 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2 dark:border-dk-border dark:bg-dk-card"
     >
-      <Text className="font-geist text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
+      <Text className="font-geist text-[10px] uppercase tracking-wider text-gray-400 dark:text-dk-faint">
         {label}
       </Text>
       <Text
         className={cn(
           "mt-0.5 font-geist text-sm",
-          value ? "text-ink dark:text-gray-100" : "text-gray-400 dark:text-gray-500",
+          value ? "text-ink dark:text-dk-text" : "text-gray-400 dark:text-dk-faint",
         )}
       >
         {value ? formatTimeLabel(value) : placeholder}
@@ -180,7 +180,7 @@ export function OpeningHoursEditor({
         return (
           <View key={day} className="gap-2">
             <View className="flex-row items-center justify-between">
-              <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+              <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
                 {t(`editProfile.business.weekdays.${day}`)}
               </Text>
               {entry.open || entry.close ? (
@@ -190,7 +190,7 @@ export function OpeningHoursEditor({
                   accessibilityRole="button"
                   hitSlop={8}
                 >
-                  <Text className="font-geist text-xs text-brand dark:text-gray-100">
+                  <Text className="font-geist text-xs text-brand dark:text-dk-text">
                     {t("editProfile.business.hoursClear")}
                   </Text>
                 </Pressable>
@@ -260,7 +260,7 @@ export function BusinessProfileFields({
 }: BusinessProfileFieldsProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const placeholderColor = colorScheme === "dark" ? "#9CA3AF" : "#6B7280";
+  const placeholderColor = colorScheme === "dark" ? "#A79E92" : "#6C727F";
 
   function patch<K extends keyof BusinessProfileFormValues>(
     key: K,
@@ -277,14 +277,14 @@ export function BusinessProfileFields({
   return (
     <>
       {showSectionLabel ? (
-        <Text className="px-6 pt-6 pb-2 font-geist-medium text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+        <Text className="px-6 pt-6 pb-2 font-geist-medium text-xs text-gray-400 dark:text-dk-faint uppercase tracking-wider">
           {t("editProfile.business.section")}
         </Text>
       ) : null}
 
       {header}
 
-      <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
+      <View className="px-6 gap-4 bg-card dark:bg-dk-page py-4">
         <TextInput
           label={t("editProfile.business.name")}
           value={values.businessName}
@@ -295,7 +295,7 @@ export function BusinessProfileFields({
         />
 
         <View>
-          <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-gray-300">
+          <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-dk-body">
             {t("editProfile.business.type")}
           </Text>
           <Pressable
@@ -305,14 +305,14 @@ export function BusinessProfileFields({
             }}
             disabled={!editable}
             accessibilityRole="button"
-            className="h-14 flex-row items-center rounded-xl border border-gray-100 bg-gray-50 px-4 dark:border-gray-700 dark:bg-gray-800"
+            className="h-14 flex-row items-center rounded-xl border border-gray-100 bg-gray-50 px-4 dark:border-dk-border dark:bg-dk-card"
           >
             <Text
               className={cn(
                 "flex-1 font-geist text-base",
                 values.businessType
-                  ? "text-ink dark:text-gray-100"
-                  : "text-gray-400 dark:text-gray-500",
+                  ? "text-ink dark:text-dk-text"
+                  : "text-gray-400 dark:text-dk-faint",
               )}
             >
               {values.businessType || t("editProfile.business.typePlaceholder")}
@@ -396,16 +396,16 @@ export function BusinessProfileFields({
       {requirements.length > 0 && onChangeProfileDetails ? (
         <>
           <View className="px-6 pt-6 pb-2">
-            <Text className="font-geist-medium text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            <Text className="font-geist-medium text-xs text-gray-400 dark:text-dk-faint uppercase tracking-wider">
               {t("editProfile.business.importantInfoSection")}
             </Text>
-            <Text className="mt-1 font-geist text-xs text-gray-400 dark:text-gray-500">
+            <Text className="mt-1 font-geist text-xs text-gray-400 dark:text-dk-faint">
               {t("editProfile.business.importantInfoHelper", {
                 type: values.businessType.toLowerCase(),
               })}
             </Text>
           </View>
-          <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
+          <View className="px-6 gap-4 bg-card dark:bg-dk-page py-4">
             {requirements.map((requirement) => (
               <TextInput
                 key={requirement.key}
@@ -431,10 +431,10 @@ export function BusinessProfileFields({
 
       <View className="px-6 pt-6 pb-2 flex-row items-start justify-between">
         <View className="flex-1 pr-3">
-          <Text className="font-geist-medium text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          <Text className="font-geist-medium text-xs text-gray-400 dark:text-dk-faint uppercase tracking-wider">
             {t("editProfile.business.branchesSection")}
           </Text>
-          <Text className="mt-1 font-geist text-xs text-gray-400 dark:text-gray-500">
+          <Text className="mt-1 font-geist text-xs text-gray-400 dark:text-dk-faint">
             {t("editProfile.business.branchesHelper")}
           </Text>
         </View>
@@ -450,23 +450,23 @@ export function BusinessProfileFields({
       </View>
       <View className="px-6 pb-4 gap-3">
         {values.branches.length === 0 ? (
-          <Text className="py-4 text-center font-geist text-sm text-gray-400 dark:text-gray-500">
+          <Text className="py-4 text-center font-geist text-sm text-gray-400 dark:text-dk-faint">
             {t("editProfile.business.noBranches")}
           </Text>
         ) : (
           values.branches.map((branch) => (
             <View
               key={branch.id}
-              className="rounded-xl border border-gray-100 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900"
+              className="rounded-xl border border-gray-100 bg-card px-4 py-3 dark:border-dk-border dark:bg-dk-page"
             >
               <View className="flex-row items-start justify-between">
                 <View className="flex-1 flex-row items-start gap-3 pr-3">
                   <MapPin size={18} color="#6B7280" />
                   <View className="flex-1">
-                    <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                    <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
                       {branch.name}
                     </Text>
-                    <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
+                    <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted">
                       {formatBranchAddress(branch.location)}
                     </Text>
                   </View>
@@ -488,7 +488,7 @@ export function BusinessProfileFields({
                 accessibilityRole="button"
                 className="mt-3 self-start"
               >
-                <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+                <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
                   {t("editProfile.business.editBranchHours")}
                 </Text>
               </Pressable>

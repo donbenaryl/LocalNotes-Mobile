@@ -37,7 +37,7 @@ export function InsightsBars({
       {formatDetail && !(hideHint && active === null) ? (
         <Text
           numberOfLines={1}
-          className="mb-1 font-geist-semibold text-xs text-gray-600 dark:text-gray-300"
+          className="mb-1 font-geist-semibold text-xs text-gray-600 dark:text-dk-body"
         >
           {active !== null
             ? formatDetail(active, values[active])
@@ -53,8 +53,8 @@ export function InsightsBars({
                 h > 0
                   ? 'bg-brand'
                   : values[index] == null
-                    ? 'bg-gray-300 dark:bg-gray-600'
-                    : 'bg-soft dark:bg-gray-700',
+                    ? 'bg-gray-300 dark:bg-dk-select'
+                    : 'bg-soft dark:bg-dk-elevated',
                 active !== null && active !== index && 'opacity-40',
               )}
               style={{ height: Math.max(h, 2) }}
@@ -85,7 +85,7 @@ export function InsightsBars({
               {labels[index] ? (
                 <Text
                   numberOfLines={1}
-                  className="font-geist text-[9px] text-gray-500 dark:text-gray-400"
+                  className="font-geist text-[9px] text-gray-500 dark:text-dk-muted"
                 >
                   {labels[index]}
                 </Text>

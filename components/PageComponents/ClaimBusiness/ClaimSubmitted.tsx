@@ -86,7 +86,7 @@ function NextStepRow({
         ) : null}
       </View>
       <Text
-        className={`min-w-0 flex-1 font-geist text-[13px] leading-5 text-gray-600 dark:text-gray-300 ${
+        className={`min-w-0 flex-1 font-geist text-[13px] leading-5 text-gray-600 dark:text-dk-body ${
           isLast ? 'pb-0' : 'pb-3'
         }`}
       >
@@ -101,7 +101,7 @@ export default function ClaimSubmitted() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t('claimBusiness.submitted.title')}
         hideBack
@@ -116,10 +116,10 @@ export default function ClaimSubmitted() {
             .easing(EASE_OUT)}
           className="w-full items-center"
         >
-          <Text className="text-center font-geist-bold text-[22px] tracking-tight text-ink dark:text-gray-100">
+          <Text className="text-center font-geist-bold text-[22px] tracking-tight text-ink dark:text-dk-text">
             {t('claimBusiness.submitted.title')}
           </Text>
-          <Text className="mt-2 max-w-[320px] text-center font-geist text-[14px] leading-6 text-gray-500 dark:text-gray-400">
+          <Text className="mt-2 max-w-[320px] text-center font-geist text-[14px] leading-6 text-gray-500 dark:text-dk-muted">
             {t('claimBusiness.submitted.body')}
           </Text>
         </Animated.View>
@@ -130,7 +130,7 @@ export default function ClaimSubmitted() {
             .easing(EASE_OUT)}
           className="mt-8 w-full max-w-[340px] overflow-hidden rounded-2xl border border-brand/15 bg-brand-tint/60 px-4 py-4 dark:border-brand/25 dark:bg-brand/10"
         >
-          <Text className="mb-3 font-geist-semibold text-[11px] uppercase tracking-wider text-brand dark:text-gray-100 dark:text-brand dark:text-gray-100">
+          <Text className="mb-3 font-geist-semibold text-[11px] uppercase tracking-wider text-brand dark:text-dk-text dark:text-brand dark:text-dk-text">
             {t('claimBusiness.submitted.nextTitle')}
           </Text>
           <NextStepRow

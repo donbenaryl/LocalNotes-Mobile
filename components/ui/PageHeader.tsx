@@ -44,11 +44,11 @@ export function PageHeader({
       <TouchableOpacity
         onPress={onBack ?? (() => router.back())}
         hitSlop={8}
-        className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 cursor-pointer"
+        className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-dk-card cursor-pointer"
       >
         <ChevronLeft
           size={19}
-          color={colorScheme === 'dark' ? '#F3F4F6' : '#141413'}
+          color={colorScheme === 'dark' ? '#F7F3EC' : '#1A1714'}
         />
       </TouchableOpacity>
     ));
@@ -56,7 +56,7 @@ export function PageHeader({
   return (
     <View
       style={{ paddingTop: includeSafeArea ? insets.top : 0 }}
-      className={`px-4 pb-4${borderless ? '' : ' border-b border-gray-100 dark:border-gray-800'}`}
+      className={`px-4 pb-4${borderless ? '' : ' border-b border-gray-100 dark:border-dk-line'}`}
     >
       <View className="min-h-10 justify-center">
         {children ? (
@@ -74,7 +74,7 @@ export function PageHeader({
             <View className="absolute left-0 z-10">{backControl}</View>
             <Text
               pointerEvents="none"
-              className={`font-geist-bold text-lg text-ink dark:text-gray-100 ${titleClass}`}
+              className={`font-geist-bold text-lg text-ink dark:text-dk-text ${titleClass}`}
             >
               {title}
             </Text>

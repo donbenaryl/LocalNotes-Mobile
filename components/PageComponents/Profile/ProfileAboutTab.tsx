@@ -34,10 +34,10 @@ function AboutRow({ icon, label, value, onPress }: AboutRowProps) {
     <View className="flex-row items-start gap-3 py-3">
       <View className="mt-0.5">{icon}</View>
       <View className="min-w-0 flex-1">
-        <Text className="font-geist-semibold text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+        <Text className="font-geist-semibold text-[11px] uppercase tracking-wide text-gray-400 dark:text-dk-faint">
           {label}
         </Text>
-        <Text className="mt-0.5 font-geist text-[13.5px] leading-[1.4] text-ink dark:text-gray-100">
+        <Text className="mt-0.5 font-geist text-[13.5px] leading-[1.4] text-ink dark:text-dk-text">
           {value}
         </Text>
       </View>
@@ -62,11 +62,11 @@ function AboutRow({ icon, label, value, onPress }: AboutRowProps) {
 function LocationCardSkeleton() {
   return (
     <WhiteBox>
-      <View className="h-3 w-1/4 rounded bg-gray-200 dark:bg-gray-700" />
-      <View className="mt-3 h-44 rounded-2xl bg-gray-200 dark:bg-gray-700" />
-      <View className="mt-3 h-4 w-full rounded bg-gray-200 dark:bg-gray-700" />
-      <View className="mt-2 h-3.5 w-3/5 rounded bg-gray-200 dark:bg-gray-700" />
-      <View className="mt-4 h-[46px] rounded-full bg-gray-200 dark:bg-gray-700" />
+      <View className="h-3 w-1/4 rounded bg-gray-200 dark:bg-dk-elevated" />
+      <View className="mt-3 h-44 rounded-2xl bg-gray-200 dark:bg-dk-elevated" />
+      <View className="mt-3 h-4 w-full rounded bg-gray-200 dark:bg-dk-elevated" />
+      <View className="mt-2 h-3.5 w-3/5 rounded bg-gray-200 dark:bg-dk-elevated" />
+      <View className="mt-4 h-[46px] rounded-full bg-gray-200 dark:bg-dk-elevated" />
     </WhiteBox>
   );
 }
@@ -76,10 +76,10 @@ function ProfileAboutTabSkeleton() {
     <View className="gap-3">
       <WhiteBox>
         <View className="flex-row items-center gap-3">
-          <View className="h-14 w-14 rounded-xl bg-gray-200 dark:bg-gray-700" />
+          <View className="h-14 w-14 rounded-xl bg-gray-200 dark:bg-dk-elevated" />
           <View className="flex-1 gap-2">
-            <View className="h-4 w-3/5 rounded bg-gray-200 dark:bg-gray-700" />
-            <View className="h-3 w-2/5 rounded bg-gray-200 dark:bg-gray-700" />
+            <View className="h-4 w-3/5 rounded bg-gray-200 dark:bg-dk-elevated" />
+            <View className="h-3 w-2/5 rounded bg-gray-200 dark:bg-dk-elevated" />
           </View>
         </View>
       </WhiteBox>
@@ -116,7 +116,7 @@ function AboutBusinessContent({ businessInfo }: { businessInfo: BusinessItemDAO 
     <View className="gap-3 px-4 pt-4">
       <WhiteBox>
         <View className="flex-row items-center gap-3">
-          <View className="h-14 w-14 overflow-hidden rounded-xl bg-soft dark:bg-gray-700">
+          <View className="h-14 w-14 overflow-hidden rounded-xl bg-soft dark:bg-dk-elevated">
             {logoUri ? (
               <Image
                 source={{ uri: logoUri }}
@@ -133,13 +133,13 @@ function AboutBusinessContent({ businessInfo }: { businessInfo: BusinessItemDAO 
           </View>
           <View className="min-w-0 flex-1">
             <Text
-              className="font-geist-extrabold text-[17px] text-ink dark:text-gray-100"
+              className="font-geist-extrabold text-[17px] text-ink dark:text-dk-text"
               numberOfLines={2}
             >
               {businessInfo.name}
             </Text>
             {businessInfo.business_type ? (
-              <Text className="mt-0.5 font-geist-semibold text-[11px] uppercase tracking-wide text-gray-400 dark:text-gray-500">
+              <Text className="mt-0.5 font-geist-semibold text-[11px] uppercase tracking-wide text-gray-400 dark:text-dk-faint">
                 {businessInfo.business_type}
               </Text>
             ) : null}
@@ -147,7 +147,7 @@ function AboutBusinessContent({ businessInfo }: { businessInfo: BusinessItemDAO 
         </View>
 
         {businessInfo.bio ? (
-          <Text className="mt-3 font-geist text-[13.5px] leading-[1.45] text-gray-600 dark:text-gray-400">
+          <Text className="mt-3 font-geist text-[13.5px] leading-[1.45] text-gray-600 dark:text-dk-muted">
             {businessInfo.bio}
           </Text>
         ) : null}
@@ -165,7 +165,7 @@ function AboutBusinessContent({ businessInfo }: { businessInfo: BusinessItemDAO 
 
       {hasContact ? (
         <WhiteBox>
-          <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
+          <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-dk-faint">
             {t('profile.about.contact')}
           </Text>
           {businessInfo.contact_email ? (
@@ -224,7 +224,7 @@ export function ProfileAboutTab({ business }: ProfileAboutTabProps) {
     if (!business) {
       return (
         <View className="items-center px-4 py-12">
-          <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
             {t('profile.about.empty')}
           </Text>
         </View>
@@ -244,7 +244,7 @@ export function ProfileAboutTab({ business }: ProfileAboutTabProps) {
   if (hasFetched && !storeBusinessInfo) {
     return (
       <View className="items-center px-4 py-12">
-        <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t('profile.about.empty')}
         </Text>
       </View>
@@ -254,8 +254,8 @@ export function ProfileAboutTab({ business }: ProfileAboutTabProps) {
   if (!storeBusinessInfo) {
     return (
       <View className="items-center px-4 py-12">
-        <ActivityIndicator size="small" color="#141413" />
-        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-gray-400">
+        <ActivityIndicator size="small" color="#1A1714" />
+        <Text className="mt-3 font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t('profile.about.loading')}
         </Text>
       </View>

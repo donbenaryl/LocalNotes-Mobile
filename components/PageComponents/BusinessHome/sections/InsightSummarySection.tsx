@@ -20,8 +20,8 @@ interface InsightSummarySectionProps {
   topline: BusinessHomeToplineProps;
 }
 
-const BODY_CLASS = 'font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400';
-const SOURCE_CLASS = 'mt-1.5 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400';
+const BODY_CLASS = 'font-geist text-xs leading-[1.55] text-gray-600 dark:text-dk-muted';
+const SOURCE_CLASS = 'mt-1.5 font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted';
 
 export function InsightSummarySection({
   isPaidMember,
@@ -54,7 +54,7 @@ export function InsightSummarySection({
           <>
             <Text className={BODY_CLASS}>{t('businessHome.insight.auto.error')}</Text>
             <Pressable onPress={() => void query.refetch()} accessibilityRole="button" hitSlop={8}>
-              <Text className="mt-1.5 font-geist-semibold text-xs text-brand dark:text-gray-100">
+              <Text className="mt-1.5 font-geist-semibold text-xs text-brand dark:text-dk-text">
                 {t('businessHome.insight.auto.retry')}
               </Text>
             </Pressable>

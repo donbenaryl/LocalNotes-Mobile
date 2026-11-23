@@ -27,7 +27,7 @@ export function AiCreditsBreakdown({ detail }: AiCreditsBreakdownProps) {
           value={String(detail.used)}
         />
         {hasPendingCredits(detail) ? (
-          <Text className="pb-1 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+          <Text className="pb-1 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
             {t('businessHome.aiCredits.page.usedSoFarPending')}
           </Text>
         ) : null}
@@ -53,14 +53,14 @@ export function AiCreditsBreakdown({ detail }: AiCreditsBreakdownProps) {
 
       {detail.by_feature.length > 0 ? (
         <BusinessHomeCard className="mt-3">
-          <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+          <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
             {t('businessHome.aiCredits.page.byFeature')}
           </Text>
           <View className="mt-1">
             {detail.by_feature.map((row) => (
               <Text
                 key={row.feature}
-                className="py-1 font-geist text-[13px] text-gray-600 dark:text-gray-400"
+                className="py-1 font-geist text-[13px] text-gray-600 dark:text-dk-muted"
               >
                 {t('businessHome.aiCredits.page.featureRow', {
                   feature: t(featureLabelKey(row.feature)),

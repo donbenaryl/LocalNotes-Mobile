@@ -58,7 +58,7 @@ export function PhoneVerificationModal({
       <View className="gap-4 pb-2">
         {showForm ? (
           <>
-            <Text className="-mt-2 font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="-mt-2 font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t("phoneVerification.subtitle")}
             </Text>
             <PhoneVerificationForm
@@ -71,11 +71,11 @@ export function PhoneVerificationModal({
           </>
         ) : (
           <>
-            <View className="rounded-xl bg-gray-50 px-4 py-4 dark:bg-gray-800">
-              <Text className="font-geist text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+            <View className="rounded-xl bg-gray-50 px-4 py-4 dark:bg-dk-card">
+              <Text className="font-geist text-xs uppercase tracking-wider text-gray-400 dark:text-dk-faint">
                 {t("phoneVerification.verifiedLabel")}
               </Text>
-              <Text className="mt-1 font-geist-semibold text-base text-ink dark:text-gray-100">
+              <Text className="mt-1 font-geist-semibold text-base text-ink dark:text-dk-text">
                 {formatPhoneForDisplay(verifiedPhone)}
               </Text>
             </View>

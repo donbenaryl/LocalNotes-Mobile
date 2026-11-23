@@ -107,15 +107,15 @@ export function NextActionsSection({
         <BusinessHomeCard className="flex-row items-center gap-3">
           <Text className="text-base">⚑</Text>
           <View className="min-w-0 flex-1">
-            <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-gray-100">
+            <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-dk-text">
               {t(keys.title, params)}
             </Text>
             {doneLine ? (
-              <Text className="mt-0.5 font-geist-semibold text-xs text-ink dark:text-gray-100">
+              <Text className="mt-0.5 font-geist-semibold text-xs text-ink dark:text-dk-text">
                 {doneLine}
               </Text>
             ) : null}
-            <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-gray-400">
+            <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-dk-muted">
               {activeActionSubtitle(active, tr, i18n.language)}
             </Text>
           </View>
@@ -130,21 +130,21 @@ export function NextActionsSection({
         <View className="flex-row items-start gap-3">
           <Text className="text-base">⚑</Text>
           <View className="min-w-0 flex-1">
-            <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-gray-100">
+            <Text className="font-geist-extrabold text-[13.5px] text-ink dark:text-dk-text">
               {t(keys.title, params)}
             </Text>
-            <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-gray-400">
+            <Text className="mt-0.5 font-geist text-xs text-gray-600 dark:text-dk-muted">
               {activeActionSubtitle(active, tr, i18n.language)}
             </Text>
           </View>
         </View>
-        <Text className="mt-2.5 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
+        <Text className="mt-2.5 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-dk-text">
           {t('businessHome.action.recommendedStep')}
         </Text>
-        <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">
+        <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-dk-text">
           {t(keys.step, params)}
         </Text>
-        <Text className="mt-1.5 font-geist text-xs text-gray-600 dark:text-gray-400">
+        <Text className="mt-1.5 font-geist text-xs text-gray-600 dark:text-dk-muted">
           {t('businessHome.action.measureLine', {
             metric: metricName(active.target_metric, tr),
           })}
@@ -193,7 +193,7 @@ export function NextActionsSection({
           className="px-4 py-3"
         >
           <View className="flex-row items-center justify-between gap-2">
-            <Text className="flex-1 font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+            <Text className="flex-1 font-geist-extrabold text-[15px] text-ink dark:text-dk-text">
               {t(keys.title, params)}
             </Text>
             <ChevronDown
@@ -202,20 +202,20 @@ export function NextActionsSection({
               style={{ transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
             />
           </View>
-          <Text className="mt-1 font-geist text-[12.5px] text-gray-600 dark:text-gray-400">
+          <Text className="mt-1 font-geist text-[12.5px] text-gray-600 dark:text-dk-muted">
             {t(keys.summary, params)}
           </Text>
           <View className="mt-2 flex-row flex-wrap items-center gap-2.5">
-            <Text className="font-geist-bold text-[11px] text-gray-600 dark:text-gray-400">
+            <Text className="font-geist-bold text-[11px] text-gray-600 dark:text-dk-muted">
               {t('businessHome.action.effort')}{' '}
-              <Text className="text-ink dark:text-gray-100">
+              <Text className="text-ink dark:text-dk-text">
                 {t(`businessHome.action.level.${suggested.effort}`)}
               </Text>
             </Text>
             {confidence ? (
-              <Text className="font-geist-bold text-[11px] text-gray-600 dark:text-gray-400">
+              <Text className="font-geist-bold text-[11px] text-gray-600 dark:text-dk-muted">
                 {t('businessHome.action.confidence')}{' '}
-                <Text className="text-ink dark:text-gray-100">
+                <Text className="text-ink dark:text-dk-text">
                   {t(`businessHome.action.level.${confidence}`)}
                 </Text>
               </Text>
@@ -223,25 +223,25 @@ export function NextActionsSection({
           </View>
         </Pressable>
         {expanded ? (
-          <View className="border-t border-gray-100 px-4 py-3 dark:border-gray-700">
+          <View className="border-t border-gray-100 px-4 py-3 dark:border-dk-border">
             {evidence ? (
-              <Text className="font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs leading-[1.55] text-gray-600 dark:text-dk-muted">
                 {evidence}
               </Text>
             ) : null}
             <Text className="mt-1.5 font-geist-semibold text-[11px] text-gray-500">
               {t('businessHome.action.source', { period, ...foot })}
             </Text>
-            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
+            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-dk-text">
               {t('businessHome.action.recommendedStep')}
             </Text>
-            <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">
+            <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-dk-text">
               {t(keys.step, params)}
             </Text>
-            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-gray-100">
+            <Text className="mt-2 font-geist-extrabold text-[10.5px] uppercase tracking-wide text-brand-dark dark:text-dk-text">
               {t('businessHome.action.measure')}
             </Text>
-            <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-gray-100">
+            <Text className="mt-0.5 font-geist-semibold text-[12.5px] text-ink dark:text-dk-text">
               {t('businessHome.action.measureLine', {
                 metric: metricName(suggested.target_metric, tr),
               })}
@@ -279,7 +279,7 @@ export function NextActionsSection({
       (active ? null : 'noAction');
     if (!line) return null;
     return (
-      <Text className="px-5 pb-1 pt-1 font-geist text-[12.5px] text-gray-500 dark:text-gray-400">
+      <Text className="px-5 pb-1 pt-1 font-geist text-[12.5px] text-gray-500 dark:text-dk-muted">
         {t(`businessHome.action.${line}`)}
       </Text>
     );

@@ -74,10 +74,10 @@ export function ConnectedAccountCard({
         </Text>
       </View>
       <View className="min-w-0 flex-1 gap-0.5">
-        <Text className="font-geist-bold text-[13.5px] text-ink dark:text-gray-100">
+        <Text className="font-geist-bold text-[13.5px] text-ink dark:text-dk-text">
           {visual.label}
         </Text>
-        <Text className="font-geist text-[11.5px] text-gray-500 dark:text-gray-400">
+        <Text className="font-geist text-[11.5px] text-gray-500 dark:text-dk-muted">
           {subtitle}
         </Text>
       </View>

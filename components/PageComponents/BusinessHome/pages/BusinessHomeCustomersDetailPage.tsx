@@ -136,7 +136,7 @@ export default function BusinessHomeCustomersDetailPage() {
                           className="h-2.5 w-2.5 rounded-full"
                           style={{ backgroundColor: row.color }}
                         />
-                        <Text className="flex-1 font-geist-bold text-xs text-ink dark:text-gray-100">
+                        <Text className="flex-1 font-geist-bold text-xs text-ink dark:text-dk-text">
                           {Math.round(row.percentage)}% {getBusinessPersonalityLabel(row.color_name)}
                         </Text>
                         {typeof row.user_count === 'number' ? (

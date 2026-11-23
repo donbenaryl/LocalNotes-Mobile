@@ -95,7 +95,7 @@ export function LinkExistingPicksSection({
   );
 
   return (
-    <View className="gap-3 rounded-2xl border border-gray-200 bg-soft/60 p-4 dark:border-gray-700 dark:bg-gray-800/60">
+    <View className="gap-3 rounded-2xl border border-gray-200 bg-soft/60 p-4 dark:border-dk-border dark:bg-dk-card/60">
       <TextInput
         placeholder={t('listForm.placeholders.searchPicks')}
         value={keyword}
@@ -104,7 +104,7 @@ export function LinkExistingPicksSection({
 
       {isLoading ? (
         <View className="flex-row items-center gap-2 py-2">
-          <ActivityIndicator size="small" color="#141413" />
+          <ActivityIndicator size="small" color="#1A1714" />
           <Text className="font-geist text-sm text-gray-400">
             {t('listForm.linkPicks.loading')}
           </Text>
@@ -128,7 +128,7 @@ export function LinkExistingPicksSection({
                 <Pressable
                   key={pick.id}
                   onPress={() => handleLink(pick)}
-                  className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2.5 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
+                  className="flex-row items-center gap-3 rounded-xl border border-gray-200 bg-card px-3 py-2.5 dark:border-dk-border dark:bg-dk-page cursor-pointer"
                 >
                   {thumbnail ? (
                     <Image
@@ -145,14 +145,14 @@ export function LinkExistingPicksSection({
                   )}
                   <View className="min-w-0 flex-1">
                     <Text
-                      className="font-geist-medium text-sm text-ink dark:text-gray-100"
+                      className="font-geist-medium text-sm text-ink dark:text-dk-text"
                       numberOfLines={1}
                     >
                       {pick.business_name ?? 'Unnamed place'}
                     </Text>
                     {pick.description ? (
                       <Text
-                        className="font-geist text-xs text-gray-500 dark:text-gray-400"
+                        className="font-geist text-xs text-gray-500 dark:text-dk-muted"
                         numberOfLines={1}
                       >
                         {pick.description}
@@ -160,7 +160,7 @@ export function LinkExistingPicksSection({
                     ) : null}
                     {pick.owner ? <ListPickCreatorRow owner={pick.owner} /> : null}
                   </View>
-                  <Plus size={20} color="#141413" />
+                  <Plus size={20} color="#1A1714" />
                 </Pressable>
               );
             })}

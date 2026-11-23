@@ -89,8 +89,8 @@ export function ProfileListTabContent({
   if (isPending) {
     return (
       <View className="items-center justify-center gap-3 py-12">
-        <ActivityIndicator size="large" color="#141413" />
-        <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+        <ActivityIndicator size="large" color="#1A1714" />
+        <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t("profile.lists.loading")}
         </Text>
       </View>
@@ -125,10 +125,10 @@ export function ProfileListTabContent({
     return (
       <View className="items-center justify-center gap-3 py-16">
         <FolderOpen size={48} color="#D1D5DB" />
-        <Text className="font-geist-medium text-base text-gray-500 dark:text-gray-400">
+        <Text className="font-geist-medium text-base text-gray-500 dark:text-dk-muted">
           {emptyTitle}
         </Text>
-        <Text className="font-geist text-center text-sm text-gray-400 dark:text-gray-500">
+        <Text className="font-geist text-center text-sm text-gray-400 dark:text-dk-faint">
           {category === "my-lists"
             ? t("profile.lists.emptyDescription")
             : t("profile.lists.emptyCategory", { category })}

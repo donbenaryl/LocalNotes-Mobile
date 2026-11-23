@@ -204,24 +204,24 @@ export default function ClaimBusinessSearch({
     return (
       <Pressable
         onPress={() => selectBusiness(item)}
-        className="cursor-pointer flex-row items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800"
+        className="cursor-pointer flex-row items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-dk-line"
       >
         <PickPreviewImage
           imageUrl={resolveImageUrl(item.logo)}
           index={index}
         />
         <View className="min-w-0 flex-1">
-          <Text className="font-geist-semibold text-[14px] text-ink dark:text-gray-100">
+          <Text className="font-geist-semibold text-[14px] text-ink dark:text-dk-text">
             {item.name}
           </Text>
           {item.business_type ? (
-            <Text className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-gray-400">
+            <Text className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-dk-muted">
               {item.business_type}
             </Text>
           ) : null}
           {locationLabel ? (
             <Text
-              className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-gray-400"
+              className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {locationLabel}
@@ -252,19 +252,19 @@ export default function ClaimBusinessSearch({
     return (
       <Pressable
         onPress={() => selectPick(item)}
-        className="cursor-pointer flex-row items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-gray-800"
+        className="cursor-pointer flex-row items-center gap-3 border-b border-gray-100 px-4 py-3 dark:border-dk-line"
       >
         <PickPreviewImage imageUrl={pickImageUrl(item) || null} index={index} />
         <View className="min-w-0 flex-1">
-          <Text className="font-geist-semibold text-[14px] text-ink dark:text-gray-100">
+          <Text className="font-geist-semibold text-[14px] text-ink dark:text-dk-text">
             {name}
           </Text>
-          <Text className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-gray-400">
+          <Text className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-dk-muted">
             {badge}
           </Text>
           {locationLabel ? (
             <Text
-              className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-gray-400"
+              className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {locationLabel}
@@ -279,14 +279,14 @@ export default function ClaimBusinessSearch({
     if (activeQuery.isPending) {
       return (
         <View className="items-center py-16">
-          <ActivityIndicator color="#141413" />
+          <ActivityIndicator color="#1A1714" />
         </View>
       );
     }
     if (activeQuery.isError) {
       return (
         <View className="items-center gap-3 px-4 py-12">
-          <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
             {t('claimBusiness.search.loadError')}
           </Text>
           <LocalNotesButton
@@ -302,7 +302,7 @@ export default function ClaimBusinessSearch({
       );
     }
     return (
-      <Text className="px-4 py-12 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+      <Text className="px-4 py-12 text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
         {t('claimBusiness.search.empty')}
       </Text>
     );
@@ -313,7 +313,7 @@ export default function ClaimBusinessSearch({
   return (
     <View
       className={cn(
-        embedded ? '-mx-8' : 'flex-1 bg-page dark:bg-gray-900',
+        embedded ? '-mx-8' : 'flex-1 bg-page dark:bg-dk-page',
       )}
     >
       {!embedded ? (
@@ -354,7 +354,7 @@ export default function ClaimBusinessSearch({
           onEndReachedThreshold={0.4}
           ListFooterComponent={
             businessesQuery.isFetchingNextPage ? (
-              <ActivityIndicator className="py-4" color="#141413" />
+              <ActivityIndicator className="py-4" color="#1A1714" />
             ) : null
           }
         />
@@ -374,7 +374,7 @@ export default function ClaimBusinessSearch({
           onEndReachedThreshold={0.4}
           ListFooterComponent={
             picksQuery.isFetchingNextPage ? (
-              <ActivityIndicator className="py-4" color="#141413" />
+              <ActivityIndicator className="py-4" color="#1A1714" />
             ) : null
           }
         />

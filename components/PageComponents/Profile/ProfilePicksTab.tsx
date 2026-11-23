@@ -126,7 +126,7 @@ export function ProfilePicksTab({
 
         {!isPending && picks.length > 0 && (
           <View className="mb-2 -mt-4">
-            <Text className="text-sm text-gray-500 dark:text-gray-400 pt-3">
+            <Text className="text-sm text-gray-500 dark:text-dk-muted pt-3">
               {t("profile.picks.picksCount", { count: picks.length })}
             </Text>
           </View>
@@ -139,10 +139,10 @@ export function ProfilePicksTab({
         ) : picks.length === 0 ? (
           <View className="items-center justify-center gap-3 py-16">
             <Package size={48} color="#D1D5DB" />
-            <Text className="font-geist-medium text-base text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-medium text-base text-gray-500 dark:text-dk-muted">
               {emptyTitle}
             </Text>
-            <Text className="text-center font-geist text-sm text-gray-400 dark:text-gray-500">
+            <Text className="text-center font-geist text-sm text-gray-400 dark:text-dk-faint">
               {t("profile.picks.emptyDescription")}
             </Text>
           </View>

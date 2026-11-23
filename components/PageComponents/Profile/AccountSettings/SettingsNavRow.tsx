@@ -31,11 +31,11 @@ export function SettingsNavRow({
   const iconColor = danger
     ? '#EF4444'
     : isDark
-      ? '#9CA3AF'
-      : '#6B7280';
+      ? '#A79E92'
+      : '#6C727F';
   const titleClass = danger
     ? 'font-geist-medium text-[15px] text-red-500'
-    : 'font-geist-medium text-[15px] text-ink dark:text-gray-100';
+    : 'font-geist-medium text-[15px] text-ink dark:text-dk-text';
 
   return (
     <Pressable
@@ -43,31 +43,31 @@ export function SettingsNavRow({
       disabled={disabled || !onPress}
       className={`flex-row items-center gap-3 py-3.5 cursor-pointer ${
         disabled ? 'opacity-50' : ''
-      } ${isLast ? '' : 'border-b border-gray-100 dark:border-gray-800'}`}
+      } ${isLast ? '' : 'border-b border-gray-100 dark:border-dk-line'}`}
     >
       {Icon ? (
-        <View className="h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+        <View className="h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-dk-card">
           <Icon size={16} color={iconColor} />
         </View>
       ) : null}
       <View className="min-w-0 flex-1 gap-0.5">
         <Text className={titleClass}>{title}</Text>
         {subtitle ? (
-          <Text className="font-geist text-[12px] leading-[16px] text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-[12px] leading-[16px] text-gray-500 dark:text-dk-muted">
             {subtitle}
           </Text>
         ) : null}
       </View>
       {value ? (
         <Text
-          className="shrink-0 font-geist text-[13px] text-gray-400 dark:text-gray-500"
+          className="shrink-0 font-geist text-[13px] text-gray-400 dark:text-dk-faint"
           numberOfLines={1}
         >
           {value}
         </Text>
       ) : null}
       {showChevron ? (
-        <ChevronRight size={16} color={isDark ? '#6B7280' : '#9CA3AF'} />
+        <ChevronRight size={16} color={isDark ? '#8F877C' : '#9EA4AF'} />
       ) : null}
     </Pressable>
   );

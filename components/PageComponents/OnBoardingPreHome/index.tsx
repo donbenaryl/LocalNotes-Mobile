@@ -43,7 +43,7 @@ export function OnBoardingPreHome({ onComplete }: OnBoardingPreHomeProps) {
   };
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         borderless
         hideBack={currentStep === 1}
@@ -57,13 +57,13 @@ export function OnBoardingPreHome({ onComplete }: OnBoardingPreHomeProps) {
                 className={`rounded-full ${
                   dot <= currentStep
                     ? "w-2.5 h-2.5 bg-brand"
-                    : "w-2 h-2 bg-gray-300 dark:bg-gray-600"
+                    : "w-2 h-2 bg-gray-300 dark:bg-dk-select"
                 }`}
               />
             ))}
           </View>
           <Pressable onPress={onComplete} className="cursor-pointer">
-            <Text className="font-geist-semibold text-base text-gray-500 dark:text-gray-300">
+            <Text className="font-geist-semibold text-base text-gray-500 dark:text-dk-body">
               {t("preHomeOnboarding.skip")}
             </Text>
           </Pressable>

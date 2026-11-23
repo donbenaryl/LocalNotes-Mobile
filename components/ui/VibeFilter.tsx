@@ -51,7 +51,7 @@ function VibeChip({
 
 function SectionHeader({ label }: { label: string }) {
   return (
-    <Text className="font-geist-medium text-xs uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">
+    <Text className="font-geist-medium text-xs uppercase tracking-widest text-gray-400 dark:text-dk-faint mb-3">
       {label}
     </Text>
   );
@@ -153,11 +153,11 @@ export function VibeFilter({
         )}
       </ScrollView>
 
-      <View className="flex-row items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
-        <Text className="font-geist text-sm text-ink dark:text-gray-100">
+      <View className="flex-row items-center justify-between pt-4 border-t border-gray-100 dark:border-dk-line">
+        <Text className="font-geist text-sm text-ink dark:text-dk-text">
           <Text className="font-geist-bold">{selectedVibes.length} vibes</Text>
           {matchCount !== undefined ? (
-            <Text className="text-gray-500 dark:text-gray-400"> · {matchCount} lists match</Text>
+            <Text className="text-gray-500 dark:text-dk-muted"> · {matchCount} lists match</Text>
           ) : null}
         </Text>
         <LocalNotesButton

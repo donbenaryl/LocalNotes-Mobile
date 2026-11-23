@@ -14,12 +14,12 @@ export function SmartPickSummaryBar({ messages, isStretch, onBack }: SmartPickSu
   const lastIndex = chips.length - 1;
 
   return (
-    <View className="flex-row items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+    <View className="flex-row items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-dk-line">
       <Pressable
         onPress={onBack}
-        className="h-8 w-8 items-center justify-center rounded-full bg-soft cursor-pointer dark:bg-gray-800"
+        className="h-8 w-8 items-center justify-center rounded-full bg-soft cursor-pointer dark:bg-dk-card"
       >
-        <ChevronLeft size={18} color="#141413" />
+        <ChevronLeft size={18} color="#1A1714" />
       </Pressable>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1">
@@ -34,7 +34,7 @@ export function SmartPickSummaryBar({ messages, isStretch, onBack }: SmartPickSu
                     ? isStretch
                       ? 'bg-connector-tint'
                       : 'bg-brand-tint'
-                    : 'bg-soft dark:bg-gray-800'
+                    : 'bg-soft dark:bg-dk-card'
                 }`}
               >
                 <Text
@@ -42,8 +42,8 @@ export function SmartPickSummaryBar({ messages, isStretch, onBack }: SmartPickSu
                     isAccent
                       ? isStretch
                         ? 'text-connector'
-                        : 'text-brand-dark dark:text-gray-100'
-                      : 'text-gray-600 dark:text-gray-300'
+                        : 'text-brand-dark dark:text-dk-text'
+                      : 'text-gray-600 dark:text-dk-body'
                   }`}
                 >
                   {label}

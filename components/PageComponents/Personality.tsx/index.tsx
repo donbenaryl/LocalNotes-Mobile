@@ -281,7 +281,7 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
     <View className="flex-1">
       <PageHeader hideBack={hideBack}>
         <View className="flex-row items-center justify-between">
-          <Text className="font-geist-semibold text-[12px] tracking-[0.16em] uppercase text-brand dark:text-gray-100">
+          <Text className="font-geist-semibold text-[12px] tracking-[0.16em] uppercase text-brand dark:text-dk-text">
             {t("personality.header")} . {allQuestions.length}Q
           </Text>
           <Pressable
@@ -294,7 +294,7 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
             }}
             className="flex-row items-center gap-1 cursor-pointer"
           >
-            <Text className="font-geist-semibold text-base text-gray-500 dark:text-gray-300">
+            <Text className="font-geist-semibold text-base text-gray-500 dark:text-dk-body">
               {t("personality.skip")}
             </Text>
             <ChevronRight size={18} color="#6B7280" />
@@ -308,22 +308,22 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
         showsVerticalScrollIndicator={false}
       >
         {showInferredHint ? (
-          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-300 mb-4">
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-body mb-4">
             {t("personality.inferredPrefillHint")}
           </Text>
         ) : null}
         {QUESTION_GROUPS.map((group) => (
           <View key={group.sectionKey} className="mb-3">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="font-geist-semibold text-[11px] tracking-[0.2em] uppercase text-gray-400 dark:text-gray-500">
+              <Text className="font-geist-semibold text-[11px] tracking-[0.2em] uppercase text-gray-400 dark:text-dk-faint">
                 {t(`personality.sections.${group.sectionKey}`)}
               </Text>
-              <Text className="font-geist text-sm text-gray-400 dark:text-gray-500">
+              <Text className="font-geist text-sm text-gray-400 dark:text-dk-faint">
                 {group.range}
               </Text>
             </View>
 
-            <View className="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <View className="rounded-2xl overflow-hidden border border-gray-200 dark:border-dk-border bg-card dark:bg-dk-page">
               {group.items.map((item) => {
                 const value = getValue(item.id);
                 const leftPercent = 100 - value;
@@ -331,16 +331,16 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
                 return (
                   <View
                     key={item.id}
-                    className="px-4 pt-4 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0"
+                    className="px-4 pt-4 pb-3 border-b border-gray-100 dark:border-dk-line last:border-b-0"
                   >
-                    <Text className="font-geist text-[15px] text-ink dark:text-gray-100 mb-2">
+                    <Text className="font-geist text-[15px] text-ink dark:text-dk-text mb-2">
                       {item.question}
                     </Text>
                     <View className="flex-row items-center justify-between mb-1">
-                      <Text className="font-geist-medium text-[13px] text-gray-600 dark:text-gray-300">
+                      <Text className="font-geist-medium text-[13px] text-gray-600 dark:text-dk-body">
                         {item.leftLabel}
                       </Text>
-                      <Text className="font-geist-medium text-[13px] text-gray-600 dark:text-gray-300 text-right">
+                      <Text className="font-geist-medium text-[13px] text-gray-600 dark:text-dk-body text-right">
                         {item.rightLabel}
                       </Text>
                     </View>
@@ -352,10 +352,10 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
                     />
 
                     <View className="flex-row items-center justify-between mt-1">
-                      <Text className="font-geist text-[13px] text-gray-500 dark:text-gray-400">
+                      <Text className="font-geist text-[13px] text-gray-500 dark:text-dk-muted">
                         {leftPercent}%
                       </Text>
-                      <Text className="font-geist text-[13px] text-gray-500 dark:text-gray-400">
+                      <Text className="font-geist text-[13px] text-gray-500 dark:text-dk-muted">
                         {rightPercent}%
                       </Text>
                     </View>
@@ -370,9 +370,9 @@ export function Personality({ onComplete, hideBack = false }: PersonalityProps) 
       {/* Footer */}
       <PageFooterWrapper>
         <View className="flex-row items-center justify-between">
-          <Text className="font-geist-medium text-base text-ink dark:text-gray-100">
+          <Text className="font-geist-medium text-base text-ink dark:text-dk-text">
             {answeredCount} /{" "}
-            <Text className="font-geist-medium text-base text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-medium text-base text-gray-500 dark:text-dk-muted">
               {allQuestions.length} {t("personality.answered")}
             </Text>
           </Text>

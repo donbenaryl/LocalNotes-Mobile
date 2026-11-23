@@ -22,10 +22,10 @@ export function RunAnotherCampaignSection({ isPaidMember }: { isPaidMember: bool
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="all">
       <BusinessHomeCard className="mt-2">
-        <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+        <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
           {t('businessHome.runAnother.title')}
         </Text>
-        <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t('businessHome.runAnother.body')}
         </Text>
         <View className="mt-2.5 flex-row flex-wrap gap-1.5 self-end">
@@ -106,7 +106,7 @@ export function ProfileHealthSection({
     <MembershipGate isPaidMember={isPaidMember} tier="all">
       <BusinessHomeCard className={cn('mt-2', className)}>
         <View className="flex-row items-center justify-between">
-          <Text className="font-geist-extrabold text-md text-ink dark:text-gray-100">
+          <Text className="font-geist-extrabold text-md text-ink dark:text-dk-text">
             {t('businessHome.profileHealth.title', { score: health.score })}
           </Text>
           {!isPaidMember ? (
@@ -117,7 +117,7 @@ export function ProfileHealthSection({
             />
           ) : null}
         </View>
-        <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-dk-muted">
           {gapLabels.length > 0
             ? t('businessHome.profileHealth.gaps', {
                 count: gapLabels.length,

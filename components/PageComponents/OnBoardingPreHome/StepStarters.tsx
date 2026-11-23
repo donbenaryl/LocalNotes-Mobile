@@ -101,14 +101,14 @@ export function StepStarters() {
         />
 
         <Text className="font-geist-semibold text-sm mb-5">
-          <Text className="text-ink dark:text-gray-100">
+          <Text className="text-ink dark:text-dk-text">
             {selected.size} selected
           </Text>
           <Text
             className={
               isReady
-                ? "text-brand dark:text-gray-100"
-                : "text-gray-400 dark:text-gray-500"
+                ? "text-brand dark:text-dk-text"
+                : "text-gray-400 dark:text-dk-faint"
             }
           >
             {" "}
@@ -117,8 +117,8 @@ export function StepStarters() {
         </Text>
 
         {peopleQuery.isLoading ? (
-          <View className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <Text className="text-center font-geist-medium text-gray-500 dark:text-gray-400">
+          <View className="rounded-2xl border border-gray-200 bg-card p-4 dark:border-dk-border dark:bg-dk-page">
+            <Text className="text-center font-geist-medium text-gray-500 dark:text-dk-muted">
               {t("preHomeOnboarding.step2.loading")}
             </Text>
           </View>
@@ -133,8 +133,8 @@ export function StepStarters() {
         ) : null}
 
         {!peopleQuery.isLoading && !peopleQuery.isError && pairs.length === 0 ? (
-          <View className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-            <Text className="text-center font-geist-medium text-gray-500 dark:text-gray-400">
+          <View className="rounded-2xl border border-gray-200 bg-card p-4 dark:border-dk-border dark:bg-dk-page">
+            <Text className="text-center font-geist-medium text-gray-500 dark:text-dk-muted">
               {t("preHomeOnboarding.step2.empty")}
             </Text>
           </View>
@@ -178,9 +178,9 @@ export function StepStarters() {
       </AppScrollView>
 
       <PageFooterWrapper>
-        <Text className="font-geist-medium text-sm text-center text-gray-500 dark:text-gray-400 mb-2">
+        <Text className="font-geist-medium text-sm text-center text-gray-500 dark:text-dk-muted mb-2">
           {selected.size} of {people.length} selected
-          {isReady && <Text className="text-brand dark:text-gray-100"> · ready to go</Text>}
+          {isReady && <Text className="text-brand dark:text-dk-text"> · ready to go</Text>}
         </Text>
         <LocalNotesButton
           label={t("preHomeOnboarding.step2.cta")}

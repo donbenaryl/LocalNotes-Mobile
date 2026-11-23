@@ -19,15 +19,15 @@ export function SettingsSwitchRow({
   return (
     <View
       className={`flex-row items-center gap-3 py-3.5 ${
-        isLast ? '' : 'border-b border-gray-100 dark:border-gray-800'
+        isLast ? '' : 'border-b border-gray-100 dark:border-dk-line'
       }`}
     >
       <View className="min-w-0 flex-1 gap-0.5">
-        <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
+        <Text className="font-geist-medium text-[15px] text-ink dark:text-dk-text">
           {title}
         </Text>
         {subtitle ? (
-          <Text className="font-geist text-[12px] leading-[16px] text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-[12px] leading-[16px] text-gray-500 dark:text-dk-muted">
             {subtitle}
           </Text>
         ) : null}

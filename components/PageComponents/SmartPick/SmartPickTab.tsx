@@ -100,7 +100,7 @@ export function SmartPickTab() {
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1 bg-page dark:bg-gray-900"
+      className="flex-1 bg-page dark:bg-dk-page"
       contentContainerClassName="pb-28 px-4"
       scrollToFocusedInput
       showsVerticalScrollIndicator={false}

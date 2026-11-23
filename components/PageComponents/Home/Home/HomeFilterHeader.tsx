@@ -140,7 +140,7 @@ export function HomeFilterHeader({
               <ChevronDown size={9} color="#6B7280" />
             </View>
             <Text className="mx-1 text-xs text-gray-400">·</Text>
-            <Text className="font-geist-medium text-xs text-ink dark:text-gray-100">
+            <Text className="font-geist-medium text-xs text-ink dark:text-dk-text">
               {timeLabel}
             </Text>
           </>

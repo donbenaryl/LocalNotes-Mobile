@@ -14,7 +14,7 @@ export function ProfilePickSkeletonCard() {
           <Skeleton className="h-5 w-14 rounded-full" />
           <Skeleton className="h-5 w-10 rounded-full" />
         </View>
-        <View className="mt-2 flex-row items-center justify-between gap-2 border-t border-gray-200 pt-2 dark:border-gray-700">
+        <View className="mt-2 flex-row items-center justify-between gap-2 border-t border-gray-200 pt-2 dark:border-dk-border">
           <View className="flex-row items-center gap-1.5">
             <Skeleton className="h-6 w-6 rounded-full" />
             <Skeleton className="h-3 w-16" />

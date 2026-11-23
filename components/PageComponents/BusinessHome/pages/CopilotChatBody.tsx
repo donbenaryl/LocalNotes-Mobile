@@ -156,11 +156,11 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
   };
 
   const openRoute = (route: string) => router.push(route as never);
-  const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#141413';
+  const iconColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
 
   const header = (
     <View className="px-4 pb-2">
-      <Text className="pb-2 font-geist-semibold text-xs text-gray-500 dark:text-gray-400">
+      <Text className="pb-2 font-geist-semibold text-xs text-gray-500 dark:text-dk-muted">
         {t('businessHome.copilot.branchSubtitle', { branchName })}
       </Text>
       <AiCreditsMeter variant="full" />
@@ -174,7 +174,7 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
         accessibilityRole="button"
         accessibilityLabel={t('businessHome.copilot.conversationsButton')}
         hitSlop={6}
-        className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 active:opacity-70 dark:bg-gray-800"
+        className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 active:opacity-70 dark:bg-dk-card"
       >
         <History size={17} color={iconColor} />
       </Pressable>
@@ -183,7 +183,7 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
         accessibilityRole="button"
         accessibilityLabel={t('businessHome.copilot.newChat')}
         hitSlop={6}
-        className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 active:opacity-70 dark:bg-gray-800"
+        className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 active:opacity-70 dark:bg-dk-card"
       >
         <SquarePen size={17} color={iconColor} />
       </Pressable>
@@ -203,9 +203,9 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
               onPress={() => void submit(text)}
               disabled={exhausted || serviceDown}
               accessibilityRole="button"
-              className="rounded-full border border-gray-200 bg-white px-3 py-2 active:opacity-70 dark:border-gray-600 dark:bg-gray-800"
+              className="rounded-full border border-gray-200 bg-card px-3 py-2 active:opacity-70 dark:border-dk-border dark:bg-dk-card"
             >
-              <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">{text}</Text>
+              <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">{text}</Text>
             </Pressable>
           ))}
         </View>
@@ -229,11 +229,11 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
         <View className="flex-1">
           {loading ? (
             <View className="flex-1 items-center justify-center">
-              <ActivityIndicator size="large" color="#141413" />
+              <ActivityIndicator size="large" color="#1A1714" />
             </View>
           ) : chat.error && errorCode !== 404 ? (
             <View className="flex-1 items-center justify-center gap-3 px-6">
-              <Text className="text-center font-geist text-sm text-gray-600 dark:text-gray-400">
+              <Text className="text-center font-geist text-sm text-gray-600 dark:text-dk-muted">
                 {t('businessHome.copilot.loadFailed')}
               </Text>
               <LocalNotesButton
@@ -246,7 +246,7 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
             </View>
           ) : isEmptyChat ? (
             <View className="flex-1 justify-center px-4">
-              <Text className="text-center font-geist-extrabold text-lg text-ink dark:text-gray-100">
+              <Text className="text-center font-geist-extrabold text-lg text-ink dark:text-dk-text">
                 {t('businessHome.copilot.intro')}
               </Text>
               <View className="mt-4 flex-row flex-wrap justify-center gap-2">
@@ -258,9 +258,9 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
                       onPress={() => void submit(text)}
                       disabled={exhausted || serviceDown}
                       accessibilityRole="button"
-                      className="rounded-full border border-gray-200 bg-white px-3 py-2 active:opacity-70 dark:border-gray-600 dark:bg-gray-800"
+                      className="rounded-full border border-gray-200 bg-card px-3 py-2 active:opacity-70 dark:border-dk-border dark:bg-dk-card"
                     >
-                      <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                      <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                         {text}
                       </Text>
                     </Pressable>
@@ -286,9 +286,9 @@ export function CopilotChatBody({ initialThreadId, initialQuestion, onBack }: Co
                     className="items-center pb-2 active:opacity-70"
                   >
                     {chat.isFetchingOlder ? (
-                      <ActivityIndicator size="small" color="#141413" />
+                      <ActivityIndicator size="small" color="#1A1714" />
                     ) : (
-                      <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
+                      <Text className="font-geist-bold text-xs text-brand dark:text-dk-text">
                         {t('businessHome.copilot.loadOlder')}
                       </Text>
                     )}

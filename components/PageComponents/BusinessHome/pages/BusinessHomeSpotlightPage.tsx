@@ -98,24 +98,24 @@ export function BusinessHomeSpotlightPage({
     >
       <View className="mt-2 px-4">
         <View className="mb-3 self-start rounded-full bg-brand-tint px-2.5 py-1">
-          <Text className="font-geist-bold text-[11px] text-brand dark:text-gray-100">
+          <Text className="font-geist-bold text-[11px] text-brand dark:text-dk-text">
             {statusLabel(round, isLoading, isError, t)}
           </Text>
         </View>
-        <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+        <Text className="font-geist-extrabold text-lg text-ink dark:text-dk-text">
           {t('businessHome.spotlightPage.title')}
         </Text>
-        <Text className="mt-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+        <Text className="mt-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
           {t('businessHome.spotlightPage.body')}
         </Text>
       </View>
 
       <BusinessHomeCard className="mt-4">
         <View className="flex-row items-center justify-between">
-          <Text className="font-geist-semibold text-xs text-gray-500 dark:text-gray-400">
+          <Text className="font-geist-semibold text-xs text-gray-500 dark:text-dk-muted">
             {t('businessHome.spotlightPage.highestBid')}
           </Text>
-          <Text className="font-geist-extrabold text-base text-ink dark:text-gray-100">
+          <Text className="font-geist-extrabold text-base text-ink dark:text-dk-text">
             {highestBidLabel(round, isLoading, isError, t)}
           </Text>
         </View>

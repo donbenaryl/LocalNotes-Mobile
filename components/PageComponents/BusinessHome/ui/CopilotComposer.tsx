@@ -44,11 +44,11 @@ export function CopilotComposer({
 
   return (
     <View
-      className="border-t border-gray-100 bg-page px-4 pt-2 dark:border-gray-800 dark:bg-gray-900"
+      className="border-t border-gray-100 bg-page px-4 pt-2 dark:border-dk-line dark:bg-dk-page"
       style={{ paddingBottom: Math.max(insets.bottom, 12) }}
     >
       {unavailable ? (
-        <Text className="pb-2 font-geist-semibold text-xs text-gray-600 dark:text-gray-300">
+        <Text className="pb-2 font-geist-semibold text-xs text-gray-600 dark:text-dk-body">
           {t('businessHome.copilot.unavailable')}
         </Text>
       ) : null}
@@ -59,7 +59,7 @@ export function CopilotComposer({
             {t('businessHome.copilot.exhaustedBanner', { allowance: credits.allowance, date })}
           </Text>
           <Pressable onPress={onOpenCredits} accessibilityRole="link" hitSlop={8}>
-            <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
+            <Text className="font-geist-bold text-xs text-brand dark:text-dk-text">
               {t('businessHome.copilot.seeCredits')}
             </Text>
           </Pressable>
@@ -70,7 +70,7 @@ export function CopilotComposer({
             {t('businessHome.copilot.lowBanner')}
           </Text>
           <Pressable onPress={onOpenCredits} accessibilityRole="link" hitSlop={8}>
-            <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
+            <Text className="font-geist-bold text-xs text-brand dark:text-dk-text">
               {t('businessHome.copilot.seeCredits')}
             </Text>
           </Pressable>
@@ -79,11 +79,11 @@ export function CopilotComposer({
 
       {showLongHint ? (
         <View className="mb-2 flex-row items-center justify-between gap-3">
-          <Text className="flex-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+          <Text className="flex-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
             {t('businessHome.copilot.longConversationHint')}
           </Text>
           <Pressable onPress={onNewChat} accessibilityRole="button" hitSlop={8}>
-            <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
+            <Text className="font-geist-bold text-xs text-brand dark:text-dk-text">
               {t('businessHome.copilot.newChat')}
             </Text>
           </Pressable>
@@ -91,7 +91,7 @@ export function CopilotComposer({
       ) : null}
 
       <View className="flex-row items-end gap-2">
-        <View className="min-h-11 flex-1 justify-center rounded-2xl border border-gray-200 bg-white px-3.5 py-1.5 dark:border-gray-700 dark:bg-gray-800">
+        <View className="min-h-11 flex-1 justify-center rounded-2xl border border-gray-200 bg-card px-3.5 py-1.5 dark:border-dk-border dark:bg-dk-card">
           <TextInput
             value={value}
             onChangeText={onChangeText}
@@ -101,7 +101,7 @@ export function CopilotComposer({
             placeholder={t('businessHome.copilot.placeholder')}
             placeholderTextColor="#6B7280"
             textAlignVertical="top"
-            className="max-h-28 py-1.5 font-geist text-[16px] text-ink dark:text-gray-100"
+            className="max-h-28 py-1.5 font-geist text-[16px] text-ink dark:text-dk-text"
           />
         </View>
         <Pressable
@@ -121,11 +121,11 @@ export function CopilotComposer({
 
       <View className="mt-1.5 flex-row items-center justify-between">
         <View className="flex-row items-center gap-1.5">
-          <Text className="font-geist text-[11px] text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-[11px] text-gray-500 dark:text-dk-muted">
             {t('businessHome.copilot.creditsHint')}
           </Text>
           <Pressable onPress={onOpenHow} accessibilityRole="link" hitSlop={8}>
-            <Text className="font-geist-bold text-[11px] text-brand dark:text-gray-100">
+            <Text className="font-geist-bold text-[11px] text-brand dark:text-dk-text">
               {t('businessHome.copilot.creditsHowLink')}
             </Text>
           </Pressable>
@@ -138,7 +138,7 @@ export function CopilotComposer({
         </Text>
       </View>
       {credits && isShortenedAnswerBudget(credits) ? (
-        <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
           {t('businessHome.copilot.lowCreditsHint', { count: credits.remaining })}
         </Text>
       ) : null}

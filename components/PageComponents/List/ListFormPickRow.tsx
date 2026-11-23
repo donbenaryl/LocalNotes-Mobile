@@ -36,7 +36,7 @@ export function ListFormPickRow({ pick, onEdit, onDelete }: ListFormPickRowProps
       : null);
 
   return (
-    <View className="flex-row items-start gap-3 rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800">
+    <View className="flex-row items-start gap-3 rounded-2xl border border-gray-200 bg-card p-3 dark:border-dk-border dark:bg-dk-card">
       {thumbnailUri ? (
         <Image
           source={{ uri: thumbnailUri }}
@@ -51,14 +51,14 @@ export function ListFormPickRow({ pick, onEdit, onDelete }: ListFormPickRowProps
 
       <View className="min-w-0 flex-1">
         <Text
-          className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+          className="font-geist-semibold text-sm text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {getPickDisplayName(pick)}
         </Text>
         {getPickSubtitle(pick) ? (
           <Text
-            className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
+            className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted"
             numberOfLines={2}
           >
             {getPickSubtitle(pick)}
@@ -82,14 +82,14 @@ export function ListFormPickRow({ pick, onEdit, onDelete }: ListFormPickRowProps
         {canEdit ? (
           <Pressable
             onPress={onEdit}
-            className="h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 cursor-pointer"
+            className="h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-dk-border cursor-pointer"
           >
             <Pencil size={16} color="#9CA3AF" />
           </Pressable>
         ) : null}
         <Pressable
           onPress={onDelete}
-          className="h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-gray-600 cursor-pointer"
+          className="h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-dk-border cursor-pointer"
         >
           <Trash2 size={16} color="#9CA3AF" />
         </Pressable>

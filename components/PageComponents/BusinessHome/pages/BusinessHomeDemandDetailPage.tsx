@@ -75,16 +75,16 @@ export default function BusinessHomeDemandDetailPage() {
                         <View
                           key={`${row.source}-${row.query}`}
                           className={`py-2 ${
-                            index > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''
+                            index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
                           }`}
                         >
                           <View className="flex-row items-center gap-2.5">
-                            <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
+                            <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-dk-text">
                               {t('businessHome.explore.demandQuery', { query: row.query })}
                             </Text>
                             <Text
                               className={`font-geist-semibold text-xs ${
-                                (row.delta_pct ?? 0) > 0 ? 'text-brand dark:text-gray-100' : 'text-gray-500'
+                                (row.delta_pct ?? 0) > 0 ? 'text-brand dark:text-dk-text' : 'text-gray-500'
                               }`}
                             >
                               {[formatCompactNumber(row.volume), delta].filter(Boolean).join(' · ')}
@@ -112,11 +112,11 @@ export default function BusinessHomeDemandDetailPage() {
                               }}
                             />
                           ) : hasTrendData(row.trend) ? (
-                            <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+                            <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
                               {t('businessHome.explore.detail.trendFewBuckets')}
                             </Text>
                           ) : (
-                            <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+                            <Text className="mt-1 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
                               {t('businessHome.explore.detail.trendUnavailable')}
                             </Text>
                           )}
@@ -142,10 +142,10 @@ export default function BusinessHomeDemandDetailPage() {
                   <View className="mt-1">
                     {detail.sources.rows.map((row) => (
                       <View key={row.source} className="flex-row justify-between py-1">
-                        <Text className="text-xs text-gray-600 dark:text-gray-400">
+                        <Text className="text-xs text-gray-600 dark:text-dk-muted">
                           {t(`businessHome.explore.detail.sources.${row.source}`)}
                         </Text>
-                        <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                        <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                           {formatCompactNumber(row.volume)}
                         </Text>
                       </View>

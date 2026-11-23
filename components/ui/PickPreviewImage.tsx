@@ -29,7 +29,7 @@ export function PickPreviewImage({
   return (
     <View
       className={cn(
-        "relative shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800",
+        "relative shrink-0 overflow-hidden bg-gray-100 dark:bg-dk-card",
         SIZE_CLASS[size],
       )}
     >
@@ -44,8 +44,8 @@ export function PickPreviewImage({
           personalityColor={personalityColor}
           size={size === "md" ? "md" : "xs"}
           appearance="flat"
-          outerClassName="h-full w-full !bg-white !rounded-0"
-          innerClassName="bg-white dark:bg-gray-800 rounded-0!"
+          outerClassName="h-full w-full !bg-card !rounded-0"
+          innerClassName="bg-card dark:bg-dk-card rounded-0!"
         />
       )}
     </View>

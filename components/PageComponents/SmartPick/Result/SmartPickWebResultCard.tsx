@@ -40,9 +40,9 @@ export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProp
   return (
     <Pressable
       onPress={handleOpenWebsite}
-      className="flex-row gap-3 rounded-2xl border border-gray-200 bg-white p-2.5 cursor-pointer dark:border-gray-800 dark:bg-gray-900"
+      className="flex-row gap-3 rounded-2xl border border-gray-200 bg-card p-2.5 cursor-pointer dark:border-dk-line dark:bg-dk-page"
     >
-      <View className="h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-soft dark:bg-gray-800">
+      <View className="h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-soft dark:bg-dk-card">
         {photoUrl ? (
           <Image source={{ uri: photoUrl }} className="h-full w-full" resizeMode="cover" />
         ) : (
@@ -51,17 +51,17 @@ export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProp
       </View>
 
       <View className="min-w-0 flex-1 gap-0.5">
-        <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100" numberOfLines={1}>
+        <Text className="font-geist-semibold text-sm text-ink dark:text-dk-text" numberOfLines={1}>
           {webResult.name}
         </Text>
         {webResult.address ? (
-          <Text className="font-geist text-[11px] text-gray-400 dark:text-gray-500" numberOfLines={1}>
+          <Text className="font-geist text-[11px] text-gray-400 dark:text-dk-faint" numberOfLines={1}>
             {webResult.address}
           </Text>
         ) : null}
         {webResult.why_it_fits ? (
           <Text
-            className="font-fraunces text-[11px] italic text-gray-500 dark:text-gray-400"
+            className="font-fraunces text-[11px] italic text-gray-500 dark:text-dk-muted"
             numberOfLines={2}
           >
             {webResult.why_it_fits}

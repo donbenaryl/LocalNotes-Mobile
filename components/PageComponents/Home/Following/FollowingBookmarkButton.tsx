@@ -18,7 +18,7 @@ export function FollowingBookmarkButton({
 }: FollowingBookmarkButtonProps) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
-  const idleColor = isDark ? "#D1D5DB" : "#4B5563";
+  const idleColor = isDark ? "#CFC7BB" : "#4b4f57";
   const activeColor = brandColor(isDark);
 
   return (

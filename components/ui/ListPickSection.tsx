@@ -69,14 +69,14 @@ export function PickPreviewRow({
 
       <View className="min-w-0 flex-1 justify-center">
         <Text
-          className="font-geist-semibold text-md text-ink dark:text-gray-100"
+          className="font-geist-semibold text-md text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {name}
         </Text>
         {item.description ? (
           <Text
-            className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
+            className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {item.description}
@@ -107,7 +107,7 @@ export function ListPickSection({
 }: ListPickSectionProps) {
   const { t } = useTranslation();
   const isDark = useThemeStore((s) => s.theme) === "dark";
-  const showLessIconColor = isDark ? "#9CA3AF" : "#6B7280";
+  const showLessIconColor = isDark ? "#A79E92" : "#6C727F";
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export function ListPickSection({
   return (
     <View
       className={cn(
-        "rounded-2xl px-3 pt-3 bg-soft dark:bg-gray-800",
+        "rounded-2xl px-3 pt-3 bg-soft dark:bg-dk-card",
         showAll ? "pb-1" : "pb-3",
         className,
       )}
@@ -152,7 +152,7 @@ export function ListPickSection({
                 key={item.id}
                 className={
                   index > 0
-                    ? "border-t border-gray-200/60 dark:border-gray-700/60"
+                    ? "border-t border-gray-200/60 dark:border-dk-border/60"
                     : undefined
                 }
               >
@@ -171,11 +171,11 @@ export function ListPickSection({
             accessibilityRole="button"
             accessibilityLabel={t("home.showLessPicks")}
             accessibilityState={{ expanded: true }}
-            className="mt-1 cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-200/80 pt-2.5 pb-1.5 dark:border-gray-700"
+            className="mt-1 cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-200/80 pt-2.5 pb-1.5 dark:border-dk-border"
             hitSlop={4}
           >
             <ChevronUp size={15} color={showLessIconColor} />
-            <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-gray-300">
+            <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-dk-body">
               {t("home.showLessPicks")}
             </Text>
           </Pressable>
@@ -205,14 +205,14 @@ export function ListPickSection({
 
             <View className="min-w-0 flex-1 justify-center">
               <Text
-                className="font-geist-semibold text-md text-ink dark:text-gray-100"
+                className="font-geist-semibold text-md text-ink dark:text-dk-text"
                 numberOfLines={1}
               >
                 {getPickName(featuredPick)}
               </Text>
               {featuredPickSubtitle ? (
                 <Text
-                  className="font-geist text-xs text-gray-500 dark:text-gray-400"
+                  className="font-geist text-xs text-gray-500 dark:text-dk-muted"
                   numberOfLines={1}
                 >
                   {featuredPickSubtitle}
@@ -229,9 +229,9 @@ export function ListPickSection({
                 count: extraPickCount,
               })}
               accessibilityState={{ expanded: false }}
-              className="h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white dark:bg-gray-900"
+              className="h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-card dark:bg-dk-page"
             >
-              <Text className="text-md text-ink dark:text-gray-100">
+              <Text className="text-md text-ink dark:text-dk-text">
                 {t("home.morePicksBadge", { count: extraPickCount })}
               </Text>
             </Pressable>

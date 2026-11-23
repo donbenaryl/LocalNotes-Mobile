@@ -29,7 +29,7 @@ export function BusinessSwitcherSheet({
 }: BusinessSwitcherSheetProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const checkColor = colorScheme === 'dark' ? '#F3F4F6' : '#141413';
+  const checkColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
   const ownedBusinesses = useBusinessStore((s) => s.ownedBusinesses);
   const businessId = useBusinessStore((s) => s.businessId);
   const selectedBranchId = useBusinessStore((s) => s.selectedBranchId);
@@ -99,20 +99,20 @@ export function BusinessSwitcherSheet({
         contentContainerClassName="pb-4"
         className="max-h-[70vh]"
       >
-        <Text className="font-geist-extrabold text-[10px] uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+        <Text className="font-geist-extrabold text-[10px] uppercase tracking-[0.08em] text-gray-500 dark:text-dk-muted">
           {t('businessHome.switcher.yourBusinesses')}
         </Text>
 
         {isFetchingOwned && ownedBusinesses.length === 0 ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" color="#141413" />
+            <ActivityIndicator size="small" color="#1A1714" />
             <Text className="mt-2 font-geist text-xs text-gray-500">
               {t('businessHome.switcher.loading')}
             </Text>
           </View>
         ) : ownedError && ownedBusinesses.length === 0 ? (
           <View className="items-center py-6">
-            <Text className="mb-3 text-center font-geist text-sm text-gray-600 dark:text-gray-400">
+            <Text className="mb-3 text-center font-geist text-sm text-gray-600 dark:text-dk-muted">
               {ownedError || t('businessHome.switcher.error')}
             </Text>
             <LocalNotesButton
@@ -137,12 +137,12 @@ export function BusinessSwitcherSheet({
                 accessibilityRole="button"
                 accessibilityState={{ selected: isDraft }}
                 className={`flex-row items-center justify-between py-3 cursor-pointer ${
-                  index > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''
+                  index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
                 }`}
               >
                 <View className="min-w-0 flex-1 flex-row items-center gap-1.5 pr-3">
                   <Text
-                    className="font-geist-bold text-[15px] text-ink dark:text-gray-100"
+                    className="font-geist-bold text-[15px] text-ink dark:text-dk-text"
                     numberOfLines={1}
                   >
                     {item.name}
@@ -151,7 +151,7 @@ export function BusinessSwitcherSheet({
                     <Check size={14} color={checkColor} strokeWidth={2.6} />
                   ) : null}
                 </View>
-                <Text className="font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
+                <Text className="font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted">
                   {t('businessHome.switcher.locationCount', {
                     count: item.location_count ?? item.branches.length,
                     role: item.role,
@@ -162,7 +162,7 @@ export function BusinessSwitcherSheet({
           })
         )}
 
-        <Text className="mt-3 font-geist-extrabold text-[10px] uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+        <Text className="mt-3 font-geist-extrabold text-[10px] uppercase tracking-[0.08em] text-gray-500 dark:text-dk-muted">
           {t('businessHome.switcher.locations')}
         </Text>
 
@@ -172,7 +172,7 @@ export function BusinessSwitcherSheet({
 
         {isSaving ? (
           <View className="items-center py-3">
-            <ActivityIndicator size="small" color="#141413" />
+            <ActivityIndicator size="small" color="#1A1714" />
           </View>
         ) : null}
 
@@ -192,12 +192,12 @@ export function BusinessSwitcherSheet({
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
                 className={`flex-row items-center gap-2 py-3 cursor-pointer ${
-                  index > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''
+                  index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
                 }`}
               >
                 <MapPin size={14} color="#EF4444" strokeWidth={2.2} />
                 <Text
-                  className="flex-1 font-geist-bold text-[15px] text-ink dark:text-gray-100"
+                  className="flex-1 font-geist-bold text-[15px] text-ink dark:text-dk-text"
                   numberOfLines={1}
                 >
                   {label}

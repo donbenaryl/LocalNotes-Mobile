@@ -46,15 +46,15 @@ export function CopilotCostSheet({
       >
         {summary.rows.map((row) => (
           <View key={row.id} className="py-2">
-            <Text className="font-geist-semibold text-xs text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-xs text-gray-500 dark:text-dk-muted">
               {row.label}
             </Text>
-            <Text className="mt-0.5 font-geist-bold text-sm text-ink dark:text-gray-100">
+            <Text className="mt-0.5 font-geist-bold text-sm text-ink dark:text-dk-text">
               {row.value}
             </Text>
           </View>
         ))}
-        <Text className="mt-1 font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-dk-muted">
           {summary.whyLine}
         </Text>
         {summary.capNote ? (
@@ -69,29 +69,29 @@ export function CopilotCostSheet({
           accessibilityState={{ expanded }}
           className="mt-4 active:opacity-70"
         >
-          <Text className="font-geist-bold text-sm text-brand dark:text-gray-100">
+          <Text className="font-geist-bold text-sm text-brand dark:text-dk-text">
             {expanded
               ? t('businessHome.copilot.costSheet.hideCalculation')
               : t('businessHome.copilot.costSheet.showCalculation')}
           </Text>
         </Pressable>
         {expanded ? (
-          <View className="mt-2 rounded-xl bg-soft p-3 dark:bg-gray-800">
+          <View className="mt-2 rounded-xl bg-soft p-3 dark:bg-dk-card">
             {calculation.lines.map((line) => (
               <Text
                 key={line.id}
-                className="py-1 font-geist-semibold text-[13px] text-ink dark:text-gray-100"
+                className="py-1 font-geist-semibold text-[13px] text-ink dark:text-dk-text"
               >
                 {line.text}
               </Text>
             ))}
-            <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
               {calculation.tokenExplainer}
             </Text>
           </View>
         ) : null}
 
-        <Text className="mt-4 font-geist text-xs text-gray-500 dark:text-gray-400">
+        <Text className="mt-4 font-geist text-xs text-gray-500 dark:text-dk-muted">
           {t('businessHome.copilot.costSheet.sameModelPrice')}
         </Text>
         <Pressable
@@ -99,7 +99,7 @@ export function CopilotCostSheet({
           accessibilityRole="link"
           className="mt-2 active:opacity-70"
         >
-          <Text className="font-geist-bold text-sm text-brand dark:text-gray-100">
+          <Text className="font-geist-bold text-sm text-brand dark:text-dk-text">
             {t('businessHome.copilot.costSheet.howLink')}
           </Text>
         </Pressable>

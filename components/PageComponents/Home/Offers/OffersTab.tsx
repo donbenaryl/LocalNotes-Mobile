@@ -83,16 +83,16 @@ function OffersSection({
         <View className="min-w-0 flex-1 flex-row items-center gap-2">
           {icon}
           <View className="min-w-0 flex-1">
-            <Text className="font-geist-bold text-base text-ink dark:text-gray-100">
+            <Text className="font-geist-bold text-base text-ink dark:text-dk-text">
               {title}
             </Text>
-            <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
+            <Text className="font-geist text-xs text-gray-400 dark:text-dk-faint">
               {subtitle}
             </Text>
           </View>
         </View>
-        <View className="ml-2 shrink-0 rounded-md bg-gray-100 px-2 py-0.5 dark:bg-gray-800">
-          <Text className="font-geist-medium text-sm text-gray-600 dark:text-gray-400">
+        <View className="ml-2 shrink-0 rounded-md bg-gray-100 px-2 py-0.5 dark:bg-dk-card">
+          <Text className="font-geist-medium text-sm text-gray-600 dark:text-dk-muted">
             {offers.length}
           </Text>
         </View>
@@ -148,7 +148,7 @@ export function OffersTab() {
     return (
       <OffersShell {...shellProps}>
         <View className="items-center justify-center px-6 py-20">
-          <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
+          <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-dk-muted">
             {t("offers.error")}
           </Text>
           <LocalNotesButton
@@ -166,7 +166,7 @@ export function OffersTab() {
     <Badge
       label={t("offers.followedBadge")}
       variant="primary"
-      leftIcon={<Star size={12} color="#141413" />}
+      leftIcon={<Star size={12} color="#1A1714" />}
     />
   );
 
@@ -182,10 +182,10 @@ export function OffersTab() {
     <OffersShell {...shellProps}>
       <View className="px-4">
         <View className="mb-6">
-          <Text className="font-geist-bold text-lg text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-lg text-ink dark:text-dk-text">
             {t("offers.title")} ({totalCount})
           </Text>
-          <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="mt-1 font-geist text-sm text-gray-500 dark:text-dk-muted">
             {t("offers.description")}
           </Text>
         </View>
@@ -199,14 +199,14 @@ export function OffersTab() {
         ) : (
           <>
             <OffersSection
-              icon={<Clock size={20} color="#141413" />}
+              icon={<Clock size={20} color="#1A1714" />}
               title={t("offers.sections.expiringSoon.title")}
               subtitle={t("offers.sections.expiringSoon.subtitle")}
               offers={sections.expiringSoon}
               onOfferPress={setSelectedOfferId}
             />
             <OffersSection
-              icon={<Star size={20} color="#141413" />}
+              icon={<Star size={20} color="#1A1714" />}
               title={t("offers.sections.followed.title")}
               subtitle={t("offers.sections.followed.subtitle")}
               offers={sections.followed}

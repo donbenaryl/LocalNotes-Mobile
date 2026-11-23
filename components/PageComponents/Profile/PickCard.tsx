@@ -99,7 +99,7 @@ function PickCardOwnerRow({ data }: { data: ListItemPublic }) {
   if (!data.owner && data.list_usage_count <= 0) return null;
 
   return (
-    <View className="flex-row items-center justify-between gap-2 border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+    <View className="flex-row items-center justify-between gap-2 border-t border-gray-200 dark:border-dk-border mt-2 pt-2">
       {data.owner ? (
         <View className="flex-row items-center gap-1.5 min-w-0 flex-1">
           <Avatar
@@ -155,7 +155,7 @@ function PickCardBody({
     !heroImageUrl && padForMatchOverlay ? "p-3 pt-10 gap-1" : "p-3 gap-1";
 
   const verifiedBadge = data.is_verified ? (
-    <BadgeCheck size={14} color="#141413" />
+    <BadgeCheck size={14} color="#1A1714" />
   ) : null;
 
   return (
@@ -185,7 +185,7 @@ function PickCardBody({
         {showTitleInBody ? (
           <View className="flex-row items-center gap-1.5 pr-10">
             <Text
-              className="text-sm font-geist-medium text-ink dark:text-gray-100 flex-1"
+              className="text-sm font-geist-medium text-ink dark:text-dk-text flex-1"
               numberOfLines={1}
             >
               {data.business_name}
@@ -198,21 +198,21 @@ function PickCardBody({
           <PickCardCategoriesScroll
             categories={data.categories}
             othersName={data.others_name}
-            textClassName="text-xs text-gray-400 dark:text-gray-500"
+            textClassName="text-xs text-gray-400 dark:text-dk-faint"
             scrollable={false}
           />
         ) : null}
 
         <View className="gap-1">
           {locationLabel && (
-            <Text className="text-xs text-gray-400 dark:text-gray-500" numberOfLines={1}>
+            <Text className="text-xs text-gray-400 dark:text-dk-faint" numberOfLines={1}>
               {locationLabel}
             </Text>
           )}
 
           {data.description ? (
             <Text
-              className="font-geist text-xs italic leading-4 text-gray-500 dark:text-gray-400"
+              className="font-geist text-xs italic leading-4 text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {data.description}

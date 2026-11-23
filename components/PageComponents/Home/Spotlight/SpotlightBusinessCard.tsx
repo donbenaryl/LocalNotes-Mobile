@@ -68,14 +68,14 @@ export function SpotlightBusinessCard({
           <View className="px-2.5 pb-2.5 pt-2">
             <View className="flex-row items-center gap-1">
               <Text
-                className="shrink font-geist-semibold text-lg text-ink dark:text-gray-100"
+                className="shrink font-geist-semibold text-lg text-ink dark:text-dk-text"
                 numberOfLines={1}
               >
                 {business.name}
               </Text>
               {business.is_verified ? (
                 <View role="img" aria-label={t("spotlight.verified")}>
-                  <BadgeCheck size={13} color="#141413" />
+                  <BadgeCheck size={13} color="#1A1714" />
                 </View>
               ) : null}
             </View>
@@ -93,7 +93,7 @@ export function SpotlightBusinessCard({
             */}
             {business.category ? (
               <Text
-                className="mt-0.5 font-geist text-sm text-gray-500 dark:text-gray-400"
+                className="mt-0.5 font-geist text-sm text-gray-500 dark:text-dk-muted"
                 numberOfLines={1}
               >
                 {business.category}

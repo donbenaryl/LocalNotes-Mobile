@@ -100,7 +100,7 @@ function HomeSection({
   return (
     <View className={cn("mb-6", className)}>
       {title &&
-        <Text className="mb-3 font-geist-bold text-lg text-ink dark:text-gray-100">
+        <Text className="mb-3 font-geist-bold text-lg text-ink dark:text-dk-text">
           {title}
         </Text>
       }
@@ -461,7 +461,7 @@ export function HomeTab() {
   if (error) {
     return (
       <View className="items-center justify-center px-6 py-20">
-        <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
+        <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-dk-muted">
           {t("home.error")}
         </Text>
         <LocalNotesButton
@@ -579,7 +579,7 @@ export function HomeTab() {
                   <View className="mb-2.5 flex-row items-baseline justify-between">
                     <PageSectionTitle>{t("home.forYou.eyebrow")}</PageSectionTitle>
                     {topMatchPercent != null ? (
-                      <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
+                      <Text className="font-geist-bold text-xs text-brand dark:text-dk-text">
                         {t("home.forYou.match", { percent: topMatchPercent })}
                       </Text>
                     ) : null}

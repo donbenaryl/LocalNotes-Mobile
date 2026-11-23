@@ -43,7 +43,7 @@ export function ThemeToggle() {
   return (
     <Pressable
       onPress={handleToggle}
-      className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 cursor-pointer"
+      className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-dk-card cursor-pointer"
       hitSlop={8}
     >
       {isDark ? <SunIcon /> : <MoonIcon />}

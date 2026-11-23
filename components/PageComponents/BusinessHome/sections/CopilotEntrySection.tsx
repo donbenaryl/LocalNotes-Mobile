@@ -22,10 +22,10 @@ export function CopilotEntrySection({ isPaidMember }: CopilotEntrySectionProps) 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="paid">
       <BusinessHomeCard className="mt-3">
-        <Text className="font-geist-extrabold text-base text-ink dark:text-gray-100">
+        <Text className="font-geist-extrabold text-base text-ink dark:text-dk-text">
           {`✦ ${t('businessHome.copilot.entry.title')}`}
         </Text>
-        <Text className="mt-1 font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-dk-muted">
           {t('businessHome.copilot.entry.body')}
         </Text>
         <View className="mt-3 flex-row flex-wrap gap-1.5">
@@ -36,9 +36,9 @@ export function CopilotEntrySection({ isPaidMember }: CopilotEntrySectionProps) 
                 key={id}
                 onPress={() => router.push(copilotHref({ q: question }))}
                 accessibilityRole="button"
-                className="rounded-full border border-gray-200 px-3 py-2 active:opacity-70 dark:border-gray-600"
+                className="rounded-full border border-gray-200 px-3 py-2 active:opacity-70 dark:border-dk-border"
               >
-                <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                   {question}
                 </Text>
               </Pressable>

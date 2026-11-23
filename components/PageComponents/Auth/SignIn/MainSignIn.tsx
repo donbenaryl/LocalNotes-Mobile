@@ -122,7 +122,7 @@ export function MainSignIn() {
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1 bg-page dark:bg-gray-900"
+      className="flex-1 bg-page dark:bg-dk-page"
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
@@ -168,7 +168,7 @@ export function MainSignIn() {
           hitSlop={8}
           className="cursor-pointer"
         >
-          <Text className="font-geist-medium text-ink dark:text-gray-100">
+          <Text className="font-geist-medium text-ink dark:text-dk-text">
             {t('auth.signIn.forgotPassword')}
           </Text>
         </TouchableOpacity>
@@ -191,7 +191,7 @@ export function MainSignIn() {
           rightIcon={
             <ArrowRight
               size={12}
-              color={colorScheme === 'dark' ? '#191B1C' : '#FFFFFF'}
+              color={colorScheme === 'dark' ? '#1A1714' : '#FFFFFF'}
             />
           }
         />

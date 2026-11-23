@@ -83,11 +83,11 @@ export function SmartPickForm({
   const closePeopleSheet = () => setIsPeopleSheetOpen(false);
 
   return (
-    <View className="gap-6 pb-10 pt-4 bg-page dark:bg-gray-900">
+    <View className="gap-6 pb-10 pt-4 bg-page dark:bg-dk-page">
       {/* Welcome banner */}
       <View className="overflow-hidden rounded-[18px]">
         <LinearGradient
-          colors={['#141413', '#000000']}
+          colors={['#1A1714', '#000000']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ padding: 18 }}
@@ -149,7 +149,7 @@ export function SmartPickForm({
         <PageSectionTitle className={LABEL_CLASS}>{t('smartPick.linkProfileLabel')}</PageSectionTitle>
         <View className="flex-row items-center justify-between gap-3">
           <Text
-            className="min-w-0 flex-1 font-geist-medium text-base text-ink dark:text-gray-100"
+            className="min-w-0 flex-1 font-geist-medium text-base text-ink dark:text-dk-text"
             numberOfLines={1}
           >
             {formState.linkedUsers.length > 0
@@ -158,10 +158,10 @@ export function SmartPickForm({
           </Text>
           <Pressable
             onPress={() => setIsPeopleSheetOpen(true)}
-            className="flex-row items-center gap-1.5 rounded-xl border border-dashed border-gray-400 px-4 py-2.5 cursor-pointer dark:border-gray-500"
+            className="flex-row items-center gap-1.5 rounded-xl border border-dashed border-gray-400 px-4 py-2.5 cursor-pointer dark:border-dk-faint"
           >
             <Plus size={16} color="#9CA3AF" />
-            <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+            <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
               {t('smartPick.addPeople')}
             </Text>
           </Pressable>
@@ -181,7 +181,7 @@ export function SmartPickForm({
           className={LABEL_CLASS}
           info={<MatchByInfo />}
           right={
-            <View className="flex-row rounded-xl bg-soft p-1 dark:bg-gray-800">
+            <View className="flex-row rounded-xl bg-soft p-1 dark:bg-dk-card">
               {(['Personality', 'Vibe'] as const).map((mode) => {
                 const isActive = formState.mode === mode;
                 return (
@@ -189,12 +189,12 @@ export function SmartPickForm({
                     key={mode}
                     onPress={() => handleModeChange(mode)}
                     className={`rounded-lg px-3.5 py-1.5 cursor-pointer ${
-                      isActive ? 'bg-white dark:bg-gray-900' : ''
+                      isActive ? 'bg-card dark:bg-dk-page' : ''
                     }`}
                   >
                     <Text
                       className={`font-geist-medium text-sm ${
-                        isActive ? 'text-ink dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'
+                        isActive ? 'text-ink dark:text-dk-text' : 'text-gray-500 dark:text-dk-muted'
                       }`}
                     >
                       {mode === 'Personality' ? t('smartPick.modePersonality') : t('smartPick.modeVibes')}
@@ -232,7 +232,7 @@ export function SmartPickForm({
               ))}
         </View>
         {formState.mode === 'Vibe' ? (
-          <Text className="font-geist text-[13px] text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-[13px] text-gray-500 dark:text-dk-muted">
             {t('smartPick.vibesCounter', {
               count: formState.vibes.length,
               max: MAX_SMART_PICK_VIBES,
@@ -244,10 +244,10 @@ export function SmartPickForm({
       {/* Previous picks */}
       <Pressable
         onPress={() => router.push('/(app)/(stack)/smart-pick/history' as never)}
-        className="flex-row items-center justify-between border-t border-gray-200 pt-4 cursor-pointer dark:border-gray-700"
+        className="flex-row items-center justify-between border-t border-gray-200 pt-4 cursor-pointer dark:border-dk-border"
       >
-        <Text className="font-geist text-[13px] text-gray-600 dark:text-gray-300">
-          <Text className="font-geist-medium text-ink dark:text-gray-100">
+        <Text className="font-geist text-[13px] text-gray-600 dark:text-dk-body">
+          <Text className="font-geist-medium text-ink dark:text-dk-text">
             {t('smartPick.previousPicks')}
           </Text>
           {!isHistoryPending
@@ -263,7 +263,7 @@ export function SmartPickForm({
 
       <View className="gap-2">
         {!canSubmit ? (
-          <Text className="text-center font-geist text-[13px] text-gray-500 dark:text-gray-400">
+          <Text className="text-center font-geist text-[13px] text-gray-500 dark:text-dk-muted">
             {t('smartPick.chooseMatchHint')}
           </Text>
         ) : null}

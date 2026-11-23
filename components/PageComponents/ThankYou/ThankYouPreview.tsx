@@ -47,11 +47,11 @@ export function ThankYouPreview({
 
   return (
     <WhiteBox className="gap-3 p-4">
-      <Text className="font-geist-extrabold text-base text-ink dark:text-gray-100">
+      <Text className="font-geist-extrabold text-base text-ink dark:text-dk-text">
         {t('thankYou.preview.title')}
       </Text>
 
-      <Text className="font-geist text-sm leading-5 text-gray-600 dark:text-gray-300">
+      <Text className="font-geist text-sm leading-5 text-gray-600 dark:text-dk-body">
         {t('thankYou.preview.body')}
       </Text>
 

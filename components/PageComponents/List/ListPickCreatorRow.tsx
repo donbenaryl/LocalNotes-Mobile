@@ -20,7 +20,7 @@ export function ListPickCreatorRow({ owner }: ListPickCreatorRowProps) {
         userId={owner.id}
       />
       <Text
-        className="font-geist-medium text-xs text-gray-400 dark:text-gray-500"
+        className="font-geist-medium text-xs text-gray-400 dark:text-dk-faint"
         numberOfLines={1}
       >
         {owner.name}

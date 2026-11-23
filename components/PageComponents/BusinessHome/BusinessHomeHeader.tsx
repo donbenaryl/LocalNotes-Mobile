@@ -35,7 +35,7 @@ export function BusinessHomeHeader({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const [switcherVisible, setSwitcherVisible] = useState(false);
-  const chevronColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
+  const chevronColor = colorScheme === 'dark' ? '#A79E92' : '#6C727F';
 
   const openSwitcher = () => setSwitcherVisible(true);
 
@@ -54,7 +54,7 @@ export function BusinessHomeHeader({
         }
       >
         <View className="min-w-0 flex-1">
-          <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+          <Text className="font-geist-extrabold text-lg text-ink dark:text-dk-text">
             {t('businessHome.title')}
           </Text>
           {/* Switch Business */}
@@ -64,18 +64,18 @@ export function BusinessHomeHeader({
             accessibilityLabel={
               locationName ? `${businessName}, ${locationName}` : businessName
             }
-            className="mt-0.5 flex-row items-center self-start border-b border-dashed border-gray-500 dark:border-gray-400 cursor-pointer"
+            className="mt-0.5 flex-row items-center self-start border-b border-dashed border-gray-500 dark:border-dk-muted cursor-pointer"
        
           >
-            <Text className="font-geist-semibold text-[11.5px] leading-[16px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[11.5px] leading-[16px] text-gray-500 dark:text-dk-muted">
               {businessName}
             </Text>
             {locationName ? (
               <>
-                <Text className="font-geist-semibold text-[11.5px] leading-[16px] text-gray-500 dark:text-gray-400">
+                <Text className="font-geist-semibold text-[11.5px] leading-[16px] text-gray-500 dark:text-dk-muted">
                   {' · '}
                 </Text>
-                <Text className="ml-0.5 font-geist-semibold text-[11.5px] leading-[16px] text-gray-500 dark:text-gray-400">
+                <Text className="ml-0.5 font-geist-semibold text-[11.5px] leading-[16px] text-gray-500 dark:text-dk-muted">
                   {locationName}
                 </Text>
                 <ChevronDown size={11} color={chevronColor} strokeWidth={2.4} />
@@ -86,7 +86,7 @@ export function BusinessHomeHeader({
             onLongPress={__DEV__ ? onToggleMembership : undefined}
             accessibilityRole="text"
           >
-            <Text className="mt-0.5 font-geist-semibold text-[10px] text-gray-500 dark:text-gray-400">
+            <Text className="mt-0.5 font-geist-semibold text-[10px] text-gray-500 dark:text-dk-muted">
               {t('businessHome.managingAs', { name: managerName, role: roleLabel })}
             </Text>
           </Pressable>

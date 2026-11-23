@@ -27,7 +27,7 @@ export function ProgressBar({
   const width = Math.min(100, Math.max(0, percent));
   return (
     <View
-      className={cn('h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700', className)}
+      className={cn('h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-dk-elevated', className)}
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
       accessibilityValue={{ min: 0, max: 100, now: Math.round(width) }}

@@ -16,7 +16,7 @@ export function Checkbox({
   disabled = false,
 }: CheckboxProps) {
   const { colorScheme } = useColorScheme();
-  const checkColor = colorScheme === 'dark' ? '#141413' : '#FFFFFF';
+  const checkColor = colorScheme === 'dark' ? '#1A1714' : '#FFFFFF';
 
   return (
     <TouchableOpacity
@@ -27,7 +27,7 @@ export function Checkbox({
       className={`items-center justify-center rounded-md cursor-pointer ${
         checked
           ? 'bg-ink dark:bg-paper'
-          : 'border-2 border-gray-300 dark:border-gray-600'
+          : 'border-2 border-gray-300 dark:border-dk-border'
       } ${disabled ? 'opacity-50' : ''}`}
       style={{ width: size, height: size }}
     >

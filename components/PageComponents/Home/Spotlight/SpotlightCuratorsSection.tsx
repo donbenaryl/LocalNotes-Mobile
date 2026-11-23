@@ -39,7 +39,7 @@ export function SpotlightCuratorsSection({ section }: SpotlightCuratorsSectionPr
 
       {watchCurators.length > 0 ? (
         <>
-          <Text className="mt-3 font-geist-semibold text-sm tracking-[1px] text-gray-500 dark:text-gray-400">
+          <Text className="mt-3 font-geist-semibold text-sm tracking-[1px] text-gray-500 dark:text-dk-muted">
             {t("spotlight.sections.curators.watchLabel")}
           </Text>
           <ScrollView

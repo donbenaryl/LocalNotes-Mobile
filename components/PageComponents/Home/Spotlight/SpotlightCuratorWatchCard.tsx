@@ -50,14 +50,14 @@ export function SpotlightCuratorWatchCard({ curator }: SpotlightCuratorWatchCard
           />
           <View className="w-full items-center">
             <Text
-              className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+              className="font-geist-semibold text-sm text-ink dark:text-dk-text"
               numberOfLines={1}
             >
               {displayName}
             </Text>
             {curator.personality_name ? (
               <Text
-                className="mt-0.5 text-center font-geist text-[10px] text-gray-500 dark:text-gray-400"
+                className="mt-0.5 text-center font-geist text-[10px] text-gray-500 dark:text-dk-muted"
                 numberOfLines={1}
               >
                 {curator.personality_name}

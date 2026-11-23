@@ -27,13 +27,13 @@ export function AccountSettingsCard({ profile }: AccountSettingsCardProps) {
       />
       <View className="min-w-0 flex-1 gap-0.5">
         <Text
-          className="font-geist-bold text-[15px] text-ink dark:text-gray-100"
+          className="font-geist-bold text-[15px] text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {profile.name}
         </Text>
         <Text
-          className="font-geist text-[12.5px] text-gray-500 dark:text-gray-400"
+          className="font-geist text-[12.5px] text-gray-500 dark:text-dk-muted"
           numberOfLines={1}
         >
           {secondary}

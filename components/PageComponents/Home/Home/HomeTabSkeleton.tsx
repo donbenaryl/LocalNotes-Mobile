@@ -55,7 +55,7 @@ function HomeForYouCardSkeleton() {
         <Skeleton className="mb-2 h-5 w-4/5 rounded-lg" />
         <Skeleton className="mb-3 h-4 w-full rounded-lg" />
 
-        <View className="border-t border-gray-200 py-3 dark:border-gray-700">
+        <View className="border-t border-gray-200 py-3 dark:border-dk-border">
           <View className="flex-row gap-3">
             <Skeleton className="h-12 w-12 rounded-lg" />
             <View className="flex-1 gap-2">
@@ -66,7 +66,7 @@ function HomeForYouCardSkeleton() {
         </View>
       </View>
 
-      <View className="flex-row items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-gray-800">
+      <View className="flex-row items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-dk-line">
         <Skeleton className="h-3 w-32 rounded-lg" />
         <Skeleton className="h-3 w-16 rounded-lg" />
       </View>

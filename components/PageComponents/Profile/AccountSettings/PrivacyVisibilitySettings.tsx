@@ -60,7 +60,7 @@ export default function PrivacyVisibilitySettings() {
 
   if (!hydrated) {
     return (
-      <View className="flex-1 bg-page dark:bg-gray-900">
+      <View className="flex-1 bg-page dark:bg-dk-page">
         <PageHeader
           title={t('accountSettings.privacy.title')}
           onBack={() => router.back()}
@@ -73,7 +73,7 @@ export default function PrivacyVisibilitySettings() {
   }
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t('accountSettings.privacy.title')}
         onBack={() => router.back()}

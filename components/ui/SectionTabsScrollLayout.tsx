@@ -184,7 +184,7 @@ function StickySectionTabs({
     >
       <Animated.View
         style={animatedStyle}
-        className="bg-page/95 px-4 pt-2 dark:bg-gray-900/95"
+        className="bg-page/95 px-4 pt-2 dark:bg-dk-page/95"
       >
         <Tabs
           tabs={tabs}
@@ -220,7 +220,7 @@ function IosSectionTabsScrollLayout({
   );
 
   return (
-    <View className="bg-page dark:bg-gray-900" style={styles.column}>
+    <View className="bg-page dark:bg-dk-page" style={styles.column}>
       <View className="px-4">
         <GuardedHeader />
       </View>
@@ -300,10 +300,10 @@ function AndroidSectionTabsScrollLayout({
   );
 
   return (
-    <View className="bg-page dark:bg-gray-900" style={styles.column}>
+    <View className="bg-page dark:bg-dk-page" style={styles.column}>
       <KeyboardAwareScrollView
         ref={scrollRef}
-        className="flex-1 bg-page dark:bg-gray-900"
+        className="flex-1 bg-page dark:bg-dk-page"
         enabled={false}
         contentContainerStyle={{ paddingBottom: contentBottomInset }}
         nestedScrollEnabled

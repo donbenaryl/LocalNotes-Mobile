@@ -29,7 +29,7 @@ export function SmartPickSessionTab({ sessionId }: SmartPickSessionTabProps) {
     <View className="flex-1" style={{ paddingTop: insets.top }}>
       {isPending ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#141413" />
+          <ActivityIndicator size="large" color="#1A1714" />
         </View>
       ) : isError || !conversation ? (
         <View className="flex-1 items-center justify-center gap-3 px-6">

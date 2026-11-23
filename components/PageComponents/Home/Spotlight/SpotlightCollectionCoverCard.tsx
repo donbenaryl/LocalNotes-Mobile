@@ -54,7 +54,7 @@ function CollectionMemberRow({
       accessibilityRole="button"
       accessibilityLabel={member.title}
       className={`cursor-pointer flex-row items-center gap-3 px-3.5 py-3 ${
-        isLast ? "" : "border-b border-gray-100 dark:border-gray-800"
+        isLast ? "" : "border-b border-gray-100 dark:border-dk-line"
       }`}
     >
       <View className="h-11 w-11 overflow-hidden rounded-[10px]">
@@ -71,13 +71,13 @@ function CollectionMemberRow({
       </View>
       <View className="min-w-0 flex-1">
         <Text
-          className="font-geist-bold text-md capitalize text-ink dark:text-gray-100"
+          className="font-geist-bold text-md capitalize text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {member.title}
         </Text>
         <Text
-          className="mt-0.5 font-geist text-sm text-gray-500 dark:text-gray-400"
+          className="mt-0.5 font-geist text-sm text-gray-500 dark:text-dk-muted"
           numberOfLines={1}
         >
           {t("spotlight.collectionListMeta", {
@@ -171,12 +171,12 @@ export function SpotlightCollectionCoverCard({ collection }: SpotlightCollection
           onPress={handleExploreCta}
           accessibilityRole="button"
           accessibilityLabel={t("spotlight.collectionFooterCta")}
-          className="cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-100 bg-gray-50 px-4 py-3.5 dark:border-gray-800 dark:bg-gray-900/60"
+          className="cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-100 bg-gray-50 px-4 py-3.5 dark:border-dk-line dark:bg-dk-page/60"
         >
-          <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+          <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
             {t("spotlight.collectionFooterCta")}
           </Text>
-          <ChevronRight size={14} color="#141413" />
+          <ChevronRight size={14} color="#1A1714" />
         </Pressable> */}
       </WhiteBox>
 

@@ -29,7 +29,7 @@ function HeaderIconButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={8}
-      className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 active:opacity-70 dark:bg-gray-800"
+      className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 active:opacity-70 dark:bg-dk-card"
     >
       {children}
     </Pressable>
@@ -70,7 +70,7 @@ export function ProfileTopActions({
       </HeaderIconButton>
 
       {showOwnMenu ? (
-        <View className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+        <View className="h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-dk-card">
           <ProfileHeader />
         </View>
       ) : null}

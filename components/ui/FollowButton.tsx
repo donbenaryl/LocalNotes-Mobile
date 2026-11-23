@@ -68,14 +68,14 @@ export function FollowButton({
         {loading ? (
           <ActivityIndicator
             size="small"
-            color={isFollowed ? "#6B7280" : "#141413"}
+            color={isFollowed ? "#6B7280" : "#1A1714"}
           />
         ) : (
           <Text
             className={`font-geist-bold text-[13px] ${
               isFollowed
-                ? "text-gray-500 dark:text-gray-400"
-                : "text-ink dark:text-gray-100"
+                ? "text-gray-500 dark:text-dk-muted"
+                : "text-ink dark:text-dk-text"
             }`}
           >
             {label}
@@ -100,7 +100,7 @@ export function FollowButton({
   }
 
   if (loading) {
-    return <ActivityIndicator size="small" color="#141413" />;
+    return <ActivityIndicator size="small" color="#1A1714" />;
   }
 
   return (
@@ -109,7 +109,7 @@ export function FollowButton({
       accessibilityRole="button"
       className="cursor-pointer rounded-full bg-brand-tint px-2.5 py-1 dark:bg-brand/20"
     >
-      <Text className="font-geist-semibold text-brand dark:text-gray-100">{label}</Text>
+      <Text className="font-geist-semibold text-brand dark:text-dk-text">{label}</Text>
     </Pressable>
   );
 }

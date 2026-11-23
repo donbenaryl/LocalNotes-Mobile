@@ -54,7 +54,7 @@ export function FollowingFindFriends() {
   const [findContactsVisible, setFindContactsVisible] = useState(false);
   const [findContactsMounted, setFindContactsMounted] = useState(false);
   const handoffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const chevronColor = colorScheme === "dark" ? "#9CA3AF" : "#6B7280";
+  const chevronColor = colorScheme === "dark" ? "#A79E92" : "#6C727F";
 
   useEffect(
     () => () => {
@@ -101,10 +101,10 @@ export function FollowingFindFriends() {
         onPress={() => setVisible(true)}
         accessibilityRole="button"
         accessibilityLabel={t("home.following.findFriends.rowLabel")}
-        className="mt-4 cursor-pointer flex-row items-center gap-3 rounded-2xl bg-soft px-4 py-4 dark:bg-gray-800/60"
+        className="mt-4 cursor-pointer flex-row items-center gap-3 rounded-2xl bg-soft px-4 py-4 dark:bg-dk-card/60"
       >
         <BookUser size={22} color={BRAND} />
-        <Text className="flex-1 font-geist-semibold text-base text-brand dark:text-gray-100">
+        <Text className="flex-1 font-geist-semibold text-base text-brand dark:text-dk-text">
           {t("home.following.findFriends.rowLabel")}
         </Text>
         <ChevronRight size={20} color={BRAND} />
@@ -130,10 +130,10 @@ export function FollowingFindFriends() {
                 {option.icon}
               </View>
               <View className="min-w-0 flex-1">
-                <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
+                <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
                   {t(`home.following.findFriends.${option.id}.title`)}
                 </Text>
-                <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+                <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                   {t(`home.following.findFriends.${option.id}.subtitle`)}
                 </Text>
               </View>

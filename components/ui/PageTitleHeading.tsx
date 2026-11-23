@@ -26,7 +26,7 @@ export function PageTitleHeading({
   return (
     <View className={`w-full ${containerClassName}`}>
       {stepTitle && (
-        <Text className="font-geist-semibold text-[11px] tracking-[0.18em] uppercase text-brand dark:text-gray-100 mt-6 mb-4">
+        <Text className="font-geist-semibold text-[11px] tracking-[0.18em] uppercase text-brand dark:text-dk-text mt-6 mb-4">
           {stepTitle}
         </Text>
       )}
@@ -36,7 +36,7 @@ export function PageTitleHeading({
           pointerEvents="none"
         >
           <LocalNotesText size="lg" />
-          <Text className="italic text-gray-500 dark:text-gray-100 text-lg">
+          <Text className="italic text-gray-500 dark:text-dk-text text-lg">
             {t("auth.signIn.logoDescription")}
           </Text>
         </View>
@@ -47,11 +47,11 @@ export function PageTitleHeading({
       >
         {title && (
           <Text
-            className={`font-geist-bold text-4xl text-ink dark:text-gray-100 leading-tight mr-2 ${alignLeft ? "text-left" : "text-center"}`}
+            className={`font-geist-bold text-4xl text-ink dark:text-dk-text leading-tight mr-2 ${alignLeft ? "text-left" : "text-center"}`}
           >
             {title + " "}
             {subtitle && (
-              <Text className="text-4xl ml-2 text-brand dark:text-gray-100 italic leading-tight">
+              <Text className="text-4xl ml-2 text-brand dark:text-dk-text italic leading-tight">
                 {subtitle}
               </Text>
             )}
@@ -59,7 +59,7 @@ export function PageTitleHeading({
         )}
         {description && (
           <Text
-            className={`text-lg text-gray-500 dark:text-gray-100 leading-tight mt-3 font-light ${alignLeft ? "text-left" : "text-center px-10"}`}
+            className={`text-lg text-gray-500 dark:text-dk-text leading-tight mt-3 font-light ${alignLeft ? "text-left" : "text-center px-10"}`}
           >
             {description}
           </Text>

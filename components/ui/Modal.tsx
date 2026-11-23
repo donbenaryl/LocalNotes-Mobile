@@ -325,7 +325,7 @@ export function Modal({
       <Reanimated.View
         style={[styles.sheetColumn, sheetSizeStyle]}
         className={cn(
-          'bg-white dark:bg-gray-900 rounded-t-[35px] px-8',
+          'bg-card dark:bg-dk-page rounded-t-[35px] px-8',
           footer || hasFixedSheetHeight ? 'pb-0' : 'pb-10',
           sheetClassName,
         )}
@@ -334,23 +334,23 @@ export function Modal({
           className="w-full items-center pt-3 pb-3"
           {...panResponder.panHandlers}
         >
-          <View className="absolute w-24 h-[5px] rounded-full bg-gray-300 dark:bg-gray-600 mt-2" />
+          <View className="absolute w-24 h-[5px] rounded-full bg-gray-300 dark:bg-dk-select mt-2" />
         </View>
 
         {title ? (
           <View className="flex-row items-center justify-between mb-4 pt-2">
             {titleIcon ? <View className="mr-2">{titleIcon}</View> : null}
-            <Text className="font-geist-bold text-xl text-gray-900 dark:text-gray-100 flex-1 pr-4">
+            <Text className="font-geist-bold text-xl text-gray-900 dark:text-dk-text flex-1 pr-4">
               {title}
             </Text>
             {/* <Pressable
               onPress={handleClose}
               accessibilityRole="button"
               accessibilityLabel={t('common.close')}
-              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center cursor-pointer"
+              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-dk-elevated items-center justify-center cursor-pointer"
               hitSlop={8}
             >
-              <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
+              <Text className="text-gray-600 dark:text-dk-body text-base leading-none">✕</Text>
             </Pressable> */}
           </View>
         ) : withCloseIcon ? (
@@ -359,10 +359,10 @@ export function Modal({
               onPress={handleClose}
               accessibilityRole="button"
               accessibilityLabel={t('common.close')}
-              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center cursor-pointer"
+              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-dk-elevated items-center justify-center cursor-pointer"
               hitSlop={8}
             >
-              <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
+              <Text className="text-gray-600 dark:text-dk-body text-base leading-none">✕</Text>
             </Pressable> */}
           </View>
         ) : null}
@@ -378,7 +378,7 @@ export function Modal({
         >
           {children}
           {footer ? (
-            <BottomWrapper className="-mx-8 bg-white dark:bg-gray-900">
+            <BottomWrapper className="-mx-8 bg-card dark:bg-dk-page">
               {footer}
             </BottomWrapper>
           ) : null}
@@ -387,22 +387,22 @@ export function Modal({
     </Animated.View>
   ) : (
     <View
-      className="absolute self-center bg-white dark:bg-gray-900 rounded-2xl px-6 py-8 w-11/12"
+      className="absolute self-center bg-card dark:bg-dk-page rounded-2xl px-6 py-8 w-11/12"
       style={{ top: '30%' }}
     >
       {title ? (
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="font-geist-bold text-xl text-gray-900 dark:text-gray-100 flex-1 pr-4">
+          <Text className="font-geist-bold text-xl text-gray-900 dark:text-dk-text flex-1 pr-4">
             {title}
           </Text>
           {/* <Pressable
             onPress={handleClose}
             accessibilityRole="button"
             accessibilityLabel={t('common.close')}
-            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-dk-elevated items-center justify-center cursor-pointer"
             hitSlop={8}
           >
-            <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
+            <Text className="text-gray-600 dark:text-dk-body text-base leading-none">✕</Text>
           </Pressable> */}
         </View>
       ) : withCloseIcon ? (
@@ -411,10 +411,10 @@ export function Modal({
             onPress={handleClose}
             accessibilityRole="button"
             accessibilityLabel={t('common.close')}
-            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center cursor-pointer"
+            className="w-8 h-8 rounded-full bg-gray-100 dark:bg-dk-elevated items-center justify-center cursor-pointer"
             hitSlop={8}
           >
-            <Text className="text-gray-600 dark:text-gray-300 text-base leading-none">✕</Text>
+            <Text className="text-gray-600 dark:text-dk-body text-base leading-none">✕</Text>
           </Pressable> */}
         </View>
       ) : null}

@@ -28,14 +28,14 @@ export function DraftsSmartSuggestion() {
   };
 
   return (
-    <WhiteBox className="mb-4 border-brand/20 bg-brand-tint dark:bg-gray-800">
-      <Text className="mb-1 font-geist-bold text-[10px] uppercase tracking-widest text-brand dark:text-gray-100">
+    <WhiteBox className="mb-4 border-brand/20 bg-brand-tint dark:bg-dk-card">
+      <Text className="mb-1 font-geist-bold text-[10px] uppercase tracking-widest text-brand dark:text-dk-text">
         {t("saved.drafts.smartSuggestEyebrow")}
       </Text>
-      <Text className="mb-1 font-geist-semibold text-base text-ink dark:text-gray-100">
+      <Text className="mb-1 font-geist-semibold text-base text-ink dark:text-dk-text">
         {t("saved.drafts.smartSuggestTitle", { count: picks.length, location: cityLabel })}
       </Text>
-      <Text className="mb-3 font-geist text-sm text-gray-500 dark:text-gray-400">
+      <Text className="mb-3 font-geist text-sm text-gray-500 dark:text-dk-muted">
         {t("saved.drafts.smartSuggestDetail")}
       </Text>
 
@@ -45,19 +45,19 @@ export function DraftsSmartSuggestion() {
             <Image
               key={pick.id}
               source={{ uri: resolveImageUrl(pick.images[0]?.url) ?? undefined }}
-              className={`h-10 w-10 rounded-lg border-2 border-white dark:border-gray-800 ${index > 0 ? "-ml-2" : ""}`}
+              className={`h-10 w-10 rounded-lg border-2 border-white dark:border-dk-line ${index > 0 ? "-ml-2" : ""}`}
             />
           ))}
         </View>
 
         <View className="flex-row items-center gap-4">
           <Pressable onPress={() => setIsDismissed(true)} className="cursor-pointer">
-            <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
               {t("saved.drafts.notNow")}
             </Text>
           </Pressable>
           <Pressable onPress={handleMakeList} className="cursor-pointer">
-            <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
+            <Text className="font-geist-semibold text-sm text-brand dark:text-dk-text">
               {t("saved.drafts.makeList")}
             </Text>
           </Pressable>

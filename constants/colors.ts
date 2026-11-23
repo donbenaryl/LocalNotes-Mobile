@@ -1,5 +1,5 @@
 export const COLORS = {
-  primary: '#141413', // brand / ink
+  primary: '#1A1714', // brand / ink
   primaryLight: '#F3F4F6', // brand tint / gray-100
   primaryDark: '#000000',
 
@@ -23,16 +23,16 @@ export const COLORS = {
 } as const;
 
 /** Brand accent (light mode) — matches Tailwind `brand` / `ink`. */
-export const BRAND = '#141413';
+export const BRAND = '#1A1714';
 /** Brand accent on dark surfaces — matches gray-100. */
-export const BRAND_ON_DARK = '#F3F4F6';
+export const BRAND_ON_DARK = '#F7F3EC';
 /** Soft brand fill — matches Tailwind `brand-tint`. */
 export const BRAND_TINT = '#F3F4F6';
 /** Deeper brand emphasis — matches Tailwind `brand-dark`. */
 export const BRAND_DARK = '#000000';
 
-export const ICON_COLOR_LIGHT = '#191B1C';
-export const ICON_COLOR_DARK = '#F3F4F6';
+export const ICON_COLOR_LIGHT = '#1A1714';
+export const ICON_COLOR_DARK = '#F7F3EC';
 
 export type ColorKey = keyof typeof COLORS;
 

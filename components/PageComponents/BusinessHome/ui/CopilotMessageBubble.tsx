@@ -39,11 +39,11 @@ export function CopilotMessageBubble({
   if (message.status === 'pending') {
     return (
       <View
-        className="flex-row items-center gap-2 self-start rounded-2xl bg-white px-3.5 py-3 dark:bg-gray-800"
+        className="flex-row items-center gap-2 self-start rounded-2xl bg-card px-3.5 py-3 dark:bg-dk-card"
         accessibilityLiveRegion="polite"
       >
-        <ActivityIndicator size="small" color="#141413" />
-        <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-gray-300">
+        <ActivityIndicator size="small" color="#1A1714" />
+        <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-dk-body">
           {t(progressLabelKey(message.progress))}
         </Text>
       </View>
@@ -52,8 +52,8 @@ export function CopilotMessageBubble({
 
   if (message.status === 'failed') {
     return (
-      <View className="max-w-[90%] self-start rounded-2xl bg-white px-3.5 py-3 dark:bg-gray-800">
-        <Text className="font-geist text-sm text-gray-600 dark:text-gray-300">
+      <View className="max-w-[90%] self-start rounded-2xl bg-card px-3.5 py-3 dark:bg-dk-card">
+        <Text className="font-geist text-sm text-gray-600 dark:text-dk-body">
           {t('businessHome.copilot.failed')}
         </Text>
         {retryQuestion ? (
@@ -73,7 +73,7 @@ export function CopilotMessageBubble({
   }
 
   return (
-    <View className="w-[95%] self-start rounded-2xl border border-gray-200 bg-white px-3.5 py-3 dark:border-gray-800 dark:bg-gray-900">
+    <View className="w-[95%] self-start rounded-2xl border border-gray-200 bg-card px-3.5 py-3 dark:border-dk-line dark:bg-dk-page">
       <CopilotAnswerText content={message.content} />
       {message.sources.length > 0 ? (
         <View className="mt-3 flex-row flex-wrap gap-1.5">
@@ -86,13 +86,13 @@ export function CopilotMessageBubble({
                 key={key}
                 onPress={() => onOpenSource(route)}
                 accessibilityRole="link"
-                className="rounded-full bg-soft px-2.5 py-1 active:opacity-70 dark:bg-gray-800"
+                className="rounded-full bg-soft px-2.5 py-1 active:opacity-70 dark:bg-dk-card"
               >
-                <Text className="font-geist-semibold text-[11px] text-brand dark:text-gray-100">{label}</Text>
+                <Text className="font-geist-semibold text-[11px] text-brand dark:text-dk-text">{label}</Text>
               </Pressable>
             ) : (
-              <View key={key} className="rounded-full bg-soft px-2.5 py-1 dark:bg-gray-800">
-                <Text className="font-geist-semibold text-[11px] text-gray-600 dark:text-gray-300">
+              <View key={key} className="rounded-full bg-soft px-2.5 py-1 dark:bg-dk-card">
+                <Text className="font-geist-semibold text-[11px] text-gray-600 dark:text-dk-body">
                   {label}
                 </Text>
               </View>
@@ -108,7 +108,7 @@ export function CopilotMessageBubble({
           className="mt-2 self-start active:opacity-70"
           hitSlop={8}
         >
-          <Text className="font-geist-semibold text-[11px] text-gray-500 underline dark:text-gray-400">
+          <Text className="font-geist-semibold text-[11px] text-gray-500 underline dark:text-dk-muted">
             {t('businessHome.copilot.creditsCharged', { count: message.credits_charged })}
           </Text>
         </Pressable>

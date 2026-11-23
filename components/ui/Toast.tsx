@@ -214,7 +214,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       {...panResponder.panHandlers}
     >
       <View
-        className={`flex-row gap-3 rounded-2xl border border-gray-100 bg-paper px-4 py-3.5 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${
+        className={`flex-row gap-3 rounded-2xl border border-gray-100 bg-paper px-4 py-3.5 shadow-sm dark:border-dk-border dark:bg-dk-card ${
           isSingleLine ? 'items-center' : 'items-start'
         }`}
       >
@@ -228,13 +228,13 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
 
         <View className="min-w-0 flex-1 justify-center pr-1">
           {hasTitle ? (
-            <Text className="font-geist-semibold text-[15px] leading-5 text-ink dark:text-gray-100">
+            <Text className="font-geist-semibold text-[15px] leading-5 text-ink dark:text-dk-text">
               {toast.title}
             </Text>
           ) : null}
           {hasMessage ? (
             <Text
-              className={`font-geist text-sm leading-5 text-gray-500 dark:text-gray-400 ${
+              className={`font-geist text-sm leading-5 text-gray-500 dark:text-dk-muted ${
                 hasTitle ? 'mt-0.5' : ''
               }`}
             >
@@ -250,7 +250,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
           accessibilityLabel="Dismiss notification"
           className="cursor-pointer"
         >
-          <View className="h-7 w-7 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          <View className="h-7 w-7 items-center justify-center rounded-full bg-gray-100 dark:bg-dk-elevated">
             <X size={14} color="#6B7280" strokeWidth={2.5} />
           </View>
         </Pressable>

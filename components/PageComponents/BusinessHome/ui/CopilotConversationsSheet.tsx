@@ -97,7 +97,7 @@ export function CopilotConversationsSheet({
       sheetHeightRatio={0.85}
       keyboardAvoidanceEnabled={false}
     >
-      <Text className="absolute -top-4 pb-2 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+      <Text className="absolute -top-4 pb-2 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
         {t('businessHome.copilot.conversations.retentionNote')}
       </Text>
       {/* New Chat Button */}
@@ -116,11 +116,11 @@ export function CopilotConversationsSheet({
 
       {query.isPending ? (
         <View className="items-center py-10">
-          <ActivityIndicator color="#141413" />
+          <ActivityIndicator color="#1A1714" />
         </View>
       ) : query.isError ? (
         <View className="items-center gap-3 py-8">
-          <Text className="font-geist text-sm text-gray-600 dark:text-gray-400">
+          <Text className="font-geist text-sm text-gray-600 dark:text-dk-muted">
             {t('businessHome.copilot.conversations.error')}
           </Text>
           <LocalNotesButton
@@ -132,7 +132,7 @@ export function CopilotConversationsSheet({
           />
         </View>
       ) : threads.length === 0 ? (
-        <Text className="py-8 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="py-8 text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t('businessHome.copilot.conversations.empty')}
         </Text>
       ) : (
@@ -146,12 +146,12 @@ export function CopilotConversationsSheet({
             if (query.hasNextPage && !query.isFetchingNextPage) void query.fetchNextPage();
           }}
           ListFooterComponent={
-            query.isFetchingNextPage ? <ActivityIndicator className="py-3" color="#141413" /> : null
+            query.isFetchingNextPage ? <ActivityIndicator className="py-3" color="#1A1714" /> : null
           }
           renderItem={({ item }) => {
             const active = item.id === activeThreadId;
             return (
-              <View className="flex-row items-center border-b border-gray-100 py-1 dark:border-gray-800">
+              <View className="flex-row items-center border-b border-gray-100 py-1 dark:border-dk-line">
                 <Pressable
                   onPress={() => {
                     onOpenThread(item.id);
@@ -168,18 +168,18 @@ export function CopilotConversationsSheet({
                     <View className="flex-row items-baseline justify-between gap-2">
                       <Text
                         numberOfLines={1}
-                        className="flex-1 font-geist-bold text-sm text-ink dark:text-gray-100"
+                        className="flex-1 font-geist-bold text-sm text-ink dark:text-dk-text"
                       >
                         {item.title || t('businessHome.copilot.conversations.untitled')}
                       </Text>
-                      <Text className="font-geist text-[11px] text-gray-500 dark:text-gray-400">
+                      <Text className="font-geist text-[11px] text-gray-500 dark:text-dk-muted">
                         {formatRelativeTime(item.last_message_at)}
                       </Text>
                     </View>
                     {item.preview ? (
                       <Text
                         numberOfLines={1}
-                        className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400"
+                        className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted"
                       >
                         {item.preview}
                       </Text>

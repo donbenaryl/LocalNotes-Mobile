@@ -67,10 +67,10 @@ function formatLocation(loc: BusinessLocation | null | undefined) {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row items-start justify-between gap-3">
-      <Text className="shrink-0 font-geist text-[12px] text-gray-500 dark:text-gray-400">
+      <Text className="shrink-0 font-geist text-[12px] text-gray-500 dark:text-dk-muted">
         {label}
       </Text>
-      <Text className="min-w-0 flex-1 text-right font-geist-medium text-[13px] text-ink dark:text-gray-100">
+      <Text className="min-w-0 flex-1 text-right font-geist-medium text-[13px] text-ink dark:text-dk-text">
         {value}
       </Text>
     </View>
@@ -86,10 +86,10 @@ function Section({
 }) {
   return (
     <View className="gap-2">
-      <Text className="font-geist-semibold text-[11px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
+      <Text className="font-geist-semibold text-[11px] uppercase tracking-wider text-gray-400 dark:text-dk-faint">
         {title}
       </Text>
-      <View className="gap-2 rounded-xl border border-gray-100 bg-soft/60 p-3 dark:border-gray-800 dark:bg-gray-800/50">
+      <View className="gap-2 rounded-xl border border-gray-100 bg-soft/60 p-3 dark:border-dk-line dark:bg-dk-card/50">
         {children}
       </View>
     </View>
@@ -122,7 +122,7 @@ export function ClaimDetailModal({
     t('claimBusiness.start.title');
   const locationLabel = formatLocation(claim?.proposed_location);
   const empty = t('claimBusiness.detail.empty');
-  const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#141413';
+  const iconColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
 
   useEffect(() => {
     if (!visible) {
@@ -152,12 +152,12 @@ export function ClaimDetailModal({
             <View className="flex-row items-start justify-between gap-3">
               <View className="min-w-0 flex-1">
                 <Text
-                  className="font-geist-bold text-[17px] text-ink dark:text-gray-100"
+                  className="font-geist-bold text-[17px] text-ink dark:text-dk-text"
                   numberOfLines={2}
                 >
                   {name}
                 </Text>
-                <Text className="mt-1 font-geist text-[12px] text-gray-500 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-[12px] text-gray-500 dark:text-dk-muted">
                   {sourceLabel} · {methodLabel}
                 </Text>
               </View>
@@ -231,7 +231,7 @@ export function ClaimDetailModal({
                   onPress={() => setProofFullscreen(true)}
                   accessibilityRole="imagebutton"
                   accessibilityLabel={t('claimBusiness.detail.viewProof')}
-                  className="cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+                  className="cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-card dark:border-dk-border dark:bg-dk-page"
                 >
                   <Image
                     source={{ uri: proofUrl }}
@@ -247,12 +247,12 @@ export function ClaimDetailModal({
                   className="cursor-pointer flex-row items-center gap-2"
                 >
                   <FileText size={18} color={iconColor} />
-                  <Text className="font-geist-semibold text-[13px] text-brand dark:text-gray-100">
+                  <Text className="font-geist-semibold text-[13px] text-brand dark:text-dk-text">
                     {t('claimBusiness.detail.openPdf')}
                   </Text>
                 </Pressable>
               ) : (
-                <Text className="font-geist text-[13px] text-gray-500 dark:text-gray-400">
+                <Text className="font-geist text-[13px] text-gray-500 dark:text-dk-muted">
                   {t('claimBusiness.detail.noDocument', { method: methodLabel })}
                 </Text>
               )}
@@ -266,7 +266,7 @@ export function ClaimDetailModal({
               </Section>
             ) : null}
 
-            <Text className="font-geist text-[12px] text-gray-400 dark:text-gray-500">
+            <Text className="font-geist text-[12px] text-gray-400 dark:text-dk-faint">
               {t('claimBusiness.detail.submitted', {
                 date: formatDateTime(claim.created_at),
               })}

@@ -47,7 +47,7 @@ export function EditProfileSocialFields({
 
   return (
     <View className="px-6 gap-4 py-4">
-      <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+      <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
         {t("editProfile.social.helper")}
       </Text>
       {fields.map((field, index) => (

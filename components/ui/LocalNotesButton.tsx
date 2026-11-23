@@ -37,18 +37,18 @@ const SIZE_TEXT_CLASS: Record<LocalNotesButtonSize, string> = {
 
 const VARIANT_CONTAINER_CLASS: Record<LocalNotesButtonVariant, string> = {
   dark: "bg-ink dark:bg-paper border border-ink dark:border-paper",
-  light: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
-  brand: "bg-brand dark:bg-gray-100 border border-brand dark:border-gray-100",
+  light: "bg-card dark:bg-dk-card border border-gray-200 dark:border-dk-border",
+  brand: "bg-brand dark:bg-dk-text border border-brand dark:border-dk-text",
   danger: "bg-red-700 border border-red-700",
   ghost: "bg-transparent border border-transparent",
 };
 
 const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
   dark: "text-white dark:text-ink",
-  light: "text-ink dark:text-gray-100",
+  light: "text-ink dark:text-dk-text",
   brand: "text-white dark:text-ink",
   danger: "text-white",
-  ghost: "text-gray-500 dark:text-gray-400",
+  ghost: "text-gray-500 dark:text-dk-muted",
 };
 
 export function LocalNotesButton({
@@ -73,7 +73,7 @@ export function LocalNotesButton({
   const containerClass = isDisabled
     ? isDanger
       ? `${VARIANT_CONTAINER_CLASS.danger} opacity-50`
-      : "bg-disabled dark:bg-gray-700"
+      : "bg-disabled dark:bg-dk-elevated"
     : VARIANT_CONTAINER_CLASS[variant];
 
   const textClass = textClassName

@@ -138,7 +138,7 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
   if (step === "code") {
     return (
       <View className="gap-4">
-        <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
           {t("phoneVerification.codeSentTo", { phone: formatPhoneForDisplay(e164) })}
         </Text>
         <OtpInput value={code} onChange={handleCodeChange} />
@@ -160,7 +160,7 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
             accessibilityRole="button"
             hitSlop={8}
           >
-            <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
               {t("phoneVerification.changeNumber")}
             </Text>
           </Pressable>
@@ -173,8 +173,8 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
             <Text
               className={
                 cooldown > 0
-                  ? "font-geist-medium text-sm text-gray-400 dark:text-gray-500"
-                  : "font-geist-medium text-sm text-brand dark:text-gray-100"
+                  ? "font-geist-medium text-sm text-gray-400 dark:text-dk-faint"
+                  : "font-geist-medium text-sm text-brand dark:text-dk-text"
               }
             >
               {cooldown > 0
@@ -211,21 +211,21 @@ export function PhoneVerificationForm({ onVerified, compact = false }: PhoneVeri
           <Checkbox checked={smsConsent} onChange={toggleConsent} size={20} />
         </View>
         <Text
-          className="flex-1 font-geist text-xs leading-5 text-gray-500 dark:text-gray-400"
+          className="flex-1 font-geist text-xs leading-5 text-gray-500 dark:text-dk-muted"
           onPress={() => toggleConsent(!smsConsent)}
           accessibilityRole="checkbox"
           accessibilityState={{ checked: smsConsent }}
         >
           {t("phoneVerification.consentPrefix")}
           <Text
-            className="font-geist-semibold text-brand dark:text-gray-100 underline"
+            className="font-geist-semibold text-brand dark:text-dk-text underline"
             onPress={() => void WebBrowser.openBrowserAsync(`${LEGAL_WEBSITE}/terms`)}
           >
             {t("phoneVerification.consentTerms")}
           </Text>
           {t("phoneVerification.consentAnd")}
           <Text
-            className="font-geist-semibold text-brand dark:text-gray-100 underline"
+            className="font-geist-semibold text-brand dark:text-dk-text underline"
             onPress={() => void WebBrowser.openBrowserAsync(`${LEGAL_WEBSITE}/privacy`)}
           >
             {t("phoneVerification.consentPrivacy")}

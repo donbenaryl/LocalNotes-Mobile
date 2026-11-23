@@ -105,7 +105,7 @@ export function LocationsSection({
               accessibilityRole="button"
               accessibilityState={{ selected: row.isViewing }}
               className={`py-2 flex flex-row items-center gap-2  ${
-                index > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""
+                index > 0 ? "border-t border-gray-100 dark:border-dk-border" : ""
               }`}
             >
               <MapPin size={18} color="red" className="mr-1" />
@@ -113,8 +113,8 @@ export function LocationsSection({
                 <Text
                   className={`font-geist-semibold text-[13px] ${
                     row.isViewing
-                      ? "text-ink dark:text-gray-100"
-                      : "text-gray-600 dark:text-gray-400"
+                      ? "text-ink dark:text-dk-text"
+                      : "text-gray-600 dark:text-dk-muted"
                   }`}
                 >
                   {row.name}
@@ -123,7 +123,7 @@ export function LocationsSection({
                     : ""}
                 </Text>
                 {row.isPaid ? (
-                  <Text className="mt-0.5 font-geist-semibold text-[11px] text-brand dark:text-gray-100">
+                  <Text className="mt-0.5 font-geist-semibold text-[11px] text-brand dark:text-dk-text">
                     ✦ {t("businessHome.locations.memberBadge")}
                   </Text>
                 ) : null}

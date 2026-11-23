@@ -159,7 +159,7 @@ export default function AccountSettingsMenu() {
   };
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t('accountSettings.title')}
         onBack={() => router.back()}

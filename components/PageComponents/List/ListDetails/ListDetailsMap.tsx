@@ -194,7 +194,7 @@ export function ListDetailsMap({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 bg-page dark:bg-gray-900">
+      <View className="flex-1 bg-page dark:bg-dk-page">
         <View className="absolute left-0 right-0 top-0 z-10">
           <PageHeader
             borderless
@@ -225,17 +225,17 @@ export function ListDetailsMap({
         </MapView>
 
         <View
-          className="absolute bottom-0 left-0 right-0 rounded-t-[18px] bg-page shadow-lg dark:bg-gray-900"
+          className="absolute bottom-0 left-0 right-0 rounded-t-[18px] bg-page shadow-lg dark:bg-dk-page"
           style={{ maxHeight: sheetMaxHeight }}
         >
-          <View className="my-2 h-1 w-9 self-center rounded-full bg-gray-300 dark:bg-gray-600" />
+          <View className="my-2 h-1 w-9 self-center rounded-full bg-gray-300 dark:bg-dk-select" />
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 24 }}
           >
             {mapPicks.length === 0 ? (
               <View className="px-4 py-6">
-                <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+                <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
                   {t("home.unknownLocation")}
                 </Text>
               </View>
@@ -246,7 +246,7 @@ export function ListDetailsMap({
                   <Pressable
                     key={pick.item.id}
                     onPress={() => handleSelectPick(index)}
-                    className={`flex-row items-start gap-3 border-b border-soft px-4 py-3 dark:border-gray-800 ${
+                    className={`flex-row items-start gap-3 border-b border-soft px-4 py-3 dark:border-dk-line ${
                       isActive ? "bg-brand-tint/50" : ""
                     }`}
                   >
@@ -261,13 +261,13 @@ export function ListDetailsMap({
                     </View>
                     <View className="min-w-0 flex-1">
                       <Text
-                        className="font-geist-bold text-[13.5px] text-ink dark:text-gray-100"
+                        className="font-geist-bold text-[13.5px] text-ink dark:text-dk-text"
                         numberOfLines={1}
                       >
                         {pick.name}
                       </Text>
                       <Text
-                        className="mt-0.5 font-geist text-[11.5px] text-gray-500 dark:text-gray-400"
+                        className="mt-0.5 font-geist text-[11.5px] text-gray-500 dark:text-dk-muted"
                         numberOfLines={1}
                       >
                         {[pick.address, pick.categoryLabel]

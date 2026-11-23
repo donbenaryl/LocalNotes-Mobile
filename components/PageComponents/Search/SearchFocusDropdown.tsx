@@ -63,8 +63,8 @@ export function SearchFocusDropdown({
   const keyboardHeight = useKeyboardState((s) => s.height);
   const hostRef = useRef<View>(null);
   const [dropdownTopY, setDropdownTopY] = useState(0);
-  const iconColor = colorScheme === "dark" ? "#9CA3AF" : "#6B7280";
-  const mutedIcon = colorScheme === "dark" ? "#6B7280" : "#9CA3AF";
+  const iconColor = colorScheme === "dark" ? "#A79E92" : "#6C727F";
+  const mutedIcon = colorScheme === "dark" ? "#8F877C" : "#9EA4AF";
 
   const measureTop = useCallback(() => {
     requestAnimationFrame(() => {
@@ -105,7 +105,7 @@ export function SearchFocusDropdown({
       onLayout={measureTop}
     >
       <View
-        className="border-b border-gray-100 bg-page dark:border-gray-800 dark:bg-gray-900"
+        className="border-b border-gray-100 bg-page dark:border-dk-line dark:bg-dk-page"
         style={{ maxHeight }}
       >
         <ScrollView
@@ -118,7 +118,7 @@ export function SearchFocusDropdown({
             {hasRecent ? (
               <View className="mb-5">
                 <View className="mb-1 flex-row items-center justify-between">
-                  <Text className="font-geist-semibold text-sm text-gray-500 dark:text-gray-400">
+                  <Text className="font-geist-semibold text-sm text-gray-500 dark:text-dk-muted">
                     {t("search.recent")}
                   </Text>
                   <Pressable
@@ -128,7 +128,7 @@ export function SearchFocusDropdown({
                     accessibilityLabel={t("search.clear")}
                     className="cursor-pointer py-1"
                   >
-                    <Text className="font-geist-medium text-sm text-brand dark:text-gray-100">
+                    <Text className="font-geist-medium text-sm text-brand dark:text-dk-text">
                       {t("search.clear")}
                     </Text>
                   </Pressable>
@@ -147,7 +147,7 @@ export function SearchFocusDropdown({
                       <Clock size={18} color={iconColor} />
                       <Text
                         numberOfLines={1}
-                        className="min-w-0 flex-1 font-geist text-base text-ink dark:text-gray-100"
+                        className="min-w-0 flex-1 font-geist text-base text-ink dark:text-dk-text"
                       >
                         {query}
                       </Text>
@@ -168,7 +168,7 @@ export function SearchFocusDropdown({
 
             {hasSuggestions ? (
               <View className={hasFollowing ? "mb-5" : undefined}>
-                <Text className="mb-1 font-geist-semibold text-sm text-gray-500 dark:text-gray-400">
+                <Text className="mb-1 font-geist-semibold text-sm text-gray-500 dark:text-dk-muted">
                   {t("search.suggestedForYou")}
                 </Text>
                 {suggestions.map((row) => (
@@ -182,13 +182,13 @@ export function SearchFocusDropdown({
                     <Search size={18} color={iconColor} />
                     <Text
                       numberOfLines={1}
-                      className="min-w-0 flex-1 font-geist text-base text-ink dark:text-gray-100"
+                      className="min-w-0 flex-1 font-geist text-base text-ink dark:text-dk-text"
                     >
                       {row.label}
                     </Text>
                     <Text
                       numberOfLines={1}
-                      className="max-w-[42%] text-right font-geist text-xs text-gray-400 dark:text-gray-500"
+                      className="max-w-[42%] text-right font-geist text-xs text-gray-400 dark:text-dk-faint"
                     >
                       {reasonForSource(t, row)}
                     </Text>
@@ -199,7 +199,7 @@ export function SearchFocusDropdown({
 
             {hasFollowing ? (
               <View>
-                <Text className="mb-2 font-geist-semibold text-base text-ink dark:text-gray-100">
+                <Text className="mb-2 font-geist-semibold text-base text-ink dark:text-dk-text">
                   {t("search.newFromPeopleYouFollow")}
                 </Text>
                 {followingPicks.map((pick, index) => {
@@ -221,26 +221,26 @@ export function SearchFocusDropdown({
                         className={`min-w-0 flex-1 gap-0.5 pb-3 ${
                           isLast
                             ? ""
-                            : "border-b border-gray-100 dark:border-gray-800"
+                            : "border-b border-gray-100 dark:border-dk-line"
                         }`}
                       >
                         <Text
                           numberOfLines={1}
-                          className="font-geist-semibold text-base text-ink dark:text-gray-100"
+                          className="font-geist-semibold text-base text-ink dark:text-dk-text"
                         >
                           {pick.title}
                         </Text>
                         <Text
                           numberOfLines={1}
-                          className="font-geist text-sm text-gray-500 dark:text-gray-400"
+                          className="font-geist text-sm text-gray-500 dark:text-dk-muted"
                         >
                           {pick.category} · {pick.place}
                         </Text>
                         <Text
                           numberOfLines={1}
-                          className="font-geist text-sm text-gray-500 dark:text-gray-400"
+                          className="font-geist text-sm text-gray-500 dark:text-dk-muted"
                         >
-                          <Text className="font-geist-medium text-brand dark:text-gray-100">
+                          <Text className="font-geist-medium text-brand dark:text-dk-text">
                             {t("search.matchPercent", {
                               percent: pick.matchPercent,
                             })}
@@ -252,7 +252,7 @@ export function SearchFocusDropdown({
                         {pick.reason ? (
                           <Text
                             numberOfLines={2}
-                            className="mt-0.5 font-geist text-sm text-gray-500 dark:text-gray-400"
+                            className="mt-0.5 font-geist text-sm text-gray-500 dark:text-dk-muted"
                           >
                             {pick.reason}
                           </Text>

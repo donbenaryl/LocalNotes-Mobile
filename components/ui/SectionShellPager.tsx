@@ -69,25 +69,25 @@ function renderSection(section: SectionId): ReactNode {
   switch (section) {
     case "home":
       return (
-        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+        <View style={styles.fill} className="bg-page dark:bg-dk-page">
           <MainHome />
         </View>
       );
     case "smart-pick":
       return (
-        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+        <View style={styles.fill} className="bg-page dark:bg-dk-page">
           <SmartPickTab />
         </View>
       );
     case "saved":
       return (
-        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+        <View style={styles.fill} className="bg-page dark:bg-dk-page">
           <MainSaved />
         </View>
       );
     case "search":
       return (
-        <View style={styles.fill} className="bg-page dark:bg-gray-900">
+        <View style={styles.fill} className="bg-page dark:bg-dk-page">
           <MainSearch />
         </View>
       );

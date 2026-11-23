@@ -91,7 +91,7 @@ export function BranchLocationCard({
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const iconColor = colorScheme === 'dark' ? ICON_COLOR_DARK : ICON_COLOR_LIGHT;
-  const directionsIconColor = colorScheme === 'dark' ? '#141413' : '#FFFFFF';
+  const directionsIconColor = colorScheme === 'dark' ? '#1A1714' : '#FFFFFF';
 
   const location = branch.location;
   const hasCoords = hasValidCoordinates(location);
@@ -128,12 +128,12 @@ export function BranchLocationCard({
 
   return (
     <WhiteBox>
-      <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
+      <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-dk-faint">
         {t('profile.about.location')}
       </Text>
 
       <View
-        className="mt-3 overflow-hidden rounded-2xl bg-soft dark:bg-gray-900"
+        className="mt-3 overflow-hidden rounded-2xl bg-soft dark:bg-dk-page"
         style={{ height: MAP_HEIGHT }}
       >
         {hasCoords && mapRegion ? (
@@ -164,7 +164,7 @@ export function BranchLocationCard({
       </View>
 
       <Text
-        className="mt-3 font-geist-bold text-[17px] leading-[1.35] text-ink dark:text-gray-100"
+        className="mt-3 font-geist-bold text-[17px] leading-[1.35] text-ink dark:text-dk-text"
         numberOfLines={2}
       >
         {primaryAddress}
@@ -172,7 +172,7 @@ export function BranchLocationCard({
 
       {secondaryAddress ? (
         <Text
-          className="mt-1 font-geist text-[14px] leading-[1.4] text-gray-500 dark:text-gray-400"
+          className="mt-1 font-geist text-[14px] leading-[1.4] text-gray-500 dark:text-dk-muted"
           numberOfLines={2}
         >
           {secondaryAddress}
@@ -183,7 +183,7 @@ export function BranchLocationCard({
         <Pressable
           onPress={handleDirections}
           accessibilityRole="button"
-          className="mt-4 min-h-[46px] flex-row items-center justify-center gap-1.5 rounded-full bg-ink active:opacity-80 dark:bg-gray-100"
+          className="mt-4 min-h-[46px] flex-row items-center justify-center gap-1.5 rounded-full bg-ink active:opacity-80 dark:bg-dk-text"
         >
           <Navigation size={15} color={directionsIconColor} />
           <Text className="font-geist-bold text-sm text-white dark:text-ink">

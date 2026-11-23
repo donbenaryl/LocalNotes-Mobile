@@ -31,7 +31,7 @@ export function StatsSection({
             <>
               <Text
                 className={cn(
-                  "font-geist-extrabold text-[17px] text-ink dark:text-gray-100",
+                  "font-geist-extrabold text-[17px] text-ink dark:text-dk-text",
                   valueClassName,
                 )}
               >
@@ -39,7 +39,7 @@ export function StatsSection({
               </Text>
               <Text
                 className={cn(
-                  "mt-0.5 font-geist-semibold text-[11.5px] uppercase text-gray-400 dark:text-gray-500",
+                  "mt-0.5 font-geist-semibold text-[11.5px] uppercase text-gray-400 dark:text-dk-faint",
                   labelClassName,
                 )}
               >
@@ -53,7 +53,7 @@ export function StatsSection({
               key={`${item.label}-${index}`}
               className={cn(
                 "flex-1 items-center",
-                index > 0 && "border-l border-gray-200 dark:border-gray-700",
+                index > 0 && "border-l border-gray-200 dark:border-dk-border",
                 itemClassName,
               )}
             >

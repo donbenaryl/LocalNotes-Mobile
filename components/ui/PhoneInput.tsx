@@ -61,8 +61,8 @@ export function PhoneInput({
       {label ? <FieldLabel label={label} /> : null}
       <View
         className={cn(
-          "h-14 flex-row items-center rounded-xl border bg-gray-50 px-4 dark:bg-gray-800",
-          error ? "border-error" : "border-gray-100 dark:border-gray-700",
+          "h-14 flex-row items-center rounded-xl border bg-gray-50 px-4 dark:bg-dk-card",
+          error ? "border-error" : "border-gray-100 dark:border-dk-border",
         )}
       >
         <Pressable
@@ -73,15 +73,15 @@ export function PhoneInput({
           className="flex-row items-center gap-1.5 cursor-pointer"
         >
           <Text className="text-xl">{selected.flag}</Text>
-          <Text className="font-geist text-base text-ink dark:text-gray-100">{selected.code}</Text>
+          <Text className="font-geist text-base text-ink dark:text-dk-text">{selected.code}</Text>
           <ChevronDown size={16} color="#6B7280" />
         </Pressable>
-        <View className="mx-3 h-6 w-px bg-gray-200 dark:bg-gray-600" />
-        <Text className="mr-2 font-geist text-[16px] text-gray-500 dark:text-gray-400">
+        <View className="mx-3 h-6 w-px bg-gray-200 dark:bg-dk-select" />
+        <Text className="mr-2 font-geist text-[16px] text-gray-500 dark:text-dk-muted">
           +{getCountryCallingCode(country)}
         </Text>
         <RNTextInput
-          className="flex-1 text-ink dark:text-gray-100 font-geist py-0 text-[16px]"
+          className="flex-1 text-ink dark:text-dk-text font-geist py-0 text-[16px]"
           // NativeWind can't express these; they keep the placeholder vertically centered like the value.
           style={{ textAlignVertical: "center", includeFontPadding: false }}
           placeholder={examplePlaceholder}

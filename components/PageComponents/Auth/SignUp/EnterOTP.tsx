@@ -91,13 +91,13 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
         <Mail size={22} color="#E76E04" strokeWidth={2} />
       </View>
 
-      <Text className="font-geist-semibold text-[28px] text-ink dark:text-gray-100 mb-2 leading-tight">
+      <Text className="font-geist-semibold text-[28px] text-ink dark:text-dk-text mb-2 leading-tight">
         {t('auth.signUp.checkInboxTitle')}
       </Text>
 
-      <Text className="font-geist text-[14.5px] text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
+      <Text className="font-geist text-[14.5px] text-gray-500 dark:text-dk-muted mb-8 leading-relaxed">
         {t('auth.signUp.checkInboxDescription')}{' '}
-        <Text className="font-geist-semibold text-ink dark:text-gray-100">
+        <Text className="font-geist-semibold text-ink dark:text-dk-text">
           {email}
         </Text>
         . {t('auth.signUp.checkInboxSuffix')}
@@ -117,7 +117,7 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
         </View>
       ) : null}
 
-      <Text className="flex items-center justify-center font-geist text-[13px] text-gray-500 dark:text-gray-400 mt-6">
+      <Text className="flex items-center justify-center font-geist text-[13px] text-gray-500 dark:text-dk-muted mt-6">
         {t('auth.verifyOtp.noCode')}
         <TouchableOpacity
           onPress={() => void handleResend()}
@@ -125,7 +125,7 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
           activeOpacity={0.7}
           className="cursor-pointer"
         >
-          <Text className="text-brand dark:text-gray-100 font-geist-medium underline relative top-1 pl-1">
+          <Text className="text-brand dark:text-dk-text font-geist-medium underline relative top-1 pl-1">
             {resendLoading ? t('auth.signUp.resending') : t('auth.signUp.resendCode')}
           </Text>
         </TouchableOpacity>
@@ -136,7 +136,7 @@ export function EnterOTP({ email, onVerified, onChangeEmail }: EnterOTPProps) {
         activeOpacity={0.7}
         className="flex-row items-center gap-1.5 mt-3 cursor-pointer"
       >
-        <Text className="font-geist text-[13px] text-gray-400 dark:text-gray-500">
+        <Text className="font-geist text-[13px] text-gray-400 dark:text-dk-faint">
           ← {t('auth.signUp.changeEmail')}
         </Text>
       </TouchableOpacity>

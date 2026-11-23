@@ -62,7 +62,7 @@ export function ListCommentsSheet({
   const gradientColors = getPersonalityGradientColors(
     list.account.personality_color,
   );
-  const accentColor = gradientColors[0] ?? "#141413";
+  const accentColor = gradientColors[0] ?? "#1A1714";
   const picksCount = list.items?.length ?? 0;
   const locationLabel = formatListLocation(list.location);
   const topPicksLabel = (list.items ?? [])
@@ -79,7 +79,7 @@ export function ListCommentsSheet({
         originRect={originRect}
         containerClassName="flex-1"
         containerStyle={{ maxHeight: height * PREVIEW_MAX_HEIGHT_RATIO }}
-        className="h-full overflow-hidden rounded-[24px] border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+        className="h-full overflow-hidden rounded-[24px] border border-gray-200 bg-card dark:border-dk-border dark:bg-dk-page"
       >
         {heroImageUrl ? (
           <CardHero
@@ -95,18 +95,18 @@ export function ListCommentsSheet({
               size="md"
               appearance="flat"
               outerClassName="h-14 w-14 rounded-2xl"
-              innerClassName="rounded-[13px] border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800"
+              innerClassName="rounded-[13px] border border-gray-200 bg-gray-50 dark:border-dk-border dark:bg-dk-card"
             />
             <View className="min-w-0 flex-1">
               <Text
-                className="font-geist-extrabold text-[20px] leading-6 text-ink dark:text-gray-100"
+                className="font-geist-extrabold text-[20px] leading-6 text-ink dark:text-dk-text"
                 numberOfLines={2}
               >
                 {list.name}
               </Text>
               {topPicksLabel ? (
                 <Text
-                  className="mt-1 font-geist-medium text-[13px] text-gray-500 dark:text-gray-400"
+                  className="mt-1 font-geist-medium text-[13px] text-gray-500 dark:text-dk-muted"
                   numberOfLines={2}
                 >
                   {topPicksLabel}
@@ -135,7 +135,7 @@ export function ListCommentsSheet({
             />
             <View className="min-w-0 flex-1">
               <Text
-                className="font-geist-semibold text-[14px] text-ink dark:text-gray-100"
+                className="font-geist-semibold text-[14px] text-ink dark:text-dk-text"
                 numberOfLines={1}
               >
                 {list.account.name}
@@ -150,7 +150,7 @@ export function ListCommentsSheet({
                 </Text>
               ) : (
                 <Text
-                  className="font-geist text-[12px] text-gray-500 dark:text-gray-400"
+                  className="font-geist text-[12px] text-gray-500 dark:text-dk-muted"
                   numberOfLines={1}
                 >
                   {t("home.picksCount", { count: picksCount })}
@@ -161,7 +161,7 @@ export function ListCommentsSheet({
 
           {notePreview ? (
             <Text
-              className="font-geist text-[13px] leading-5 text-gray-600 dark:text-gray-300"
+              className="font-geist text-[13px] leading-5 text-gray-600 dark:text-dk-body"
               numberOfLines={3}
             >
               {notePreview}
@@ -172,7 +172,7 @@ export function ListCommentsSheet({
             <View className="flex-row items-center gap-1.5">
               <MapPin size={12} color="#9CA3AF" />
               <Text
-                className="flex-1 font-geist text-[12px] text-gray-500 dark:text-gray-400"
+                className="flex-1 font-geist text-[12px] text-gray-500 dark:text-dk-muted"
                 numberOfLines={1}
               >
                 {locationLabel}

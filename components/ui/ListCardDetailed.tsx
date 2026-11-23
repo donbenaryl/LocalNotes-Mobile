@@ -396,7 +396,7 @@ export function ListCardDetailed({
   ]);
 
   const isDark = theme === "dark";
-  const iconDim = isDark ? "#6B7280" : "#A8A29E";
+  const iconDim = isDark ? "#8F877C" : "#9EA4AF";
 
   const isCollapsed = collapsible && !expanded;
   const whereLabel = cityLabel || list.account.name;
@@ -490,7 +490,7 @@ export function ListCardDetailed({
 
                   {!heroImageUrl ? (
                     <Text
-                      className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-gray-100"
+                      className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-dk-text"
                       numberOfLines={2}
                     >
                       {list.name}
@@ -498,7 +498,7 @@ export function ListCardDetailed({
                   ) : null}
 
                   {list.notes ? (
-                    <Text className="mb-3 font-geist text-[14.5px] leading-5 text-gray-500 dark:text-gray-400">
+                    <Text className="mb-3 font-geist text-[14.5px] leading-5 text-gray-500 dark:text-dk-muted">
                       {stripHtml(list.notes)}
                     </Text>
                   ) : null}
@@ -534,7 +534,7 @@ export function ListCardDetailed({
                 className="min-h-10 cursor-pointer flex-row items-center justify-center gap-1.5"
                 hitSlop={4}
               >
-                <Text className="font-geist-semibold text-[12.5px] text-gray-400 dark:text-gray-500">
+                <Text className="font-geist-semibold text-[12.5px] text-gray-400 dark:text-dk-faint">
                   {t("profile.lists.showLess")}
                 </Text>
                 <ChevronDown

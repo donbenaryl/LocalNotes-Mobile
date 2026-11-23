@@ -27,7 +27,7 @@ const ACTION_CONFIG: Record<
   save: { label: "saved", icon: Bookmark, color: "#EAB308" },
   share: { label: "shared", icon: Share2, color: "#A855F7" },
   comment: { label: "commented on", icon: MessageCircle, color: "#3B82F6" },
-  follow: { label: "followed", icon: UserPlus, color: "#141413" },
+  follow: { label: "followed", icon: UserPlus, color: "#1A1714" },
 };
 
 export function ActivityFeedCard({ item }: ActivityFeedCardProps) {
@@ -44,14 +44,14 @@ export function ActivityFeedCard({ item }: ActivityFeedCardProps) {
       />
 
       <View className="flex-1 min-w-0">
-        <Text className="text-sm text-gray-800 dark:text-gray-200 leading-snug">
+        <Text className="text-sm text-gray-800 dark:text-dk-body leading-snug">
           <Text className="font-geist-semibold">{item.account.name}</Text>
           {" "}
-          <Text className="text-gray-600 dark:text-gray-400">{config.label}</Text>
+          <Text className="text-gray-600 dark:text-dk-muted">{config.label}</Text>
           {item.data.name ? (
             <>
               {" "}
-              <Text className="font-geist-medium text-ink dark:text-gray-100">
+              <Text className="font-geist-medium text-ink dark:text-dk-text">
                 {item.data.name}
               </Text>
             </>

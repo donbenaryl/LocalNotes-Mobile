@@ -422,7 +422,7 @@ export default function ClaimBusinessForm() {
 
   const renderBusinessCard = () => (
     <WhiteBox className="mb-5 flex-row items-center gap-3">
-      <View className="h-14 w-14 overflow-hidden rounded-xl bg-soft dark:bg-gray-700">
+      <View className="h-14 w-14 overflow-hidden rounded-xl bg-soft dark:bg-dk-elevated">
         {logoUri ? (
           <Image
             source={{ uri: logoUri }}
@@ -439,19 +439,19 @@ export default function ClaimBusinessForm() {
       </View>
       <View className="min-w-0 flex-1">
         {businessType ? (
-          <Text className="font-geist-medium text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <Text className="font-geist-medium text-[11px] uppercase tracking-wide text-gray-500 dark:text-dk-muted">
             {businessType}
           </Text>
         ) : null}
         <Text
-          className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
+          className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {targetName || t("claimBusiness.form.untitledBusiness")}
         </Text>
         {locationLabel ? (
           <Text
-            className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-gray-400"
+            className="mt-0.5 font-geist text-[12px] text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {locationLabel}
@@ -489,38 +489,38 @@ export default function ClaimBusinessForm() {
         "mb-3 rounded-2xl border p-4 cursor-pointer",
         selected
           ? "border-brand bg-brand-tint dark:bg-brand/20"
-          : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
+          : "border-gray-200 bg-card dark:border-dk-border dark:bg-dk-card",
         !enabled && "opacity-45",
       )}
     >
       <View className="flex-row items-start gap-3">
-        <View className="h-10 w-10 items-center justify-center rounded-xl bg-soft dark:bg-gray-700">
+        <View className="h-10 w-10 items-center justify-center rounded-xl bg-soft dark:bg-dk-elevated">
           {icon}
         </View>
         <View className="min-w-0 flex-1">
           <View className="flex-row items-center gap-2">
-            <Text className="font-geist-semibold text-[14px] text-ink dark:text-gray-100">
+            <Text className="font-geist-semibold text-[14px] text-ink dark:text-dk-text">
               {title}
             </Text>
             {badge ? (
               <View className="rounded-md bg-brand-tint px-1.5 py-0.5 dark:bg-brand/30">
-                <Text className="font-geist-bold text-[10px] uppercase tracking-wide text-brand dark:text-gray-100">
+                <Text className="font-geist-bold text-[10px] uppercase tracking-wide text-brand dark:text-dk-text">
                   {badge}
                 </Text>
               </View>
             ) : null}
           </View>
-          <Text className="mt-1 font-geist text-[13px] leading-5 text-gray-600 dark:text-gray-300">
+          <Text className="mt-1 font-geist text-[13px] leading-5 text-gray-600 dark:text-dk-body">
             {body}
           </Text>
           <View className="mt-2 flex-row items-center gap-1.5">
             <Clock size={12} color="#9CA3AF" />
-            <Text className="font-geist text-[11px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist text-[11px] text-gray-500 dark:text-dk-muted">
               {timing}
             </Text>
           </View>
           {!enabled ? (
-            <Text className="mt-2 font-geist text-[11px] text-gray-500 dark:text-gray-400">
+            <Text className="mt-2 font-geist text-[11px] text-gray-500 dark:text-dk-muted">
               {t("claimBusiness.form.pathUnavailable")}
             </Text>
           ) : null}
@@ -536,13 +536,13 @@ export default function ClaimBusinessForm() {
         ? t("claimBusiness.form.timelineEmailSent")
         : t("claimBusiness.form.timelineCallPlaced");
     return (
-      <View className="mt-6 rounded-2xl border border-gray-100 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <View className="mt-6 rounded-2xl border border-gray-100 bg-card p-4 dark:border-dk-border dark:bg-dk-card">
         <View className="flex-row items-start gap-3">
           <View className="h-7 w-7 items-center justify-center rounded-full bg-success">
             <Check size={14} color="#FFFFFF" />
           </View>
           <View className="flex-1">
-            <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+            <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
               {sentLabel}
             </Text>
             <Text className="mt-0.5 font-geist text-[12px] text-gray-500">
@@ -552,29 +552,29 @@ export default function ClaimBusinessForm() {
             </Text>
           </View>
         </View>
-        <View className="my-3 ml-3.5 h-4 w-px bg-gray-200 dark:bg-gray-600" />
+        <View className="my-3 ml-3.5 h-4 w-px bg-gray-200 dark:bg-dk-select" />
         <View className="flex-row items-start gap-3">
           <View className="h-7 w-7 items-center justify-center rounded-full bg-brand">
             <Text className="font-geist-bold text-[12px] text-white">2</Text>
           </View>
           <View className="flex-1">
-            <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+            <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
               {t("claimBusiness.form.timelineVerify")}
             </Text>
-            <Text className="mt-0.5 font-geist text-[12px] text-brand dark:text-gray-100">
+            <Text className="mt-0.5 font-geist text-[12px] text-brand dark:text-dk-text">
               {t("claimBusiness.form.timelineInProgress")}
             </Text>
           </View>
         </View>
-        <View className="my-3 ml-3.5 h-4 w-px bg-gray-200 dark:bg-gray-600" />
+        <View className="my-3 ml-3.5 h-4 w-px bg-gray-200 dark:bg-dk-select" />
         <View className="flex-row items-start gap-3 opacity-50">
-          <View className="h-7 w-7 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600">
-            <Text className="font-geist-bold text-[12px] text-gray-600 dark:text-gray-300">
+          <View className="h-7 w-7 items-center justify-center rounded-full bg-gray-200 dark:bg-dk-select">
+            <Text className="font-geist-bold text-[12px] text-gray-600 dark:text-dk-body">
               3
             </Text>
           </View>
           <View className="flex-1">
-            <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+            <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
               {t("claimBusiness.form.timelineReview")}
             </Text>
             <Text className="mt-0.5 font-geist text-[12px] text-gray-500">
@@ -587,7 +587,7 @@ export default function ClaimBusinessForm() {
   };
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={headerTitle}
         onBack={
@@ -607,13 +607,13 @@ export default function ClaimBusinessForm() {
         {step === "paths" ? (
           <>
             {renderBusinessCard()}
-            <Text className="font-geist-bold text-[26px] leading-8 text-ink dark:text-gray-100 mt-2">
+            <Text className="font-geist-bold text-[26px] leading-8 text-ink dark:text-dk-text mt-2">
               {t("claimBusiness.form.heroLead")}{" "}
-              <Text className="font-fraunces text-[26px] text-brand dark:text-gray-100">
+              <Text className="font-fraunces text-[26px] text-brand dark:text-dk-text">
                 {t("claimBusiness.form.heroEm")}
               </Text>
             </Text>
-            <Text className="mt-3 font-geist text-[14px] leading-6 text-gray-600 dark:text-gray-300">
+            <Text className="mt-3 font-geist text-[14px] leading-6 text-gray-600 dark:text-dk-body">
               {t("claimBusiness.form.heroBody", {
                 name: targetName || t("claimBusiness.form.untitledBusiness"),
               })}
@@ -660,7 +660,7 @@ export default function ClaimBusinessForm() {
               onPress: () => setStep("document"),
             })}
 
-            <Text className="mt-2 text-center font-fraunces text-md leading-7 text-gray-500 dark:text-gray-400">
+            <Text className="mt-2 text-center font-fraunces text-md leading-7 text-gray-500 dark:text-dk-muted">
               {t("claimBusiness.form.terms")}
             </Text>
           </>
@@ -668,29 +668,29 @@ export default function ClaimBusinessForm() {
 
         {step === "email" ? (
           <>
-            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand dark:text-gray-100">
+            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand dark:text-dk-text">
               {t("claimBusiness.form.stepCodeSent")}
             </Text>
-            <Text className="mt-2 font-geist-bold text-[24px] text-ink dark:text-gray-100">
+            <Text className="mt-2 font-geist-bold text-[24px] text-ink dark:text-dk-text">
               {t("claimBusiness.form.enterCode")}
             </Text>
-            <Text className="mt-2 font-geist text-[14px] leading-5 text-gray-600 dark:text-gray-300">
+            <Text className="mt-2 font-geist text-[14px] leading-5 text-gray-600 dark:text-dk-body">
               {t("claimBusiness.form.codeSentTo", { email: maskedEmail })}
             </Text>
             <View className="mt-6">
               <OtpInput value={emailCode} onChange={setEmailCode} />
             </View>
-            <Text className="mt-4 font-geist text-[13px] text-gray-600 dark:text-gray-300">
+            <Text className="mt-4 font-geist text-[13px] text-gray-600 dark:text-dk-body">
               {t("claimBusiness.form.didntGetIt")}{" "}
               <Text
-                className="font-geist-semibold text-brand dark:text-gray-100"
+                className="font-geist-semibold text-brand dark:text-dk-text"
                 onPress={() => startEmailMutation.mutate()}
               >
                 {t("claimBusiness.form.resendCode")}
               </Text>
               {" · "}
               <Text
-                className="font-geist-semibold text-brand dark:text-gray-100"
+                className="font-geist-semibold text-brand dark:text-dk-text"
                 onPress={() => setStep("paths")}
               >
                 {t("claimBusiness.form.tryDifferentPath")}
@@ -702,29 +702,29 @@ export default function ClaimBusinessForm() {
 
         {step === "phone" ? (
           <>
-            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand dark:text-gray-100">
+            <Text className="font-geist-medium text-[11px] uppercase tracking-widest text-brand dark:text-dk-text">
               {t("claimBusiness.form.stepCodeCalled")}
             </Text>
-            <Text className="mt-2 font-geist-bold text-[24px] text-ink dark:text-gray-100">
+            <Text className="mt-2 font-geist-bold text-[24px] text-ink dark:text-dk-text">
               {t("claimBusiness.form.enterCode")}
             </Text>
-            <Text className="mt-2 font-geist text-[14px] leading-5 text-gray-600 dark:text-gray-300">
+            <Text className="mt-2 font-geist text-[14px] leading-5 text-gray-600 dark:text-dk-body">
               {t("claimBusiness.form.codeCalledTo", { phone: maskedPhone })}
             </Text>
             <View className="mt-6">
               <OtpInput value={phoneCode} onChange={setPhoneCode} />
             </View>
-            <Text className="mt-4 font-geist text-[13px] text-gray-600 dark:text-gray-300">
+            <Text className="mt-4 font-geist text-[13px] text-gray-600 dark:text-dk-body">
               {t("claimBusiness.form.didntGetIt")}{" "}
               <Text
-                className="font-geist-semibold text-brand dark:text-gray-100"
+                className="font-geist-semibold text-brand dark:text-dk-text"
                 onPress={() => startPhoneMutation.mutate()}
               >
                 {t("claimBusiness.form.resendCall")}
               </Text>
               {" · "}
               <Text
-                className="font-geist-semibold text-brand dark:text-gray-100"
+                className="font-geist-semibold text-brand dark:text-dk-text"
                 onPress={() => setStep("paths")}
               >
                 {t("claimBusiness.form.tryDifferentPath")}
@@ -757,7 +757,7 @@ export default function ClaimBusinessForm() {
                 hint={t("claimBusiness.form.proofHint")}
               />
               {proof ? (
-                <View className="mt-2 overflow-hidden rounded-xl border border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
+                <View className="mt-2 overflow-hidden rounded-xl border border-gray-100 bg-card dark:border-dk-border dark:bg-dk-card">
                   {proofIsImage ? (
                     <Image
                       source={{ uri: proof.uri }}
@@ -766,9 +766,9 @@ export default function ClaimBusinessForm() {
                     />
                   ) : (
                     <View className="flex-row items-center gap-3 px-4 py-4">
-                      <FileText size={20} color="#141413" />
+                      <FileText size={20} color="#1A1714" />
                       <Text
-                        className="min-w-0 flex-1 font-geist text-sm text-ink dark:text-gray-100"
+                        className="min-w-0 flex-1 font-geist text-sm text-ink dark:text-dk-text"
                         numberOfLines={1}
                       >
                         {proof.name}
@@ -828,14 +828,14 @@ export default function ClaimBusinessForm() {
                   <Pressable
                     onPress={() => setTypePickerOpen(true)}
                     accessibilityRole="button"
-                    className="mt-1.5 h-14 flex-row items-center rounded-xl border border-gray-100 bg-gray-50 px-4 dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
+                    className="mt-1.5 h-14 flex-row items-center rounded-xl border border-gray-100 bg-gray-50 px-4 dark:border-dk-border dark:bg-dk-card cursor-pointer"
                   >
                     <Text
                       className={cn(
                         "flex-1 font-geist text-base",
                         proposedType
-                          ? "text-ink dark:text-gray-100"
-                          : "text-gray-400 dark:text-gray-500",
+                          ? "text-ink dark:text-dk-text"
+                          : "text-gray-400 dark:text-dk-faint",
                       )}
                     >
                       {proposedType ||
@@ -872,7 +872,7 @@ export default function ClaimBusinessForm() {
               onPress={() => setStep("paths")}
               className="mt-2 cursor-pointer"
             >
-              <Text className="font-geist-semibold text-[13px] text-brand dark:text-gray-100">
+              <Text className="font-geist-semibold text-[13px] text-brand dark:text-dk-text">
                 {t("claimBusiness.form.tryDifferentPath")}
               </Text>
             </Pressable>

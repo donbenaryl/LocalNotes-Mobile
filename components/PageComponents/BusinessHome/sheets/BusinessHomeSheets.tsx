@@ -71,8 +71,8 @@ function LocationCompareRow({
   const pinColor = isLeader
     ? brandColor(colorScheme === 'dark')
     : colorScheme === 'dark'
-      ? '#9CA3AF'
-      : '#78716C';
+      ? '#A79E92'
+      : '#6C727F';
   const barWidth =
     maxMentions > 0 ? Math.max(6, Math.round((row.mentions / maxMentions) * 100)) : 0;
 
@@ -81,18 +81,18 @@ function LocationCompareRow({
       className={`rounded-2xl border px-3.5 py-3 ${
         isLeader
           ? 'border-brand/30 bg-brand-tint/60 dark:border-brand/40 dark:bg-brand/10'
-          : 'border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-900'
+          : 'border-gray-100 bg-card dark:border-dk-border dark:bg-dk-page'
       }`}
     >
       <View className="flex-row items-start gap-2.5">
         <View
           className={`mt-0.5 h-7 w-7 items-center justify-center rounded-full ${
-            isLeader ? 'bg-brand' : 'bg-gray-100 dark:bg-gray-800'
+            isLeader ? 'bg-brand' : 'bg-gray-100 dark:bg-dk-card'
           }`}
         >
           <Text
             className={`font-geist-bold text-[12px] ${
-              isLeader ? 'text-white' : 'text-gray-500 dark:text-gray-400'
+              isLeader ? 'text-white' : 'text-gray-500 dark:text-dk-muted'
             }`}
           >
             {rank}
@@ -102,7 +102,7 @@ function LocationCompareRow({
           <View className="flex-row flex-wrap items-center gap-1.5">
             <MapPin size={14} color={pinColor} />
             <Text
-              className="max-w-[70%] font-geist-bold text-[14px] text-ink dark:text-gray-100"
+              className="max-w-[70%] font-geist-bold text-[14px] text-ink dark:text-dk-text"
               numberOfLines={1}
             >
               {row.name}
@@ -120,29 +120,29 @@ function LocationCompareRow({
 
           <View className="mt-3 flex-row gap-3">
             <View className="flex-1">
-              <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+              <Text className="font-geist-extrabold text-2xl text-ink dark:text-dk-text">
                 {row.mentions}
               </Text>
-              <Text className="mt-0.5 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
+              <Text className="mt-0.5 font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted">
                 {t('businessHome.sheets.locationsCompare.mentions')}
               </Text>
             </View>
             <View className="flex-1">
               <View className="flex-row items-center gap-1">
-                <Heart size={14} color={colorScheme === 'dark' ? '#9CA3AF' : '#78716C'} />
-                <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                <Heart size={14} color={colorScheme === 'dark' ? '#A79E92' : '#6C727F'} />
+                <Text className="font-geist-extrabold text-2xl text-ink dark:text-dk-text">
                   {row.pick_favorites}
                 </Text>
               </View>
-              <Text className="mt-0.5 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400">
+              <Text className="mt-0.5 font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted">
                 {t('businessHome.sheets.locationsCompare.pickFavorites')}
               </Text>
             </View>
           </View>
 
-          <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+          <View className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-dk-card">
             <View
-              className={`h-full rounded-full ${isLeader ? 'bg-brand' : 'bg-gray-300 dark:bg-gray-600'}`}
+              className={`h-full rounded-full ${isLeader ? 'bg-brand' : 'bg-gray-300 dark:bg-dk-select'}`}
               style={{ width: `${barWidth}%` }}
             />
           </View>
@@ -373,7 +373,7 @@ export function BusinessHomeSheets({
               <Text className="font-geist-extrabold text-sm">
                 {t('businessHome.sheets.profile.hoursTitle', { days: hoursGapLabel })}
               </Text>
-              <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.profile.hoursBody', { days: hoursGapLabel })}
               </Text>
               <LocalNotesButton
@@ -389,15 +389,15 @@ export function BusinessHomeSheets({
           {/* Suggest Business Description */}
           <BusinessHomeCard className="mx-0 mt-2">
             <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.profile.descriptionTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
               {t('businessHome.sheets.profile.descriptionBody')}
             </Text>
             {isPaidMember && suggestQuota != null ? (
               <Text
                 className={`mt-2 font-geist text-xs ${
                   atSuggestCap
-                    ? 'text-gray-400 dark:text-gray-500'
-                    : 'text-gray-600 dark:text-gray-400'
+                    ? 'text-gray-400 dark:text-dk-faint'
+                    : 'text-gray-600 dark:text-dk-muted'
                 }`}
               >
                 {atSuggestCap
@@ -409,17 +409,17 @@ export function BusinessHomeSheets({
               </Text>
             ) : null}
             {!isPaidMember ? (
-              <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.profile.upgradeForDrafts')}
               </Text>
             ) : null}
             {showPreview ? (
-              <View className="mt-2 rounded-xl bg-soft p-3 dark:bg-gray-900">
+              <View className="mt-2 rounded-xl bg-soft p-3 dark:bg-dk-page">
                 <Text
                   className={`font-fraunces text-sm italic ${
                     hasDraft && !generating
-                      ? 'text-gray-700 dark:text-gray-300'
-                      : 'text-gray-500 dark:text-gray-400'
+                      ? 'text-gray-700 dark:text-dk-body'
+                      : 'text-gray-500 dark:text-dk-muted'
                   }`}
                 >
                   {draftPreview}
@@ -480,13 +480,13 @@ export function BusinessHomeSheets({
         <SheetScroll>
           <BusinessHomeCard className="mx-0 mt-2">
             <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.alerts.attentionTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-dk-muted">
               {t('businessHome.sheets.alerts.attentionBody')}
             </Text>
           </BusinessHomeCard>
           <BusinessHomeCard className="mx-0 mt-2">
             <Text className="font-geist-extrabold text-sm">{t('businessHome.sheets.alerts.opportunityTitle')}</Text>
-            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
               {t('businessHome.sheets.alerts.opportunityBody')}
             </Text>
             <LocalNotesButton
@@ -514,7 +514,7 @@ export function BusinessHomeSheets({
         <SheetScroll>
           {reportQuery.isError && !monthlyReport ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.report.error')}
               </Text>
               <LocalNotesButton
@@ -528,7 +528,7 @@ export function BusinessHomeSheets({
             </BusinessHomeCard>
           ) : reportViewState === 'loading' || reportViewState === 'building' ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {reportMonth
                   ? t('businessHome.sheets.report.building', { month: reportMonth })
                   : t('businessHome.sheets.report.buildingNoMonth')}
@@ -539,11 +539,11 @@ export function BusinessHomeSheets({
               <Text className="font-geist-extrabold text-sm">
                 {t('businessHome.sheets.report.insufficientTitle')}
               </Text>
-              <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.report.insufficientBody', { month: reportMonth })}
               </Text>
               {monthlyReport.insufficient ? (
-                <Text className="mt-1 font-geist-bold text-xs text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist-bold text-xs text-gray-600 dark:text-dk-muted">
                   {t('businessHome.sheets.report.insufficientProgress', {
                     current: monthlyReport.insufficient.current,
                     needed: monthlyReport.insufficient.needed,
@@ -557,7 +557,7 @@ export function BusinessHomeSheets({
                 <Text className="font-geist-extrabold text-sm">
                   {t('businessHome.sheets.report.oneLineTitle')}
                 </Text>
-                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                   {t(headlineKey(monthlyReport.status), {
                     month: reportMonth,
                     visitors: monthlyReport.volume.visitors ?? 0,
@@ -575,16 +575,16 @@ export function BusinessHomeSheets({
                   const label = formatDelta(delta);
                   return (
                     <View key={metric} className="mt-1.5 flex-row items-baseline gap-2">
-                      <Text className="flex-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                      <Text className="flex-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                         {t(`businessHome.sheets.report.metrics.${metric}`)}
                       </Text>
-                      <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                      <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                         {monthlyReport.volume[metric] ?? 0}
                       </Text>
                       {label ? (
                         <Text
                           className={`font-geist-bold text-xs ${
-                            (delta ?? 0) > 0 ? 'text-success' : 'text-gray-500 dark:text-gray-400'
+                            (delta ?? 0) > 0 ? 'text-success' : 'text-gray-500 dark:text-dk-muted'
                           }`}
                         >
                           {label}
@@ -608,7 +608,7 @@ export function BusinessHomeSheets({
         <SheetScroll>
           {locationCompareQuery.isError ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.locationsCompare.error')}
               </Text>
               <LocalNotesButton
@@ -629,7 +629,7 @@ export function BusinessHomeSheets({
               {[0, 1].map((key) => (
                 <View
                   key={key}
-                  className="rounded-2xl border border-gray-100 bg-white px-3.5 py-3 dark:border-gray-700 dark:bg-gray-900"
+                  className="rounded-2xl border border-gray-100 bg-card px-3.5 py-3 dark:border-dk-border dark:bg-dk-page"
                 >
                   <View className="flex-row items-center gap-2.5">
                     <Skeleton className="h-7 w-7 rounded-full" />
@@ -645,24 +645,24 @@ export function BusinessHomeSheets({
             </View>
           ) : locationRows.length < 2 ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.locationsCompare.needTwo')}
               </Text>
             </BusinessHomeCard>
           ) : !hasLocationActivity ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-[13px] leading-[1.5] text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.locationsCompare.empty')}
               </Text>
             </BusinessHomeCard>
           ) : (
             <View className="mt-2 gap-2.5">
               <BusinessHomeCard className="mx-0">
-                <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+                <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
                   {t('businessHome.sheets.locationsCompare.headline')}
                 </Text>
                 {locationInsight ? (
-                  <Text className="mt-1.5 font-geist text-[12.5px] leading-[1.5] text-gray-600 dark:text-gray-400">
+                  <Text className="mt-1.5 font-geist text-[12.5px] leading-[1.5] text-gray-600 dark:text-dk-muted">
                     {t('businessHome.sheets.locationsCompare.insight', {
                       leader: locationInsight.leader.name,
                       leaderCount: locationInsight.leader.mentions,
@@ -696,7 +696,7 @@ export function BusinessHomeSheets({
         <SheetScroll>
           {compareView === 'error' ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.compare.error')}
               </Text>
               <LocalNotesButton
@@ -710,13 +710,13 @@ export function BusinessHomeSheets({
             </BusinessHomeCard>
           ) : compareView === 'loading' ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.compare.loading')}
               </Text>
             </BusinessHomeCard>
           ) : compareView === 'empty' ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.compare.empty')}
               </Text>
             </BusinessHomeCard>
@@ -727,7 +727,7 @@ export function BusinessHomeSheets({
                   {t('businessHome.sheets.compare.headline')}
                 </Text>
                 <View className="mt-3">
-                  <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                  <Text className="font-geist-extrabold text-2xl text-ink dark:text-dk-text">
                     {formatEfficiency(campaignInsight?.current_redeemed_per_dollar)}
                   </Text>
                   <Text className="mt-1 text-[11px] text-gray-500">
@@ -739,7 +739,7 @@ export function BusinessHomeSheets({
                 <Text className="font-geist-extrabold text-sm">
                   {t('businessHome.sheets.compare.meaningTitle')}
                 </Text>
-                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                   {t('businessHome.sheets.compare.insufficient')}
                 </Text>
               </BusinessHomeCard>
@@ -760,7 +760,7 @@ export function BusinessHomeSheets({
                     </Text>
                   </View>
                   <View className="flex-1">
-                    <Text className="font-geist-extrabold text-2xl text-ink dark:text-gray-100">
+                    <Text className="font-geist-extrabold text-2xl text-ink dark:text-dk-text">
                       {formatEfficiency(campaignInsight?.previous_redeemed_per_dollar)}
                     </Text>
                     <Text className="mt-1 text-[11px] text-gray-500">
@@ -773,7 +773,7 @@ export function BusinessHomeSheets({
                 <Text className="font-geist-extrabold text-sm">
                   {t('businessHome.sheets.compare.meaningTitle')}
                 </Text>
-                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                   {t(insightMeaningI18nKey(insightKey), insightParams)}
                 </Text>
               </BusinessHomeCard>
@@ -791,7 +791,7 @@ export function BusinessHomeSheets({
         <SheetScroll>
           {campaignQuery.isError && !campaignResults ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.snapshot.error')}
               </Text>
               <LocalNotesButton
@@ -805,13 +805,13 @@ export function BusinessHomeSheets({
             </BusinessHomeCard>
           ) : campaignQuery.isLoading ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.snapshot.loading')}
               </Text>
             </BusinessHomeCard>
           ) : !campaignResults ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.snapshot.empty')}
               </Text>
             </BusinessHomeCard>
@@ -821,12 +821,12 @@ export function BusinessHomeSheets({
                 <Text className="font-geist-extrabold text-sm">
                   {t('businessHome.sheets.snapshot.metricsTitle')}
                 </Text>
-                <Text className="mt-1 font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+                <Text className="mt-1 font-geist-extrabold text-[15px] text-ink dark:text-dk-text">
                   {campaignResults.name}
                 </Text>
                 <View className="mt-2 flex-row gap-4">
                   <View>
-                    <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+                    <Text className="font-geist-extrabold text-lg text-ink dark:text-dk-text">
                       {formatSpendCents(
                         campaignResults.spend_cents,
                         campaignResults.currency,
@@ -837,7 +837,7 @@ export function BusinessHomeSheets({
                     </Text>
                   </View>
                   <View>
-                    <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+                    <Text className="font-geist-extrabold text-lg text-ink dark:text-dk-text">
                       {campaignResults.redeemed}
                     </Text>
                     <Text className="text-[10px] uppercase text-gray-500">
@@ -845,7 +845,7 @@ export function BusinessHomeSheets({
                     </Text>
                   </View>
                   <View>
-                    <Text className="font-geist-extrabold text-lg text-ink dark:text-gray-100">
+                    <Text className="font-geist-extrabold text-lg text-ink dark:text-dk-text">
                       {formatEfficiency(campaignInsight?.current_redeemed_per_dollar)}
                     </Text>
                     <Text className="text-[10px] uppercase text-gray-500">
@@ -858,10 +858,10 @@ export function BusinessHomeSheets({
                 <Text className="font-geist-extrabold text-sm">
                   {t('businessHome.sheets.snapshot.insightTitle')}
                 </Text>
-                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                   {t(insightHeadlineI18nKey(insightKey), insightParams)}
                 </Text>
-                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-xs text-gray-600 dark:text-dk-muted">
                   {t(insightMeaningI18nKey(insightKey), insightParams)}
                 </Text>
               </BusinessHomeCard>
@@ -879,7 +879,7 @@ export function BusinessHomeSheets({
         <SheetScroll>
           {campaignQuery.isError && !campaignResults ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.setup.error')}
               </Text>
               <LocalNotesButton
@@ -902,17 +902,17 @@ export function BusinessHomeSheets({
             </BusinessHomeCard>
           ) : !campaignResults ? (
             <BusinessHomeCard className="mx-0 mt-2">
-              <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
                 {t('businessHome.sheets.setup.empty')}
               </Text>
             </BusinessHomeCard>
           ) : (
             <>
               <BusinessHomeCard className="mx-0 mt-2">
-                <Text className="font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+                <Text className="font-geist-extrabold text-[15px] text-ink dark:text-dk-text">
                   {campaignResults.name}
                 </Text>
-                <Text className="mt-1 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-gray-400">
+                <Text className="mt-1 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-dk-muted">
                   {campaignResults.description?.trim()
                     ? campaignResults.description
                     : t('businessHome.sheets.setup.noDescription')}

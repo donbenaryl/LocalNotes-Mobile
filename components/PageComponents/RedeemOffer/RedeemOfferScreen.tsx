@@ -284,7 +284,7 @@ export default function RedeemOfferScreen() {
     : t('redeemOffer.uploadQr');
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader title={t('redeemOffer.title')} />
       <AppScrollView
         className="flex-1"
@@ -340,38 +340,38 @@ export default function RedeemOfferScreen() {
         {result ? (
           <WhiteBox className="gap-3 p-4">
             <View>
-              <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                 {t('redeemOffer.offerLabel')}
               </Text>
-              <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
+              <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
                 {result.title}
               </Text>
             </View>
 
             <View>
-              <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                 {t('redeemOffer.customerLabel')}
               </Text>
-              <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
+              <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
                 {customerLabel}
               </Text>
               {result.customer?.username ? (
-                <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+                <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                   @{result.customer.username}
                 </Text>
               ) : null}
             </View>
 
             <View>
-              <Text className="mb-1 font-geist-extrabold text-xl tracking-widest text-ink dark:text-gray-100">
+              <Text className="mb-1 font-geist-extrabold text-xl tracking-widest text-ink dark:text-dk-text">
                 {result.code}
               </Text>
               {isUsed ? (
                 <>
-                  <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
+                  <Text className="font-geist-semibold text-sm text-brand dark:text-dk-text">
                     {t('redeemOffer.statusUsed')}
                   </Text>
-                  <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
+                  <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted">
                     {t('redeemOffer.usedAt', {
                       time: formatRelativeTime(result.used_at as string),
                     })}
@@ -400,20 +400,20 @@ export default function RedeemOfferScreen() {
         ) : null}
 
         <View className="mt-2 gap-3">
-          <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
+          <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
             {t('redeemOffer.historyTitle')}
           </Text>
 
           {redeemedQuery.isPending && redeemedItems.length === 0 ? (
             <View className="items-center py-6">
-              <ActivityIndicator color="#141413" />
-              <Text className="mt-2 font-geist text-sm text-gray-500 dark:text-gray-400">
+              <ActivityIndicator color="#1A1714" />
+              <Text className="mt-2 font-geist text-sm text-gray-500 dark:text-dk-muted">
                 {t('redeemOffer.historyLoading')}
               </Text>
             </View>
           ) : redeemedQuery.isError && redeemedItems.length === 0 ? (
             <WhiteBox className="items-center gap-3 p-4">
-              <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+              <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
                 {t('redeemOffer.historyError')}
               </Text>
               <LocalNotesButton
@@ -426,7 +426,7 @@ export default function RedeemOfferScreen() {
             </WhiteBox>
           ) : redeemedItems.length === 0 ? (
             <WhiteBox className="p-4">
-              <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                 {t('redeemOffer.historyEmpty')}
               </Text>
             </WhiteBox>
@@ -439,18 +439,18 @@ export default function RedeemOfferScreen() {
                   t('redeemOffer.unknownCustomer');
                 return (
                   <WhiteBox key={item.id} className="gap-1.5 p-4">
-                    <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
+                    <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
                       {item.title}
                     </Text>
-                    <Text className="font-geist-extrabold text-sm tracking-widest text-ink dark:text-gray-100">
+                    <Text className="font-geist-extrabold text-sm tracking-widest text-ink dark:text-dk-text">
                       {item.code}
                     </Text>
-                    <Text className="font-geist text-sm text-gray-600 dark:text-gray-300">
+                    <Text className="font-geist text-sm text-gray-600 dark:text-dk-body">
                       {name}
                       {item.customer?.username ? ` (@${item.customer.username})` : ''}
                     </Text>
                     {item.used_at ? (
-                      <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+                      <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                         {t('redeemOffer.usedAt', {
                           time: formatRelativeTime(item.used_at),
                         })}

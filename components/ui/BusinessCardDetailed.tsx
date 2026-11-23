@@ -52,20 +52,20 @@ function BranchRowContent({ name, location, iconColor }: BranchRowContentProps) 
 
   return (
     <>
-      <View className="h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-gray-900">
+      <View className="h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-card dark:bg-dk-page">
         <MapPin size={16} color={iconColor} />
       </View>
 
       <View className="min-w-0 flex-1 justify-center">
         <Text
-          className="font-geist-semibold text-md text-ink dark:text-gray-100"
+          className="font-geist-semibold text-md text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {name || streetAddress || cityLabel}
         </Text>
         {cityLabel ? (
           <Text
-            className="font-geist text-xs text-gray-500 dark:text-gray-400"
+            className="font-geist text-xs text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {streetAddress && name ? `${streetAddress} · ${cityLabel}` : cityLabel}
@@ -112,7 +112,7 @@ export function BusinessCardDetailed({
   const followerCount = business.follower_count ?? 0;
   const shareCount = business.share_count ?? 0;
   const isDark = theme === "dark";
-  const iconColor = isDark ? "#9CA3AF" : "#6B7280";
+  const iconColor = isDark ? "#A79E92" : "#6C727F";
   const showHeroFollow = Boolean(logoUrl) && !isOwnBusiness;
   const showIdentityBlock =
     !logoUrl || Boolean(business.bio) || showHeroFollow;
@@ -163,7 +163,7 @@ export function BusinessCardDetailed({
                   disableAvatarNavigation
                 />
                 <Text
-                  className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-gray-100"
+                  className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-dk-text"
                   numberOfLines={2}
                 >
                   {business.name}
@@ -186,7 +186,7 @@ export function BusinessCardDetailed({
 
             {business.bio ? (
               <Text
-                className="mb-3 font-geist text-[14.5px] leading-5 text-gray-500 dark:text-gray-400"
+                className="mb-3 font-geist text-[14.5px] leading-5 text-gray-500 dark:text-dk-muted"
                 numberOfLines={3}
               >
                 {business.bio}
@@ -198,7 +198,7 @@ export function BusinessCardDetailed({
 
       {hasLocation ? (
         <View
-          className={`mx-4 mb-3 rounded-2xl bg-soft px-3 pt-3 dark:bg-gray-800 ${
+          className={`mx-4 mb-3 rounded-2xl bg-soft px-3 pt-3 dark:bg-dk-card ${
             showIdentityBlock ? "" : "mt-3"
           } ${isShowingAllBranches ? "pb-1" : "pb-3"}`}
         >
@@ -213,7 +213,7 @@ export function BusinessCardDetailed({
                     accessibilityLabel={branch.name || business.name}
                     className={`cursor-pointer flex-row items-center gap-3 py-1 ${
                       index > 0
-                        ? "border-t border-gray-200/60 dark:border-gray-700/60"
+                        ? "border-t border-gray-200/60 dark:border-dk-border/60"
                         : ""
                     }`}
                   >
@@ -231,11 +231,11 @@ export function BusinessCardDetailed({
                 accessibilityRole="button"
                 accessibilityLabel={t("home.business.showLessBranches")}
                 accessibilityState={{ expanded: true }}
-                className="mt-1 cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-200/80 pt-2.5 pb-1.5 dark:border-gray-700"
+                className="mt-1 cursor-pointer flex-row items-center justify-center gap-1.5 border-t border-gray-200/80 pt-2.5 pb-1.5 dark:border-dk-border"
                 hitSlop={4}
               >
                 <ChevronUp size={15} color={iconColor} />
-                <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-gray-300">
+                <Text className="font-geist-semibold text-[13px] text-gray-600 dark:text-dk-body">
                   {t("home.business.showLessBranches")}
                 </Text>
               </Pressable>
@@ -265,9 +265,9 @@ export function BusinessCardDetailed({
                     count: extraBranches,
                   })}
                   accessibilityState={{ expanded: false }}
-                  className="h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-white dark:bg-gray-900"
+                  className="h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-card dark:bg-dk-page"
                 >
-                  <Text className="text-md text-ink dark:text-gray-100">
+                  <Text className="text-md text-ink dark:text-dk-text">
                     {t("home.business.moreBranches", { count: extraBranches })}
                   </Text>
                 </Pressable>
@@ -288,16 +288,16 @@ export function BusinessCardDetailed({
           accessibilityLabel={business.name}
           className="cursor-pointer flex-row items-center gap-3"
         >
-          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
             {t("home.business.listsCount", { count: listCount })}
           </Text>
-          <Text className="text-sm text-gray-300 dark:text-gray-600">·</Text>
-          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+          <Text className="text-sm text-gray-300 dark:text-dk-faint">·</Text>
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
             {t("home.business.followersCount", { count: followerCount })}
           </Text>
         </Pressable>
 
-        <Text className="text-sm text-gray-300 dark:text-gray-600">·</Text>
+        <Text className="text-sm text-gray-300 dark:text-dk-faint">·</Text>
 
         <Pressable
           onPress={(e) => {
@@ -310,7 +310,7 @@ export function BusinessCardDetailed({
           hitSlop={4}
         >
           <Share2 size={11} color={iconColor} />
-          {/* <Text className="font-geist-semibold text-sm text-gray-500 dark:text-gray-400">
+          {/* <Text className="font-geist-semibold text-sm text-gray-500 dark:text-dk-muted">
             {shareCount}
           </Text> */}
         </Pressable>

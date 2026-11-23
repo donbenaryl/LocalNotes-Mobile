@@ -150,7 +150,7 @@ export function AddBranchModal({
               editable={!loading}
             />
             <View>
-              <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-gray-300">
+              <Text className="mb-1.5 font-geist-medium text-sm text-gray-700 dark:text-dk-body">
                 {t("editProfile.business.branchAddress")}
               </Text>
               <LocationInput
@@ -174,10 +174,10 @@ export function AddBranchModal({
               ) : null}
             </View>
             <View className="gap-2">
-              <Text className="font-geist-medium text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+              <Text className="font-geist-medium text-xs uppercase tracking-wider text-gray-400 dark:text-dk-faint">
                 {t("editProfile.business.hoursSection")}
               </Text>
-              <Text className="font-geist text-xs text-gray-400 dark:text-gray-500">
+              <Text className="font-geist text-xs text-gray-400 dark:text-dk-faint">
                 {t("editProfile.business.hoursHelper")}
               </Text>
               <OpeningHoursEditor

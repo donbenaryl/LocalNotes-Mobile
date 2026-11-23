@@ -167,7 +167,7 @@ export default function NotificationsFeed() {
   };
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t('notifications.title')}
         onBack={() => router.back()}
@@ -181,8 +181,8 @@ export default function NotificationsFeed() {
             <Text
               className={`font-geist-semibold text-[12.5px] ${
                 hasUnread && !isMarkingAllRead
-                  ? 'text-brand dark:text-gray-100'
-                  : 'text-gray-400 dark:text-gray-500'
+                  ? 'text-brand dark:text-dk-text'
+                  : 'text-gray-400 dark:text-dk-faint'
               }`}
             >
               {t('notifications.markAllAsRead')}
@@ -191,7 +191,7 @@ export default function NotificationsFeed() {
         }
       />
 
-      <View className="border-b border-gray-100 dark:border-gray-800">
+      <View className="border-b border-gray-100 dark:border-dk-line">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -210,7 +210,7 @@ export default function NotificationsFeed() {
 
       {isPending && !isRefetching ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#141413" />
+          <ActivityIndicator color="#1A1714" />
         </View>
       ) : (
         <AppScrollView
@@ -223,18 +223,18 @@ export default function NotificationsFeed() {
               onRefresh={() => {
                 void refetch();
               }}
-              tintColor="#141413"
+              tintColor="#1A1714"
             />
           }
         >
           {isError ? (
-            <Text className="px-4 py-8 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="px-4 py-8 text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t('notifications.loadingError')}
             </Text>
           ) : null}
 
           {isEmpty && !isError ? (
-            <Text className="px-6 py-12 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="px-6 py-12 text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
               {filter === 'all'
                 ? t('notifications.empty')
                 : t('notifications.emptyFiltered')}
@@ -244,7 +244,7 @@ export default function NotificationsFeed() {
           {unread.length > 0 ? (
             <View>
               <View className="flex-row items-center gap-1.5 px-[18px] pb-2 pt-3.5">
-                <Text className="font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <Text className="font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-dk-muted">
                   {t('notifications.sections.new')}
                 </Text>
                 <View className="h-1.5 w-1.5 rounded-full bg-brand" />
@@ -264,7 +264,7 @@ export default function NotificationsFeed() {
           {read.length > 0 ? (
             <View>
               <View className="px-[18px] pb-2 pt-3.5">
-                <Text className="font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <Text className="font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-dk-muted">
                   {t('notifications.sections.earlier')}
                 </Text>
               </View>

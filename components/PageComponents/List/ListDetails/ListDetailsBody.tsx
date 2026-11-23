@@ -43,18 +43,18 @@ export function ListDetailsBody({ list, viewOrigin }: ListDetailsBodyProps) {
     <>
       {items.length === 0 ? (
         <View className="mt-4 px-4">
-          <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
             {t("listDetail.noPicks")}
           </Text>
         </View>
       ) : (
-        <View className="mt-2 border-t border-gray-100 px-4 dark:border-gray-800">
+        <View className="mt-2 border-t border-gray-100 px-4 dark:border-dk-line">
           {items.map((item, index) => (
             <View
               key={item.id}
               className={
                 index > 0
-                  ? "border-t border-gray-100 dark:border-gray-800"
+                  ? "border-t border-gray-100 dark:border-dk-line"
                   : undefined
               }
             >
@@ -80,7 +80,7 @@ export function ListDetailsBody({ list, viewOrigin }: ListDetailsBodyProps) {
               <>
                 <MapPin size={14} color="#57534E" />
                 <Text
-                  className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
+                  className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted"
                   numberOfLines={2}
                 >
                   {locationLabel}

@@ -141,7 +141,7 @@ export function ListDetailsMain({
       >
         {!listId ? (
           <View className="items-center justify-center px-6 py-16">
-            <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
+            <Text className="font-geist text-base text-gray-500 dark:text-dk-muted">
               {t("listDetail.error")}
             </Text>
           </View>
@@ -149,7 +149,7 @@ export function ListDetailsMain({
           <ListDetailsSkeleton />
         ) : isError || !list ? (
           <View className="items-center justify-center px-6 py-16">
-            <Text className="mb-4 text-center font-geist text-base text-gray-500 dark:text-gray-400">
+            <Text className="mb-4 text-center font-geist text-base text-gray-500 dark:text-dk-muted">
               {t("listDetail.error")}
             </Text>
             <LocalNotesButton

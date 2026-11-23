@@ -401,10 +401,10 @@ export default function BusinessHomeScreen() {
     return (
       <View
         style={styles.root}
-        className="items-center justify-center bg-page dark:bg-gray-900"
+        className="items-center justify-center bg-page dark:bg-dk-page"
       >
         <Stack.Screen options={{ gestureEnabled: !needsLocalSwipe }} />
-        <ActivityIndicator size="large" color="#141413" />
+        <ActivityIndicator size="large" color="#1A1714" />
       </View>
     );
   }
@@ -413,13 +413,13 @@ export default function BusinessHomeScreen() {
     canPop && stack.length >= 2 ? stack[stack.length - 2] : null;
 
   return (
-    <View style={styles.root} className="bg-page dark:bg-gray-900">
+    <View style={styles.root} className="bg-page dark:bg-dk-page">
       <Stack.Screen options={{ gestureEnabled: !needsLocalSwipe }} />
 
       {underlayPageId ? (
         <Animated.View
           style={[styles.layer, underlayStyle]}
-          className="bg-page dark:bg-gray-900"
+          className="bg-page dark:bg-dk-page"
           pointerEvents="none"
         >
           {renderPage(underlayPageId)}
@@ -428,7 +428,7 @@ export default function BusinessHomeScreen() {
 
       <Animated.View
         style={[styles.layer, foregroundStyle]}
-        className="bg-page dark:bg-gray-900"
+        className="bg-page dark:bg-dk-page"
       >
         {renderPage(page)}
       </Animated.View>

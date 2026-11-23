@@ -50,10 +50,10 @@ export default function BusinessAiCreditsPage() {
   if (!isPaid) {
     body = (
       <BusinessHomeCard variant="upsell" className="mt-4">
-        <Text className="font-geist-extrabold text-base text-ink dark:text-gray-100">
+        <Text className="font-geist-extrabold text-base text-ink dark:text-dk-text">
           {t('businessHome.aiCredits.page.notEntitledBranch', { branchName })}
         </Text>
-        <Text className="mt-2 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-2 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t('businessHome.aiCredits.page.notEntitledBody')}
         </Text>
         <View className="mt-3">
@@ -77,7 +77,7 @@ export default function BusinessAiCreditsPage() {
   } else if (!detail) {
     body = (
       <View className="items-center gap-3 px-6 py-10">
-        <Text className="text-center font-geist text-sm text-gray-600 dark:text-gray-400">
+        <Text className="text-center font-geist text-sm text-gray-600 dark:text-dk-muted">
           {t('businessHome.aiCredits.page.error')}
         </Text>
         <LocalNotesButton
@@ -98,7 +98,7 @@ export default function BusinessAiCreditsPage() {
 
         {detail.daily.length > 0 ? (
           <BusinessHomeCard className="mt-3">
-            <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+            <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
               {t('businessHome.aiCredits.page.thisMonthByDay')}
             </Text>
             <InsightsBars
@@ -114,13 +114,13 @@ export default function BusinessAiCreditsPage() {
 
         {detail.history.length > 0 ? (
           <BusinessHomeCard className="mt-3">
-            <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+            <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
               {t('businessHome.aiCredits.page.previousMonths')}
             </Text>
             {detail.history.map((row) => (
               <Text
                 key={row.period_start}
-                className="py-1 font-geist text-[13px] text-gray-600 dark:text-gray-400"
+                className="py-1 font-geist text-[13px] text-gray-600 dark:text-dk-muted"
               >
                 {t('businessHome.aiCredits.page.monthRow', {
                   month: historyMonthLabel(row.period_start, i18n.language),
@@ -133,13 +133,13 @@ export default function BusinessAiCreditsPage() {
         ) : null}
 
         <BusinessHomeCard className="mt-3">
-          <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+          <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
             {t('businessHome.aiCredits.page.howItWorksTitle')}
           </Text>
           {HOW_IT_WORKS.map((id) => (
             <Text
               key={id}
-              className="mt-1.5 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-gray-400"
+              className="mt-1.5 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-dk-muted"
             >
               {`• ${t(`businessHome.aiCredits.page.howItWorks.${id}`, { allowance: detail.allowance })}`}
             </Text>
@@ -147,7 +147,7 @@ export default function BusinessAiCreditsPage() {
           <Text
             onPress={() => setHowOpen(true)}
             accessibilityRole="link"
-            className="mt-3 font-geist-bold text-sm text-brand dark:text-gray-100"
+            className="mt-3 font-geist-bold text-sm text-brand dark:text-dk-text"
           >
             {t('businessHome.aiCredits.page.seeCalculation')}
           </Text>
@@ -162,7 +162,7 @@ export default function BusinessAiCreditsPage() {
             disabled={!asking}
           />
           {!asking ? (
-            <Text className="mt-2 text-center font-geist text-xs text-gray-500 dark:text-gray-400">
+            <Text className="mt-2 text-center font-geist text-xs text-gray-500 dark:text-dk-muted">
               {t('businessHome.aiCredits.page.exhausted', { allowance: detail.allowance })}
             </Text>
           ) : null}

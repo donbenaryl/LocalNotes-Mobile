@@ -12,7 +12,7 @@ export function PageFooterWrapper({
 }: PageFooterWrapperProps) {
   return (
     <View
-      className={`absolute bottom-0 left-0 right-0 px-6 pt-3 pb-6 bg-page dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 ${className}`}
+      className={`absolute bottom-0 left-0 right-0 px-6 pt-3 pb-6 bg-page dark:bg-dk-page border-t border-gray-200 dark:border-dk-line ${className}`}
       style={{ zIndex: 10, elevation: 10 }}
     >
       {children}

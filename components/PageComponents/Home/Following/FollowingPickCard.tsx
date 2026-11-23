@@ -124,10 +124,10 @@ function FollowingPickCardContent({ item, pick }: FollowingPickCardContentProps)
         onPress={() => setIsDetailOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={placeName}
-        className="cursor-pointer flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-soft dark:border-gray-700 dark:bg-gray-800/60 p-3"
+        className="cursor-pointer flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-soft dark:border-dk-border dark:bg-dk-card/60 p-3"
       >
         {imageUrl ? (
-          <View className="h-9 w-9 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-700">
+          <View className="h-9 w-9 shrink-0 overflow-hidden rounded-xl bg-gray-100 dark:bg-dk-elevated">
             <Image source={{ uri: imageUrl }} className="h-full w-full" resizeMode="cover" />
           </View>
         ) : (
@@ -140,7 +140,7 @@ function FollowingPickCardContent({ item, pick }: FollowingPickCardContentProps)
 
         <View className="min-w-0 flex-1 gap-0.5">
           <Text
-            className="font-geist-semibold text-sm text-ink dark:text-gray-100"
+            className="font-geist-semibold text-sm text-ink dark:text-dk-text"
             numberOfLines={1}
           >
             {placeName}

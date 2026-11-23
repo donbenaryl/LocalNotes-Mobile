@@ -181,8 +181,8 @@ export function ListEngagementRow({
   );
 
   const isDark = colorScheme === "dark";
-  const iconMuted = isDark ? "#9CA3AF" : "#57534E";
-  const iconDim = isDark ? "#6B7280" : "#A8A29E";
+  const iconMuted = isDark ? "#A79E92" : "#4b4f57";
+  const iconDim = isDark ? "#8F877C" : "#9EA4AF";
   const iconBrand = brandColor(isDark);
 
   return (
@@ -216,8 +216,8 @@ export function ListEngagementRow({
             className={cn(
               "font-geist-semibold text-[12.5px]",
               isSaved
-                ? "text-brand dark:text-gray-100"
-                : "text-gray-500 dark:text-gray-400",
+                ? "text-brand dark:text-dk-text"
+                : "text-gray-500 dark:text-dk-muted",
             )}
           >
             {t("home.savesCountShort", { count: saves })}
@@ -244,8 +244,8 @@ export function ListEngagementRow({
             className={cn(
               "font-geist-semibold text-[12.5px]",
               isLiked
-                ? "text-brand dark:text-gray-100"
-                : "text-gray-500 dark:text-gray-400",
+                ? "text-brand dark:text-dk-text"
+                : "text-gray-500 dark:text-dk-muted",
             )}
           >
             {t("home.reactionsCountShort", { count: likes })}
@@ -262,7 +262,7 @@ export function ListEngagementRow({
           hitSlop={4}
         >
           <MessageCircle size={13} color={iconMuted} />
-          <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
+          <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
             {t("home.commentsCountShort", { count: commentsCount })}
           </Text>
         </Pressable>

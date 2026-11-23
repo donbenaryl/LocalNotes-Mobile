@@ -101,14 +101,14 @@ export function AlertsSection({
           >
             <AlertIcon size={18} color={visual.iconColor} />
             {!alert.read_at ? (
-              <View className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand dark:border-gray-900" />
+              <View className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-brand dark:border-dk-page" />
             ) : null}
           </View>
           <View className="flex-1">
-            <Text className="font-geist-extrabold text-sm text-ink dark:text-gray-100">
+            <Text className="font-geist-extrabold text-sm text-ink dark:text-dk-text">
               {copy.what}
             </Text>
-            <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-gray-400">
+            <Text className="mt-1 font-geist text-xs leading-[1.55] text-gray-600 dark:text-dk-muted">
               {copy.why} {copy.action}
             </Text>
             <View className="mt-2.5 flex-row flex-wrap gap-1.5">
@@ -144,11 +144,11 @@ export function AlertsSection({
         <SectionHeading title={t('businessHome.sections.alerts')} />
         {query.isPending ? (
           <View className="items-center py-6">
-            <ActivityIndicator color="#141413" />
+            <ActivityIndicator color="#1A1714" />
           </View>
         ) : query.isError ? (
           <BusinessHomeCard>
-            <Text className="font-geist text-xs text-gray-600 dark:text-gray-400">
+            <Text className="font-geist text-xs text-gray-600 dark:text-dk-muted">
               {t('businessHome.alert.error')}
             </Text>
             <LocalNotesButton
@@ -164,7 +164,7 @@ export function AlertsSection({
           alerts.map(renderAlert)
         ) : (
           <BusinessHomeCard>
-            <Text className="font-geist text-xs leading-[1.5] text-gray-600 dark:text-gray-400">
+            <Text className="font-geist text-xs leading-[1.5] text-gray-600 dark:text-dk-muted">
               {t('businessHome.alert.empty')}
             </Text>
           </BusinessHomeCard>
@@ -174,10 +174,10 @@ export function AlertsSection({
       <MembershipGate isPaidMember={isPaidMember} tier="free">
         <SectionHeading title={t('businessHome.sections.alerts')} />
         <BusinessHomeCard variant="upsell">
-          <Text className="font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+          <Text className="font-geist-extrabold text-[15px] text-ink dark:text-dk-text">
             {t('businessHome.alert.membersOnlyTitle')}
           </Text>
-          <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-600 dark:text-gray-400">
+          <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-600 dark:text-dk-muted">
             {t('businessHome.alert.membersOnlyBody')}
           </Text>
           <LocalNotesButton

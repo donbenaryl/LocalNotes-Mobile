@@ -13,7 +13,7 @@ export function AskCopilotFab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#141413' : '#FFFFFF';
+  const iconColor = colorScheme === 'dark' ? '#1A1714' : '#FFFFFF';
 
   return (
     <View className="absolute right-4 z-20" style={{ bottom: insets.bottom + 16 }}>

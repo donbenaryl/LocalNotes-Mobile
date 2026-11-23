@@ -125,7 +125,7 @@ export function ExploreInsightsSection({
                     onPress={() => openDetail('/business-customers-detail', data.window)}
                     accessibilityRole="button"
                   >
-                    <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
+                    <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-dk-text underline">
                       {t('businessHome.explore.viewAllCustomers')}
                     </Text>
                   </Pressable>
@@ -149,7 +149,7 @@ export function ExploreInsightsSection({
                               className="h-2.5 w-2.5 rounded-full"
                               style={{ backgroundColor: row.color }}
                             />
-                            <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                            <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                               {Math.round(row.percentage)}%{' '}
                               {getBusinessPersonalityLabel(row.color_name)}
                             </Text>
@@ -238,15 +238,15 @@ export function ExploreInsightsSection({
                         <View
                           key={`${row.source}-${row.query}`}
                           className={`flex-row items-center gap-2.5 py-2 ${
-                            index > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''
+                            index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
                           }`}
                         >
-                          <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
+                          <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-dk-text">
                             {t('businessHome.explore.demandQuery', { query: row.query })}
                           </Text>
                           <Text
                             className={`font-geist-semibold text-xs ${
-                              (row.delta_pct ?? 0) > 0 ? 'text-brand dark:text-gray-100' : 'text-gray-500'
+                              (row.delta_pct ?? 0) > 0 ? 'text-brand dark:text-dk-text' : 'text-gray-500'
                             }`}
                           >
                             {[formatCompactNumber(row.volume), delta].filter(Boolean).join(' · ')}
@@ -270,12 +270,12 @@ export function ExploreInsightsSection({
                   onPress={() => openDetail('/business-demand-detail', data.window)}
                   accessibilityRole="button"
                 >
-                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
+                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-dk-text underline">
                     {t('businessHome.explore.viewDemandReport')}
                   </Text>
                 </Pressable>
                 {isReady(topics) && topics.opportunity ? (
-                  <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
+                  <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-dk-muted">
                     {opportunityDelta
                       ? t('businessHome.explore.demandOpportunityWithDelta', {
                           query: topics.opportunity.query,
@@ -299,18 +299,18 @@ export function ExploreInsightsSection({
                   {isReady(peakHours) && peakHours.strongest && peakHours.quietest ? (
                     <View className="mt-1">
                       <View className="flex-row justify-between py-1">
-                        <Text className="text-xs text-gray-600 dark:text-gray-400">
+                        <Text className="text-xs text-gray-600 dark:text-dk-muted">
                           {t('businessHome.explore.strongest')}
                         </Text>
-                        <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                        <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                           {formatHourRange(peakHours.strongest, i18n.language)}
                         </Text>
                       </View>
                       <View className="flex-row justify-between py-1">
-                        <Text className="text-xs text-gray-600 dark:text-gray-400">
+                        <Text className="text-xs text-gray-600 dark:text-dk-muted">
                           {t('businessHome.explore.quietest')}
                         </Text>
-                        <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                        <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                           {formatHourRange(peakHours.quietest, i18n.language)}
                         </Text>
                       </View>
@@ -369,10 +369,10 @@ export function ExploreInsightsSection({
                         <View
                           key={row.key}
                           className={`flex-row items-center gap-2.5 py-2 ${
-                            index > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''
+                            index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
                           }`}
                         >
-                          <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
+                          <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-dk-text">
                             {title}
                           </Text>
                           <Text className="font-geist-semibold text-xs text-gray-500">
@@ -398,7 +398,7 @@ export function ExploreInsightsSection({
                   onPress={() => openDetail('/business-performance-detail', data.window)}
                   accessibilityRole="button"
                 >
-                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
+                  <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-dk-text underline">
                     {t('businessHome.explore.viewPerformanceReport')}
                   </Text>
                 </Pressable>

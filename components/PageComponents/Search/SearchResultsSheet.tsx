@@ -188,7 +188,7 @@ export const SearchResultsSheet = forwardRef<
   return (
     <View style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}>
       <Animated.View
-        className="overflow-hidden rounded-t-2xl overflow-hidden bg-page shadow-sm dark:border-gray-700 dark:bg-gray-900"
+        className="overflow-hidden rounded-t-2xl overflow-hidden bg-page shadow-sm dark:border-dk-border dark:bg-dk-page"
         style={[
           styles.sheetColumn,
           { shadowColor: "#000", shadowOpacity: 0.08, shadowRadius: 16 },
@@ -201,7 +201,7 @@ export const SearchResultsSheet = forwardRef<
             style={{ height: HEADER_HEIGHT }}
           >
             <View className="items-center justify-center px-3">
-              <View className="h-1.5 w-24 rounded-full bg-gray-300 opacity-70 dark:bg-gray-600" />
+              <View className="h-1.5 w-24 rounded-full bg-gray-300 opacity-70 dark:bg-dk-select" />
             </View>
           </View>
         </GestureDetector>

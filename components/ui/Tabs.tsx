@@ -40,7 +40,7 @@ function tabItemClassName(equalWidth: boolean, isActive?: boolean) {
       ? 'flex-1 justify-center px-1'
       : 'relative mr-4 cursor-pointer px-1 pr-4',
     // Animated path sets border color via style; static path uses isActive.
-    isActive === true && 'border-brand dark:border-gray-300',
+    isActive === true && 'border-brand dark:border-dk-body',
     isActive === false && 'border-transparent',
   );
 }
@@ -162,7 +162,7 @@ export function Tabs({
     : colorScheme === 'dark'
       ? BRAND_ON_DARK
       : BRAND;
-  const inactiveTextColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
+  const inactiveTextColor = colorScheme === 'dark' ? '#A79E92' : '#6C727F';
 
   const items = highlightIndex
     ? tabs.map((tab, index) => (
@@ -196,9 +196,9 @@ export function Tabs({
                 textClassName,
                 isActive
                   ? equalWidth
-                    ? 'font-geist-bold text-brand dark:text-gray-100'
-                    : 'font-geist-bold text-ink dark:text-gray-100'
-                  : 'font-geist-semibold text-gray-500 dark:text-gray-400',
+                    ? 'font-geist-bold text-brand dark:text-dk-text'
+                    : 'font-geist-bold text-ink dark:text-dk-text'
+                  : 'font-geist-semibold text-gray-500 dark:text-dk-muted',
               )}
             >
               {tab.label}
@@ -210,7 +210,7 @@ export function Tabs({
   return (
     <View
       className={cn(
-        'border-b border-gray-200 dark:border-gray-700',
+        'border-b border-gray-200 dark:border-dk-border',
         className,
       )}
     >

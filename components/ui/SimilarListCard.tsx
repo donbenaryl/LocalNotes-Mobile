@@ -28,18 +28,18 @@ export function SimilarListCard({
             <FolderOpen size={28} color="#2563EB" />
           </View>
           <View className="flex-1 min-w-0">
-            <Text className="text-lg font-geist-bold text-ink dark:text-gray-100">
+            <Text className="text-lg font-geist-bold text-ink dark:text-dk-text">
               {name} List
             </Text>
-            <Text className="text-sm text-gray-500 dark:text-gray-400">
+            <Text className="text-sm text-gray-500 dark:text-dk-muted">
               Updated {formatDate(metadata.updated_at)}
             </Text>
           </View>
         </View>
-        <Text className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+        <Text className="text-sm text-gray-600 dark:text-dk-muted mb-3">
           {metadata.pin_text}
         </Text>
-        <Text className="text-sm text-gray-500 dark:text-gray-400">
+        <Text className="text-sm text-gray-500 dark:text-dk-muted">
           {metadata.list_count} list{metadata.list_count !== 1 ? "s" : ""}
         </Text>
       </WhiteBox>

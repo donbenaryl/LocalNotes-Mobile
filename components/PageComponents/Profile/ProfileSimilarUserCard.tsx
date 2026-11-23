@@ -31,8 +31,8 @@ export function ProfileSimilarUserCard({
             viewOrigin="recommendation"
           />
           <View className="flex-1 min-w-0">
-            <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">{name}</Text>
-            <Text className="text-xs text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">{name}</Text>
+            <Text className="text-xs text-gray-500 dark:text-dk-muted">
               {followers.toLocaleString()} follower{followers !== 1 ? "s" : ""}
             </Text>
           </View>
@@ -40,10 +40,10 @@ export function ProfileSimilarUserCard({
         <FollowButton userId={id} initialIsFollowed={isFollowed} />
       </View>
       <View className="flex-row items-center justify-between mt-3 px-2">
-        <Text className="text-xs text-gray-500 dark:text-gray-400 font-geist-medium">
+        <Text className="text-xs text-gray-500 dark:text-dk-muted font-geist-medium">
           {interactions}
         </Text>
-        <Text className="text-xs text-gray-500 dark:text-gray-400">
+        <Text className="text-xs text-gray-500 dark:text-dk-muted">
           {listCount} List{listCount !== 1 ? "s" : ""}
         </Text>
       </View>

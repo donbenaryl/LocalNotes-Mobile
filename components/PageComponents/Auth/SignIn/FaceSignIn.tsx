@@ -59,12 +59,12 @@ export function FaceSignIn() {
     >
       {pending ? (
         <ActivityIndicator
-          color={colorScheme === 'dark' ? '#F5F5F5' : '#191B1C'}
+          color={colorScheme === 'dark' ? '#F7F3EC' : '#1A1714'}
         />
       ) : (
         <FaceIcon width={50} height={50} />
       )}
-      <Text className="text-gray-500 dark:text-gray-400 font-geist text-lg">
+      <Text className="text-gray-500 dark:text-dk-muted font-geist text-lg">
         {pending ? t('faceSignIn.unlocking') : t('faceSignIn.label')}
       </Text>
     </TouchableOpacity>

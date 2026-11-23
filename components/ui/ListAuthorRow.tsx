@@ -78,14 +78,14 @@ export function ListAuthorRow({
       />
       <View className="min-w-0 flex-1">
         <Text
-          className="font-geist-semibold text-[14.5px] text-ink dark:text-gray-100"
+          className="font-geist-semibold text-[14.5px] text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {account.name}
         </Text>
         {subtitle ? (
           <Text
-            className="font-geist text-[13px] text-gray-500 dark:text-gray-400"
+            className="font-geist text-[13px] text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {subtitle}

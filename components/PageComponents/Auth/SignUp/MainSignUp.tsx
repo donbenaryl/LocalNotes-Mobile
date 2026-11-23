@@ -125,7 +125,7 @@ export function MainSignUp() {
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1 bg-page dark:bg-gray-900"
+      className="flex-1 bg-page dark:bg-dk-page"
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
@@ -140,7 +140,7 @@ export function MainSignUp() {
         {step === 'email' ? (
           <View>
             <View className="flex-row items-center gap-2.5 mb-3.5">
-              <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500">
+              <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-dk-faint">
                 {t('auth.onboarding.accountTypeKicker')}
               </Text>
             </View>
@@ -219,7 +219,7 @@ export function MainSignUp() {
               rightIcon={
                 <ArrowRight
                   size={18}
-                  color={colorScheme === 'dark' ? '#141413' : '#FFFFFF'}
+                  color={colorScheme === 'dark' ? '#1A1714' : '#FFFFFF'}
                 />
               }
             />

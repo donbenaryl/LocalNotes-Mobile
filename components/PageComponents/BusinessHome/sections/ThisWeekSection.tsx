@@ -65,7 +65,7 @@ export function ThisWeekSection({
     if (isError && !brief) {
       return (
         <View className="mt-2">
-          <Text className="font-geist text-[13.5px] text-gray-600 dark:text-gray-400">
+          <Text className="font-geist text-[13.5px] text-gray-600 dark:text-dk-muted">
             {t('businessHome.brief.error')}
           </Text>
           <View className="mt-2.5 flex-row">
@@ -82,7 +82,7 @@ export function ThisWeekSection({
     }
     if (!brief || brief.status === 'building') {
       return (
-        <Text className="mt-2 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-2 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t('businessHome.brief.firstBriefSoon')}
         </Text>
       );
@@ -90,7 +90,7 @@ export function ThisWeekSection({
     if (brief.status === 'insufficient_data') {
       const copy = insufficientCopy(brief.insufficient);
       return (
-        <Text className="mt-2 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-2 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t(copy.key, copy.params)}
         </Text>
       );
@@ -98,7 +98,7 @@ export function ThisWeekSection({
     if (brief.status === 'quiet' || !brief.insight) {
       const copy = quietCopy(brief.summary);
       return (
-        <Text className="mt-2 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-2 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t(copy.key, copy.params)}
         </Text>
       );
@@ -110,13 +110,13 @@ export function ThisWeekSection({
     const chips = audienceChips(insight, tr);
     return (
       <>
-        <Text className="mt-2 font-geist-bold text-[15px] leading-snug text-ink dark:text-gray-100">
+        <Text className="mt-2 font-geist-bold text-[15px] leading-snug text-ink dark:text-dk-text">
           {t(keys.headline, params)}
         </Text>
-        <Text className="mt-1.5 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1.5 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t(keys.evidence, params)}
         </Text>
-        <Text className="mt-1.5 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1.5 font-geist text-[13.5px] leading-[1.55] text-gray-600 dark:text-dk-muted">
           {t(keys.why, params)}
         </Text>
         {chips.length > 0 ? (
@@ -126,12 +126,12 @@ export function ThisWeekSection({
                 key={chip}
                 className="rounded-full bg-brand-tint px-2.5 py-1 dark:bg-brand/20"
               >
-                <Text className="font-geist-semibold text-[11.5px] text-brand-dark dark:text-gray-100">{chip}</Text>
+                <Text className="font-geist-semibold text-[11.5px] text-brand-dark dark:text-dk-text">{chip}</Text>
               </View>
             ))}
           </View>
         ) : null}
-        <Text className="mt-2.5 font-geist text-[11.5px] text-gray-500 dark:text-gray-400">
+        <Text className="mt-2.5 font-geist text-[11.5px] text-gray-500 dark:text-dk-muted">
           {t('businessHome.brief.basedOn', footnoteParams(brief.volume))}
         </Text>
         <View className="mt-2.5 flex-row">
@@ -160,7 +160,7 @@ export function ThisWeekSection({
           <View className="h-[22px] w-[22px] items-center justify-center rounded-md bg-brand">
             <Sparkles size={12} color="#fff" />
           </View>
-          <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-widest text-brand-dark dark:text-gray-100">
+          <Text className="font-geist-extrabold text-[10.5px] uppercase tracking-widest text-brand-dark dark:text-dk-text">
             {t('businessHome.brief.kicker', { period })}
           </Text>
         </View>
@@ -173,15 +173,15 @@ export function ThisWeekSection({
             <View
               key={`${row.label}-${index}`}
               className={`flex-row items-center gap-2.5 py-2 ${
-                index > 0 ? 'border-t border-gray-100 dark:border-gray-700' : ''
+                index > 0 ? 'border-t border-gray-100 dark:border-dk-border' : ''
               }`}
             >
-              <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-gray-100">
+              <Text className="flex-1 font-geist-bold text-[13px] text-ink dark:text-dk-text">
                 {row.label}
               </Text>
-              <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">{row.value}</Text>
+              <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">{row.value}</Text>
               {row.was ? (
-                <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+                <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                   {row.was}
                 </Text>
               ) : null}

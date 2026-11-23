@@ -57,7 +57,7 @@ export function MainVerifyOtp() {
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1 bg-white dark:bg-gray-900"
+      className="flex-1 bg-card dark:bg-dk-page"
       contentContainerStyle={{ flexGrow: 1 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
@@ -68,10 +68,10 @@ export function MainVerifyOtp() {
 
       <View className="px-10 flex-1">
         <View className="mb-14">
-          <Text className="font-geist-bold text-3xl text-center text-ink dark:text-gray-100 mb-3">
+          <Text className="font-geist-bold text-3xl text-center text-ink dark:text-dk-text mb-3">
             {t('auth.verifyOtp.title')}
           </Text>
-          <Text className="font-geist text-lg text-ink dark:text-gray-300 text-center px-4 opacity-70">
+          <Text className="font-geist text-lg text-ink dark:text-dk-body text-center px-4 opacity-70">
             {t('auth.verifyOtp.subtitle')}
           </Text>
         </View>
@@ -87,14 +87,14 @@ export function MainVerifyOtp() {
         </View>
 
         <View className="flex-row justify-center items-center mt-12">
-          <Text className="font-geist text-lg text-ink dark:text-gray-300">
+          <Text className="font-geist text-lg text-ink dark:text-dk-body">
             {t('auth.verifyOtp.noCode')}
             <TouchableOpacity
               onPress={() => resendMutation.mutate()}
               activeOpacity={0.7}
               className="cursor-pointer"
             >
-              <Text className="text-brand dark:text-gray-100 font-geist-medium text-lg leading-tight mt-[-2] ml-1">
+              <Text className="text-brand dark:text-dk-text font-geist-medium text-lg leading-tight mt-[-2] ml-1">
                 {resendMutation.isPending ? t('common.sending') : t('auth.verifyOtp.resend')}
               </Text>
             </TouchableOpacity>

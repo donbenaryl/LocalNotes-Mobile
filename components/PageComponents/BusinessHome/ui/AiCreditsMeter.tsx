@@ -79,11 +79,11 @@ export function AiCreditsMeter({ variant, isPaid, onPress, className }: AiCredit
       accessibilityHint={t('businessHome.aiCredits.meter.seeCredits')}
       className={cn('active:opacity-70', className)}
     >
-      <View className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
-        <Text className="font-geist-semibold text-xs text-gray-500 dark:text-gray-400">
+      <View className="rounded-2xl border border-gray-200 bg-card p-3 dark:border-dk-line dark:bg-dk-page">
+        <Text className="font-geist-semibold text-xs text-gray-500 dark:text-dk-muted">
           {t('businessHome.aiCredits.meter.full', params)}
         </Text>
-        <Text className="mt-0.5 font-geist-extrabold text-base text-ink dark:text-gray-100">
+        <Text className="mt-0.5 font-geist-extrabold text-base text-ink dark:text-dk-text">
           {t('businessHome.aiCredits.meter.left', params)}
         </Text>
         <ProgressBar
@@ -95,7 +95,7 @@ export function AiCreditsMeter({ variant, isPaid, onPress, className }: AiCredit
         <Text
           className={cn(
             'mt-2 font-geist text-[11px] leading-[1.5]',
-            level === 'normal' && 'text-gray-500 dark:text-gray-400',
+            level === 'normal' && 'text-gray-500 dark:text-dk-muted',
             level === 'warning' && 'font-geist-semibold text-amber-600 dark:text-amber-400',
             level === 'empty' && 'font-geist-semibold text-rose-600 dark:text-rose-400',
           )}

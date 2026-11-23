@@ -95,7 +95,7 @@ export function BusinessHomeProfilePage({
   const [stickyTabsVisible, setStickyTabsVisible] = useState(false);
   const tabsYRef = useRef(0);
   const stickyVisibleRef = useRef(false);
-  const chevronColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
+  const chevronColor = colorScheme === 'dark' ? '#A79E92' : '#6C727F';
   const logoUri = resolveImageUrl(businessLogo);
   const initialLetter = businessName.trim().charAt(0).toUpperCase() || '?';
 
@@ -142,7 +142,7 @@ export function BusinessHomeProfilePage({
   );
 
   return (
-    <View style={styles.fill} className="bg-page dark:bg-gray-900">
+    <View style={styles.fill} className="bg-page dark:bg-dk-page">
       <PageHeader title="" onBack={onBack} borderless />
 
       <View style={styles.scrollHost}>
@@ -173,7 +173,7 @@ export function BusinessHomeProfilePage({
                 </Text>
               )}
             </View>
-            <Text className="font-geist-bold text-3xl text-ink dark:text-gray-100">
+            <Text className="font-geist-bold text-3xl text-ink dark:text-dk-text">
               {businessName}
             </Text>
             <Pressable
@@ -182,17 +182,17 @@ export function BusinessHomeProfilePage({
               accessibilityLabel={
                 locationName ? `${businessName}, ${locationName}` : businessName
               }
-              className="flex-row items-center self-start border-b border-dashed border-gray-500 dark:border-gray-400"
+              className="flex-row items-center self-start border-b border-dashed border-gray-500 dark:border-dk-muted"
             >
               {locationName ? (
                 <>
-                  <Text className="font-geist-semibold text-sm leading-[16px] text-gray-500 dark:text-gray-400">
+                  <Text className="font-geist-semibold text-sm leading-[16px] text-gray-500 dark:text-dk-muted">
                     {locationName}
                   </Text>
                   <ChevronDown size={11} color={chevronColor} strokeWidth={2.4} />
                 </>
               ) : (
-                <Text className="font-geist-semibold text-sm leading-[16px] text-gray-500 dark:text-gray-400">
+                <Text className="font-geist-semibold text-sm leading-[16px] text-gray-500 dark:text-dk-muted">
                   {t('businessHome.switcher.locations')}
                 </Text>
               )}
@@ -201,7 +201,7 @@ export function BusinessHomeProfilePage({
               onLongPress={__DEV__ ? onToggleMembership : undefined}
               accessibilityRole="text"
             >
-              <Text className="mt-0.5 font-geist-semibold text-sm text-gray-500 dark:text-gray-400">
+              <Text className="mt-0.5 font-geist-semibold text-sm text-gray-500 dark:text-dk-muted">
                 {t('businessHome.managingAs', {
                   name: managerName,
                   role: roleLabel,
@@ -212,10 +212,10 @@ export function BusinessHomeProfilePage({
 
           {membershipStatus === 'past_due' ? (
             <View className="mx-4 mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-900/20">
-              <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+              <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
                 {t('businessHome.pastDue.title')}
               </Text>
-              <Text className="mt-1 font-geist text-[12px] leading-[1.5] text-gray-600 dark:text-gray-300">
+              <Text className="mt-1 font-geist text-[12px] leading-[1.5] text-gray-600 dark:text-dk-body">
                 {t('businessHome.pastDue.body')}
               </Text>
               <View className="mt-2 self-start">
@@ -299,7 +299,7 @@ export function BusinessHomeProfilePage({
 
         {stickyTabsVisible ? (
           <View style={styles.stickyHost} pointerEvents="box-none">
-            <View className="bg-page/95 px-4 pt-2 dark:bg-gray-900/95">
+            <View className="bg-page/95 px-4 pt-2 dark:bg-dk-page/95">
               <Tabs
                 tabs={tabs}
                 activeTab={activeTab}

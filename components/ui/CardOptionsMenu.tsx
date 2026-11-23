@@ -147,8 +147,8 @@ export function CardOptionsMenu({
     if (variant === "brand") {
       return {
         pressable:
-          "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
-        text: "font-geist text-sm text-brand dark:text-gray-100",
+          "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-dk-elevated",
+        text: "font-geist text-sm text-brand dark:text-dk-text",
         iconColor: iconColorBrand,
       };
     }
@@ -164,8 +164,8 @@ export function CardOptionsMenu({
 
     return {
       pressable:
-        "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700",
-      text: "font-geist text-sm text-ink dark:text-gray-100",
+        "flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-dk-elevated",
+      text: "font-geist text-sm text-ink dark:text-dk-text",
       iconColor: iconColorDefault,
     };
   };
@@ -202,7 +202,7 @@ export function CardOptionsMenu({
 
           {buttonLayout ? (
             <View
-              className={`absolute ${hasCustomItems ? "w-56" : "w-44"} overflow-hidden rounded-xl border border-gray-200 bg-white py-2 dark:border-gray-700 dark:bg-gray-800`}
+              className={`absolute ${hasCustomItems ? "w-56" : "w-44"} overflow-hidden rounded-xl border border-gray-200 bg-card py-2 dark:border-dk-border dark:bg-dk-card`}
               style={{
                 top: dropdownTop,
                 right: dropdownRight,
@@ -245,10 +245,10 @@ export function CardOptionsMenu({
                       <Pressable
                         onPress={handleEdit}
                         accessibilityRole="button"
-                        className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
+                        className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-dk-elevated"
                       >
                         <Edit size={15} color={iconColorDefault} />
-                        <Text className="font-geist text-sm text-ink dark:text-gray-100">
+                        <Text className="font-geist text-sm text-ink dark:text-dk-text">
                           {t("profile.lists.edit")}
                         </Text>
                       </Pressable>
@@ -258,10 +258,10 @@ export function CardOptionsMenu({
                       <Pressable
                         onPress={handlePin}
                         accessibilityRole="button"
-                        className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-700"
+                        className="flex-row items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-dk-elevated"
                       >
                         <PinIcon size={15} color={iconColorBrand} />
-                        <Text className="font-geist text-sm text-brand dark:text-gray-100">
+                        <Text className="font-geist text-sm text-brand dark:text-dk-text">
                           {t("profile.lists.pin")}
                         </Text>
                       </Pressable>

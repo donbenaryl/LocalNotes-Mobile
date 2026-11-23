@@ -26,7 +26,7 @@ interface ActiveOfferCardProps {
 export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const iconMuted = colorScheme === 'dark' ? '#9CA3AF' : '#57534E';
+  const iconMuted = colorScheme === 'dark' ? '#A79E92' : '#4b4f57';
 
   const imageUri = offer.imageUrl ? resolveImageUrl(offer.imageUrl) : null;
   const hasVideoOnly = !imageUri && Boolean(offer.videoUrl);
@@ -57,14 +57,14 @@ export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
                 <Play size={20} color="#FFFFFF" fill="#FFFFFF" />
               </View>
             ) : (
-              <Tag size={22} color="#141413" />
+              <Tag size={22} color="#1A1714" />
             )}
           </View>
 
           <View className="min-w-0 flex-1">
             <View className="flex-row items-start gap-2">
               <Text
-                className="flex-1 font-geist-bold text-[15px] leading-5 text-ink dark:text-gray-100"
+                className="flex-1 font-geist-bold text-[15px] leading-5 text-ink dark:text-dk-text"
                 numberOfLines={2}
               >
                 {offer.title}
@@ -72,7 +72,7 @@ export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
               <ChevronRight size={16} color={iconMuted} />
             </View>
             <Text
-              className="mt-0.5 font-geist text-[13px] leading-[18px] text-gray-500 dark:text-gray-400"
+              className="mt-0.5 font-geist text-[13px] leading-[18px] text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {offer.content ?? t('offers.noDetails')}
@@ -84,22 +84,22 @@ export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
           </View>
         </View>
 
-        <View className="flex-row items-center gap-3 border-t border-gray-100 px-3 py-2.5 dark:border-gray-800">
+        <View className="flex-row items-center gap-3 border-t border-gray-100 px-3 py-2.5 dark:border-dk-line">
           <View className="flex-row items-center gap-1.5">
             <Eye size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.views}
             </Text>
           </View>
           <View className="flex-row items-center gap-1.5">
             <Heart size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.likes}
             </Text>
           </View>
           <View className="flex-row items-center gap-1.5">
             <Share2 size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.shares}
             </Text>
           </View>
@@ -114,7 +114,7 @@ export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
             )}
             <Text
               className={`font-geist-semibold text-[12.5px] ${
-                isLessThanADay ? 'text-[#de4f2d]' : 'text-gray-500 dark:text-gray-400'
+                isLessThanADay ? 'text-[#de4f2d]' : 'text-gray-500 dark:text-dk-muted'
               }`}
               numberOfLines={1}
             >

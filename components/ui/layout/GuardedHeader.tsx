@@ -24,15 +24,15 @@ export function GuardedHeader() {
 
   return (
     <View
-      className="bg-page dark:bg-gray-900 pt-2 pb-3 flex-row items-center justify-between"
+      className="bg-page dark:bg-dk-page pt-2 pb-3 flex-row items-center justify-between"
     >
       <LocalNotesText size="sm" />
       <View className="flex-row items-center gap-3">
         <TouchableOpacity
           onPress={handleOpenNotifications}
-          className="w-10 h-10 rounded-full bg-soft dark:bg-gray-800 items-center justify-center cursor-pointer"
+          className="w-10 h-10 rounded-full bg-soft dark:bg-dk-card items-center justify-center cursor-pointer"
         >
-          <Bell size={18} color={colorScheme === "dark" ? "#F3F4F6" : "#141413"} />
+          <Bell size={18} color={colorScheme === "dark" ? "#F7F3EC" : "#1A1714"} />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRouteToProfile} className="cursor-pointer">
           <Avatar

@@ -76,7 +76,7 @@ export function LocationInputModalTrigger({
   const [visible, setVisible] = useState(false);
   const [selectedAddressLabel, setSelectedAddressLabel] = useState<string | null>(null);
   const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F3F4F6' : '#191B1C';
+  const iconColor = colorScheme === 'dark' ? '#F7F3EC' : '#1A1714';
 
   const fullLabel = isAllSelected
     ? t('home.location.chooseLocation')
@@ -311,21 +311,21 @@ export function LocationInputModal({
         >
           <Animated.View
             style={{ transform: [{ translateY }] }}
-            className="bg-white dark:bg-gray-900 rounded-t-[35px] max-h-[85%]"
+            className="bg-card dark:bg-dk-page rounded-t-[35px] max-h-[85%]"
           >
             <View
               className="w-full items-center pt-3 pb-2"
               {...panResponder.panHandlers}
             >
-              <View className="w-24 h-[5px] rounded-full bg-gray-300 dark:bg-gray-600" />
+              <View className="w-24 h-[5px] rounded-full bg-gray-300 dark:bg-dk-select" />
             </View>
 
             <View className="flex-row items-center justify-between px-6 pt-2 pb-4">
-              <Text className="font-geist-bold text-xl text-ink dark:text-gray-100">
+              <Text className="font-geist-bold text-xl text-ink dark:text-dk-text">
                 Choose a location
               </Text>
               <Pressable onPress={handleClose} hitSlop={8} className="cursor-pointer">
-                <Text className="font-geist-semibold text-base text-brand dark:text-gray-100">Done</Text>
+                <Text className="font-geist-semibold text-base text-brand dark:text-dk-text">Done</Text>
               </Pressable>
             </View>
 
@@ -351,16 +351,16 @@ export function LocationInputModal({
                     {onAllSelected && (
                       <Pressable
                         onPress={handleAllSelect}
-                        className={`flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-gray-800 cursor-pointer px-6${isAllSelected ? " bg-brand/10" : ""}`}
+                        className={`flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-dk-line cursor-pointer px-6${isAllSelected ? " bg-brand/10" : ""}`}
                       >
-                        <View className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 items-center justify-center shrink-0">
+                        <View className="w-10 h-10 rounded-full bg-gray-100 dark:bg-dk-card items-center justify-center shrink-0">
                           <Globe size={18} color="#6B7280" />
                         </View>
                         <View className="flex-1">
-                          <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
+                          <Text className="font-geist-medium text-[15px] text-ink dark:text-dk-text">
                             {t("home.location.all")}
                           </Text>
-                          <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+                          <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                             {t("home.location.allDescription")}
                           </Text>
                         </View>
@@ -370,27 +370,27 @@ export function LocationInputModal({
                       </Pressable>
                     )}
 
-                    <View className="h-px bg-gray-100 dark:bg-gray-800 mb-5" />
+                    <View className="h-px bg-gray-100 dark:bg-dk-card mb-5" />
 
                     {recentSearches.length > 0 && (
                       <View className="mb-5">
-                        <Text className="font-geist-semibold text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3 px-6">
+                        <Text className="font-geist-semibold text-xs text-gray-400 dark:text-dk-faint uppercase tracking-widest mb-3 px-6">
                           Recent
                         </Text>
                         {recentSearches.map((entry, index) => (
                           <Pressable
                             key={`${entry.location.city}-${entry.location.region}`}
                             onPress={() => handleSelect(entry.location)}
-                            className={`flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-gray-800 cursor-pointer px-6${index === 0 ? " bg-brand/10" : ""}`}
+                            className={`flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-dk-line cursor-pointer px-6${index === 0 ? " bg-brand/10" : ""}`}
                           >
-                            <View className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 items-center justify-center shrink-0">
+                            <View className="w-10 h-10 rounded-full bg-gray-100 dark:bg-dk-card items-center justify-center shrink-0">
                               <MapPin size={18} color="#6B7280" />
                             </View>
                             <View className="flex-1">
-                              <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
+                              <Text className="font-geist-medium text-[15px] text-ink dark:text-dk-text">
                                 {entry.label}
                               </Text>
-                              <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+                              <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                                 {getRelativeTime(entry.timestamp)}
                               </Text>
                             </View>
@@ -404,24 +404,24 @@ export function LocationInputModal({
 
                     {savedLocations.length > 0 && (
                       <View>
-                        <Text className="font-geist-semibold text-xs text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
+                        <Text className="font-geist-semibold text-xs text-gray-400 dark:text-dk-faint uppercase tracking-widest mb-3">
                           Saved
                         </Text>
                         {savedLocations.map((entry) => (
                           <Pressable
                             key={`${entry.location.city}-${entry.location.region}`}
                             onPress={() => handleSelect(entry.location)}
-                            className="flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-gray-800 cursor-pointer"
+                            className="flex-row items-center gap-4 py-3.5 border-b border-gray-100 dark:border-dk-line cursor-pointer"
                           >
                             <View className="w-10 h-10 rounded-full bg-brand-tint dark:bg-brand/20 items-center justify-center shrink-0">
-                              <Bookmark size={18} color="#141413" />
+                              <Bookmark size={18} color="#1A1714" />
                             </View>
                             <View className="flex-1">
-                              <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
+                              <Text className="font-geist-medium text-[15px] text-ink dark:text-dk-text">
                                 {entry.label}
                               </Text>
                               {entry.note && (
-                                <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+                                <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                                   {entry.note}
                                 </Text>
                               )}

@@ -76,13 +76,13 @@ function FollowListRow({
         />
         <View className="min-w-0 flex-1">
           <Text
-            className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
+            className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
             numberOfLines={1}
           >
             {user.name}
           </Text>
           <Text
-            className="mt-0.5 font-geist text-[13px] text-gray-500 dark:text-gray-400"
+            className="mt-0.5 font-geist text-[13px] text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {subtitle}
@@ -99,9 +99,9 @@ function FollowListRow({
           className="active:opacity-70"
         >
           {isLoading ? (
-            <ActivityIndicator size="small" color="#141413" />
+            <ActivityIndicator size="small" color="#1A1714" />
           ) : (
-            <Text className="font-geist-bold text-[13px] text-brand dark:text-gray-100">
+            <Text className="font-geist-bold text-[13px] text-brand dark:text-dk-text">
               {isOwnProfile
                 ? t("profile.followList.followBack")
                 : t("profile.followList.follow")}
@@ -122,7 +122,7 @@ function FollowListRow({
           {isLoading ? (
             <ActivityIndicator size="small" color="#9CA3AF" />
           ) : (
-            <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted">
               {isFollowed
                 ? t("profile.lists.following")
                 : t("profile.followList.follow")}
@@ -191,7 +191,7 @@ export function FollowersFollowingModal({
 
   return (
     <Modal visible={visible} onClose={onClose} position="fullscreen">
-      <View className="flex-1 bg-page dark:bg-gray-900">
+      <View className="flex-1 bg-page dark:bg-dk-page">
         <PageHeader onBack={onClose} borderless />
         <Tabs
           tabs={tabs}
@@ -207,14 +207,14 @@ export function FollowersFollowingModal({
           </View>
         ) : isError ? (
           <View className="flex-1 items-center justify-center gap-3 px-6">
-            <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t("profile.followList.loadError")}
             </Text>
             <Pressable
               onPress={() => void refetch()}
               className="active:opacity-70"
             >
-              <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
+              <Text className="font-geist-semibold text-sm text-brand dark:text-dk-text">
                 {t("common.continue")}
               </Text>
             </Pressable>
@@ -246,7 +246,7 @@ export function FollowersFollowingModal({
               )
             }
             ListEmptyComponent={
-              <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+              <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
                 {emptyMessage}
               </Text>
             }

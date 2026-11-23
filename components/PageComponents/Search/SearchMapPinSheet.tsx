@@ -62,13 +62,13 @@ export function SearchMapPinSheet({
           <View className="gap-1 px-0 pb-1">
             {locationLabel ? (
               <Text
-                className="font-geist-bold text-base text-ink dark:text-gray-100"
+                className="font-geist-bold text-base text-ink dark:text-dk-text"
                 numberOfLines={2}
               >
                 {locationLabel}
               </Text>
             ) : null}
-            <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
               {countLabel}
             </Text>
           </View>

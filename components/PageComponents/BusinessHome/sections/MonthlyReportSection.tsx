@@ -29,7 +29,7 @@ export function MonthlyReportSection({
   const isError = query.isError && !report;
   // Brand colour only for a ready report; every other state is muted.
   const statusClass =
-    view === 'report' ? 'text-brand dark:text-gray-100' : 'text-gray-500 dark:text-gray-400';
+    view === 'report' ? 'text-brand dark:text-dk-text' : 'text-gray-500 dark:text-dk-muted';
 
   return (
     <MembershipGate isPaidMember={isPaidMember} tier="paid">
@@ -41,8 +41,8 @@ export function MonthlyReportSection({
           className="flex-row items-center gap-2.5 py-1"
         >
           <View className="flex-1 flex-row items-center gap-1.5">
-            <BarChart3 size={16} color="#141413" />
-            <Text className="font-geist-bold text-[13px] text-ink dark:text-gray-100">
+            <BarChart3 size={16} color="#1A1714" />
+            <Text className="font-geist-bold text-[13px] text-ink dark:text-dk-text">
               {t('businessHome.monthlyReport.rowTitle')}
             </Text>
           </View>
@@ -74,20 +74,20 @@ export function UpsellSection({ isPaidMember }: { isPaidMember: boolean }) {
     <MembershipGate isPaidMember={isPaidMember} tier="free">
       <SectionHeading title={t('businessHome.sections.businessInsights')} />
       <BusinessHomeCard variant="upsell">
-        <Text className="font-geist-extrabold text-[15px] text-ink dark:text-gray-100">
+        <Text className="font-geist-extrabold text-[15px] text-ink dark:text-dk-text">
           {t('businessHome.upsell.membership')}
         </Text>
-        <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1 font-geist text-xs leading-[1.5] text-gray-600 dark:text-dk-muted">
           {t('businessHome.upsell.body')}
         </Text>
-        <Text className="mt-1.5 font-geist text-xs leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mt-1.5 font-geist text-xs leading-[1.5] text-gray-600 dark:text-dk-muted">
           {t('businessHome.upsell.paymentNote')}
         </Text>
         <View className="mt-2">
           {includes.map((key) => (
             <View key={key} className="flex-row items-baseline gap-2 py-0.5">
               <Text className="font-geist-extrabold text-success">✓</Text>
-              <Text className="flex-1 font-geist-semibold text-xs text-gray-600 dark:text-gray-400">
+              <Text className="flex-1 font-geist-semibold text-xs text-gray-600 dark:text-dk-muted">
                 {t(key)}
               </Text>
             </View>
@@ -109,7 +109,7 @@ export function UpsellSection({ isPaidMember }: { isPaidMember: boolean }) {
 export function FooterNoteSection() {
   const { t } = useTranslation();
   return (
-    <Text className="px-9 pb-20 pt-4 text-center font-geist-semibold text-[11px] leading-[1.55] text-gray-500 dark:text-gray-400">
+    <Text className="px-9 pb-20 pt-4 text-center font-geist-semibold text-[11px] leading-[1.55] text-gray-500 dark:text-dk-muted">
       {t('businessHome.footerNote')}
     </Text>
   );

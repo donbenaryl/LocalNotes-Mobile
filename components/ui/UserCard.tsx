@@ -47,7 +47,7 @@ export function UserCard({
           className={`absolute right-2 top-2 z-10 h-5 w-5 items-center justify-center rounded-full border ${
             isSelected
               ? "border-brand bg-brand"
-              : "border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700"
+              : "border-gray-300 bg-card dark:border-dk-border dark:bg-dk-elevated"
           }`}
         >
           {isSelected ? (
@@ -64,7 +64,7 @@ export function UserCard({
           />
           <View className="min-w-0 flex-1">
             <Text
-              className="font-geist-bold text-[12.5px] leading-[15px] text-ink dark:text-gray-100"
+              className="font-geist-bold text-[12.5px] leading-[15px] text-ink dark:text-dk-text"
               numberOfLines={1}
             >
               {name}
@@ -92,7 +92,7 @@ export function UserCard({
         </View>
 
         <Text
-          className="italic text-[11px] leading-[15px] text-gray-600 dark:text-gray-300"
+          className="italic text-[11px] leading-[15px] text-gray-600 dark:text-dk-body"
           numberOfLines={2}
         >
           {personalityDescription}

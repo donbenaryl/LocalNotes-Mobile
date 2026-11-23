@@ -16,7 +16,7 @@ export function CopilotAnswerText({ content }: CopilotAnswerTextProps) {
             <Text className="shrink-0 font-geist text-sm leading-[22px] text-gray-500">•</Text>
             <Text
               selectable
-              className="shrink font-geist text-sm leading-[22px] text-ink dark:text-gray-100"
+              className="shrink font-geist text-sm leading-[22px] text-ink dark:text-dk-text"
             >
               {block.text}
             </Text>
@@ -25,7 +25,7 @@ export function CopilotAnswerText({ content }: CopilotAnswerTextProps) {
           <Text
             key={index}
             selectable
-            className="font-geist text-sm leading-[22px] text-ink dark:text-gray-100"
+            className="font-geist text-sm leading-[22px] text-ink dark:text-dk-text"
           >
             {block.text}
           </Text>

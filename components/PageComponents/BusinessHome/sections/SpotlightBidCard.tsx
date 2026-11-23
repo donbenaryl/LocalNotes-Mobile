@@ -45,16 +45,16 @@ export function SpotlightBidCard() {
         accessibilityLabel={t('businessHome.promoteTab.spotlightCta')}
         className="active:opacity-70"
       >
-        <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
+        <Text className="font-geist-semibold text-sm text-ink dark:text-dk-text">
           {content.title}
         </Text>
         {content.meta ? (
           <View className="mt-1 flex-row items-center justify-between gap-2">
-            <Text className="flex-1 font-geist text-xs text-gray-500 dark:text-gray-400">
+            <Text className="flex-1 font-geist text-xs text-gray-500 dark:text-dk-muted">
               {content.meta}
             </Text>
             {content.bid ? (
-              <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+              <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                 {content.bid}
               </Text>
             ) : null}
@@ -71,7 +71,7 @@ export function SpotlightBidCard() {
             {content.badge}
           </Text>
         ) : null}
-        <Text className="mt-2 font-geist-semibold text-xs text-brand dark:text-gray-100">
+        <Text className="mt-2 font-geist-semibold text-xs text-brand dark:text-dk-text">
           {t('businessHome.promoteTab.spotlightCta')}
         </Text>
       </Pressable>

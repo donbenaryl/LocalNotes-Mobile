@@ -511,19 +511,19 @@ export function ListItemForm({
               }}
             />
             {!selectedBusiness && showSearchResults && searchResults.length > 0 && (
-              <View className="mt-1 max-h-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+              <View className="mt-1 max-h-48 rounded-lg border border-gray-200 dark:border-dk-border bg-card dark:bg-dk-card overflow-hidden">
                 {isSearching ? (
                   <View className="px-4 py-3">
-                    <ActivityIndicator size="small" color="#141413" />
+                    <ActivityIndicator size="small" color="#1A1714" />
                   </View>
                 ) : (
                   searchResults.map((business) => (
                     <Pressable
                       key={business.id}
                       onPress={() => handleBusinessSelect(business)}
-                      className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer"
+                      className="px-4 py-2 border-b border-gray-100 dark:border-dk-border cursor-pointer"
                     >
-                      <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                      <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
                         {business.name}
                       </Text>
                     </Pressable>
@@ -589,28 +589,28 @@ export function ListItemForm({
             onChangeText={setNotesInput}
             onFocus={lockScrollPosition}
           />
-          <Text className="text-xs text-gray-500 dark:text-gray-400 -mt-2">
+          <Text className="text-xs text-gray-500 dark:text-dk-muted -mt-2">
             {noteWordCount} / 25 {t("profile.picks.words")}
           </Text>
 
           {requiresBranchSelection ? (
             <View>
               <FieldLabel label={t("profile.picks.selectBranch")} required />
-              <View className="mt-1 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <View className="mt-1 rounded-lg border border-gray-200 dark:border-dk-border overflow-hidden">
                 {branches.map((branch) => {
                   const isSelected = selectedBranchId === branch.id;
                   return (
                     <Pressable
                       key={branch.id}
                       onPress={() => setSelectedBranchId(branch.id)}
-                      className={`px-4 py-2 border-b border-gray-100 dark:border-gray-700 cursor-pointer ${
-                        isSelected ? "bg-soft dark:bg-gray-700" : "bg-white dark:bg-gray-800"
+                      className={`px-4 py-2 border-b border-gray-100 dark:border-dk-border cursor-pointer ${
+                        isSelected ? "bg-soft dark:bg-dk-elevated" : "bg-card dark:bg-dk-card"
                       }`}
                     >
-                      <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+                      <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
                         {branch.name}
                       </Text>
-                      <Text className="text-xs text-gray-500 dark:text-gray-400">
+                      <Text className="text-xs text-gray-500 dark:text-dk-muted">
                         {formatLocationText(branch.location)}
                       </Text>
                     </Pressable>
@@ -623,7 +623,7 @@ export function ListItemForm({
           {resolvedLocationDisplay ? (
             <View>
               <FieldLabel label={t("profile.picks.businessLocationLabel")} />
-              <Text className="mt-1 font-geist text-sm text-ink dark:text-gray-100">
+              <Text className="mt-1 font-geist text-sm text-ink dark:text-dk-text">
                 {resolvedLocationDisplay}
               </Text>
             </View>

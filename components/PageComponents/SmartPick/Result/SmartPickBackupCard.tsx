@@ -32,10 +32,10 @@ export function SmartPickBackupCard({
           ? isStretch
             ? 'border-connector bg-connector-tint dark:bg-connector-tint/5'
             : 'border-brand bg-brand-tint dark:bg-brand-tint/5'
-          : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'
+          : 'border-gray-200 bg-card dark:border-dk-line dark:bg-dk-page'
       }`}
     >
-      <View className="h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-soft dark:bg-gray-800">
+      <View className="h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-soft dark:bg-dk-card">
         {photoUrl ? (
           <Image source={{ uri: photoUrl }} className="h-full w-full" resizeMode="cover" />
         ) : (
@@ -44,17 +44,17 @@ export function SmartPickBackupCard({
       </View>
 
       <View className="min-w-0 flex-1 gap-0.5">
-        <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100" numberOfLines={1}>
+        <Text className="font-geist-semibold text-sm text-ink dark:text-dk-text" numberOfLines={1}>
           {name}
         </Text>
         {category || city ? (
-          <Text className="font-geist text-[11px] text-gray-400 dark:text-gray-500" numberOfLines={1}>
+          <Text className="font-geist text-[11px] text-gray-400 dark:text-dk-faint" numberOfLines={1}>
             {[category, city].filter(Boolean).join(' · ')}
           </Text>
         ) : null}
         {reasonText ? (
           <Text
-            className="font-fraunces text-[11px] italic text-gray-500 dark:text-gray-400"
+            className="font-fraunces text-[11px] italic text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             &quot;{reasonText}&quot;

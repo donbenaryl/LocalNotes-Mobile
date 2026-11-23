@@ -40,7 +40,7 @@ export function DeleteAccountModal({
       title={t('accountSettings.menu.deleteAccountTitle')}
       position="bottom"
     >
-      <Text className="mb-4 font-geist text-sm text-gray-600 dark:text-gray-400">
+      <Text className="mb-4 font-geist text-sm text-gray-600 dark:text-dk-muted">
         {t('accountSettings.menu.deleteAccountMessage')}
       </Text>
       <TextInput
@@ -65,7 +65,7 @@ export function DeleteAccountModal({
         containerClassName="mb-2"
         labelClassName="normal-case"
       />
-      <Text className="mb-6 font-geist text-xs text-gray-500 dark:text-gray-400">
+      <Text className="mb-6 font-geist text-xs text-gray-500 dark:text-dk-muted">
         {t('accountSettings.menu.deleteAccountPasswordHint')}
       </Text>
       <View className="flex-row gap-3">

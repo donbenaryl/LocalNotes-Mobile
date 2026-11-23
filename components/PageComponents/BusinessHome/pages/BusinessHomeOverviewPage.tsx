@@ -178,14 +178,14 @@ export function BusinessHomeOverviewPage({
             title={t('businessHome.promoteTab.currentlyPromoting')}
           />
           <ActiveOffersList />
-          {/* <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+          {/* <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
             {t('businessHome.promoteTab.promoteNote')}
           </Text> */}
 
           {/* Spotlight Section */}
           <SectionHeading title={t('businessHome.promoteTab.spotlight')} />
           <SpotlightBidCard />
-          <Text className="px-5 pb-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+          <Text className="px-5 pb-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
             {t('businessHome.promoteTab.spotlightNote')}
           </Text>
 
@@ -195,7 +195,7 @@ export function BusinessHomeOverviewPage({
 
       {activeTab === 'analytics' ? (
         <View className="pt-2">
-          <Text className="px-5 pb-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+          <Text className="px-5 pb-3 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
             {t('businessHome.analyticsTab.empty')}
           </Text>
           <CopilotEntrySection isPaidMember={isPaidMember} />

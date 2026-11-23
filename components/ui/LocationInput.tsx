@@ -424,23 +424,23 @@ export function LocationInput({
       </View>
 
       {showSuggestions && suggestions.length > 0 && (
-        <View className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden mb-4">
+        <View className="bg-card dark:bg-dk-page border border-gray-200 dark:border-dk-border rounded-xl overflow-hidden mb-4">
           {suggestions.map((place, index) => {
             const rowClassName = `flex-row items-start gap-3 px-4 py-3 ${
               index < suggestions.length - 1
-                ? "border-b border-gray-100 dark:border-gray-800"
+                ? "border-b border-gray-100 dark:border-dk-line"
                 : ""
             }`;
 
             const rowContent = (
               <View className={rowClassName}>
-                <MapPin size={18} color="#141413" className="mt-0.5 shrink-0" />
+                <MapPin size={18} color="#1A1714" className="mt-0.5 shrink-0" />
                 <View className="flex-1">
-                  <Text className="font-geist-medium text-[15px] text-ink dark:text-gray-100">
+                  <Text className="font-geist-medium text-[15px] text-ink dark:text-dk-text">
                     {place.primary_text}
                   </Text>
                   <Text
-                    className="font-geist text-sm text-gray-500 dark:text-gray-400"
+                    className="font-geist text-sm text-gray-500 dark:text-dk-muted"
                     numberOfLines={1}
                   >
                     {place.secondary_text}
@@ -479,8 +479,8 @@ export function LocationInput({
         !isLoading &&
         suggestions.length === 0 &&
         query.length >= 2 && (
-          <View className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-4 mb-4 items-center">
-            <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+          <View className="bg-card dark:bg-dk-page border border-gray-200 dark:border-dk-border rounded-xl px-4 py-4 mb-4 items-center">
+            <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
               No locations found for &quot;{query}&quot;
             </Text>
           </View>
@@ -515,8 +515,8 @@ export function LocationInput({
         disabled={isGeolocating}
         className={`flex-row items-center gap-3 bg-brand-tint rounded-2xl border-2 px-4 py-3.5 mb-4 cursor-pointer ${
           isGeolocating
-            ? "border-brand/30 bg-white dark:bg-gray-900 opacity-60"
-            : "border-brand/30 bg-white dark:bg-gray-900"
+            ? "border-brand/30 bg-card dark:bg-dk-page opacity-60"
+            : "border-brand/30 bg-card dark:bg-dk-page"
         }`}
       >
         <View className="w-10 h-10 rounded-full bg-brand items-center justify-center">
@@ -527,10 +527,10 @@ export function LocationInput({
           )}
         </View>
         <View className="flex-1">
-          <Text className="font-geist-bold text-[15px] text-ink dark:text-gray-100">
+          <Text className="font-geist-bold text-[15px] text-ink dark:text-dk-text">
             Use my current location
           </Text>
-          <Text className="font-geist text-sm text-brand dark:text-gray-100">
+          <Text className="font-geist text-sm text-brand dark:text-dk-text">
             {isGeolocating ? "Detecting..." : "GPS-detected"}
           </Text>
         </View>

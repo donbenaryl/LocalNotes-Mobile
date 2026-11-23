@@ -120,7 +120,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <KeyboardProvider>
           <QueryClientProvider client={queryClient}>
-            <View className="flex-1 bg-page dark:bg-gray-900">
+            <View className="flex-1 bg-page dark:bg-dk-page">
               <Stack
                 screenOptions={{
                   headerShown: false,

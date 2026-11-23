@@ -59,10 +59,10 @@ export function DateRangePicker({
   const classNames = useMemo(
     () => ({
       ...defaultClassNames,
-      day_label: 'font-geist text-ink dark:text-gray-100',
-      month_selector_label: 'font-geist-semibold text-lg text-ink dark:text-gray-100',
-      year_selector_label: 'font-geist-semibold text-lg text-ink dark:text-gray-100',
-      weekday_label: 'text-xs uppercase text-gray-500 dark:text-gray-400',
+      day_label: 'font-geist text-ink dark:text-dk-text',
+      month_selector_label: 'font-geist-semibold text-lg text-ink dark:text-dk-text',
+      year_selector_label: 'font-geist-semibold text-lg text-ink dark:text-dk-text',
+      weekday_label: 'text-xs uppercase text-gray-500 dark:text-dk-muted',
       range_fill: 'bg-brand-tint dark:bg-brand-dark',
       selected: 'bg-brand',
       selected_label: 'text-white',
@@ -71,19 +71,19 @@ export function DateRangePicker({
       range_start_label: 'text-white',
       range_end_label: 'text-white',
       range_middle: 'bg-transparent',
-      range_middle_label: 'text-brand-dark dark:text-gray-100 dark:text-brand-tint',
-      disabled_label: 'text-gray-400 dark:text-gray-500 opacity-50',
-      outside_label: 'text-gray-400 dark:text-gray-500',
-      today: 'bg-soft dark:bg-gray-800',
-      today_label: 'text-ink dark:text-gray-100',
+      range_middle_label: 'text-brand-dark dark:text-dk-text dark:text-brand-tint',
+      disabled_label: 'text-gray-400 dark:text-dk-faint opacity-50',
+      outside_label: 'text-gray-400 dark:text-dk-faint',
+      today: 'bg-soft dark:bg-dk-card',
+      today_label: 'text-ink dark:text-dk-text',
       selected_month: 'bg-brand',
       selected_month_label: 'text-white',
       selected_year: 'bg-brand',
       selected_year_label: 'text-white',
-      active_year: 'bg-soft dark:bg-gray-800',
-      active_year_label: 'text-ink dark:text-gray-100',
-      month_label: 'font-geist text-ink dark:text-gray-100',
-      year_label: 'font-geist text-ink dark:text-gray-100',
+      active_year: 'bg-soft dark:bg-dk-card',
+      active_year_label: 'text-ink dark:text-dk-text',
+      month_label: 'font-geist text-ink dark:text-dk-text',
+      year_label: 'font-geist text-ink dark:text-dk-text',
     }),
     [defaultClassNames],
   );
@@ -123,9 +123,9 @@ export function DateRangePicker({
         onPress={() => setVisible(true)}
         accessibilityRole="button"
         accessibilityLabel={t('businessHome.dateRangePicker.title')}
-        className="min-h-[30px] flex-row items-center gap-1 rounded-xl border border-gray-200 bg-paper px-3 dark:border-gray-600 dark:bg-gray-800 cursor-pointer"
+        className="min-h-[30px] flex-row items-center gap-1 rounded-xl border border-gray-200 bg-paper px-3 dark:border-dk-border dark:bg-dk-card cursor-pointer"
       >
-        <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+        <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
           {shownValue}
         </Text>
         <Calendar size={12} color="#78716C" strokeWidth={2} />

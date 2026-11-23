@@ -190,7 +190,7 @@ export function ListDetailsHeader({
         </View>
       ) : (
         <View className="relative px-5 pt-1">
-          <Text className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-gray-100">
+          <Text className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-dk-text">
             {list.name}
           </Text>
 
@@ -203,8 +203,8 @@ export function ListDetailsHeader({
       )}
 
       {notesText ? (
-        <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-gray-800">
-          <Text className="font-fraunces text-[15px] italic leading-6 text-ink dark:text-gray-100">
+        <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-card">
+          <Text className="font-fraunces text-[15px] italic leading-6 text-ink dark:text-dk-text">
             “{notesText}”
           </Text>
         </View>

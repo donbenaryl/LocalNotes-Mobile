@@ -126,7 +126,7 @@ export default function EditProfile() {
   const ownedError = useBusinessStore((s) => s.ownedError);
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const addBranchIconColor = colorScheme === "dark" ? "#F3F4F6" : "#191B1C";
+  const addBranchIconColor = colorScheme === "dark" ? "#F7F3EC" : "#1A1714";
   const authAccountType = useAuthStore((s) => s.accountType);
 
   const {
@@ -666,8 +666,8 @@ export default function EditProfile() {
 
   if (isError || !profile) {
     return (
-      <View className="flex-1 bg-page dark:bg-gray-900 items-center justify-center">
-        <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
+      <View className="flex-1 bg-page dark:bg-dk-page items-center justify-center">
+        <Text className="font-geist text-base text-gray-500 dark:text-dk-muted">
           {t("editProfile.loadFailed")}
         </Text>
       </View>
@@ -676,8 +676,8 @@ export default function EditProfile() {
 
   if (isBusiness && isBusinessError && !businessInfo) {
     return (
-      <View className="flex-1 bg-page dark:bg-gray-900 items-center justify-center px-6">
-        <Text className="font-geist text-base text-gray-500 dark:text-gray-400 text-center">
+      <View className="flex-1 bg-page dark:bg-dk-page items-center justify-center px-6">
+        <Text className="font-geist text-base text-gray-500 dark:text-dk-muted text-center">
           {t("editProfile.business.loadFailed")}
         </Text>
       </View>
@@ -730,7 +730,7 @@ export default function EditProfile() {
   return (
     <SafeAreaView
       edges={["bottom"]}
-      className="flex-1 bg-page dark:bg-gray-900"
+      className="flex-1 bg-page dark:bg-dk-page"
     >
       <Stack.Screen options={{ gestureEnabled: !isEditor }} />
       <PageHeader title={headerTitle} onBack={handleBack} />
@@ -818,14 +818,14 @@ export default function EditProfile() {
                 <Pressable
                   onPress={() => setBusinessPickerVisible(true)}
                   accessibilityRole="button"
-                  className="mx-6 mb-2 flex-row items-center justify-between rounded-xl border border-gray-100 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900"
+                  className="mx-6 mb-2 flex-row items-center justify-between rounded-xl border border-gray-100 bg-card px-4 py-3 dark:border-dk-border dark:bg-dk-page"
                 >
                   <View className="min-w-0 flex-1 pr-3">
-                    <Text className="font-geist text-xs uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                    <Text className="font-geist text-xs uppercase tracking-wider text-gray-400 dark:text-dk-faint">
                       {t("editProfile.business.editingBusiness")}
                     </Text>
                     <Text
-                      className="mt-0.5 font-geist-semibold text-sm text-ink dark:text-gray-100"
+                      className="mt-0.5 font-geist-semibold text-sm text-ink dark:text-dk-text"
                       numberOfLines={1}
                     >
                       {businessInfo?.name ?? businessForm.businessName}

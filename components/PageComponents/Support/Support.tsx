@@ -40,20 +40,20 @@ function ContactMethodRow({
 }) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const mutedIcon = isDark ? '#9CA3AF' : '#6B7280';
+  const mutedIcon = isDark ? '#A79E92' : '#6C727F';
   const accentIcon = brandColor(isDark);
 
   const row = (
     <View
       className={`flex-row items-start gap-3 py-3.5 ${
-        isLast ? '' : 'border-b border-gray-100 dark:border-gray-800'
+        isLast ? '' : 'border-b border-gray-100 dark:border-dk-line'
       }`}
     >
       <View
         className={`h-9 w-9 items-center justify-center rounded-xl ${
           onPress
             ? 'bg-brand-tint dark:bg-brand/20'
-            : 'bg-gray-100 dark:bg-gray-800'
+            : 'bg-gray-100 dark:bg-dk-card'
         }`}
       >
         <Icon
@@ -63,14 +63,14 @@ function ContactMethodRow({
         />
       </View>
       <View className="min-w-0 flex-1 gap-1 pt-0.5">
-        <Text className="font-geist-semibold text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <Text className="font-geist-semibold text-[11px] uppercase tracking-wider text-gray-500 dark:text-dk-muted">
           {label}
         </Text>
         <Text
           className={`font-geist-medium text-[14px] leading-5 ${
             onPress
-              ? 'text-brand dark:text-gray-100'
-              : 'text-ink dark:text-gray-200'
+              ? 'text-brand dark:text-dk-text'
+              : 'text-ink dark:text-dk-body'
           }`}
         >
           {value}
@@ -79,7 +79,7 @@ function ContactMethodRow({
       {onPress ? (
         <ChevronRight
           size={16}
-          color={isDark ? '#6B7280' : '#9CA3AF'}
+          color={isDark ? '#8F877C' : '#9EA4AF'}
           style={{ marginTop: 10 }}
         />
       ) : null}
@@ -110,7 +110,7 @@ export function Support() {
   };
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader title={t('support.title')} />
 
       <AppScrollView
@@ -122,10 +122,10 @@ export function Support() {
           <View className="mb-3 h-14 w-14 items-center justify-center rounded-full bg-brand shadow-sm">
             <Headphones size={26} color="#FFFFFF" strokeWidth={2.25} />
           </View>
-          <Text className="text-center font-geist-bold text-[17px] tracking-tight text-ink dark:text-gray-100">
+          <Text className="text-center font-geist-bold text-[17px] tracking-tight text-ink dark:text-dk-text">
             {t('support.title')}
           </Text>
-          <Text className="mt-2 max-w-[300px] text-center font-geist text-[13px] leading-5 text-gray-600 dark:text-gray-400">
+          <Text className="mt-2 max-w-[300px] text-center font-geist text-[13px] leading-5 text-gray-600 dark:text-dk-muted">
             {t('support.intro')}
           </Text>
         </View>

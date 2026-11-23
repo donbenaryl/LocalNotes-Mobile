@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn";
 function FollowingActivityCardSkeleton({ showDivider }: { showDivider: boolean }) {
   return (
     <View
-      className={cn("gap-3 py-4", showDivider && "border-b border-gray-100 dark:border-gray-800")}
+      className={cn("gap-3 py-4", showDivider && "border-b border-gray-100 dark:border-dk-line")}
     >
       <View className="flex-row items-start gap-3">
         <Skeleton className="h-10 w-10 rounded-full" />
@@ -16,9 +16,9 @@ function FollowingActivityCardSkeleton({ showDivider }: { showDivider: boolean }
         <Skeleton className="h-5 w-5 rounded-md" />
       </View>
 
-      <View className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
+      <View className="overflow-hidden rounded-2xl border border-gray-200 dark:border-dk-line">
         <Skeleton className="h-28 w-full rounded-none" />
-        <View className="m-2.5 flex-row items-center gap-3 rounded-xl border border-gray-200 p-2.5 dark:border-gray-700">
+        <View className="m-2.5 flex-row items-center gap-3 rounded-xl border border-gray-200 p-2.5 dark:border-dk-border">
           <Skeleton className="h-12 w-12 rounded-lg" />
           <View className="min-w-0 flex-1 gap-2">
             <Skeleton className="h-3.5 w-3/4 rounded-lg" />

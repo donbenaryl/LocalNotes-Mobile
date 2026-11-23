@@ -19,11 +19,11 @@ function VerifyPhonePrompt() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View className="gap-3 rounded-2xl bg-soft px-4 py-4 dark:bg-gray-800/60">
-      <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
+    <View className="gap-3 rounded-2xl bg-soft px-4 py-4 dark:bg-dk-card/60">
+      <Text className="font-geist-semibold text-sm text-ink dark:text-dk-text">
         {t("home.following.findFriends.findContactsModal.verifyPromptTitle")}
       </Text>
-      <Text className="font-geist text-[13px] text-gray-500 dark:text-gray-400">
+      <Text className="font-geist text-[13px] text-gray-500 dark:text-dk-muted">
         {t("home.following.findFriends.findContactsModal.verifyPromptBody")}
       </Text>
       {expanded ? (

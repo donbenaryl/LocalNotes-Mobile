@@ -13,7 +13,7 @@ export function BottomWrapper({ children, className, style }: BottomWrapperProps
   return (
     <View
       className={cn(
-        'border-t border-gray-100 bg-page px-6 py-3 dark:border-gray-800 dark:bg-gray-900 absolute left-0 right-0 pb-6',
+        'border-t border-gray-100 bg-page px-6 py-3 dark:border-dk-line dark:bg-dk-page absolute left-0 right-0 pb-6',
         className,
       )}
       style={[{ bottom: 0 }, style]}

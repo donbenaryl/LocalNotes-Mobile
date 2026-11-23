@@ -366,8 +366,8 @@ export function SearchMap({
 
   const emptyOverlay =
     markers.length === 0 ? (
-      <View className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/90 px-3 py-2 dark:bg-gray-900/90">
-        <Text className="text-center font-geist text-[11px] text-gray-500 dark:text-gray-400">
+      <View className="absolute bottom-3 left-3 right-3 rounded-xl bg-white/90 px-3 py-2 dark:bg-dk-page/90">
+        <Text className="text-center font-geist text-[11px] text-gray-500 dark:text-dk-muted">
           {t("search.map.noPins")}
         </Text>
       </View>

@@ -24,7 +24,7 @@ export function InsightsWindowBar({ computedAt, window, onChange }: InsightsWind
   return (
     <View className="mx-4 mt-2.5 flex-row items-center justify-between gap-2">
       <Text
-        className="flex-1 font-geist-semibold text-[11px] text-gray-500 dark:text-gray-400"
+        className="flex-1 font-geist-semibold text-[11px] text-gray-500 dark:text-dk-muted"
         numberOfLines={1}
       >
         {computedAt ? formatUpdatedLabel(t, computedAt, i18n.language) : ''}

@@ -42,7 +42,7 @@ interface MatchThreshholdProps {
 
 function SectionLabel({ label }: { label: string }) {
   return (
-    <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">
+    <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.15em] text-gray-400 dark:text-dk-faint">
       {label}
     </Text>
   );
@@ -78,14 +78,14 @@ function PriorityChip({
 }) {
   return (
     <View className="flex-row items-center gap-1.5 rounded-full border border-brand/45 bg-brand/15 px-2.5 py-1.5">
-      <Text className="font-geist-bold text-[12.5px] text-brand dark:text-gray-100">{label}</Text>
+      <Text className="font-geist-bold text-[12.5px] text-brand dark:text-dk-text">{label}</Text>
       <Pressable
         onPress={onRemove}
         hitSlop={8}
         accessibilityRole="button"
         accessibilityLabel={`Remove ${label}`}
       >
-        <Text className="text-brand dark:text-gray-100 text-xs opacity-80">✕</Text>
+        <Text className="text-brand dark:text-dk-text text-xs opacity-80">✕</Text>
       </Pressable>
     </View>
   );
@@ -105,15 +105,15 @@ function PrioritySegment({
   return (
     <Pressable
       onPress={onPress}
-      className={`flex-1 px-2 py-3 ${isFirst ? "border-r border-gray-200 dark:border-gray-700" : ""} ${
+      className={`flex-1 px-2 py-3 ${isFirst ? "border-r border-gray-200 dark:border-dk-border" : ""} ${
         isActive ? "bg-brand/15" : "bg-transparent"
       }`}
     >
       <Text
         className={`text-center text-[13.5px] leading-tight ${
           isActive
-            ? "font-geist-bold text-brand dark:text-gray-100"
-            : "font-geist text-gray-500 dark:text-gray-400"
+            ? "font-geist-bold text-brand dark:text-dk-text"
+            : "font-geist text-gray-500 dark:text-dk-muted"
         }`}
       >
         {label}
@@ -291,7 +291,7 @@ export function MatchThreshhold({
       sheetHeightRatio={SHEET_HEIGHT_RATIO}
       footer={
         <View className="flex-row items-center justify-between gap-3">
-          <Text className="flex-1 text-sm text-ink dark:text-gray-100">
+          <Text className="flex-1 text-sm text-ink dark:text-dk-text">
             <Text className="font-geist-bold">
               {liveMatchingCount !== undefined ? liveMatchingCount : "—"}{" "}
               {footerEntityLabel}
@@ -331,12 +331,12 @@ export function MatchThreshhold({
         {/* Big number display */}
         <View className="items-center mb-5 mt-1">
           <View className="flex-row items-end">
-            <Text className="font-geist-bold text-7xl pt-1 text-brand dark:text-gray-100 leading-none">
+            <Text className="font-geist-bold text-7xl pt-1 text-brand dark:text-dk-text leading-none">
               {displayValue}
             </Text>
             <Text className="font-geist text-2xl text-gray-400 mb-2 ml-0.5">%</Text>
           </View>
-          <Text className="italic text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <Text className="italic text-sm text-gray-500 dark:text-dk-muted mt-1">
             match or higher
           </Text>
         </View>
@@ -374,7 +374,7 @@ export function MatchThreshhold({
             return (
               <View
                 key={index}
-                className={`flex-1 rounded-sm ${isActive ? "bg-brand" : "bg-gray-200 dark:bg-gray-700"}`}
+                className={`flex-1 rounded-sm ${isActive ? "bg-brand" : "bg-gray-200 dark:bg-dk-elevated"}`}
                 style={{ height: barHeight }}
               />
             );
@@ -385,38 +385,38 @@ export function MatchThreshhold({
         <Slider
           value={sliderValue}
           onChange={handleSliderChange}
-          colors={["#D1D5DB", "#141413"]}
+          colors={["#D1D5DB", "#1A1714"]}
           min={0}
           max={100}
           step={5}
-          thumbBorderColor="#141413"
+          thumbBorderColor="#1A1714"
           containerClassName="mb-1"
         />
 
         {/* Axis labels */}
         <View className="flex-row justify-between mb-3">
           {AXIS_LABELS.map((label) => (
-            <Text key={label} className="text-xs text-gray-400 dark:text-gray-500">
+            <Text key={label} className="text-xs text-gray-400 dark:text-dk-faint">
               {label}
             </Text>
           ))}
         </View>
 
         {/* Helper text */}
-        <Text className="italic text-xs text-gray-400 dark:text-gray-500 text-center mb-4">
+        <Text className="italic text-xs text-gray-400 dark:text-dk-faint text-center mb-4">
           Drag to set any threshold. Snaps to every 5%.
         </Text>
 
-        <View className="h-px bg-gray-200 dark:bg-gray-700 mb-1" />
+        <View className="h-px bg-gray-200 dark:bg-dk-elevated mb-1" />
 
         {/* Priorities */}
         <View className="flex-row items-baseline justify-between mt-3 mb-1">
           <SectionLabel label="Priorities" />
-          <Text className="text-[11px] font-geist-medium text-gray-400 dark:text-gray-500">
+          <Text className="text-[11px] font-geist-medium text-gray-400 dark:text-dk-faint">
             optional
           </Text>
         </View>
-        <Text className="text-[12.5px] leading-5 text-gray-500 dark:text-gray-400 mb-3">
+        <Text className="text-[12.5px] leading-5 text-gray-500 dark:text-dk-muted mb-3">
           Also require they lean the same way on the things you care about — even
           at a low overall match. Tap a side.
         </Text>
@@ -435,7 +435,7 @@ export function MatchThreshhold({
 
         {QUESTION_GROUPS.map((group) => (
           <View key={group.sectionKey} className="mb-1">
-            <Text className="font-geist-bold text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500 mt-3 mb-2">
+            <Text className="font-geist-bold text-[10px] uppercase tracking-[0.14em] text-gray-400 dark:text-dk-faint mt-3 mb-2">
               {t(`personality.sections.${group.sectionKey}`)}
             </Text>
             {group.items.map((item) => {
@@ -443,7 +443,7 @@ export function MatchThreshhold({
               return (
                 <View
                   key={item.id}
-                  className="mb-2 overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60"
+                  className="mb-2 overflow-hidden rounded-xl border border-gray-200 dark:border-dk-border bg-gray-50 dark:bg-dk-card/60"
                 >
                   <View className="flex-row">
                     <PrioritySegment

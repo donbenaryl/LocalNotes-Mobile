@@ -25,7 +25,7 @@ interface OnboardingDetailsFieldsProps {
 
 function SectionLabel({ children }: { children: string }) {
   return (
-    <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500 pt-2">
+    <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-dk-faint pt-2">
       {children}
     </Text>
   );

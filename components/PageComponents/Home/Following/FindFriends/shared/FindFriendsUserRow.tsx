@@ -38,7 +38,7 @@ export const FindFriendsUserRow = memo(function FindFriendsUserRow({
       />
       <View className="min-w-0 flex-1">
         <Text
-          className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
+          className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
           numberOfLines={1}
         >
           {user.name}
@@ -46,7 +46,7 @@ export const FindFriendsUserRow = memo(function FindFriendsUserRow({
         <View className="mt-0.5 flex-row items-center gap-1">
           {icon}
           <Text
-            className="min-w-0 flex-1 font-geist text-[13px] text-gray-500 dark:text-gray-400"
+            className="min-w-0 flex-1 font-geist text-[13px] text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {line}

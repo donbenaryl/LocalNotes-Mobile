@@ -107,14 +107,14 @@ export function ReportUserSheet({
   return (
     <Modal visible={visible} onClose={handleClose} position="bottom">
       <View>
-        <View className="mb-4 items-center border-b border-gray-100 pb-4 dark:border-gray-800">
+        <View className="mb-4 items-center border-b border-gray-100 pb-4 dark:border-dk-line">
           <View className="mb-3 h-12 w-12 items-center justify-center rounded-full bg-red-50 dark:bg-red-950">
             <Flag size={22} color={COLORS.error} strokeWidth={2.2} />
           </View>
-          <Text className="text-center font-geist-bold text-lg text-ink dark:text-gray-100">
+          <Text className="text-center font-geist-bold text-lg text-ink dark:text-dk-text">
             {t("profile.safety.reportTitle", { name: displayName })}
           </Text>
-          <Text className="mt-2 text-center font-geist text-sm leading-5 text-gray-600 dark:text-gray-400">
+          <Text className="mt-2 text-center font-geist text-sm leading-5 text-gray-600 dark:text-dk-muted">
             {t("profile.safety.reportBody")}
           </Text>
         </View>
@@ -131,12 +131,12 @@ export function ReportUserSheet({
                   className={`rounded-xl border px-3 py-3 ${
                     selected
                       ? "border-brand bg-brand-tint/60 dark:border-brand/40 dark:bg-brand/10"
-                      : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+                      : "border-gray-200 bg-card dark:border-dk-border dark:bg-dk-page"
                   }`}
                 >
                   <Text
                     className={`font-geist-medium text-sm ${
-                      selected ? "text-brand" : "text-ink dark:text-gray-100"
+                      selected ? "text-brand" : "text-ink dark:text-dk-text"
                     }`}
                   >
                     {reasonLabels[option]}
@@ -148,12 +148,12 @@ export function ReportUserSheet({
         </View>
 
         <View className="mt-3 flex-row items-center justify-between">
-          <Text className="font-geist-medium text-sm text-ink dark:text-gray-100">
+          <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
             {t("profile.safety.reportDetailsLabel")}
           </Text>
           <Text
             className={`font-geist text-xs ${
-              isOther ? "text-red-600 dark:text-red-400" : "text-gray-400 dark:text-gray-500"
+              isOther ? "text-red-600 dark:text-red-400" : "text-gray-400 dark:text-dk-faint"
             }`}
           >
             {isOther
@@ -170,9 +170,9 @@ export function ReportUserSheet({
           numberOfLines={3}
           maxLength={500}
           textAlignVertical="top"
-          className="mt-1.5 min-h-[88px] rounded-xl border border-gray-200 bg-white px-4 py-3 font-geist text-sm text-ink dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+          className="mt-1.5 min-h-[88px] rounded-xl border border-gray-200 bg-card px-4 py-3 font-geist text-sm text-ink dark:border-dk-border dark:bg-dk-page dark:text-dk-text"
         />
-        <Text className="mt-1 text-right font-geist text-xs text-gray-400 dark:text-gray-500">
+        <Text className="mt-1 text-right font-geist text-xs text-gray-400 dark:text-dk-faint">
           {details.length}/500
         </Text>
 

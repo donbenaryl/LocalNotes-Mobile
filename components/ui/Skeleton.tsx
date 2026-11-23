@@ -8,7 +8,7 @@ interface SkeletonProps {
 export function Skeleton({ className }: SkeletonProps) {
   return (
     <View
-      className={cn("rounded-md bg-gray-200 animate-pulse dark:bg-gray-800", className)}
+      className={cn("rounded-md bg-gray-200 animate-pulse dark:bg-dk-card", className)}
     />
   );
 }

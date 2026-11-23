@@ -29,7 +29,7 @@ export function ConfirmDeleteModal({
       title={title ?? t("profile.lists.deleteTitle")}
       position="bottom"
     >
-      <Text className="font-geist text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <Text className="font-geist text-sm text-gray-600 dark:text-dk-muted mb-6">
         {message ?? t("profile.lists.deleteMessage")}
       </Text>
       <View className="flex-row gap-3">

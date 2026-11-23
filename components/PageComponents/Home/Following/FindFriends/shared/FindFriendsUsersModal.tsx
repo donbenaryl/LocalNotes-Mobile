@@ -80,13 +80,13 @@ export function FindFriendsUsersModal<T extends UnifiedSearchPersonDAO>({
     if (isLoading) {
       return (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" color="#141413" />
+          <ActivityIndicator size="small" color="#1A1714" />
         </View>
       );
     }
     return (
       <View className="items-center gap-4 py-10">
-        <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
           {statusMessage}
         </Text>
         {statusAction}
@@ -128,7 +128,7 @@ export function FindFriendsUsersModal<T extends UnifiedSearchPersonDAO>({
           subtitle || headerContent ? (
             <View className="-mt-2 mb-2 gap-3">
               {subtitle ? (
-                <Text className="font-geist text-sm text-gray-500 dark:text-gray-400">
+                <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
                   {subtitle}
                 </Text>
               ) : null}

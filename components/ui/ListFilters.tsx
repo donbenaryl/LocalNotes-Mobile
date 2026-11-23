@@ -52,7 +52,7 @@ export function ListFilters({
       {/* Category Filter Section */}
       {showCategory && (
         <View>
-          <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-gray-400">
+          <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-dk-muted">
             {t("profile.filters.category")}
           </Text>
           <ScrollView
@@ -79,7 +79,7 @@ export function ListFilters({
 
       {showFavorite && onFavoriteChange && (
         <View>
-          <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-gray-400">
+          <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-dk-muted">
             {t("profile.filters.favorites")}
           </Text>
           <Toggle<FavoriteFilterValue>
@@ -96,7 +96,7 @@ export function ListFilters({
 
       {showStatus && onStatusChange && statusOptions && statusOptions.length > 0 && (
         <View>
-          <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-gray-400">
+          <Text className="mb-2 font-geist text-sm text-gray-600 dark:text-dk-muted">
             {t("profile.filters.status")}
           </Text>
           <Toggle

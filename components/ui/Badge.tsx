@@ -21,11 +21,11 @@ const variantStyles: Record<BadgeVariant, { container: string; text: string }> =
   },
   primary: {
     container: 'bg-brand-tint dark:bg-brand/20',
-    text: 'text-brand dark:text-gray-100',
+    text: 'text-brand dark:text-dk-text',
   },
   secondary: {
-    container: 'bg-gray-100 dark:bg-gray-800',
-    text: 'text-gray-500 dark:text-gray-400',
+    container: 'bg-gray-100 dark:bg-dk-card',
+    text: 'text-gray-500 dark:text-dk-muted',
   },
 };
 

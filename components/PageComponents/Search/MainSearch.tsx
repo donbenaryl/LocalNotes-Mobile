@@ -272,7 +272,7 @@ export default function MainSearch() {
   }, [returnTo, router, setReturnTo]);
 
   return (
-    <View className="bg-page dark:bg-gray-900" style={{ flex: 1 }}>
+    <View className="bg-page dark:bg-dk-page" style={{ flex: 1 }}>
       <SectionPager
         sectionId="search"
         chrome={
@@ -292,7 +292,7 @@ export default function MainSearch() {
                     accessibilityLabel={t("common.search")}
                     className="cursor-pointer py-2"
                   >
-                    <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
+                    <Text className="font-geist-semibold text-sm text-brand dark:text-dk-text">
                       {t("common.search")}
                     </Text>
                   </Pressable>

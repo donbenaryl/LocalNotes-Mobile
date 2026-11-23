@@ -24,10 +24,10 @@ export function Tags({
   return (
     <View className="gap-1">
       <View className="flex-row justify-between items-center">
-        <Text className="font-geist-medium text-sm text-gray-900 dark:text-gray-100">
+        <Text className="font-geist-medium text-sm text-gray-900 dark:text-dk-text">
           {t("profile.picks.vibeTags")}
         </Text>
-        <Text className="text-xs text-gray-500 dark:text-gray-400">
+        <Text className="text-xs text-gray-500 dark:text-dk-muted">
           {t("profile.picks.vibeTagsHint")}
         </Text>
       </View>
@@ -40,7 +40,7 @@ export function Tags({
               variant="primary"
               rightIcon={
                 <Pressable onPress={() => onRemoveInnerTag(tag)} className="cursor-pointer">
-                  <X size={12} color="#141413" />
+                  <X size={12} color="#1A1714" />
                 </Pressable>
               }
             />

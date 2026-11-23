@@ -37,12 +37,12 @@ function ActivitySection({
 
   return (
     <View className="mb-8">
-      <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-gray-100">
+      <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-dk-text">
         {title}
       </Text>
       {loading && (
         <View className="items-center py-8">
-          <ActivityIndicator size="large" color="#141413" />
+          <ActivityIndicator size="large" color="#1A1714" />
         </View>
       )}
       {error && !loading && (
@@ -61,10 +61,10 @@ function ActivitySection({
       {!loading && !error && empty && (
         <View className="items-center gap-2 py-8">
           <FolderOpen size={40} color="#D1D5DB" />
-          <Text className="font-geist-medium text-sm text-gray-500 dark:text-gray-400">
+          <Text className="font-geist-medium text-sm text-gray-500 dark:text-dk-muted">
             {emptyTitle}
           </Text>
-          <Text className="text-center font-geist text-xs text-gray-400 dark:text-gray-500">
+          <Text className="text-center font-geist text-xs text-gray-400 dark:text-dk-faint">
             {emptyDescription}
           </Text>
         </View>
@@ -118,7 +118,7 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
         emptyDescription={t("profile.activity.emptyFeedDescription")}
         onRetry={() => void refetchActivity()}
       >
-        <View className="divide-y divide-gray-100 dark:divide-gray-800">
+        <View className="divide-y divide-gray-100 dark:divide-dk-line">
           {activityFeed.map((item) => (
             <ActivityFeedCard key={item.id} item={item} />
           ))}
@@ -126,7 +126,7 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
       </ActivitySection>
 
       <View className="mb-4">
-        <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-gray-100">
+        <Text className="mb-4 font-geist-semibold text-base text-ink dark:text-dk-text">
           {t("profile.activity.similarUsers")}
         </Text>
         <View className="gap-2">
@@ -146,7 +146,7 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
 
       <View>
         <View className="mb-4 flex-row items-center justify-between">
-          <Text className="font-geist-semibold text-base text-ink dark:text-gray-100">
+          <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
             {t("profile.activity.similarLists")}
           </Text>
           <Pressable

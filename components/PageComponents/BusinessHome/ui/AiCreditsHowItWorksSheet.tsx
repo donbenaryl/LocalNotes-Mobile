@@ -12,7 +12,7 @@ interface AiCreditsHowItWorksSheetProps {
 
 function Heading({ children }: { children: string }) {
   return (
-    <Text className="mt-4 font-geist-extrabold text-sm text-ink dark:text-gray-100">
+    <Text className="mt-4 font-geist-extrabold text-sm text-ink dark:text-dk-text">
       {children}
     </Text>
   );
@@ -20,7 +20,7 @@ function Heading({ children }: { children: string }) {
 
 function Body({ children }: { children: string }) {
   return (
-    <Text className="mt-1 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-gray-400">
+    <Text className="mt-1 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-dk-muted">
       {children}
     </Text>
   );
@@ -57,15 +57,15 @@ export function AiCreditsHowItWorksSheet({
 
           {(['count', 'weight', 'divide', 'limits'] as const).map((step, index) => (
             <View key={step} className="mt-3 flex-row gap-3">
-              <Text className="font-geist-extrabold text-sm text-brand dark:text-gray-100">{index + 1}</Text>
-              <Text className="flex-1 font-geist text-[13px] leading-[1.55] text-ink dark:text-gray-100">
+              <Text className="font-geist-extrabold text-sm text-brand dark:text-dk-text">{index + 1}</Text>
+              <Text className="flex-1 font-geist text-[13px] leading-[1.55] text-ink dark:text-dk-text">
                 {t(`${base}.steps.${step}`, params)}
               </Text>
             </View>
           ))}
 
-          <View className="mt-4 rounded-xl bg-soft p-3 dark:bg-gray-800">
-            <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+          <View className="mt-4 rounded-xl bg-soft p-3 dark:bg-dk-card">
+            <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
               {t(`${base}.formula`, params)}
             </Text>
           </View>
@@ -88,13 +88,13 @@ export function AiCreditsHowItWorksSheet({
             <Body key={rule}>{`• ${t(`${base}.rules.${rule}`)}`}</Body>
           ))}
 
-          <Text className="mt-4 font-geist text-xs text-gray-500 dark:text-gray-400">
+          <Text className="mt-4 font-geist text-xs text-gray-500 dark:text-dk-muted">
             {t(`${base}.sameModelPrice`)}
           </Text>
         </ScrollView>
       ) : (
         <View className="items-center py-10">
-          <ActivityIndicator color="#141413" />
+          <ActivityIndicator color="#1A1714" />
         </View>
       )}
     </Modal>

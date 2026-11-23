@@ -77,7 +77,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
       accessibilityRole="button"
       accessibilityLabel={user.name}
       style={{ width }}
-      className="cursor-pointer p-3.5 border border-gray-200 bg-soft dark:border-gray-700 dark:bg-gray-800/60 rounded-2xl"
+      className="cursor-pointer p-3.5 border border-gray-200 bg-soft dark:border-dk-border dark:bg-dk-card/60 rounded-2xl"
     >
       <View className="flex-row items-start gap-2">
         <View className="min-w-0 flex-1 gap-2.5">
@@ -89,7 +89,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
               gradientColors={getPersonalityGradientColors(user.personality_color)}
             />
             <Text
-              className="min-w-0 flex-1 font-geist-bold text-sm text-ink dark:text-gray-100"
+              className="min-w-0 flex-1 font-geist-bold text-sm text-ink dark:text-dk-text"
               numberOfLines={1}
             >
               {user.name}
@@ -108,7 +108,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
 
           {locationLabel ? (
             <Text
-              className="font-geist text-sm text-gray-500 dark:text-gray-300"
+              className="font-geist text-sm text-gray-500 dark:text-dk-body"
               numberOfLines={1}
             >
               {locationLabel}
@@ -119,7 +119,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
       </View>
       <View className="mt-2 flex-row items-center justify-between gap-2">
         <Text
-          className="min-w-0 flex-1 font-geist text-xs text-gray-500 dark:text-gray-400"
+          className="min-w-0 flex-1 font-geist text-xs text-gray-500 dark:text-dk-muted"
           numberOfLines={1}
         >
           {t("home.following.freshPerspectives.postsThisMonth", {
@@ -157,7 +157,7 @@ export function FollowingFreshPerspectives({
   const [viewportWidth, setViewportWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
 
-  const iconColor = colorScheme === "dark" ? "#F3F4F6" : "#141413";
+  const iconColor = colorScheme === "dark" ? "#F7F3EC" : "#1A1714";
   const maxOffset = Math.max(0, contentWidth - viewportWidth);
   const canScrollBack = offset > 4;
   const canScrollForward = offset < maxOffset - 4;
@@ -184,7 +184,7 @@ export function FollowingFreshPerspectives({
   return (
     <View className="mt-8 gap-3">
       <View className="flex-row items-center justify-between">
-        <Text className="font-geist-semibold text-lg text-ink dark:text-gray-100">
+        <Text className="font-geist-semibold text-lg text-ink dark:text-dk-text">
           {t("home.following.freshPerspectives.title")}
         </Text>
         {!isLoading ? (
@@ -202,7 +202,7 @@ export function FollowingFreshPerspectives({
                 accessibilityRole="button"
                 accessibilityLabel={t(`home.following.freshPerspectives.${label}`)}
                 className={cn(
-                  "h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-gray-300 dark:border-gray-700",
+                  "h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-gray-300 dark:border-dk-border",
                   !enabled && "opacity-40",
                 )}
               >

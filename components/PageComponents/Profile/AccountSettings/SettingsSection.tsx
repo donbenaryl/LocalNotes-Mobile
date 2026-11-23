@@ -16,7 +16,7 @@ export function SettingsSection({
   return (
     <View className={`mb-4 ${className ?? ""}`}>
       <PageSectionTitle className="px-6 pb-4">{title}</PageSectionTitle>
-      <View className="overflow-hidden rounded-2xl bg-paper dark:bg-gray-900 px-6">
+      <View className="overflow-hidden rounded-2xl bg-paper dark:bg-dk-page px-6">
         {children}
       </View>
     </View>

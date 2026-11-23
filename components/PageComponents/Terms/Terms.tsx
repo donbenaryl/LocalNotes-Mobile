@@ -871,7 +871,7 @@ const TERMS_SECTIONS: SectionData[] = [
 
 function SectionHeading({ children }: { children: string }) {
   return (
-    <Text className="font-geist-bold text-base text-ink dark:text-gray-100 mb-2">
+    <Text className="font-geist-bold text-base text-ink dark:text-dk-text mb-2">
       {children}
     </Text>
   );
@@ -879,7 +879,7 @@ function SectionHeading({ children }: { children: string }) {
 
 function SubsectionHeading({ children }: { children: string }) {
   return (
-    <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100 mt-1 mb-2">
+    <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text mt-1 mb-2">
       {children}
     </Text>
   );
@@ -894,7 +894,7 @@ function Paragraph({
 }) {
   return (
     <Text
-      className={`mb-2 ${emphasized ? 'font-geist-bold text-[13px] leading-6 text-ink dark:text-gray-100' : 'text-[13.5px] leading-6 text-gray-600 dark:text-gray-400'}`}
+      className={`mb-2 ${emphasized ? 'font-geist-bold text-[13px] leading-6 text-ink dark:text-dk-text' : 'text-[13.5px] leading-6 text-gray-600 dark:text-dk-muted'}`}
     >
       {children}
     </Text>
@@ -912,10 +912,10 @@ function ListBlock({
     <View className="my-2 gap-1.5">
       {items.map((item, index) => (
         <View key={`${index}-${item}`} className="flex-row pr-1">
-          <Text className="text-[13px] leading-6 text-ink dark:text-gray-200 mr-1.5">
+          <Text className="text-[13px] leading-6 text-ink dark:text-dk-body mr-1.5">
             {ordered ? `${index + 1}.` : '•'}
           </Text>
-          <Text className="flex-1 text-[13px] leading-6 text-gray-600 dark:text-gray-400">
+          <Text className="flex-1 text-[13px] leading-6 text-gray-600 dark:text-dk-muted">
             {item}
           </Text>
         </View>
@@ -952,7 +952,7 @@ export function Terms() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader title="Terms" />
 
       <AppScrollView
@@ -960,14 +960,14 @@ export function Terms() {
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-[11px] tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+        <Text className="text-[11px] tracking-wide text-gray-500 dark:text-dk-muted mb-1">
           Effective Date: July 5, 2026
         </Text>
-        <Text className="text-[11px] tracking-wide text-gray-500 dark:text-gray-400 mb-4">
+        <Text className="text-[11px] tracking-wide text-gray-500 dark:text-dk-muted mb-4">
           Last Updated: October 26, 2026
         </Text>
 
-        <Text className="font-geist-bold text-2xl text-ink dark:text-gray-100 leading-tight mb-4">
+        <Text className="font-geist-bold text-2xl text-ink dark:text-dk-text leading-tight mb-4">
           LocalNotes Terms of Service
         </Text>
 
@@ -984,17 +984,17 @@ export function Terms() {
           These Terms of Service (&quot;Terms&quot;) are a legally binding agreement between you and LocalNotes Group LLC (&quot;LocalNotes,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your access to and use of the LocalNotes mobile application, websites, and related services, features, products, and content (collectively, the &quot;Service&quot;).
         </Paragraph>
 
-        <View className="bg-paper dark:bg-gray-800 border border-soft dark:border-gray-700 rounded-xl px-4 py-3.5 mb-5">
+        <View className="bg-paper dark:bg-dk-card border border-soft dark:border-dk-border rounded-xl px-4 py-3.5 mb-5">
           {TOC_ITEMS.map((item, index) => (
             <View
               key={item}
               className={
                 index === TOC_ITEMS.length - 1
                   ? 'py-1.5'
-                  : 'py-1.5 border-b border-soft dark:border-gray-700'
+                  : 'py-1.5 border-b border-soft dark:border-dk-border'
               }
             >
-              <Text className="text-[13px] font-geist-medium text-ink dark:text-gray-200">
+              <Text className="text-[13px] font-geist-medium text-ink dark:text-dk-body">
                 {item}
               </Text>
             </View>
@@ -1008,15 +1008,15 @@ export function Terms() {
           </View>
         ))}
 
-        <View className="flex-row items-center flex-wrap gap-3.5 pt-4 mt-3.5 border-t border-soft dark:border-gray-700">
+        <View className="flex-row items-center flex-wrap gap-3.5 pt-4 mt-3.5 border-t border-soft dark:border-dk-border">
           <Text
-            className="text-xs font-geist-semibold text-gray-600 dark:text-gray-300 underline cursor-pointer"
+            className="text-xs font-geist-semibold text-gray-600 dark:text-dk-body underline cursor-pointer"
             onPress={() => router.push('/privacy-policy' as Href)}
           >
             Privacy Policy
           </Text>
           <Text
-            className="text-xs font-geist-semibold text-gray-600 dark:text-gray-300 underline cursor-pointer"
+            className="text-xs font-geist-semibold text-gray-600 dark:text-dk-body underline cursor-pointer"
             onPress={() => router.push('/community-guidelines' as Href)}
           >
             Community Guidelines

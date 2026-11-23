@@ -61,7 +61,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
             <View className="flex-row items-center gap-2 pr-1">
               <View className="min-w-0 flex-1">
                 <Text
-                  className="font-geist-bold text-[13.5px] text-ink dark:text-gray-100"
+                  className="font-geist-bold text-[13.5px] text-ink dark:text-dk-text"
                   numberOfLines={1}
                 >
                   {data.name}
@@ -94,7 +94,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
 
             {blurb ? (
               <Text
-                className="mt-1.5 font-fraunces text-[12px] italic leading-[16px] text-gray-600 dark:text-gray-300"
+                className="mt-1.5 font-fraunces text-[12px] italic leading-[16px] text-gray-600 dark:text-dk-body"
                 numberOfLines={2}
               >
                 {blurb}
@@ -103,7 +103,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
 
             <View className="mt-2 flex-row items-center justify-between gap-2">
               <Text
-                className="min-w-0 flex-1 font-geist text-[11px] text-gray-500 dark:text-gray-400"
+                className="min-w-0 flex-1 font-geist text-[11px] text-gray-500 dark:text-dk-muted"
                 numberOfLines={1}
               >
                 {t("search.people.stats", {

@@ -22,7 +22,7 @@ export function RadioButton({
       accessibilityRole="radio"
       accessibilityState={{ selected, disabled }}
       className={`items-center justify-center rounded-full border-2 ${
-        selected ? 'border-brand' : 'border-gray-300 dark:border-gray-600'
+        selected ? 'border-brand' : 'border-gray-300 dark:border-dk-border'
       } ${disabled ? 'opacity-50' : ''} ${className}`}
       style={{ width: size, height: size }}
     >

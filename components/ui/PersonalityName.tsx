@@ -36,7 +36,7 @@ export function PersonalityName({ name, personalityColor, variant = 'pill' }: Pe
         end={{ x: 1, y: 1 }}
         style={GRADIENT_FILL}
       />
-      <View className="flex-row items-center gap-[7px] rounded-full bg-white dark:bg-ink px-[11px] py-[5px]">
+      <View className="flex-row items-center gap-[7px] rounded-full bg-card dark:bg-ink px-[11px] py-[5px]">
         <View className="h-[7px] w-[7px] rounded-full" style={{ backgroundColor: dominantColor }} />
         <Text className="font-geist text-[13px] font-medium" style={{ color: dominantColor }}>
           {name}

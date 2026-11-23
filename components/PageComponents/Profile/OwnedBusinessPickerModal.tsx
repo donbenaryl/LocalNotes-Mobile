@@ -31,7 +31,7 @@ export function OwnedBusinessPickerModal({
 }: OwnedBusinessPickerModalProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const checkColor = colorScheme === "dark" ? "#F3F4F6" : "#141413";
+  const checkColor = colorScheme === "dark" ? "#F7F3EC" : "#1A1714";
 
   return (
     <Modal
@@ -46,11 +46,11 @@ export function OwnedBusinessPickerModal({
       >
         {isLoading && businesses.length === 0 ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" color="#141413" />
+            <ActivityIndicator size="small" color="#1A1714" />
           </View>
         ) : error && businesses.length === 0 ? (
           <View className="items-center py-6">
-            <Text className="mb-3 text-center font-geist text-sm text-gray-600 dark:text-gray-400">
+            <Text className="mb-3 text-center font-geist text-sm text-gray-600 dark:text-dk-muted">
               {error}
             </Text>
             {onRetry ? (
@@ -79,17 +79,17 @@ export function OwnedBusinessPickerModal({
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
                 className={`flex-row items-center justify-between py-3 ${
-                  index > 0 ? "border-t border-gray-100 dark:border-gray-700" : ""
+                  index > 0 ? "border-t border-gray-100 dark:border-dk-border" : ""
                 }`}
               >
                 <View className="min-w-0 flex-1 pr-3">
                   <Text
-                    className="font-geist-bold text-[15px] text-ink dark:text-gray-100"
+                    className="font-geist-bold text-[15px] text-ink dark:text-dk-text"
                     numberOfLines={1}
                   >
                     {item.name}
                   </Text>
-                  <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-gray-400">
+                  <Text className="mt-0.5 font-geist text-xs text-gray-500 dark:text-dk-muted">
                     {item.role}
                     {item.is_primary
                       ? ` · ${t("editProfile.business.primaryBadge")}`
@@ -105,7 +105,7 @@ export function OwnedBusinessPickerModal({
         )}
         {isSaving ? (
           <View className="items-center py-3">
-            <ActivityIndicator size="small" color="#141413" />
+            <ActivityIndicator size="small" color="#1A1714" />
           </View>
         ) : null}
       </ScrollView>

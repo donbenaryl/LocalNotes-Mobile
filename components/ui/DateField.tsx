@@ -48,7 +48,7 @@ export function DateField({
   return (
     <View className={isCompact ? undefined : 'w-full'}>
       {label ? (
-        <Text className="text-gray-500 dark:text-gray-200 font-geist-medium text-sm mb-1.5 capitalize">
+        <Text className="text-gray-500 dark:text-dk-body font-geist-medium text-sm mb-1.5 capitalize">
           {label}
         </Text>
       ) : null}
@@ -58,11 +58,11 @@ export function DateField({
         accessibilityRole="button"
         className={
           isCompact
-            ? `min-h-[38px] flex-row items-center gap-1 rounded-full border bg-paper px-3 dark:bg-gray-800 ${
-                error ? 'border-error' : 'border-gray-200 dark:border-gray-600'
+            ? `min-h-[38px] flex-row items-center gap-1 rounded-full border bg-paper px-3 dark:bg-dk-card ${
+                error ? 'border-error' : 'border-gray-200 dark:border-dk-border'
               }`
-            : `flex-row items-center bg-gray-50 dark:bg-gray-800 border rounded-xl px-4 h-14 cursor-pointer ${
-                error ? 'border-error' : 'border-gray-100 dark:border-gray-700'
+            : `flex-row items-center bg-gray-50 dark:bg-dk-card border rounded-xl px-4 h-14 cursor-pointer ${
+                error ? 'border-error' : 'border-gray-100 dark:border-dk-border'
               }`
         }
       >
@@ -71,13 +71,13 @@ export function DateField({
             isCompact
               ? `font-geist-bold text-xs ${
                   shownValue
-                    ? 'text-ink dark:text-gray-100'
-                    : 'text-gray-400 dark:text-gray-500'
+                    ? 'text-ink dark:text-dk-text'
+                    : 'text-gray-400 dark:text-dk-faint'
                 }`
               : `flex-1 font-geist text-base ${
                   value
-                    ? 'text-ink dark:text-gray-100'
-                    : 'text-gray-400 dark:text-gray-500'
+                    ? 'text-ink dark:text-dk-text'
+                    : 'text-gray-400 dark:text-dk-faint'
                 }`
           }
         >
@@ -105,7 +105,7 @@ export function DateField({
           onPress={() => setShowPicker(false)}
           className="mt-2 self-end cursor-pointer"
         >
-          <Text className="font-geist-semibold text-brand dark:text-gray-100 text-sm">Done</Text>
+          <Text className="font-geist-semibold text-brand dark:text-dk-text text-sm">Done</Text>
         </Pressable>
       ) : null}
     </View>

@@ -108,7 +108,7 @@ export function FollowingTab() {
         <View className="gap-6">
           {groups.map(({ group, items }) => (
             <View key={`${group.id}-${items[0].id}`}>
-              <Text className="font-geist-semibold text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">
+              <Text className="font-geist-semibold text-xs uppercase tracking-widest text-gray-500 dark:text-dk-muted">
                 {t(group.i18nKey, group.params)}
               </Text>
               {items.map((item, index) => (
@@ -116,7 +116,7 @@ export function FollowingTab() {
                   key={item.id}
                   className={cn(
                     "py-4",
-                    index < items.length - 1 && "border-b border-gray-100 dark:border-gray-800",
+                    index < items.length - 1 && "border-b border-gray-100 dark:border-dk-line",
                   )}
                 >
                   <FollowingActivityItem item={item} />

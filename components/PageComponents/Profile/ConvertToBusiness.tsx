@@ -67,7 +67,7 @@ export default function ConvertToBusiness() {
     string | null
   >(null);
 
-  const addBranchIconColor = colorScheme === "dark" ? "#F3F4F6" : "#191B1C";
+  const addBranchIconColor = colorScheme === "dark" ? "#F7F3EC" : "#1A1714";
 
   const { data: profile, isPending } = useQuery({
     queryKey: ["profile"],
@@ -310,7 +310,7 @@ export default function ConvertToBusiness() {
   return (
     <SafeAreaView
       edges={["bottom"]}
-      className="flex-1 bg-page dark:bg-gray-900"
+      className="flex-1 bg-page dark:bg-dk-page"
     >
       <PageHeader
         title={
@@ -325,13 +325,13 @@ export default function ConvertToBusiness() {
         bottomOffset={120}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
-        <Text className="mt-4 mb-2 px-6 font-geist text-sm text-gray-500 dark:text-gray-400">
+        <Text className="mt-4 mb-2 px-6 font-geist text-sm text-gray-500 dark:text-dk-muted">
           {isAddAnother
             ? t("convertToBusiness.addHelper")
             : t("convertToBusiness.helper")}
         </Text>
 
-        <View className="px-6 gap-4 bg-white dark:bg-gray-900 py-4">
+        <View className="px-6 gap-4 bg-card dark:bg-dk-page py-4">
           <TextInput
             label={t("auth.onboarding.contactNameLabel")}
             placeholder={t("auth.onboarding.contactNamePlaceholder")}
@@ -400,7 +400,7 @@ export default function ConvertToBusiness() {
 
         {showPassword ? (
           <View className="px-6 gap-4 pb-4">
-            <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500 pt-2">
+            <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-dk-faint pt-2">
               {t("auth.onboarding.securitySection")}
             </Text>
             <TextInput

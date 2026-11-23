@@ -31,7 +31,7 @@ export function SpotlightSponsoredCard({ business }: SpotlightSponsoredCardProps
   const sponsoredTagLabel = t("spotlight.sections.sponsored.tag");
 
   return (
-    <WhiteBox className="mt-2.5 !py-6 flex-row items-center gap-2.5 bg-page p-3 dark:bg-gray-800/60">
+    <WhiteBox className="mt-2.5 !py-6 flex-row items-center gap-2.5 bg-page p-3 dark:bg-dk-card/60">
       <View className="h-11 w-11 shrink-0 overflow-hidden rounded-[11px]">
         {showFallback ? (
           <SpotlightFallbackGradient colors={FALLBACK_GRADIENT_COLORS} />
@@ -48,14 +48,14 @@ export function SpotlightSponsoredCard({ business }: SpotlightSponsoredCardProps
       <View className="min-w-0 flex-1">
         <View className="flex-row items-center gap-1">
           <Text
-            className="shrink font-geist-semibold text-lg capitalize text-ink dark:text-gray-100"
+            className="shrink font-geist-semibold text-lg capitalize text-ink dark:text-dk-text"
             numberOfLines={1}
           >
             {business.name}
           </Text>
           {business.is_verified ? (
             <View role="img" aria-label={t("spotlight.verified")}>
-              <BadgeCheck size={12} color="#141413" />
+              <BadgeCheck size={12} color="#1A1714" />
             </View>
           ) : null}
         </View>
@@ -71,7 +71,7 @@ export function SpotlightSponsoredCard({ business }: SpotlightSponsoredCardProps
         */}
         {business.category ? (
           <Text
-            className="mt-0.5 font-geist text-md text-gray-500 dark:text-gray-400"
+            className="mt-0.5 font-geist text-md text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {business.category}
@@ -85,11 +85,11 @@ export function SpotlightSponsoredCard({ business }: SpotlightSponsoredCardProps
         carries the label regardless of the visual border treatment.
       */}
       <View
-        className="shrink-0 rounded-md border border-dashed border-gray-400 px-2.5 py-1 dark:border-gray-600"
+        className="shrink-0 rounded-md border border-dashed border-gray-400 px-2.5 py-1 dark:border-dk-border"
         role="note"
         aria-label={sponsoredTagLabel}
       >
-        <Text className="font-geist-bold text-xs tracking-wide text-gray-700 dark:text-gray-400">
+        <Text className="font-geist-bold text-xs tracking-wide text-gray-700 dark:text-dk-muted">
           {sponsoredTagLabel}
         </Text>
       </View>

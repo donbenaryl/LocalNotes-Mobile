@@ -39,7 +39,7 @@ export default function TabsLayout() {
   return (
     <View
       style={[styles.root, { paddingTop: insets.top }]}
-      className="bg-page dark:bg-gray-900"
+      className="bg-page dark:bg-dk-page"
     >
       <View style={styles.fill}>
         <View

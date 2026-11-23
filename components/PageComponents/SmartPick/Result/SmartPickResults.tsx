@@ -49,13 +49,13 @@ export function SmartPickResults({ conversation, onBack, coordinates }: SmartPic
                 />
                 <Text
                   className={`font-geist-bold text-[10.5px] uppercase tracking-[0.14em] ${
-                    isStretch ? 'text-connector' : 'text-brand-dark dark:text-gray-100'
+                    isStretch ? 'text-connector' : 'text-brand-dark dark:text-dk-text'
                   }`}
                 >
                   {t(isStretch ? 'smartPick.outsideUsualEyebrow' : 'smartPick.forYouEyebrow')}
                 </Text>
               </View>
-              <Text className="font-geist-semibold text-[21px] leading-6 text-ink dark:text-gray-100">
+              <Text className="font-geist-semibold text-[21px] leading-6 text-ink dark:text-dk-text">
                 {conversation.result_label}
               </Text>
             </View>
@@ -64,7 +64,7 @@ export function SmartPickResults({ conversation, onBack, coordinates }: SmartPic
 
             {rest.length > 0 ? (
               <View className="gap-2.5">
-                <Text className="font-geist-semibold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
+                <Text className="font-geist-semibold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-dk-faint">
                   {t(isStretch ? 'smartPick.orTheseStretch' : 'smartPick.orTheseStandard')}
                 </Text>
                 {rest.map((result) => (
@@ -99,14 +99,14 @@ export function SmartPickResults({ conversation, onBack, coordinates }: SmartPic
 
         {/* "Around the web" — places near the user not yet curated in LocalNotes. */}
         <View className="gap-2.5">
-          <Text className="font-geist-semibold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-gray-500">
+          <Text className="font-geist-semibold text-[10.5px] uppercase tracking-[0.14em] text-gray-400 dark:text-dk-faint">
             {t('smartPick.aroundTheWeb')}
           </Text>
 
           {!coordinates ? (
-            <View className="flex-row items-center gap-2 rounded-2xl bg-soft px-4 py-3.5 dark:bg-gray-800">
+            <View className="flex-row items-center gap-2 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-card">
               <MapPin size={16} color="#9CA3AF" />
-              <Text className="flex-1 font-geist text-[12.5px] text-gray-500 dark:text-gray-400">
+              <Text className="flex-1 font-geist text-[12.5px] text-gray-500 dark:text-dk-muted">
                 {t('smartPick.enableLocation')}
               </Text>
             </View>

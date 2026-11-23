@@ -20,17 +20,17 @@ export function SmartPickNoResults({
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-gray-100';
+  const accentTextClass = isStretch ? 'text-connector' : 'text-brand-dark dark:text-dk-text';
   const dotBgClass = isStretch ? 'bg-connector' : 'bg-brand';
-  const iconColor = isStretch ? '#534AB7' : isDark ? '#F3F4F6' : '#000000';
-  const iconBgClass = isStretch ? 'bg-[#E8E6F4] dark:bg-gray-800' : 'bg-brand-tint dark:bg-gray-800';
+  const iconColor = isStretch ? '#534AB7' : isDark ? '#F7F3EC' : '#000000';
+  const iconBgClass = isStretch ? 'bg-[#E8E6F4] dark:bg-dk-card' : 'bg-brand-tint dark:bg-dk-card';
   const gradientColors = isStretch
     ? isDark
-      ? (['#1a1830', '#111827'] as const)
+      ? (['#1a1830', '#161412'] as const)
       : (['#E8E6F4', '#f5f4ef'] as const)
     : isDark
-      ? (['#1F2937', '#111827'] as const)
-      : (['#F3F4F6', '#F3EBDD'] as const);
+      ? (['#211E1B', '#161412'] as const)
+      : (['#EFE9DF', '#F3EBDD'] as const);
 
   return (
     <View className="gap-4">
@@ -43,12 +43,12 @@ export function SmartPickNoResults({
             {t(isStretch ? 'smartPick.outsideUsualEyebrow' : 'smartPick.forYouEyebrow')}
           </Text>
         </View>
-        <Text className="font-geist-semibold text-[21px] leading-6 text-ink dark:text-gray-100">
+        <Text className="font-geist-semibold text-[21px] leading-6 text-ink dark:text-dk-text">
           {resultLabel}
         </Text>
       </View>
 
-      <View className="overflow-hidden rounded-[20px] border border-gray-200 dark:border-gray-800">
+      <View className="overflow-hidden rounded-[20px] border border-gray-200 dark:border-dk-line">
         <LinearGradient
           colors={[...gradientColors]}
           start={{ x: 0, y: 0 }}
@@ -71,10 +71,10 @@ export function SmartPickNoResults({
             </View>
 
             <View className="items-center gap-2.5">
-              <Text className="text-center font-geist-semibold text-xl text-ink dark:text-gray-100">
+              <Text className="text-center font-geist-semibold text-xl text-ink dark:text-dk-text">
                 {t('smartPick.noResultsTitle')}
               </Text>
-              <Text className="max-w-[280px] text-center font-fraunces text-[14px] italic leading-[1.55] text-gray-600 dark:text-gray-400">
+              <Text className="max-w-[280px] text-center font-fraunces text-[14px] italic leading-[1.55] text-gray-600 dark:text-dk-muted">
                 {t('smartPick.noResultsDetail')}
               </Text>
             </View>

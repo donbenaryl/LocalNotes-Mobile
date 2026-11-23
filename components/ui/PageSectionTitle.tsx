@@ -21,7 +21,7 @@ export function PageSectionTitle({
 
   const title = (
     <Text
-      className={`font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-gray-400 ${className}`}
+      className={`font-geist-bold text-[11px] uppercase tracking-widest text-gray-500 dark:text-dk-muted ${className}`}
     >
       {children}
     </Text>
@@ -41,16 +41,16 @@ export function PageSectionTitle({
               accessibilityRole="button"
               className="cursor-pointer"
             >
-              <Info size={15} color={isInfoOpen ? "#141413" : "#9CA3AF"} />
+              <Info size={15} color={isInfoOpen ? "#1A1714" : "#9CA3AF"} />
             </Pressable>
           ) : null}
         </View>
         {right}
       </View>
       {info && isInfoOpen ? (
-        <View className="rounded-2xl bg-soft px-4 py-3 dark:bg-gray-800">
+        <View className="rounded-2xl bg-soft px-4 py-3 dark:bg-dk-card">
           {typeof info === "string" ? (
-            <Text className="font-geist text-[13px] text-gray-600 dark:text-gray-300">
+            <Text className="font-geist text-[13px] text-gray-600 dark:text-dk-body">
               {info}
             </Text>
           ) : (

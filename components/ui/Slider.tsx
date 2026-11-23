@@ -172,7 +172,7 @@ export function Slider({
       />
       <View
         pointerEvents="none"
-        className="absolute rounded-full bg-white border-[5px]"
+        className="absolute rounded-full bg-card border-[5px]"
         style={{
           width: THUMB_SIZE,
           height: THUMB_SIZE,

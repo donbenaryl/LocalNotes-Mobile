@@ -47,7 +47,7 @@ export function InsightsHeatmap({ cells }: InsightsHeatmapProps) {
     <View>
       <Text
         numberOfLines={1}
-        className="mb-1.5 font-geist-semibold text-xs text-gray-600 dark:text-gray-300"
+        className="mb-1.5 font-geist-semibold text-xs text-gray-600 dark:text-dk-body"
       >
         {selected
           ? describe(selected.day, selected.hour)
@@ -55,7 +55,7 @@ export function InsightsHeatmap({ cells }: InsightsHeatmapProps) {
       </Text>
       {cells.map((row, dayIndex) => (
         <View key={dayIndex} className="mb-0.5 flex-row items-center gap-0.5">
-          <Text className="w-4 font-geist-semibold text-[9px] text-gray-500 dark:text-gray-400">
+          <Text className="w-4 font-geist-semibold text-[9px] text-gray-500 dark:text-dk-muted">
             {weekdayLabel(dayIndex, i18n.language)}
           </Text>
           {HOURS.map((hour) => {
@@ -81,7 +81,7 @@ export function InsightsHeatmap({ cells }: InsightsHeatmapProps) {
                 <View
                   className={cn(
                     'h-3.5 rounded-sm border',
-                    intensity > 0 ? 'bg-brand' : 'bg-soft dark:bg-gray-700',
+                    intensity > 0 ? 'bg-brand' : 'bg-soft dark:bg-dk-elevated',
                     isSelected ? 'border-ink dark:border-white' : 'border-transparent',
                   )}
                   style={intensity > 0 ? { opacity: 0.2 + 0.8 * intensity } : undefined}
@@ -95,7 +95,7 @@ export function InsightsHeatmap({ cells }: InsightsHeatmapProps) {
         {HOURS.map((hour) => (
           <View key={hour} className="flex-1 items-start">
             {hour % HOUR_LABEL_EVERY === 0 ? (
-              <Text className="font-geist text-[9px] text-gray-500 dark:text-gray-400">{hour}</Text>
+              <Text className="font-geist text-[9px] text-gray-500 dark:text-dk-muted">{hour}</Text>
             ) : null}
           </View>
         ))}

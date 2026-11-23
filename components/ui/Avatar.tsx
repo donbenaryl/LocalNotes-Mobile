@@ -144,7 +144,7 @@ export function Avatar({
     const imageAvatar = (
       <View
         style={avatarShellStyle}
-        className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-white dark:bg-gray-800`}
+        className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-card dark:bg-dk-card`}
       >
         <View className="h-full w-full items-center justify-center overflow-hidden rounded-full">
           <Image source={{ uri: resolveImageUrl(src) ?? undefined }} accessibilityLabel={name} className="h-[95%] w-[95%] rounded-full" />
@@ -162,7 +162,7 @@ export function Avatar({
   const letterAvatar = (
     <View
       style={avatarShellStyle}
-      className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-white`}
+      className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-card`}
     >
       <View
         className={`h-[95%] w-[95%] items-center justify-center rounded-full text-white ${color}`}

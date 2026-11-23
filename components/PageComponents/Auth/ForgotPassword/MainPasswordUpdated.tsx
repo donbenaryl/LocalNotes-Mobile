@@ -29,15 +29,15 @@ export function MainPasswordUpdated() {
 
   return (
     <View
-      className="flex-1 bg-white dark:bg-gray-900 px-6 items-center justify-center"
+      className="flex-1 bg-card dark:bg-dk-page px-6 items-center justify-center"
       style={{ paddingBottom: insets.bottom + 24 }}
     >
       <CheckCircleIcon />
 
-      <Text className="font-geist-bold text-3xl text-ink dark:text-gray-100 mt-8 text-center">
+      <Text className="font-geist-bold text-3xl text-ink dark:text-dk-text mt-8 text-center">
         {t('auth.passwordUpdated.title')}
       </Text>
-      <Text className="font-geist text-base text-gray-500 dark:text-gray-400 mt-3 text-center px-4">
+      <Text className="font-geist text-base text-gray-500 dark:text-dk-muted mt-3 text-center px-4">
         {t('auth.passwordUpdated.subtitle')}
       </Text>
 

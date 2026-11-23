@@ -50,7 +50,7 @@ export async function ensurePushCategoriesRegistered(): Promise<void> {
       name: 'LocalNotes',
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: '#141413',
+      lightColor: '#1A1714',
       showBadge: true,
     });
   }

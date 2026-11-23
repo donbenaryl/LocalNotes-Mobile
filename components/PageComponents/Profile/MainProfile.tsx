@@ -509,7 +509,7 @@ function MainProfileContent({
   const showSafetyActions = !isOwnProfile && !isBusinessPage;
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <ProfileChromeHeader
         onBack={handleBack}
         rightChild={
@@ -534,7 +534,7 @@ function MainProfileContent({
       (!isPending &&
         !(isBusinessPage ? business : profile)) ? (
         <View className="flex-1 items-center justify-center py-20">
-          <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
+          <Text className="font-geist text-base text-gray-500 dark:text-dk-muted">
             {loadErrorMessage}
           </Text>
         </View>

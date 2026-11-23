@@ -36,7 +36,7 @@ export default function BlockedUsersSettings() {
   const blocked = data ?? [];
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         title={t("accountSettings.privacy.blockedUsersTitle")}
         onBack={() => router.back()}
@@ -47,11 +47,11 @@ export default function BlockedUsersSettings() {
         </View>
       ) : isError ? (
         <View className="flex-1 items-center justify-center gap-3 px-6">
-          <Text className="text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+          <Text className="text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
             {t("accountSettings.privacy.blockedUsersLoadError")}
           </Text>
           <Pressable onPress={() => void refetch()} className="active:opacity-70">
-            <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
+            <Text className="font-geist-semibold text-sm text-brand dark:text-dk-text">
               {t("common.continue")}
             </Text>
           </Pressable>
@@ -63,7 +63,7 @@ export default function BlockedUsersSettings() {
           contentContainerClassName="px-6 pb-10 pt-4"
         >
           {blocked.length === 0 ? (
-            <Text className="mt-8 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="mt-8 text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t("accountSettings.privacy.blockedUsersEmpty")}
             </Text>
           ) : (
@@ -76,7 +76,7 @@ export default function BlockedUsersSettings() {
                   key={user.id}
                   className={`flex-row items-center gap-3 py-3.5 ${
                     index < blocked.length - 1
-                      ? "border-b border-gray-100 dark:border-gray-800"
+                      ? "border-b border-gray-100 dark:border-dk-line"
                       : ""
                   }`}
                 >
@@ -88,7 +88,7 @@ export default function BlockedUsersSettings() {
                   />
                   <View className="min-w-0 flex-1">
                     <Text
-                      className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
+                      className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
                       numberOfLines={1}
                     >
                       {user.name}
@@ -97,12 +97,12 @@ export default function BlockedUsersSettings() {
                   <Pressable
                     onPress={() => unblockMutation.mutate(user.id)}
                     disabled={unblockMutation.isPending || isRefetching}
-                    className="rounded-full border border-gray-200 px-3.5 py-2 active:opacity-70 dark:border-gray-700"
+                    className="rounded-full border border-gray-200 px-3.5 py-2 active:opacity-70 dark:border-dk-border"
                   >
                     {isUnblocking ? (
                       <ActivityIndicator size="small" />
                     ) : (
-                      <Text className="font-geist-semibold text-[13px] text-ink dark:text-gray-100">
+                      <Text className="font-geist-semibold text-[13px] text-ink dark:text-dk-text">
                         {t("accountSettings.privacy.unblock")}
                       </Text>
                     )}

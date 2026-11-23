@@ -17,12 +17,12 @@ export function ProfileInfoSkeleton() {
       <Skeleton className="mt-1.5 h-4 w-2/3 rounded-lg" />
       <Skeleton className="mt-2 h-3.5 w-28 rounded-lg" />
 
-      <View className="mt-4 flex-row rounded-2xl bg-white py-3 dark:bg-gray-800">
+      <View className="mt-4 flex-row rounded-2xl bg-card py-3 dark:bg-dk-card">
         {[0, 1, 2, 3].map((index) => (
           <View
             key={index}
             className={`flex-1 items-center gap-1 ${
-              index > 0 ? "border-l border-gray-200 dark:border-gray-700" : ""
+              index > 0 ? "border-l border-gray-200 dark:border-dk-border" : ""
             }`}
           >
             <Skeleton className="h-5 w-8 rounded-md" />

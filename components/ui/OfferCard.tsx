@@ -121,7 +121,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
   }, [offer.id, offer.isLiked, offer.likes]);
 
   const isDark = colorScheme === "dark";
-  const iconMuted = isDark ? "#9CA3AF" : "#57534E";
+  const iconMuted = isDark ? "#A79E92" : "#4b4f57";
   const iconBrand = brandColor(isDark);
 
   const handlePress = () => {
@@ -251,7 +251,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
           ) : (
             <View className="mb-2 flex-row items-center gap-2.5">
               <Text
-                className="font-geist-semibold text-[14.5px] text-ink dark:text-gray-100"
+                className="font-geist-semibold text-[14.5px] text-ink dark:text-dk-text"
                 numberOfLines={1}
               >
                 {offer.businessName}
@@ -263,7 +263,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
 
           {!hasHero && offer.title ? (
             <Text
-              className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-gray-100"
+              className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-dk-text"
               numberOfLines={2}
             >
               {offer.title}
@@ -272,22 +272,22 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
 
           {!hasHero && categoriesSubtitle ? (
             <Text
-              className="mb-2 font-geist text-[13px] text-gray-500 dark:text-gray-400"
+              className="mb-2 font-geist text-[13px] text-gray-500 dark:text-dk-muted"
               numberOfLines={2}
             >
               {categoriesSubtitle}
             </Text>
           ) : null}
 
-          <Text className="mb-3 font-geist text-[14.5px] leading-5 text-gray-500 dark:text-gray-400">
+          <Text className="mb-3 font-geist text-[14.5px] leading-5 text-gray-500 dark:text-dk-muted">
             {offer.content ?? t("offers.noDetails")}
           </Text>
         </View>
 
-        <View className="flex-row items-center gap-3 border-t border-gray-100 px-4 py-3 dark:border-gray-800">
+        <View className="flex-row items-center gap-3 border-t border-gray-100 px-4 py-3 dark:border-dk-line">
           <View className="flex-row items-center gap-1.5">
             <Eye size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.views}
             </Text>
           </View>
@@ -312,8 +312,8 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
               className={cn(
                 "font-geist-semibold text-[12.5px]",
                 isLiked
-                  ? "text-brand dark:text-gray-100"
-                  : "text-gray-500 dark:text-gray-400",
+                  ? "text-brand dark:text-dk-text"
+                  : "text-gray-500 dark:text-dk-muted",
               )}
             >
               {likes}
@@ -331,7 +331,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
             hitSlop={4}
           >
             <Share2 size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-gray-400">
+            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.shares}
             </Text>
           </Pressable>
@@ -348,7 +348,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
               className={`font-geist-semibold text-[12.5px] ${
                 isLessThanADay
                   ? "text-[#de4f2d]"
-                  : "text-gray-500 dark:text-gray-400"
+                  : "text-gray-500 dark:text-dk-muted"
               }`}
               numberOfLines={1}
             >

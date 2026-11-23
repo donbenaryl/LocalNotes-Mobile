@@ -19,7 +19,7 @@ function OfferCardSkeleton() {
         <Skeleton className="h-4 w-4/5" />
         <Skeleton className="h-4 w-3/5" />
       </View>
-      <View className="mt-1 flex-row items-center gap-3 border-t border-gray-100 px-4 py-3 dark:border-gray-700">
+      <View className="mt-1 flex-row items-center gap-3 border-t border-gray-100 px-4 py-3 dark:border-dk-border">
         <Skeleton className="h-3.5 w-10 rounded-full" />
         <Skeleton className="h-3.5 w-10 rounded-full" />
         <Skeleton className="h-3.5 w-10 rounded-full" />

@@ -29,16 +29,16 @@ export function FollowingActivityHeader({
       />
 
       <View className="min-w-0 flex-1 justify-center gap-0.5 pt-0.5">
-        <Text className="text-ink dark:text-gray-100" numberOfLines={2}>
+        <Text className="text-ink dark:text-dk-text" numberOfLines={2}>
           <Text className="font-geist-semibold">{account.name}</Text>
-          <Text className="font-geist text-sm dark:text-gray-300 text-gray-400">
+          <Text className="font-geist text-sm dark:text-dk-body text-gray-400">
             {"  "}
             {actionText}
           </Text>
         </Text>
         {locationLabel ? (
           <Text
-            className="font-geist text-xs text-gray-500 dark:text-gray-400"
+            className="font-geist text-xs text-gray-500 dark:text-dk-muted"
             numberOfLines={1}
           >
             {locationLabel}

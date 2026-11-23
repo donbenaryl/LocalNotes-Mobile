@@ -38,10 +38,10 @@ export default function BusinessCopilotPage() {
       <BusinessHomeDetailShell title={t('businessHome.copilot.title')} onBack={() => router.back()}>
         <View className="mt-4">
           <BusinessHomeCard variant="upsell">
-            <Text className="font-geist-extrabold text-base text-ink dark:text-gray-100">
+            <Text className="font-geist-extrabold text-base text-ink dark:text-dk-text">
               {t('businessHome.copilot.notEntitledBranch', { branchName })}
             </Text>
-            <Text className="mt-2 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-gray-400">
+            <Text className="mt-2 font-geist text-[13px] leading-[1.55] text-gray-600 dark:text-dk-muted">
               {t('businessHome.copilot.notEntitledBody')}
             </Text>
             <View className="mt-3">

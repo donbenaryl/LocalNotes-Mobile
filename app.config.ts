@@ -80,7 +80,7 @@ const plugins: ExpoConfig['plugins'] = [
     'expo-notifications',
     {
       icon: './assets/icon.png',
-      color: '#FF6B2C',
+      color: '#141413',
       defaultChannel: 'default',
     },
   ],

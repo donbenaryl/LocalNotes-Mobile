@@ -133,10 +133,10 @@ export function ProfileReviewsTab({
         <View className="mb-4 h-[120px] w-[120px] items-center justify-center rounded-[30px] bg-brand-tint dark:bg-brand/15">
           <MessageSquareQuote size={48} color={BRAND} />
         </View>
-        <Text className="mb-2 text-center font-geist-bold text-[21px] leading-[1.2] text-ink dark:text-gray-100">
+        <Text className="mb-2 text-center font-geist-bold text-[21px] leading-[1.2] text-ink dark:text-dk-text">
           {t("profile.reviews.emptyTitle")}
         </Text>
-        <Text className="mb-5 max-w-[300px] text-center font-geist text-[13.5px] leading-[1.5] text-gray-600 dark:text-gray-400">
+        <Text className="mb-5 max-w-[300px] text-center font-geist text-[13.5px] leading-[1.5] text-gray-600 dark:text-dk-muted">
           {t("profile.reviews.emptyDescription")}
         </Text>
         <View className="w-full flex-row justify-center">
@@ -168,8 +168,8 @@ export function ProfileReviewsTab({
 
       {googleConnection?.sync_status === "syncing" ? (
         <View className="mb-2 flex-row items-center justify-center gap-2 px-4">
-          <ActivityIndicator size="small" color="#141413" />
-          <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+          <ActivityIndicator size="small" color="#1A1714" />
+          <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
             {t("profile.reviews.syncing")}
           </Text>
         </View>

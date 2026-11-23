@@ -91,13 +91,13 @@ export function CountryPickerModal({
         <Text
           className={cn(
             "flex-1 font-geist text-base",
-            isSelected ? "font-geist-medium text-brand" : "text-ink dark:text-gray-100",
+            isSelected ? "font-geist-medium text-brand" : "text-ink dark:text-dk-text",
           )}
           numberOfLines={1}
         >
           {item.name} (+{item.dialCode})
         </Text>
-        {isSelected ? <Check size={18} color="#141413" strokeWidth={2.5} /> : null}
+        {isSelected ? <Check size={18} color="#1A1714" strokeWidth={2.5} /> : null}
       </Pressable>
     );
   };
@@ -135,7 +135,7 @@ export function CountryPickerModal({
           keyboardShouldPersistTaps="handled"
           initialNumToRender={20}
           ListEmptyComponent={
-            <Text className="py-6 text-center font-geist text-sm text-gray-500 dark:text-gray-400">
+            <Text className="py-6 text-center font-geist text-sm text-gray-500 dark:text-dk-muted">
               {t("phoneVerification.noCountries")}
             </Text>
           }

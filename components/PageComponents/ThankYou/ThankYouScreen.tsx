@@ -7,7 +7,7 @@ export default function ThankYouScreen() {
   const { t } = useTranslation();
 
   return (
-    <View className="flex-1 bg-page dark:bg-gray-900">
+    <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader title={t('thankYou.title')} />
       <ThankYouContent />
     </View>

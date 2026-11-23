@@ -22,18 +22,18 @@ export function FollowingUnavailableCard({
     <View className="gap-3">
       <FollowingActivityHeader account={account} actionText={actionText} />
 
-      <View className="flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-soft p-3 dark:border-gray-700 dark:bg-gray-800/60">
+      <View className="flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-soft p-3 dark:border-dk-border dark:bg-dk-card/60">
         <View className="min-w-0 flex-1 gap-0.5">
           {name ? (
             <Text
-              className="font-geist-semibold text-sm text-gray-500 dark:text-gray-400"
+              className="font-geist-semibold text-sm text-gray-500 dark:text-dk-muted"
               numberOfLines={1}
             >
               {name}
             </Text>
           ) : null}
           {!isLoading && message ? (
-            <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+            <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
               {message}
             </Text>
           ) : null}

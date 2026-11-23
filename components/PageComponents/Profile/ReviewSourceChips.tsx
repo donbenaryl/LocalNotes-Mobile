@@ -91,8 +91,8 @@ export function ReviewSourceChips({
             className={cn(
               "flex-row items-center gap-1.5 rounded-full border px-3 py-1.5",
               isOn
-                ? "border-ink bg-ink dark:border-gray-100 dark:bg-gray-100"
-                : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
+                ? "border-ink bg-ink dark:border-dk-text dark:bg-dk-text"
+                : "border-gray-200 bg-card dark:border-dk-border dark:bg-dk-card",
             )}
           >
             {provider.letter ? (
@@ -117,7 +117,7 @@ export function ReviewSourceChips({
                 "font-geist-semibold text-xs",
                 isOn
                   ? "text-white dark:text-ink"
-                  : "text-gray-600 dark:text-gray-300",
+                  : "text-gray-600 dark:text-dk-body",
               )}
             >
               {provider.label}
@@ -127,7 +127,7 @@ export function ReviewSourceChips({
                 "font-geist text-xs",
                 isOn
                   ? "text-white/65 dark:text-ink/65"
-                  : "text-gray-400 dark:text-gray-500",
+                  : "text-gray-400 dark:text-dk-faint",
               )}
             >
               {count}
@@ -144,7 +144,7 @@ export function ReviewSourceChips({
           className="ml-1 flex-row items-center gap-1 rounded-full bg-brand-tint px-3 py-1.5 dark:bg-brand/20"
         >
           <Settings size={11} color={BRAND} strokeWidth={2.4} />
-          <Text className="font-geist-bold text-xs text-brand dark:text-gray-100">
+          <Text className="font-geist-bold text-xs text-brand dark:text-dk-text">
             {t("profile.reviews.manageAccounts")}
           </Text>
         </Pressable>

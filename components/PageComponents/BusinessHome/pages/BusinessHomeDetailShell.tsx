@@ -27,7 +27,7 @@ export function BusinessHomeDetailShell({
   headerBelow,
 }: BusinessHomeDetailShellProps) {
   return (
-    <View style={styles.fill} className="bg-page dark:bg-gray-900">
+    <View style={styles.fill} className="bg-page dark:bg-dk-page">
       <PageHeader title={title} onBack={onBack} rightChild={rightChild} borderless titleClass="px-10 text-center" />
       {headerBelow}
       {scroll ? (

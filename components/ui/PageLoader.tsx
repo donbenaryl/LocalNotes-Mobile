@@ -26,13 +26,13 @@ export function PageLoader({
   return (
     <View
       className={cn(
-        'flex-1 bg-page dark:bg-gray-900 items-center justify-center',
+        'flex-1 bg-page dark:bg-dk-page items-center justify-center',
         className,
       )}
     >
       {spinner}
       {message ? (
-        <Text className="font-geist text-sm text-gray-500 dark:text-gray-400 mt-4">
+        <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted mt-4">
           {message}
         </Text>
       ) : null}

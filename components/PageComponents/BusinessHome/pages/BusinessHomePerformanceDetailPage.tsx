@@ -119,7 +119,7 @@ export default function BusinessHomePerformanceDetailPage() {
                     />
                     {peers && ownPos !== null ? (
                       <View className="mt-3">
-                        <View className="h-1.5 rounded-full bg-soft dark:bg-gray-700">
+                        <View className="h-1.5 rounded-full bg-soft dark:bg-dk-elevated">
                           {medianPos !== null ? (
                             <View
                               className="absolute top-0 h-1.5 w-0.5 bg-gray-400"
@@ -153,7 +153,7 @@ export default function BusinessHomePerformanceDetailPage() {
                 <BusinessHomeCard className="mt-2">
                   <View className="flex-row items-center justify-between gap-2">
                     <CardTitle>{t('businessHome.explore.detail.audienceFitTitle')}</CardTitle>
-                    <Text className="font-geist-bold text-xs text-ink dark:text-gray-100">
+                    <Text className="font-geist-bold text-xs text-ink dark:text-dk-text">
                       {`${Math.round(audienceFit.value)}%`}
                     </Text>
                   </View>

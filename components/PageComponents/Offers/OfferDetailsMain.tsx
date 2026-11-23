@@ -152,7 +152,7 @@ function OfferDetailsSkeleton() {
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-4/5" />
         <Skeleton className="h-4 w-3/5" />
-        <View className="mt-2 flex-row items-center gap-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+        <View className="mt-2 flex-row items-center gap-3 border-t border-gray-100 pt-3 dark:border-dk-line">
           <Skeleton className="h-3.5 w-10 rounded-full" />
           <Skeleton className="h-3.5 w-10 rounded-full" />
           <Skeleton className="h-3.5 w-10 rounded-full" />
@@ -189,7 +189,7 @@ export function OfferDetailsMain({
   const router = useRouter();
   const businessId = useBusinessStore((s) => s.businessId);
   const isDark = colorScheme === "dark";
-  const iconMuted = isDark ? "#9CA3AF" : "#57534E";
+  const iconMuted = isDark ? "#A79E92" : "#4b4f57";
   const iconBrand = brandColor(isDark);
   const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -485,11 +485,11 @@ export function OfferDetailsMain({
                 className="absolute right-3 top-0 z-[3] h-11 w-11 cursor-pointer items-center justify-center"
                 hitSlop={4}
               >
-                <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-gray-800">
+                <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-dk-card">
                   <X size={15} color="#57534E" strokeWidth={2.4} />
                 </View>
               </Pressable>
-              <Text className="font-geist text-base text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-base text-gray-500 dark:text-dk-muted">
                 {t("offers.detail.error")}
               </Text>
             </View>
@@ -504,11 +504,11 @@ export function OfferDetailsMain({
                 className="absolute right-3 top-0 z-[3] h-11 w-11 cursor-pointer items-center justify-center"
                 hitSlop={4}
               >
-                <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-gray-800">
+                <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-dk-card">
                   <X size={15} color="#57534E" strokeWidth={2.4} />
                 </View>
               </Pressable>
-              <Text className="mb-4 text-center font-geist text-base text-gray-500 dark:text-gray-400">
+              <Text className="mb-4 text-center font-geist text-base text-gray-500 dark:text-dk-muted">
                 {t("offers.detail.error")}
               </Text>
               <LocalNotesButton
@@ -624,7 +624,7 @@ export function OfferDetailsMain({
                     className="absolute right-3 top-0 z-[3] h-11 w-11 cursor-pointer items-center justify-center"
                     hitSlop={4}
                   >
-                    <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-gray-800">
+                    <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-dk-card">
                       <X size={15} color="#57534E" strokeWidth={2.4} />
                     </View>
                   </Pressable>
@@ -650,7 +650,7 @@ export function OfferDetailsMain({
                     />
                   ) : (
                     <Text
-                      className="font-geist-semibold text-[15px] text-ink dark:text-gray-100"
+                      className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
                       numberOfLines={1}
                     >
                       {offer.businessName}
@@ -659,7 +659,7 @@ export function OfferDetailsMain({
                 </View>
 
                 {offer.title ? (
-                  <Text className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-gray-100">
+                  <Text className="mb-1 font-geist-extrabold text-[22px] leading-7 text-ink dark:text-dk-text">
                     {offer.title}
                   </Text>
                 ) : null}
@@ -670,14 +670,14 @@ export function OfferDetailsMain({
                   </View>
                 ) : null}
 
-                <Text className="mb-3 font-geist text-[15px] leading-5 text-gray-600 dark:text-gray-300">
+                <Text className="mb-3 font-geist text-[15px] leading-5 text-gray-600 dark:text-dk-body">
                   {offer.content ?? t("offers.noDetails")}
                 </Text>
 
                 {showRedeem ? (
-                  <View className="mb-4 rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:border-brand/40 dark:bg-gray-800">
+                  <View className="mb-4 rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:border-brand/40 dark:bg-dk-card">
                     {myRedemption?.used_at ? (
-                      <Text className="font-geist text-sm text-gray-700 dark:text-gray-300">
+                      <Text className="font-geist text-sm text-gray-700 dark:text-dk-body">
                         {t("offers.detail.alreadyUsed")}
                         {myRedemption.code
                           ? ` (${myRedemption.code})`
@@ -685,11 +685,11 @@ export function OfferDetailsMain({
                       </Text>
                     ) : myRedemption?.code ? (
                       <View className="gap-3">
-                        <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+                        <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                           {t("offers.detail.yourCode")}
                         </Text>
                         <View className="items-center gap-3">
-                          <View className="rounded-xl border border-brand/20 bg-white p-3 dark:border-brand/30 dark:bg-gray-900">
+                          <View className="rounded-xl border border-brand/20 bg-card p-3 dark:border-brand/30 dark:bg-dk-page">
                             <QRCode
                               value={myRedemption.code}
                               size={168}
@@ -697,11 +697,11 @@ export function OfferDetailsMain({
                               color="#1C1917"
                             />
                           </View>
-                          <Text className="font-geist-extrabold text-xl tracking-widest text-ink dark:text-gray-100">
+                          <Text className="font-geist-extrabold text-xl tracking-widest text-ink dark:text-dk-text">
                             {myRedemption.code}
                           </Text>
                         </View>
-                        <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+                        <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                           {t("offers.detail.showAtCounter")}
                         </Text>
                         <View className="flex-row flex-wrap gap-2">
@@ -728,7 +728,7 @@ export function OfferDetailsMain({
                       </View>
                     ) : (
                       <View className="gap-2">
-                        <Text className="font-geist text-sm text-gray-700 dark:text-gray-300">
+                        <Text className="font-geist text-sm text-gray-700 dark:text-dk-body">
                           {t("offers.detail.redeemPrompt")}
                         </Text>
                         <LocalNotesButton
@@ -748,14 +748,14 @@ export function OfferDetailsMain({
                   </View>
                 ) : null}
 
-                <Text className="mb-4 font-geist text-xs text-gray-400 dark:text-gray-500">
+                <Text className="mb-4 font-geist text-xs text-gray-400 dark:text-dk-faint">
                   {t("offers.detail.posted", { time: postedLabel })}
                 </Text>
 
-                <View className="flex-row items-center gap-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                <View className="flex-row items-center gap-3 border-t border-gray-100 pt-3 dark:border-dk-line">
                   <View className="flex-row items-center gap-1.5">
                     <Eye size={14} color={iconMuted} />
-                    <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400">
+                    <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted">
                       {offer.views}
                     </Text>
                   </View>
@@ -780,8 +780,8 @@ export function OfferDetailsMain({
                       className={cn(
                         "font-geist-semibold text-[13px]",
                         isLiked
-                          ? "text-brand dark:text-gray-100"
-                          : "text-gray-500 dark:text-gray-400",
+                          ? "text-brand dark:text-dk-text"
+                          : "text-gray-500 dark:text-dk-muted",
                       )}
                     >
                       {likes}
@@ -796,7 +796,7 @@ export function OfferDetailsMain({
                     hitSlop={4}
                   >
                     <Share2 size={14} color={iconMuted} />
-                    <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400">
+                    <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted">
                       {offer.shares}
                     </Text>
                   </Pressable>
@@ -813,7 +813,7 @@ export function OfferDetailsMain({
                       className={`font-geist-semibold text-[13px] ${
                         isLessThanADay
                           ? "text-[#de4f2d]"
-                          : "text-gray-500 dark:text-gray-400"
+                          : "text-gray-500 dark:text-dk-muted"
                       }`}
                       numberOfLines={1}
                     >

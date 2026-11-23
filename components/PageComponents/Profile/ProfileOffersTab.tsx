@@ -36,7 +36,7 @@ export function ProfileOffersTab({ businessId }: ProfileOffersTabProps) {
   if (error) {
     return (
       <View className="items-center justify-center px-6 py-20">
-        <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-gray-400">
+        <Text className="mb-4 text-center font-geist text-base text-gray-600 dark:text-dk-muted">
           {t("offers.error")}
         </Text>
         <LocalNotesButton

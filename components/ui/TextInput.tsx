@@ -49,15 +49,15 @@ export function TextInput({
       {label ? <FieldLabel label={label} required={required} hint={hint} className={labelClassName} /> : null}
       <View
         className={cn(
-          "flex-row bg-gray-50 dark:bg-gray-800 border rounded-xl px-4",
+          "flex-row bg-gray-50 dark:bg-dk-card border rounded-xl px-4",
           isMultiline ? "relative items-start py-3 min-h-35" : "items-center h-14",
-          error ? "border-error" : "border-gray-100 dark:border-gray-700",
+          error ? "border-error" : "border-gray-100 dark:border-dk-border",
         )}
       >
         <RNTextInput
           ref={ref}
           className={cn(
-            "flex-1 text-ink dark:text-gray-100 font-geist text-base py-0 text-[16px]",
+            "flex-1 text-ink dark:text-dk-text font-geist text-base py-0 text-[16px]",
             isMultiline && shouldShowCounter ? "pb-7" : "",
           )}
           placeholderTextColor="#6B7280"
@@ -86,7 +86,7 @@ export function TextInput({
           <Text
             className={cn(
               "absolute bottom-3 right-4 font-geist text-xs",
-              characterCount > maxLength ? "text-error" : "text-gray-500 dark:text-gray-400",
+              characterCount > maxLength ? "text-error" : "text-gray-500 dark:text-dk-muted",
             )}
           >
             {characterCount} / {maxLength}

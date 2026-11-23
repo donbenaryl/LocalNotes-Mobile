@@ -23,15 +23,15 @@ export function UserTypeCard({
       className={`flex-row items-center gap-4 w-full px-4 py-4 rounded-xl border cursor-pointer ${
         selected
           ? 'border-brand bg-brand-tint dark:bg-brand/20'
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
+          : 'border-gray-200 dark:border-dk-border bg-card dark:bg-dk-card'
       }`}
     >
       <View className="w-6 items-center">{icon}</View>
       <View className="flex-1">
-        <Text className="font-geist-semibold text-sm text-ink dark:text-gray-100">
+        <Text className="font-geist-semibold text-sm text-ink dark:text-dk-text">
           {title}
         </Text>
-        <Text className="font-geist text-xs text-gray-400 dark:text-gray-300 mt-0.5">
+        <Text className="font-geist text-xs text-gray-400 dark:text-dk-body mt-0.5">
           {description}
         </Text>
       </View>

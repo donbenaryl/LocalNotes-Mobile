@@ -98,17 +98,17 @@ function AppearsInListCard({ list, onPress }: AppearsInListCardProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
   const imageUrl = getListCoverImageUrl(list);
-  const chevronColor = colorScheme === "dark" ? "#E5E7EB" : "#1F2937";
+  const chevronColor = colorScheme === "dark" ? "#CFC7BB" : "#1A1714";
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={list.name}
-      className="cursor-pointer flex-row items-center gap-3 rounded-xl bg-white p-2 dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
+      className="cursor-pointer flex-row items-center gap-3 rounded-xl bg-card p-2 dark:bg-dk-page border border-gray-100 dark:border-dk-line"
     >
       {imageUrl ? (
-        <View className="h-[40px] w-[40px] shrink-0 overflow-hidden rounded-lg bg-soft dark:bg-gray-800">
+        <View className="h-[40px] w-[40px] shrink-0 overflow-hidden rounded-lg bg-soft dark:bg-dk-card">
           <Image source={{ uri: imageUrl }} className="h-full w-full" resizeMode="cover" />
         </View>
       ) : (
@@ -122,12 +122,12 @@ function AppearsInListCard({ list, onPress }: AppearsInListCardProps) {
 
       <View className="min-w-0 flex-1">
         <Text
-          className="font-geist-bold text-md leading-6 text-ink dark:text-gray-100"
+          className="font-geist-bold text-md leading-6 text-ink dark:text-dk-text"
           numberOfLines={2}
         >
           {list.name}
         </Text>
-        <Text className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+        <Text className="mt-1 text-xs text-gray-500 dark:text-dk-muted">
           {t("profile.picks.byAuthor", { name: list.account.name })}
         </Text>
       </View>
@@ -156,7 +156,7 @@ export function PickDetailModal({
   const { colorScheme } = useColorScheme();
   const { height, width } = useWindowDimensions();
   const isDark = colorScheme === "dark";
-  const directionsIconColor = isDark ? "#141413" : "#FFFFFF";
+  const directionsIconColor = isDark ? "#1A1714" : "#FFFFFF";
   const [isImageFullScreenVisible, setIsImageFullScreenVisible] =
     useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -480,7 +480,7 @@ export function PickDetailModal({
                     <>
                       <MapPin size={14} color="#57534E" />
                       <Text
-                        className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
+                        className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted"
                         numberOfLines={2}
                       >
                         {locationLabel}
@@ -504,13 +504,13 @@ export function PickDetailModal({
                 className="absolute right-3 top-0 z-[3] h-11 w-11 cursor-pointer items-center justify-center"
                 hitSlop={4}
               >
-                <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-gray-800">
+                <View className="h-8 w-8 items-center justify-center rounded-full bg-soft dark:bg-dk-card">
                   <X size={15} color="#57534E" strokeWidth={2.4} />
                 </View>
               </Pressable> */}
 
               <Text
-                className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-gray-100"
+                className="pr-12 font-geist-extrabold text-2xl leading-7 text-ink dark:text-dk-text"
                 numberOfLines={3}
               >
                 {title}
@@ -522,7 +522,7 @@ export function PickDetailModal({
                     <>
                       <MapPin size={14} color="#57534E" />
                       <Text
-                        className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-gray-400"
+                        className="flex-1 font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted"
                         numberOfLines={2}
                       >
                         {locationLabel}
@@ -546,8 +546,8 @@ export function PickDetailModal({
           )}
 
           {data.description ? (
-            <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-gray-800">
-              <Text className="font-fraunces text-[15px] italic leading-6 text-ink dark:text-gray-100">
+            <View className="mx-4 mt-3.5 rounded-2xl bg-soft px-4 py-3.5 dark:bg-dk-card">
+              <Text className="font-fraunces text-[15px] italic leading-6 text-ink dark:text-dk-text">
                 “{data.description}”
               </Text>
             </View>
@@ -572,7 +572,7 @@ export function PickDetailModal({
               <Pressable
                 onPress={handleDirections}
                 accessibilityRole="button"
-                className="min-h-[46px] flex-1 cursor-pointer flex-row items-center justify-center gap-1.5 rounded-full bg-ink dark:bg-gray-100"
+                className="min-h-[46px] flex-1 cursor-pointer flex-row items-center justify-center gap-1.5 rounded-full bg-ink dark:bg-dk-text"
               >
                 <Navigation size={15} color={directionsIconColor} />
                 <Text className="font-geist-bold text-sm text-white dark:text-ink">
@@ -588,7 +588,7 @@ export function PickDetailModal({
               accessibilityRole="button"
               className="mx-4 mt-3 cursor-pointer rounded-xl border border-brand/30 bg-brand-tint px-4 py-3 dark:bg-brand/15"
             >
-              <Text className="text-center font-geist-semibold text-[13px] text-brand dark:text-gray-100">
+              <Text className="text-center font-geist-semibold text-[13px] text-brand dark:text-dk-text">
                 {t("claimBusiness.entry.claimThisBusiness")}
               </Text>
             </Pressable>
@@ -615,7 +615,7 @@ export function PickDetailModal({
                 ))}
 
                 {isRelatedListsLoading ? (
-                  <Text className="px-1 font-geist-medium text-sm text-gray-400 dark:text-gray-500">
+                  <Text className="px-1 font-geist-medium text-sm text-gray-400 dark:text-dk-faint">
                     {t("profile.lists.loading")}
                   </Text>
                 ) : null}
@@ -626,7 +626,7 @@ export function PickDetailModal({
                     accessibilityRole="button"
                     className="cursor-pointer self-start px-1"
                   >
-                    <Text className="font-geist-semibold text-sm text-brand dark:text-gray-100">
+                    <Text className="font-geist-semibold text-sm text-brand dark:text-dk-text">
                       {t("profile.lists.retry")}
                     </Text>
                   </Pressable>

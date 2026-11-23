@@ -31,10 +31,10 @@ function DiscoveryProgressRow({
   return (
     <View className="py-2">
       <View className="mb-1.5 flex-row items-center justify-between">
-        <Text className="font-geist-bold text-[13px] text-ink dark:text-gray-100">
+        <Text className="font-geist-bold text-[13px] text-ink dark:text-dk-text">
           {label}
         </Text>
-        <Text className="font-geist-bold text-[13px] text-brand dark:text-gray-100">{`${percent}%`}</Text>
+        <Text className="font-geist-bold text-[13px] text-brand dark:text-dk-text">{`${percent}%`}</Text>
       </View>
       <ProgressBar percent={percent} />
     </View>
@@ -81,7 +81,7 @@ export function HowPeopleFindYouSection({
   return (
     <>
       <SectionHeading title={t('businessHome.sections.howPeopleFindYou')} />
-      <Text className="mx-4 mb-2 font-geist-semibold text-[12px] text-gray-500 dark:text-gray-400">
+      <Text className="mx-4 mb-2 font-geist-semibold text-[12px] text-gray-500 dark:text-dk-muted">
         {periodLabel}
       </Text>
       <BusinessHomeCard>
@@ -93,7 +93,7 @@ export function HowPeopleFindYouSection({
           />
         ))}
         <Pressable onPress={() => setExpanded((v) => !v)} accessibilityRole="button">
-          <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-gray-100 underline">
+          <Text className="mt-2 font-geist-bold text-[11.5px] text-brand dark:text-dk-text underline">
             {t('businessHome.discovery.seeDetails')}
           </Text>
         </Pressable>
@@ -108,7 +108,7 @@ export function HowPeopleFindYouSection({
                 })}
               />
             ))}
-            <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-gray-400">
+            <Text className="mt-2 font-geist text-xs text-gray-600 dark:text-dk-muted">
               {leading
                 ? t('businessHome.discovery.insight', {
                     channel: t(`businessHome.discovery.${leading.key}`),
@@ -137,7 +137,7 @@ export function HowPeopleFindYouSection({
             channel: t(`businessHome.discovery.${leading.key}`),
           })}
         >
-          <Text className="font-geist text-sm leading-[1.55] text-gray-600 dark:text-gray-400">
+          <Text className="font-geist text-sm leading-[1.55] text-gray-600 dark:text-dk-muted">
             {t(`businessHome.discovery.reachMore.${leading.key}`)}
           </Text>
           <View className="mt-5 gap-2">

@@ -17,7 +17,7 @@ export function ActiveOffersList() {
     businessId || undefined,
   );
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
-  const spinnerColor = colorScheme === 'dark' ? '#9CA3AF' : '#6B7280';
+  const spinnerColor = colorScheme === 'dark' ? '#A79E92' : '#6C727F';
 
   let content;
   if (isLoading) {
@@ -29,7 +29,7 @@ export function ActiveOffersList() {
   } else if (error) {
     content = (
       <View className="items-start px-5 pb-2">
-        <Text className="font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+        <Text className="font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
           {t('businessHome.campaignsTab.loadError')}
         </Text>
         <Pressable
@@ -37,7 +37,7 @@ export function ActiveOffersList() {
           accessibilityRole="button"
           className="mt-1 active:opacity-70"
         >
-          <Text className="font-geist-semibold text-xs text-brand dark:text-gray-100">
+          <Text className="font-geist-semibold text-xs text-brand dark:text-dk-text">
             {t('common.retry')}
           </Text>
         </Pressable>
@@ -45,7 +45,7 @@ export function ActiveOffersList() {
     );
   } else if (offers.length === 0) {
     content = (
-      <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-gray-400">
+      <Text className="px-5 pb-2 font-geist text-xs leading-[1.5] text-gray-500 dark:text-dk-muted">
         {t('businessHome.campaignsTab.activeEmpty')}
       </Text>
     );

@@ -35,7 +35,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
-  const iconColor = colorScheme === "dark" ? "#9CA3AF" : "#6B7280";
+  const iconColor = colorScheme === "dark" ? "#A79E92" : "#6C727F";
   const [isFocused, setIsFocused] = useState(false);
 
   const handleClear = () => {
@@ -48,10 +48,10 @@ export function SearchBar({
     <View className={cn("flex-row items-center gap-2", className)}>
       <View
         className={cn(
-          "min-w-0 flex-1 flex-row items-center gap-2 rounded-xl border bg-soft px-3 dark:bg-gray-800",
+          "min-w-0 flex-1 flex-row items-center gap-2 rounded-xl border bg-soft px-3 dark:bg-dk-card",
           isFocused
             ? "border-brand"
-            : "border-gray-200 dark:border-gray-700",
+            : "border-gray-200 dark:border-dk-border",
         )}
       >
         <Search size={16} color={iconColor} />
@@ -73,7 +73,7 @@ export function SearchBar({
           autoCorrect={false}
           autoFocus={autoFocus}
           onSubmitEditing={() => onCommit(value)}
-          className="flex-1 py-3 text-[16px] font-geist text-ink dark:text-gray-100"
+          className="flex-1 py-3 text-[16px] font-geist text-ink dark:text-dk-text"
         />
         {value.length > 0 ? (
           <Pressable

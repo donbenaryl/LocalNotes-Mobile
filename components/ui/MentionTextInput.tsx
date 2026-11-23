@@ -118,11 +118,11 @@ export function MentionTextInput({
       />
 
       {showDropdown ? (
-        <View className="mt-1.5 rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+        <View className="mt-1.5 rounded-xl border border-gray-200 bg-card dark:border-dk-border dark:bg-dk-card">
           {isSearching ? (
             <View className="flex-row items-center gap-2 px-3 py-2.5">
               <PageLoader fullPage={false} size="small" />
-              <Text className="font-geist text-xs text-gray-500 dark:text-gray-400">
+              <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
                 {t("listDetail.searchingMentions")}
               </Text>
             </View>
@@ -142,7 +142,7 @@ export function MentionTextInput({
                   <View className="min-w-0 flex-1">
                     <Text
                       numberOfLines={1}
-                      className="font-geist-medium text-xs text-ink dark:text-gray-100"
+                      className="font-geist-medium text-xs text-ink dark:text-dk-text"
                     >
                       {user.name}
                     </Text>
