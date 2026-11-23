@@ -107,7 +107,9 @@ export function usePicksSearch() {
     picks,
     totalCount,
     isLoading: picksQuery.isFetching && picks.length > 0,
-    isPending: picksQuery.isPending && picksQuery.data === undefined,
+    isPending:
+      picksQuery.isPending ||
+      (picksQuery.isFetching && picksQuery.data === undefined),
     isRefetching: picksQuery.isRefetching && !picksQuery.isFetchingNextPage,
     error: picksQuery.error?.message ?? null,
     refetch: picksQuery.refetch,

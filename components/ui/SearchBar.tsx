@@ -15,6 +15,8 @@ interface SearchBarProps {
   /** Called on clear — wire to store.commitQuery. Search itself is triggered externally. */
   onCommit: (query: string) => void;
   onClear?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;
@@ -25,6 +27,8 @@ export function SearchBar({
   onChangeText,
   onCommit,
   onClear,
+  onFocus,
+  onBlur,
   placeholder,
   className,
   autoFocus = false,
@@ -54,8 +58,14 @@ export function SearchBar({
         <RNTextInput
           value={value}
           onChangeText={onChangeText}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={() => {
+            setIsFocused(true);
+            onFocus?.();
+          }}
+          onBlur={() => {
+            setIsFocused(false);
+            onBlur?.();
+          }}
           placeholder={placeholder ?? t("search.placeholder")}
           placeholderTextColor="#6B7280"
           returnKeyType="search"

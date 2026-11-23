@@ -104,7 +104,9 @@ export function useListSearch() {
     lists,
     totalCount,
     isLoading: listQuery.isFetching && lists.length > 0,
-    isPending: listQuery.isPending && listQuery.data === undefined,
+    isPending:
+      listQuery.isPending ||
+      (listQuery.isFetching && listQuery.data === undefined),
     isRefetching: listQuery.isRefetching && !listQuery.isFetchingNextPage,
     error: listQuery.error?.message ?? null,
     refetch: listQuery.refetch,

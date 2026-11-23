@@ -1,30 +1,38 @@
 import { Image, View } from "react-native";
 import { NoImage } from "@/components/ui/NoImage";
 import { useImageGradientColor } from "@/hooks/useImageGradientColor";
+import { cn } from "@/utils/cn";
+
+type PickPreviewImageSize = "sm" | "md";
 
 interface PickPreviewImageProps {
   imageUrl: string | null;
   index: number;
   personalityColor?: Record<string, number> | null;
+  /** `sm` = 36px (default); `md` ≈ 56px for search follow rows. */
+  size?: PickPreviewImageSize;
 }
 
-const GRADIENT_FILL = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-} as const;
+const SIZE_CLASS: Record<PickPreviewImageSize, string> = {
+  sm: "h-9 w-9 rounded-lg",
+  md: "h-14 w-14 rounded-xl",
+};
 
 export function PickPreviewImage({
   imageUrl,
-  index,
+  index: _index,
   personalityColor,
+  size = "sm",
 }: PickPreviewImageProps) {
-  const gradientRgb = useImageGradientColor(imageUrl);
+  useImageGradientColor(imageUrl);
 
   return (
-    <View className="relative h-9 w-9 rounded-lg shrink-0 overflow-hidden  bg-gray-100 dark:bg-gray-800">
+    <View
+      className={cn(
+        "relative shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-800",
+        SIZE_CLASS[size],
+      )}
+    >
       {imageUrl ? (
         <Image
           source={{ uri: imageUrl }}
@@ -34,7 +42,7 @@ export function PickPreviewImage({
       ) : (
         <NoImage
           personalityColor={personalityColor}
-          size="xs"
+          size={size === "md" ? "md" : "xs"}
           appearance="flat"
           outerClassName="h-full w-full !bg-white !rounded-0"
           innerClassName="bg-white dark:bg-gray-800 rounded-0!"

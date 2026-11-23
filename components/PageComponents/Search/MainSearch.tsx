@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Keyboard, Pressable, Text, View } from "react-native";
 import { usePathname, useRouter, type Href } from "expo-router";
 import { List, Sparkles, Users } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,7 @@ import {
 import { PageHeader } from "@/components/ui/PageHeader";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { SearchFilterHeader } from "@/components/PageComponents/Search/SearchFilterHeader";
+import { SearchFocusDropdown } from "@/components/PageComponents/Search/SearchFocusDropdown";
 import { SearchPicks } from "@/components/PageComponents/Search/SearchPicks/SearchPicks";
 import { SearchLists } from "@/components/PageComponents/Search/SearchLists/SearchLists";
 import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/SearchPeople";
@@ -20,7 +21,9 @@ import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 import { resolveSectionTabFromPathname } from "@/utils/sectionTabSync";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useInitializeSearchLocation } from "@/hooks/useInitializeSearchLocation";
+import { useSearchFocusSuggestions } from "@/hooks/useSearchFocusSuggestions";
 import { HOME_HREF } from "@/constants/swipeNavigation";
+import { recordVibeUsage } from "@/utils/searchRecents";
 import type { Location as GeoLocation } from "@/http/list-api/types";
 import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 
@@ -104,6 +107,98 @@ export default function MainSearch() {
 
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
 
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const {
+    recentQueries,
+    suggestions,
+    followingPicks,
+    rememberQuery,
+    removeQuery,
+    clearQueries,
+    refreshLocal,
+  } = useSearchFocusSuggestions();
+
+  const dismissFocusDropdown = useCallback(() => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    setIsSearchFocused(false);
+  }, []);
+
+  const handleSearchFocus = useCallback(() => {
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+    setIsSearchFocused(true);
+    void refreshLocal();
+  }, [refreshLocal]);
+
+  const handleSearchBlur = useCallback(() => {
+    blurTimeoutRef.current = setTimeout(() => {
+      setIsSearchFocused(false);
+      blurTimeoutRef.current = null;
+    }, 180);
+  }, []);
+
+  const handleQueryChange = useCallback(
+    (text: string) => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+        blurTimeoutRef.current = null;
+      }
+      setQuery(text);
+      setIsSearchFocused(true);
+    },
+    [setQuery],
+  );
+
+  const handleCommitQuery = useCallback(
+    (next?: string) => {
+      Keyboard.dismiss();
+      const value = typeof next === "string" ? next : query;
+      commitQuery(value);
+      if (value.trim()) {
+        void rememberQuery(value);
+        dismissFocusDropdown();
+      }
+    },
+    [commitQuery, dismissFocusDropdown, query, rememberQuery],
+  );
+
+  const handleSelectSuggestion = useCallback(
+    (label: string) => {
+      Keyboard.dismiss();
+      setQuery(label);
+      commitQuery(label);
+      void rememberQuery(label);
+      dismissFocusDropdown();
+    },
+    [commitQuery, dismissFocusDropdown, rememberQuery, setQuery],
+  );
+
+  const handleSelectFollowPick = useCallback(() => {
+    dismissFocusDropdown();
+  }, [dismissFocusDropdown]);
+
+  const handleVibesChange = useCallback(
+    (vibes: string[]) => {
+      setSelectedVibes(vibes);
+      void recordVibeUsage(vibes);
+    },
+    [setSelectedVibes],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const tabs: SearchTabItem[] = useMemo(
     () => [
       {
@@ -182,29 +277,52 @@ export default function MainSearch() {
         sectionId="search"
         chrome={
           <>
-            <PageHeader
-              borderless
-              includeSafeArea={false}
-              onBack={handleBack}
-              rightChild={
-                <Pressable
-                  onPress={() => commitQuery(query)}
-                  accessibilityRole="button"
-                  accessibilityLabel={t("common.search")}
-                  className="cursor-pointer py-2"
-                >
-                  <Text className="font-geist-semibold text-sm text-brand">
-                    {t("common.search")}
-                  </Text>
-                </Pressable>
-              }
-            >
-              <SearchBar
-                value={query}
-                onChangeText={setQuery}
-                onCommit={commitQuery}
+            <View className="relative z-30">
+              <PageHeader
+                borderless
+                includeSafeArea={false}
+                onBack={handleBack}
+                rightChild={
+                  <Pressable
+                    onPress={() => {
+                      handleCommitQuery(query);
+                      dismissFocusDropdown();
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("common.search")}
+                    className="cursor-pointer py-2"
+                  >
+                    <Text className="font-geist-semibold text-sm text-brand">
+                      {t("common.search")}
+                    </Text>
+                  </Pressable>
+                }
+              >
+                <SearchBar
+                  value={query}
+                  onChangeText={handleQueryChange}
+                  onCommit={handleCommitQuery}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
+                />
+              </PageHeader>
+
+              <SearchFocusDropdown
+                visible={isSearchFocused}
+                recentQueries={recentQueries}
+                suggestions={suggestions}
+                followingPicks={followingPicks}
+                onSelect={handleSelectSuggestion}
+                onRemoveRecent={(q) => {
+                  void removeQuery(q);
+                }}
+                onClearRecent={() => {
+                  void clearQueries();
+                }}
+                onSelectFollowPick={handleSelectFollowPick}
+                onDismiss={dismissFocusDropdown}
               />
-            </PageHeader>
+            </View>
 
             <View className="gap-3 px-4">
               <Tabs
@@ -224,7 +342,7 @@ export default function MainSearch() {
                 onMatchApply={handleMatchApply}
                 matchingCount={activeResultCount}
                 selectedVibes={selectedVibes}
-                onVibesChange={setSelectedVibes}
+                onVibesChange={handleVibesChange}
                 vibeMatchCount={activeResultCount}
                 histogramSurface={
                   activeTab === "people"
