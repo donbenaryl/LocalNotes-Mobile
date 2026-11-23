@@ -54,41 +54,20 @@ interface SectionTabsScrollLayoutProps {
 }
 
 /**
- * Android: KeyboardAwareScrollView as the section root (Smart Pick pattern) with
- * header + tabs + feed inside. Plain ScrollView / chrome-outside-flex bands paint
- * blank on Android. iOS puts chrome inside each page ScrollView via scrollHeader.
+ * iOS: GuardedHeader + Tabs are pinned above the pager; only page content
+ * swipes and scrolls.
  *
- * Both platforms reveal a sticky Tabs overlay once GuardedHeader is almost hidden,
- * using the same timed fade/slide as ProfileVitalBar.
+ * Android: KeyboardAwareScrollView as the section root (Smart Pick pattern)
+ * with header + tabs + a content-sized active page inside. Plain ScrollView /
+ * flex-fill feed chains paint blank on Android. A sticky Tabs overlay fades in
+ * once the header has scrolled away. Swipes are a pan inside SectionPager that
+ * wraps only the page body, so the chrome never moves.
  */
-export function SectionTabsScrollLayout({
-  sectionId,
-  tabs,
-  activeTab,
-  onTabChange,
-  pages,
-}: SectionTabsScrollLayoutProps) {
+export function SectionTabsScrollLayout(props: SectionTabsScrollLayoutProps) {
   if (Platform.OS === 'android') {
-    return (
-      <AndroidSectionTabsScrollLayout
-        sectionId={sectionId}
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={onTabChange}
-        pages={pages}
-      />
-    );
+    return <AndroidSectionTabsScrollLayout {...props} />;
   }
-
-  return (
-    <IosSectionTabsScrollLayout
-      sectionId={sectionId}
-      tabs={tabs}
-      activeTab={activeTab}
-      onTabChange={onTabChange}
-      pages={pages}
-    />
-  );
+  return <IosSectionTabsScrollLayout {...props} />;
 }
 
 /**
@@ -226,50 +205,33 @@ function IosSectionTabsScrollLayout({
   pages,
 }: SectionTabsScrollLayoutProps) {
   const scrollRef = useRef<ScrollToTopTarget | null>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(scrollRef);
-  const { hideProgress, updateFromScrollY, resetReveal } =
-    useStickyTabsReveal(headerHeight);
 
   const handleActiveScrollRef = useCallback((ref: ScrollToTopTarget | null) => {
     scrollRef.current = ref;
   }, []);
 
-  const handleScrollY = useCallback(
-    (y: number) => {
-      onScrollY(y);
-      updateFromScrollY(y);
-    },
-    [onScrollY, updateFromScrollY],
-  );
-
   const handleTabChange = useCallback(
     (tabId: string) => {
       onTabChange(tabId);
       onScrollY(0);
-      resetReveal();
     },
-    [onScrollY, onTabChange, resetReveal],
-  );
-
-  const handleHeaderHeight = useCallback((height: number) => {
-    setHeaderHeight((prev) => (prev === height ? prev : height));
-  }, []);
-
-  const renderScrollHeader = useCallback(
-    () => (
-      <SectionInFlowChrome
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        onHeaderHeight={handleHeaderHeight}
-      />
-    ),
-    [activeTab, handleHeaderHeight, handleTabChange, tabs],
+    [onScrollY, onTabChange],
   );
 
   return (
     <View className="bg-page dark:bg-gray-900" style={styles.column}>
+      <View className="px-4">
+        <GuardedHeader />
+      </View>
+      <View className="px-4 pt-2 mb-4">
+        <Tabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          className="border-b-0"
+        />
+      </View>
       <View style={styles.pagerHost} collapsable={false}>
         <SectionPager
           scrollable
@@ -278,16 +240,9 @@ function IosSectionTabsScrollLayout({
           activeId={activeTab}
           onActiveIdChange={handleTabChange}
           onActiveScrollRef={handleActiveScrollRef}
-          onScrollY={handleScrollY}
-          scrollHeader={renderScrollHeader}
+          onScrollY={onScrollY}
         />
       </View>
-      <StickySectionTabs
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        hideProgress={hideProgress}
-      />
       <ScrollToTopButton visible={visible} onPress={scrollToTop} />
     </View>
   );

@@ -23,7 +23,13 @@ import PagerView, {
   type PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { runOnJS } from "react-native-reanimated";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
 import { useIsFocused } from "@react-navigation/native";
 import { usePathname, useRouter, type Href } from "expo-router";
 import {
@@ -83,11 +89,6 @@ interface SectionPagerProps {
   onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
   /** Forward active-page scroll Y for scroll-to-top visibility. */
   onScrollY?: (y: number) => void;
-  /**
-   * Rendered as the first child of each page ScrollView (scrollable mode).
-   * Use a render function so every page mounts its own copy (e.g. header + tabs).
-   */
-  scrollHeader?: () => ReactNode;
 }
 
 /** Stable boundary so feed trees bail out when only `isActive` changes. */
@@ -110,6 +111,10 @@ const SWIPE_DISTANCE_THRESHOLD = 72;
 const SWIPE_VELOCITY_THRESHOLD = 700;
 const FAIL_OFFSET_Y = 16;
 const ACTIVE_OFFSET_X = 12;
+/** Android content pan: wider than the edge strips so vertical scroll wins. */
+const ANDROID_ACTIVE_OFFSET_X = 20;
+const SLIDE_OUT_MS = 140;
+const SLIDE_IN_MS = 160;
 const EDGE_STRIP_WIDTH = 28;
 const EMBEDDED_MIN_HEIGHT = 200;
 const PROFILE_HREF = "/profile" as Href;
@@ -125,14 +130,12 @@ function SectionScrollablePage({
   isActive,
   onActiveScrollRef,
   onScrollY,
-  scrollHeader,
   children,
 }: {
   pageId: string;
   isActive: boolean;
   onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
   onScrollY?: (y: number) => void;
-  scrollHeader?: () => ReactNode;
   children: ReactNode;
 }) {
   const scrollRef = useRef<ScrollView>(null);
@@ -190,7 +193,6 @@ function SectionScrollablePage({
           />
         }
       >
-        {scrollHeader?.()}
         {children}
       </ScrollView>
     </View>
@@ -217,7 +219,6 @@ export function SectionPager({
   lazy = false,
   onActiveScrollRef,
   onScrollY,
-  scrollHeader,
 }: SectionPagerProps) {
   const { height: screenHeight } = useWindowDimensions();
   const pagerRef = useRef<PagerView>(null);
@@ -321,11 +322,11 @@ export function SectionPager({
     }
     const hasNextSection =
       sectionId != null && getAdjacentSection(sectionId, "left") != null;
-    // Without an inner pager (Android), the shell always owns horizontal swipe.
-    const allowParentSwipe =
-      !USE_INNER_PAGER ||
-      pages.length <= 1 ||
-      (activeIndex === lastIndex && hasNextSection);
+    // Android has no inner PagerView: SectionPager's own pan handles tabs and
+    // section edges, so the shell pan only applies to single-page sections.
+    const allowParentSwipe = USE_INNER_PAGER
+      ? pages.length <= 1 || (activeIndex === lastIndex && hasNextSection)
+      : pages.length <= 1;
     setSwipeEnabled(allowParentSwipe);
   }, [
     activeIndex,
@@ -345,6 +346,16 @@ export function SectionPager({
     // Highlight and shell slide start on the gesture; the URL follows.
     requestSection(previous);
     navigateToSection(router, previous, { fromHref: currentHref });
+  }, [activeIndex, pages, requestSection, router, sectionId]);
+
+  const navigateToNextSection = useCallback(() => {
+    if (!sectionId || navigatingRef.current) return;
+    const next = getAdjacentSection(sectionId, "left");
+    if (!next) return;
+    navigatingRef.current = true;
+    const currentHref = pages[activeIndex]?.href;
+    requestSection(next);
+    navigateToSection(router, next, { fromHref: currentHref });
   }, [activeIndex, pages, requestSection, router, sectionId]);
 
   const navigateToProfile = useCallback(() => {
@@ -497,7 +508,6 @@ export function SectionPager({
               isActive={id === activeId}
               onActiveScrollRef={onActiveScrollRef}
               onScrollY={onScrollY}
-              scrollHeader={scrollHeader}
             >
               {content}
             </SectionScrollablePage>
@@ -533,7 +543,6 @@ export function SectionPager({
       onActiveScrollRef,
       onScrollY,
       pageContents,
-      scrollHeader,
       scrollable,
     ],
   );
@@ -572,6 +581,105 @@ export function SectionPager({
     [handleProfilePanEnd, showProfileStrip],
   );
 
+  // Android only: PagerView blanks feeds there, so swipes are a content pan.
+  // dir > 0 = swiped right (previous), dir < 0 = swiped left (next).
+  const hasNextSection =
+    sectionId != null && getAdjacentSection(sectionId, "left") != null;
+  const canGoPrevious = activeIndex > 0 || previousSection != null;
+  const canGoNext =
+    activeIndex < lastIndex || hasNextSection || sectionId === "search";
+  const { width: screenWidth } = useWindowDimensions();
+  const slideX = useSharedValue(0);
+  const slideOpacity = useSharedValue(1);
+
+  const commitAndroidSwipe = useCallback(
+    (dir: number) => {
+      if (dir > 0) {
+        if (activeIndex > 0) onActiveIdChange(pages[activeIndex - 1].id);
+        else navigateToPreviousSection();
+      } else if (activeIndex < lastIndex) {
+        onActiveIdChange(pages[activeIndex + 1].id);
+      } else if (hasNextSection) {
+        navigateToNextSection();
+      } else if (sectionId === "search") {
+        navigateToProfile();
+      }
+    },
+    [
+      activeIndex,
+      hasNextSection,
+      lastIndex,
+      navigateToNextSection,
+      navigateToPreviousSection,
+      navigateToProfile,
+      onActiveIdChange,
+      pages,
+      sectionId,
+    ],
+  );
+
+  const androidPan = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!USE_INNER_PAGER && isSectionActive)
+        .activeOffsetX([-ANDROID_ACTIVE_OFFSET_X, ANDROID_ACTIVE_OFFSET_X])
+        .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
+        .onUpdate((event) => {
+          "worklet";
+          const dx = event.translationX;
+          const allowed = dx > 0 ? canGoPrevious : canGoNext;
+          slideX.value = allowed ? dx : 0;
+        })
+        .onEnd((event) => {
+          "worklet";
+          const dx = event.translationX;
+          const dir = dx > 0 ? 1 : -1;
+          const allowed = dir > 0 ? canGoPrevious : canGoNext;
+          const committed =
+            allowed &&
+            (Math.abs(dx) > SWIPE_DISTANCE_THRESHOLD ||
+              Math.abs(event.velocityX) > SWIPE_VELOCITY_THRESHOLD);
+          if (!committed) {
+            slideX.value = withTiming(0, { duration: SLIDE_IN_MS });
+            return;
+          }
+          slideX.value = withTiming(
+            dir * screenWidth,
+            { duration: SLIDE_OUT_MS },
+            (finished) => {
+              if (!finished) return;
+              runOnJS(commitAndroidSwipe)(dir);
+              // Content swaps on the JS thread; enter from the opposite side
+              // after a short fade so the old page never flashes back in.
+              slideOpacity.value = 0;
+              slideX.value = -dir * screenWidth * 0.25;
+              slideOpacity.value = withDelay(
+                40,
+                withTiming(1, { duration: SLIDE_IN_MS }),
+              );
+              slideX.value = withDelay(
+                40,
+                withTiming(0, { duration: SLIDE_IN_MS }),
+              );
+            },
+          );
+        }),
+    [
+      canGoNext,
+      canGoPrevious,
+      commitAndroidSwipe,
+      isSectionActive,
+      screenWidth,
+      slideOpacity,
+      slideX,
+    ],
+  );
+
+  const slideStyle = useAnimatedStyle(() => ({
+    opacity: slideOpacity.value,
+    transform: [{ translateX: slideX.value }],
+  }));
+
   const isEmbeddedHeight = embedded && !scrollable;
   const activePage = pages[activeIndex] ?? pages[0];
 
@@ -601,7 +709,6 @@ export function SectionPager({
             isActive
             onActiveScrollRef={onActiveScrollRef}
             onScrollY={onScrollY}
-            scrollHeader={scrollHeader}
           >
             {content}
           </SectionScrollablePage>
@@ -632,29 +739,14 @@ export function SectionPager({
         style={fillRemaining ? styles.feedHost : undefined}
       >
         {chrome}
-        {activeBody}
-
-        {showPrevSectionStrip ? (
-          <GestureDetector gesture={prevSectionPan}>
-            <View
-              style={styles.leftStrip}
-              collapsable={false}
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-            />
-          </GestureDetector>
-        ) : null}
-
-        {showProfileStrip ? (
-          <GestureDetector gesture={profilePan}>
-            <View
-              style={styles.rightStrip}
-              collapsable={false}
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-            />
-          </GestureDetector>
-        ) : null}
+        <GestureDetector gesture={androidPan}>
+          <Animated.View
+            style={[fillRemaining ? styles.feedHost : undefined, slideStyle]}
+            collapsable={false}
+          >
+            {activeBody}
+          </Animated.View>
+        </GestureDetector>
       </View>
     );
   }

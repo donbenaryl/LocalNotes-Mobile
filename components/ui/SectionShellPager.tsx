@@ -1,10 +1,19 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import PagerView, {
   type PageScrollStateChangedNativeEvent,
   type PagerViewOnPageScrollEvent,
   type PagerViewOnPageSelectedEvent,
 } from "react-native-pager-view";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { runOnJS } from "react-native-reanimated";
 import { usePathname, useRouter } from "expo-router";
 import MainHome from "@/components/PageComponents/Home/MainHome";
 import MainSaved from "@/components/PageComponents/Saved/MainSaved";
@@ -15,6 +24,7 @@ import {
   pagerPageFillStyle,
 } from "@/components/ui/FillPagerView";
 import {
+  getAdjacentSection,
   getSectionId,
   SECTION_ORDER,
   type SectionId,
@@ -37,6 +47,11 @@ const SECTION_COMMIT_THRESHOLD = 0.15;
  * iOS keeps the swipable outer pager.
  */
 const USE_OUTER_PAGER = Platform.OS !== "android";
+
+const SWIPE_DISTANCE_THRESHOLD = 72;
+const SWIPE_VELOCITY_THRESHOLD = 700;
+const ACTIVE_OFFSET_X = 20;
+const FAIL_OFFSET_Y = 15;
 
 /**
  * Source of truth for footer-section swipe order (SECTION_ORDER).
@@ -195,13 +210,46 @@ export function SectionShellPager() {
     [pathname, router],
   );
 
+  const androidSection =
+    activeSection ?? SECTION_ORDER[bootIndex] ?? SECTION_ORDER[0];
+
+  // Android: no outer PagerView. Sections with their own SectionPager handle
+  // swipes there (swipeEnabled=false); single-page sections (Smart Pick) swipe here.
+  const swipeToAdjacent = useCallback(
+    (dir: number) => {
+      const target = getAdjacentSection(androidSection, dir > 0 ? "right" : "left");
+      if (!target) return;
+      requestSection(target);
+      navigateToSection(router, target);
+    },
+    [androidSection, requestSection, router],
+  );
+
+  const androidPan = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(!USE_OUTER_PAGER && swipeEnabled)
+        .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
+        .failOffsetY([-FAIL_OFFSET_Y, FAIL_OFFSET_Y])
+        .onEnd((event) => {
+          "worklet";
+          const committed =
+            Math.abs(event.translationX) > SWIPE_DISTANCE_THRESHOLD ||
+            Math.abs(event.velocityX) > SWIPE_VELOCITY_THRESHOLD;
+          if (committed) {
+            runOnJS(swipeToAdjacent)(event.translationX > 0 ? 1 : -1);
+          }
+        }),
+    [swipeEnabled, swipeToAdjacent],
+  );
+
   if (!USE_OUTER_PAGER) {
-    const section =
-      activeSection ?? SECTION_ORDER[bootIndex] ?? SECTION_ORDER[0];
     return (
-      <View style={styles.fill} collapsable={false}>
-        {renderSection(section)}
-      </View>
+      <GestureDetector gesture={androidPan}>
+        <View style={styles.fill} collapsable={false}>
+          {renderSection(androidSection)}
+        </View>
+      </GestureDetector>
     );
   }
 

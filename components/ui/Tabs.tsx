@@ -35,12 +35,12 @@ const MUTED_ICON = '#6B7280';
 
 function tabItemClassName(equalWidth: boolean, isActive?: boolean) {
   return cn(
-    'flex-row items-center gap-2 border-b-2 pb-3',
+    'flex-row items-center gap-2 border-b-2 pb-2',
     equalWidth
       ? 'flex-1 justify-center px-1'
       : 'relative mr-4 cursor-pointer px-1 pr-4',
     // Animated path sets border color via style; static path uses isActive.
-    isActive === true && 'border-brand',
+    isActive === true && 'border-brand dark:border-gray-300',
     isActive === false && 'border-transparent',
   );
 }
@@ -80,7 +80,7 @@ function AnimatedTabButton({
 
   const borderStyle = useAnimatedStyle(() => ({
     borderBottomColor:
-      highlightIndex.value === index ? BRAND : 'transparent',
+      highlightIndex.value === index ? activeTextColor : 'transparent',
   }));
 
   const activeIconStyle = useAnimatedStyle(() => ({
