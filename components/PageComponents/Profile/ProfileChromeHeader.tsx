@@ -1,14 +1,16 @@
 import { useState, type ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   interpolate,
   runOnJS,
   useAnimatedReaction,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ProfileVitalBar } from "./ProfileVitalBar";
 import { useProfileChrome } from "./ProfileChromeProvider";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import type { profileItemDAO } from "@/http/account-api/types";
 import type { BusinessItemDAO } from "@/http/business-api/types";
 
@@ -29,6 +31,7 @@ export function ProfileChromeHeader({
   isOwnProfile,
   isPending,
 }: ProfileChromeHeaderProps) {
+  const { t } = useTranslation();
   const { hideProgress } = useProfileChrome();
   const [pageHeaderInteractive, setPageHeaderInteractive] = useState(true);
 
@@ -49,6 +52,9 @@ export function ProfileChromeHeader({
   }));
 
   const hasEntity = Boolean(business) || Boolean(profile);
+  const headerLabel = business
+    ? business.name?.trim() || t("common.user")
+    : resolveUserLabels(profile, t("common.user")).primary;
 
   return (
     <View className="relative z-10">
@@ -60,7 +66,14 @@ export function ProfileChromeHeader({
           pageHeaderInteractive ? "yes" : "no-hide-descendants"
         }
       >
-        <PageHeader onBack={onBack} borderless rightChild={rightChild} />
+        <PageHeader onBack={onBack} borderless rightChild={rightChild}>
+          <Text
+            className="font-geist-bold text-lg text-ink dark:text-dk-text"
+            numberOfLines={1}
+          >
+            {headerLabel}
+          </Text>
+        </PageHeader>
       </Animated.View>
       {!isPending && hasEntity ? (
         <View

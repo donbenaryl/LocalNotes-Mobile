@@ -15,6 +15,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useListFormStore } from "@/stores/useListFormStore";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { isOthersCategoryName } from "@/utils/listCategories";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import type { ListItemDAO } from "@/http/list-api/types";
 
 interface ListDetailsHeaderProps {
@@ -230,7 +231,7 @@ export function ListDetailsHeader({
           visible={reportOpen}
           onClose={() => setReportOpen(false)}
           userId={list.account.id}
-          displayName={list.account.name}
+          displayName={resolveUserLabels(list.account).primary}
           contentType="list"
           contentId={list.id}
           onReported={() => {

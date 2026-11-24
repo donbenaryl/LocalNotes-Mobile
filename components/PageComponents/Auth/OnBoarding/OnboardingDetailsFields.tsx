@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "../../../ui/TextInput";
@@ -20,37 +20,27 @@ interface OnboardingDetailsFieldsProps {
   onIndividualChange: (next: IndividualForm) => void;
   onBusinessChange: (next: BusinessForm) => void;
   clearFieldError: (key: string) => void;
+  /** Rendered after username slot for email (email field) or custom content. */
   beforePassword?: ReactNode;
+  /** When true, skip password fields (social completion). */
+  hidePassword?: boolean;
 }
 
-function SectionLabel({ children }: { children: string }) {
-  return (
-    <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-dk-faint pt-2">
-      {children}
-    </Text>
-  );
-}
-
-interface PasswordFieldsProps {
+interface PasswordFieldProps {
   password: string;
-  confirmPassword: string;
   errors: FormErrors;
   onPasswordChange: (value: string) => void;
-  onConfirmPasswordChange: (value: string) => void;
 }
 
-function PasswordFields({
+function PasswordField({
   password,
-  confirmPassword,
   errors,
   onPasswordChange,
-  onConfirmPasswordChange,
-}: PasswordFieldsProps) {
+}: PasswordFieldProps) {
   const { t } = useTranslation();
 
   return (
     <>
-      <SectionLabel>{t("auth.onboarding.securitySection")}</SectionLabel>
       <TextInput
         label={t("auth.signUp.passwordLabel")}
         placeholder={t("auth.onboarding.passwordPlaceholder")}
@@ -61,15 +51,6 @@ function PasswordFields({
         error={errors.password}
       />
       <InputHint hint={t("common.passwordHint")} />
-      <TextInput
-        label={t("auth.signUp.confirmPasswordLabel")}
-        placeholder={t("auth.signUp.confirmPasswordPlaceholder")}
-        value={confirmPassword}
-        onChangeText={onConfirmPasswordChange}
-        isPassword
-        autoComplete="new-password"
-        error={errors.confirmPassword}
-      />
     </>
   );
 }
@@ -83,6 +64,7 @@ export function OnboardingDetailsFields({
   onBusinessChange,
   clearFieldError,
   beforePassword,
+  hidePassword = false,
 }: OnboardingDetailsFieldsProps) {
   const { t } = useTranslation();
 
@@ -105,38 +87,14 @@ export function OnboardingDetailsFields({
   if (userType === "individual") {
     return (
       <View className="gap-4">
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <TextInput
-              label={t("auth.signUp.firstNameLabel")}
-              placeholder={t("auth.signUp.firstNamePlaceholder")}
-              value={individualForm.firstName}
-              onChangeText={(value) => patchIndividual("firstName", value)}
-              autoCapitalize="words"
-              maxLength={250}
-              error={errors.firstName}
-            />
-          </View>
-          <View className="flex-1">
-            <TextInput
-              label={t("auth.signUp.lastNameLabel")}
-              placeholder={t("auth.signUp.lastNamePlaceholder")}
-              value={individualForm.lastName}
-              onChangeText={(value) => patchIndividual("lastName", value)}
-              autoCapitalize="words"
-              maxLength={250}
-              error={errors.lastName}
-            />
-          </View>
-        </View>
-        <TextInput
-          label={t("auth.signUp.displayNameLabel")}
-          placeholder={t("auth.signUp.displayNamePlaceholder")}
-          value={individualForm.displayName}
-          onChangeText={(value) => patchIndividual("displayName", value)}
-          autoCapitalize="words"
-          error={errors.displayName}
-        />
+        {beforePassword}
+        {!hidePassword ? (
+          <PasswordField
+            password={individualForm.password}
+            errors={errors}
+            onPasswordChange={(value) => patchIndividual("password", value)}
+          />
+        ) : null}
         <DateField
           label={t("auth.onboarding.dateOfBirthLabel")}
           placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
@@ -144,16 +102,7 @@ export function OnboardingDetailsFields({
           onChange={(value) => patchIndividual("dateOfBirth", value)}
           error={errors.dateOfBirth}
         />
-        {beforePassword}
-        <PasswordFields
-          password={individualForm.password}
-          confirmPassword={individualForm.confirmPassword}
-          errors={errors}
-          onPasswordChange={(value) => patchIndividual("password", value)}
-          onConfirmPasswordChange={(value) =>
-            patchIndividual("confirmPassword", value)
-          }
-        />
+        <InputHint hint={t("auth.signUp.dateOfBirthHint")} />
       </View>
     );
   }
@@ -179,26 +128,27 @@ export function OnboardingDetailsFields({
         }
         clearFieldError={clearFieldError}
         afterContact={
-          <DateField
-            label={t("auth.onboarding.dateOfBirthLabel")}
-            placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
-            value={businessForm.dateOfBirth}
-            onChange={(value) => patchBusiness("dateOfBirth", value)}
-            error={errors.dateOfBirth}
-          />
+          <>
+            <DateField
+              label={t("auth.onboarding.dateOfBirthLabel")}
+              placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
+              value={businessForm.dateOfBirth}
+              onChange={(value) => patchBusiness("dateOfBirth", value)}
+              error={errors.dateOfBirth}
+            />
+            <InputHint hint={t("auth.signUp.dateOfBirthHint")} />
+          </>
         }
       />
 
       {beforePassword}
-      <PasswordFields
-        password={businessForm.password}
-        confirmPassword={businessForm.confirmPassword}
-        errors={errors}
-        onPasswordChange={(value) => patchBusiness("password", value)}
-        onConfirmPasswordChange={(value) =>
-          patchBusiness("confirmPassword", value)
-        }
-      />
+      {!hidePassword ? (
+        <PasswordField
+          password={businessForm.password}
+          errors={errors}
+          onPasswordChange={(value) => patchBusiness("password", value)}
+        />
+      ) : null}
     </View>
   );
 }

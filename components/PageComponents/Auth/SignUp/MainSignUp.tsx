@@ -1,7 +1,7 @@
-import { Text, View } from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { KeyboardAwareScrollView } from '../../../ui/KeyboardAwareScrollView';
-import { useCallback, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,38 +11,48 @@ import { ArrowRight } from 'lucide-react-native';
 import { TextInput } from '../../../ui/TextInput';
 import { UsernameField } from '../../../ui/UsernameField';
 import { LocalNotesButton } from '../../../ui/LocalNotesButton';
+import { SocialAuthButton } from '../../../ui/SocialAuthButton';
 import authService from '../../../../http/auth-api/auth.service';
 import { toast } from '../../../ui/Toast';
 import { EnterOTP } from './EnterOTP';
 import { PageTitleHeading } from '@/components/ui/PageTitleHeading';
-import { ContinueWith } from '../ContinueWith';
 import { TermsConsent } from '../TermsConsent';
 import { useOnboardingForm } from '@/hooks/useOnboardingForm';
 import { UserTypeCard } from '../OnBoarding/UserTypeCard';
 import { OnboardingDetailsFields } from '../OnBoarding/OnboardingDetailsFields';
 import { UserIcon } from '../../../ui/icons/UserIcon';
 import { BuildingIcon } from '../../../ui/icons/BuildingIcon';
-import { useSocialAuth } from '@/hooks/useSocialAuth';
+import {
+  useSocialAuth,
+  type SocialAuthResult,
+} from '@/hooks/useSocialAuth';
 import {
   isUsernameBlocking,
   type UsernameAvailabilityStatus,
 } from '@/hooks/useUsernameAvailability';
 
-type Step = 'email' | 'verify';
+type Step = 'email' | 'verify' | 'social';
 
 export function MainSignUp() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
-  const { signInWithProvider, isPending: socialPending } = useSocialAuth();
+  const params = useLocalSearchParams<{
+    socialComplete?: string;
+    suggestedUsername?: string;
+  }>();
 
-  const [step, setStep] = useState<Step>('email');
+  const initialSocial =
+    params.socialComplete === '1' || params.socialComplete === 'true';
+
+  const [step, setStep] = useState<Step>(initialSocial ? 'social' : 'email');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState<string | undefined>();
   const [userEmail, setUserEmail] = useState('');
   const [agreed, setAgreed] = useState(false);
 
+  const mode = step === 'social' ? 'social' : 'email';
   const {
     userType,
     setUserType,
@@ -58,7 +68,29 @@ export function MainSignUp() {
     clearFieldError,
     validate: validateOnboarding,
     submit: submitOnboarding,
-  } = useOnboardingForm();
+    isSubmitting,
+  } = useOnboardingForm(mode);
+
+  const handleSocialNeedsCompletion = useCallback(
+    (result: SocialAuthResult) => {
+      setAgreed(false);
+      if (result.suggestedUsername) {
+        setUsername(result.suggestedUsername);
+      }
+      setStep('social');
+    },
+    [setUsername],
+  );
+
+  const { signInWithProvider, isPending: socialPending } = useSocialAuth({
+    onNeedsProfileCompletion: handleSocialNeedsCompletion,
+  });
+
+  useEffect(() => {
+    if (initialSocial && params.suggestedUsername) {
+      setUsername(String(params.suggestedUsername));
+    }
+  }, [initialSocial, params.suggestedUsername, setUsername]);
 
   const handleUsernameStatusChange = useCallback(
     (status: UsernameAvailabilityStatus) => {
@@ -121,11 +153,61 @@ export function MainSignUp() {
     }
   }
 
+  async function handleSocialComplete() {
+    if (!validateOnboarding()) return;
+    if (!agreed) {
+      toast.error(t('auth.consent.error'));
+      return;
+    }
+    const ok = await submitOnboarding();
+    if (ok) {
+      router.replace({
+        pathname: '/personality',
+        params: { fromOnboarding: 'true' },
+      } as Href);
+    }
+  }
+
   const usernameBlocking = isUsernameBlocking(usernameStatus);
+  const createDisabled = useMemo(
+    () =>
+      signUpMutation.isPending ||
+      isSubmitting ||
+      !agreed ||
+      usernameBlocking,
+    [agreed, isSubmitting, signUpMutation.isPending, usernameBlocking],
+  );
+
+  const accountTypeSection = (
+    <>
+      <View className="flex-row items-center gap-2.5 mb-3.5">
+        <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500">
+          {t('auth.onboarding.accountTypeKicker')}
+        </Text>
+      </View>
+
+      <View className="gap-2 mb-6">
+        <UserTypeCard
+          selected={userType === 'individual'}
+          onPress={() => setUserType('individual')}
+          icon={<UserIcon />}
+          title={t('auth.onboarding.individualTitle')}
+          description={t('auth.onboarding.individualDesc')}
+        />
+        <UserTypeCard
+          selected={userType === 'business'}
+          onPress={() => setUserType('business')}
+          icon={<BuildingIcon />}
+          title={t('auth.onboarding.businessTitle')}
+          description={t('auth.onboarding.businessDesc')}
+        />
+      </View>
+    </>
+  );
 
   return (
     <KeyboardAwareScrollView
-      className="flex-1 bg-page dark:bg-dk-page"
+      className="flex-1 bg-page dark:bg-gray-900"
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
@@ -139,28 +221,7 @@ export function MainSignUp() {
       <View className="px-6">
         {step === 'email' ? (
           <View>
-            <View className="flex-row items-center gap-2.5 mb-3.5">
-              <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-dk-faint">
-                {t('auth.onboarding.accountTypeKicker')}
-              </Text>
-            </View>
-
-            <View className="gap-2 mb-6">
-              <UserTypeCard
-                selected={userType === 'individual'}
-                onPress={() => setUserType('individual')}
-                icon={<UserIcon />}
-                title={t('auth.onboarding.individualTitle')}
-                description={t('auth.onboarding.individualDesc')}
-              />
-              <UserTypeCard
-                selected={userType === 'business'}
-                onPress={() => setUserType('business')}
-                icon={<BuildingIcon />}
-                title={t('auth.onboarding.businessTitle')}
-                description={t('auth.onboarding.businessDesc')}
-              />
-            </View>
+            {accountTypeSection}
 
             <View className="mb-5">
               <OnboardingDetailsFields
@@ -173,6 +234,15 @@ export function MainSignUp() {
                 clearFieldError={clearFieldError}
                 beforePassword={
                   <>
+                    <UsernameField
+                      value={username}
+                      onChangeText={setUsername}
+                      error={errors.username}
+                      onStatusChange={handleUsernameStatusChange}
+                      hint={t('auth.signUp.usernameHint')}
+                      placeholder={t('auth.signUp.usernamePlaceholderAt')}
+                      required
+                    />
                     <TextInput
                       label={t('auth.signUp.emailLabel')}
                       placeholder={t('auth.signUp.emailPlaceholder')}
@@ -186,14 +256,94 @@ export function MainSignUp() {
                       autoComplete="email"
                       error={emailError}
                     />
-                    <UsernameField
-                      value={username}
-                      onChangeText={setUsername}
-                      error={errors.username}
-                      onStatusChange={handleUsernameStatusChange}
-                      required
-                    />
                   </>
+                }
+              />
+            </View>
+
+            <TermsConsent
+              agreed={agreed}
+              onChange={setAgreed}
+              showBadge
+              className="mb-6"
+            />
+
+            <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500 mb-3">
+              {t('auth.signUp.fastestWayIn')}
+            </Text>
+            <View className="flex-row gap-3 mb-5">
+              <SocialAuthButton
+                provider="google"
+                onPress={() => signInWithProvider('google')}
+                disabled={socialPending || signUpMutation.isPending || !agreed}
+              />
+              {Platform.OS === 'ios' ? (
+                <SocialAuthButton
+                  provider="apple"
+                  onPress={() => signInWithProvider('apple')}
+                  disabled={socialPending || signUpMutation.isPending || !agreed}
+                />
+              ) : null}
+            </View>
+
+            <LocalNotesButton
+              label={
+                signUpMutation.isPending
+                  ? t('common.pleaseWait')
+                  : t('auth.signUp.createAccountButton')
+              }
+              onPress={handleEmailSubmit}
+              variant="dark"
+              disabled={createDisabled}
+              rightIcon={
+                <ArrowRight
+                  size={18}
+                  color={colorScheme === 'dark' ? '#141413' : '#FFFFFF'}
+                />
+              }
+            />
+
+            <View className="flex-row justify-center items-center mt-6 gap-1 mb-4">
+              <Text className="font-geist text-gray-500 dark:text-dk-muted">
+                {t('auth.signUpFooter.haveAccount')}
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.replace('/sign-in')}
+                hitSlop={8}
+                className="cursor-pointer"
+              >
+                <Text className="font-geist-bold text-brand dark:text-dk-text">
+                  {t('auth.signUpFooter.signIn')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
+        {step === 'social' ? (
+          <View>
+            {accountTypeSection}
+
+            <View className="mb-5">
+              <OnboardingDetailsFields
+                userType={userType}
+                individualForm={individualForm}
+                businessForm={businessForm}
+                errors={errors}
+                onIndividualChange={setIndividualForm}
+                onBusinessChange={setBusinessForm}
+                clearFieldError={clearFieldError}
+                hidePassword
+                beforePassword={
+                  <UsernameField
+                    value={username}
+                    onChangeText={setUsername}
+                    error={errors.username}
+                    onStatusChange={handleUsernameStatusChange}
+                    hint={t('auth.signUp.usernameHint')}
+                    placeholder={t('auth.signUp.usernamePlaceholderAt')}
+                    required
+                  />
                 }
               />
             </View>
@@ -207,19 +357,17 @@ export function MainSignUp() {
 
             <LocalNotesButton
               label={
-                signUpMutation.isPending
+                isSubmitting
                   ? t('common.pleaseWait')
-                  : t('common.continue')
+                  : t('auth.signUp.createAccountButton')
               }
-              onPress={handleEmailSubmit}
+              onPress={() => void handleSocialComplete()}
               variant="dark"
-              disabled={
-                signUpMutation.isPending || !agreed || usernameBlocking
-              }
+              disabled={createDisabled}
               rightIcon={
                 <ArrowRight
                   size={18}
-                  color={colorScheme === 'dark' ? '#1A1714' : '#FFFFFF'}
+                  color={colorScheme === 'dark' ? '#141413' : '#FFFFFF'}
                 />
               }
             />
@@ -234,17 +382,6 @@ export function MainSignUp() {
           />
         ) : null}
       </View>
-
-      {step === 'email' ? (
-        <ContinueWith
-          promptText={t('auth.signUpFooter.haveAccount')}
-          linkText={t('auth.signUpFooter.signIn')}
-          onLinkPress={() => router.replace('/sign-in')}
-          onSocialAuth={signInWithProvider}
-          hideTerms
-          socialDisabled={!agreed || socialPending || signUpMutation.isPending}
-        />
-      ) : null}
     </KeyboardAwareScrollView>
   );
 }

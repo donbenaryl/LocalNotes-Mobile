@@ -7,6 +7,7 @@ import {
   getPersonalityGradientColors,
 } from "@/utils/personalityRing";
 import type { profileItemDAO } from "@/http/account-api/types";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 interface ProfileStickyInfoBarProps {
   profile: profileItemDAO;
@@ -20,11 +21,12 @@ export function ProfileStickyInfoBar({
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
   const accentColor = getDominantPersonalityColor(profile.personality_color);
   const showOtherUserActions = !isOwnProfile && Boolean(profile.id);
+  const labels = resolveUserLabels(profile);
 
   return (
     <View className="flex-row items-center gap-2.5 px-4 pb-2">
       <Avatar
-        name={profile.name}
+        name={labels.primary}
         src={profile.profile_image_url}
         size="sm"
         gradientColors={gradientColors}
@@ -35,7 +37,7 @@ export function ProfileStickyInfoBar({
           className="font-geist-bold text-[14px] leading-5 text-ink dark:text-dk-text"
           numberOfLines={1}
         >
-          {profile.name}
+          {labels.primary}
         </Text>
         {profile.personality_name ? (
           <Text

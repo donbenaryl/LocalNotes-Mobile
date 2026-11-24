@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import accountService from '@/http/account-api/account.services';
 import { getUsernameFormatError } from '@/utils/usernameValidation';
+import { suggestAvailableUsernames } from '@/utils/usernameSuggestions';
 
 export type UsernameAvailabilityStatus =
   | 'idle'
@@ -42,6 +43,7 @@ export function useUsernameAvailability({
   const { t } = useTranslation();
   const [status, setStatus] = useState<UsernameAvailabilityStatus>('idle');
   const [message, setMessage] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const requestIdRef = useRef(0);
 
   const check = useCallback(
@@ -50,12 +52,14 @@ export function useUsernameAvailability({
       if (!trimmed) {
         setStatus('idle');
         setMessage(null);
+        setSuggestions([]);
         return;
       }
       const formatError = getUsernameFormatError(trimmed);
       if (formatError) {
         setStatus('invalid');
         setMessage(formatErrorMessage(formatError, t));
+        setSuggestions([]);
         return;
       }
       if (
@@ -64,12 +68,14 @@ export function useUsernameAvailability({
       ) {
         setStatus('available');
         setMessage(t('validation.usernameCurrent'));
+        setSuggestions([]);
         return;
       }
 
       const requestId = ++requestIdRef.current;
       setStatus('checking');
       setMessage(t('validation.usernameChecking'));
+      setSuggestions([]);
 
       try {
         const response = await accountService.checkUsernameAvailable({
@@ -82,6 +88,7 @@ export function useUsernameAvailability({
           setMessage(
             response.error.message || t('validation.usernameVerifyFailed'),
           );
+          setSuggestions([]);
           return;
         }
 
@@ -89,14 +96,19 @@ export function useUsernameAvailability({
         if (available) {
           setStatus('available');
           setMessage(t('validation.usernameAvailable'));
+          setSuggestions([]);
         } else {
           setStatus('taken');
           setMessage(t('validation.usernameTaken'));
+          const nextSuggestions = await suggestAvailableUsernames(trimmed, 3);
+          if (requestId !== requestIdRef.current) return;
+          setSuggestions(nextSuggestions);
         }
       } catch {
         if (requestId !== requestIdRef.current) return;
         setStatus('invalid');
         setMessage(t('validation.usernameVerifyFailed'));
+        setSuggestions([]);
       }
     },
     [currentUsername, t],
@@ -115,6 +127,7 @@ export function useUsernameAvailability({
   return {
     status,
     message,
+    suggestions,
     isBlocking: isUsernameBlocking(status),
   };
 }

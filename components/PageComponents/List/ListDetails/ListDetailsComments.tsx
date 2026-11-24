@@ -12,6 +12,7 @@ import listService from "@/http/list-api/list.service";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
 import { formatRelativeTime } from "@/utils/time";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { cn } from "@/utils/cn";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { Comment, ListItemDAO } from "@/http/list-api/types";
@@ -197,7 +198,7 @@ export function ListDetailsComments({
       <View key={comment.id} className={isReply ? "ml-10" : ""}>
         <View className="mb-3.5 flex-row gap-2.5">
           <Avatar
-            name={comment.account.name}
+            name={resolveUserLabels(comment.account).primary}
             src={resolveImageUrl(comment.account.profile_image) ?? undefined}
             userId={comment.account.id}
             size="xs"
@@ -210,7 +211,7 @@ export function ListDetailsComments({
                   numberOfLines={1}
                   className="shrink font-geist-bold text-[12.5px] text-ink dark:text-dk-text"
                 >
-                  {comment.account.name}
+                  {resolveUserLabels(comment.account).primary}
                 </Text>
                 <Text className="shrink-0 font-geist text-[11px] text-gray-400">
                   {formatRelativeTime(comment.created_at)}
@@ -253,7 +254,7 @@ export function ListDetailsComments({
                 {comment.account.id !== currentUserId ? (
                   <ReportFlagButton
                     userId={comment.account.id}
-                    displayName={comment.account.name}
+                    displayName={resolveUserLabels(comment.account).primary}
                     contentType="comment"
                     contentId={comment.id}
                     size={14}
@@ -331,7 +332,9 @@ export function ListDetailsComments({
           {replyTo ? (
             <View className="flex-row items-center justify-between">
               <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">
-                {t("listDetail.replyTo", { name: replyTo.account.name })}
+                {t("listDetail.replyTo", {
+                  name: resolveUserLabels(replyTo.account).primary,
+                })}
               </Text>
               <Pressable
                 onPress={() => setReplyTo(null)}

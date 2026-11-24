@@ -21,6 +21,7 @@ import {
 import { useUserFollow } from "@/hooks/useUserFollow";
 import type { FollowListUserDAO } from "@/http/account-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 function formatFollowerCount(value: number | undefined): string {
   const n = value ?? 0;
@@ -55,6 +56,7 @@ function FollowListRow({
     Boolean(user.is_followed),
   );
 
+  const labels = resolveUserLabels(user);
   const subtitle = t("search.people.followersCount", {
     count: formatFollowerCount(user.followers_count),
   });
@@ -70,7 +72,7 @@ function FollowListRow({
         className="min-w-0 flex-1 flex-row items-center gap-3 active:opacity-70"
       >
         <Avatar
-          name={user.name}
+          name={labels.primary}
           src={resolveImageUrl(user.profile_image_url) ?? undefined}
           size="md"
         />
@@ -79,7 +81,7 @@ function FollowListRow({
             className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
             numberOfLines={1}
           >
-            {user.name}
+            {labels.primary}
           </Text>
           <Text
             className="mt-0.5 font-geist text-[13px] text-gray-500 dark:text-dk-muted"

@@ -37,6 +37,7 @@ export function TextInput({
   maxLength,
   value,
   labelClassName = "",
+  style,
   ...props
 }: TextInputProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -67,8 +68,17 @@ export function TextInput({
           maxLength={maxLength}
           value={value}
           textAlignVertical={
-            isMultiline ? (textAlignVertical ?? "top") : textAlignVertical
+            isMultiline ? (textAlignVertical ?? "top") : (textAlignVertical ?? "center")
           }
+          // Native styles keep iOS placeholders vertically centered and prevent descender clipping.
+          style={[
+            !isMultiline && {
+              textAlignVertical: "center",
+              includeFontPadding: false,
+              lineHeight: 22,
+            },
+            style,
+          ]}
           {...props}
         />
         {isPassword && !isMultiline && (

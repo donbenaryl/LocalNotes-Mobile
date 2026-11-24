@@ -16,6 +16,7 @@ import { TextInput } from '@/components/ui/TextInput';
 import accountService from '@/http/account-api/account.services';
 import type { searchUserDAO } from '@/http/account-api/types';
 import { resolveImageUrl } from '@/utils/httpHelpers';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 
 export interface ShareInfo {
   title: string;
@@ -175,12 +176,12 @@ export function UserSearchInput({
               >
                 <View className="flex-1 flex-row items-center gap-2">
                   <Avatar
-                    name={user.name}
+                    name={resolveUserLabels(user).primary}
                     src={user.profile_image_url ?? undefined}
                     size="sm"
                   />
                   <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
-                    {user.name}
+                    {resolveUserLabels(user).primary}
                   </Text>
                 </View>
                 <Plus size={18} color={iconColor} />
@@ -208,11 +209,11 @@ export function UserSearchInput({
               {selectedUsers.map((user) => (
                 <Badge
                   key={user.id}
-                  label={user.name}
+                  label={resolveUserLabels(user).primary}
                   variant="primary"
                   leftIcon={
                     <Avatar
-                      name={user.name}
+                      name={resolveUserLabels(user).primary}
                       src={user.profile_image_url ?? undefined}
                       size="sm"
                     />

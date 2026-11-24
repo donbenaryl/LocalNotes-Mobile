@@ -28,6 +28,9 @@ export interface verifyDTO{
 export type signInDAO ={
     id?: string;
     name:string;
+    username?: string;
+    first_name?: string;
+    last_name?: string;
     email:string;
     account_type:string;
     website?:string;
@@ -43,4 +46,5 @@ export type signInDAO ={
     personality_source?: 'quiz' | 'inferred' | null;
     personality_confidence?: number | null;
     created_at?: string;
+    date_of_birth?: string | null;
 }

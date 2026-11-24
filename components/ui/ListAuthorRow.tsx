@@ -6,10 +6,14 @@ import {
 } from "@/components/ui/CardOptionsMenu";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 export interface ListAuthorRowAccount {
   id: string;
   name: string;
+  username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   profile_image?: string | null;
   personality_name?: string | null;
 }
@@ -62,6 +66,7 @@ export function ListAuthorRow({
   disableAvatarNavigation = false,
 }: ListAuthorRowProps) {
   const displayPersonality = personalityName ?? account.personality_name;
+  const labels = resolveUserLabels(account);
   const showMenu = Boolean(menuItems && menuItems.length > 0);
   const ringColors = accentColor ? [accentColor] : undefined;
   const avatarUserId =
@@ -70,7 +75,7 @@ export function ListAuthorRow({
   const identityInner = (
     <>
       <Avatar
-        name={account.name}
+        name={labels.primary}
         src={resolveImageUrl(account.profile_image) ?? undefined}
         size={avatarSize}
         userId={avatarUserId}
@@ -81,7 +86,7 @@ export function ListAuthorRow({
           className="font-geist-semibold text-[14.5px] text-ink dark:text-dk-text"
           numberOfLines={1}
         >
-          {account.name}
+          {labels.primary}
         </Text>
         {subtitle ? (
           <Text
@@ -109,7 +114,7 @@ export function ListAuthorRow({
         <Pressable
           onPress={onPress}
           accessibilityRole="button"
-          accessibilityLabel={account.name}
+          accessibilityLabel={labels.primary}
           className="min-w-0 flex-1 cursor-pointer flex-row items-center gap-2.5"
         >
           {identityInner}

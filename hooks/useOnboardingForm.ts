@@ -13,13 +13,12 @@ import { getUsernameFormatError } from '@/utils/usernameValidation';
 
 export type UserType = 'individual' | 'business';
 
+/** Email signup collects password; social completion skips it. */
+export type OnboardingMode = 'email' | 'social';
+
 export interface IndividualForm {
-  firstName: string;
-  lastName: string;
-  displayName: string;
   dateOfBirth: string;
   password: string;
-  confirmPassword: string;
 }
 
 export interface BusinessForm {
@@ -29,18 +28,13 @@ export interface BusinessForm {
   businessName: string;
   businessWebsite: string;
   password: string;
-  confirmPassword: string;
 }
 
 export type FormErrors = Record<string, string>;
 
 const INITIAL_INDIVIDUAL: IndividualForm = {
-  firstName: '',
-  lastName: '',
-  displayName: '',
   dateOfBirth: '',
   password: '',
-  confirmPassword: '',
 };
 
 const INITIAL_BUSINESS: BusinessForm = {
@@ -50,12 +44,9 @@ const INITIAL_BUSINESS: BusinessForm = {
   businessName: '',
   businessWebsite: '',
   password: '',
-  confirmPassword: '',
 };
 
-const NAME_MAX_LENGTH = 250;
-
-export function useOnboardingForm() {
+export function useOnboardingForm(mode: OnboardingMode = 'email') {
   const { t } = useTranslation();
   const updateUser = useAuthStore((s) => s.updateUser);
 
@@ -115,25 +106,13 @@ export function useOnboardingForm() {
 
   function validateIndividual(): FormErrors {
     const next: FormErrors = {};
-    if (!individualForm.displayName.trim()) {
-      next.displayName = t('validation.displayNameRequired');
-    }
-    if (individualForm.firstName.length > NAME_MAX_LENGTH) {
-      next.firstName = t('validation.nameTooLong');
-    }
-    if (individualForm.lastName.length > NAME_MAX_LENGTH) {
-      next.lastName = t('validation.nameTooLong');
-    }
     const dobError = validateDateOfBirth(individualForm.dateOfBirth);
     if (dobError) next.dateOfBirth = dobError;
     const usernameError = validateUsernameValue(username);
     if (usernameError) next.username = usernameError;
-    const passwordError = validatePassword(individualForm.password);
-    if (passwordError) next.password = passwordError;
-    if (!individualForm.confirmPassword) {
-      next.confirmPassword = t('validation.confirmPasswordRequired');
-    } else if (individualForm.password !== individualForm.confirmPassword) {
-      next.confirmPassword = t('validation.passwordsMismatch');
+    if (mode === 'email') {
+      const passwordError = validatePassword(individualForm.password);
+      if (passwordError) next.password = passwordError;
     }
     return next;
   }
@@ -162,12 +141,9 @@ export function useOnboardingForm() {
     }
     const usernameError = validateUsernameValue(username);
     if (usernameError) next.username = usernameError;
-    const passwordError = validatePassword(businessForm.password);
-    if (passwordError) next.password = passwordError;
-    if (!businessForm.confirmPassword) {
-      next.confirmPassword = t('validation.confirmPasswordRequired');
-    } else if (businessForm.password !== businessForm.confirmPassword) {
-      next.confirmPassword = t('validation.passwordsMismatch');
+    if (mode === 'email') {
+      const passwordError = validatePassword(businessForm.password);
+      if (passwordError) next.password = passwordError;
     }
     return next;
   }
@@ -205,7 +181,9 @@ export function useOnboardingForm() {
       const formData = new FormData();
       formData.append('user_type', 'business');
       formData.append('name', businessForm.contactName.trim());
-      formData.append('password', businessForm.password);
+      if (mode === 'email') {
+        formData.append('password', businessForm.password);
+      }
       formData.append('date_of_birth', businessForm.dateOfBirth);
       formData.append('business_name', businessForm.businessName.trim());
       formData.append('username', normalizedUsername);
@@ -218,16 +196,13 @@ export function useOnboardingForm() {
       }
       response = await accountService.completeOnboarding(formData);
     } else {
-      const firstName = individualForm.firstName.trim();
-      const lastName = individualForm.lastName.trim();
       response = await accountService.completeOnboarding({
         user_type: 'individual',
-        name: individualForm.displayName.trim(),
-        password: individualForm.password,
+        // Backend still requires `name`; username is the public label now.
+        name: normalizedUsername,
+        ...(mode === 'email' ? { password: individualForm.password } : {}),
         date_of_birth: individualForm.dateOfBirth,
         username: normalizedUsername,
-        ...(firstName ? { first_name: firstName } : {}),
-        ...(lastName ? { last_name: lastName } : {}),
       });
     }
 

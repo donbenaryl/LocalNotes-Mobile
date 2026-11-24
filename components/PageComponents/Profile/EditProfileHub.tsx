@@ -61,10 +61,9 @@ export function EditProfileHub({
 }: EditProfileHubProps) {
   const { t } = useTranslation();
 
-  const aboutYouSubtitle =
-    [displayName.trim(), username.trim() ? `@${username.trim()}` : ""]
-      .filter(Boolean)
-      .join(" · ") || t("editProfile.hub.aboutYouEmpty");
+  const aboutYouSubtitle = username.trim()
+    ? `@${username.trim()}`
+    : displayName.trim() || t("editProfile.hub.aboutYouEmpty");
 
   const businessSubtitle = business
     ? [

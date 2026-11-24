@@ -10,7 +10,6 @@ const PLACEHOLDER_COLOR = "#6B7280";
 export interface EditProfilePersonalValues {
   firstName: string;
   lastName: string;
-  name: string;
   dateOfBirth: string;
   username: string;
   bio: string;
@@ -70,22 +69,12 @@ export function EditProfilePersonalFields({
         </View>
       </View>
 
-      <TextInput
-        label={t("editProfile.personal.displayName")}
-        value={values.name}
-        onChangeText={(value) => onChange("name", value)}
-        placeholder={t("editProfile.personal.displayNamePlaceholder")}
-        placeholderTextColor={PLACEHOLDER_COLOR}
-        autoCapitalize="words"
-        returnKeyType="next"
-        editable={editable}
-      />
-
       <UsernameField
         value={values.username}
         onChangeText={(value) => onChange("username", value)}
         currentUsername={currentUsername}
         onStatusChange={onUsernameStatusChange}
+        hint={t("auth.signUp.usernameHint")}
       />
 
       <DateField

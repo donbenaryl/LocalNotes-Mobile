@@ -153,7 +153,8 @@ export interface updateAccountDTO {
 export interface completeOnboardingIndividualDTO {
   user_type: "individual";
   name: string;
-  password: string;
+  /** Required for email signup; omitted for Google/Apple. */
+  password?: string;
   date_of_birth: string;
   username?: string;
   first_name?: string;
@@ -222,6 +223,9 @@ export interface MatchHistogramDAO {
 export interface searchUserDAO{
   id:string;
   name:string;
+  username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   profile_image_url?: string | null;
 }
 
@@ -382,6 +386,8 @@ export interface FollowListUserDAO {
   id: string;
   name: string;
   username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   profile_image_url?: string | null;
   followers_count: number;
   is_followed: boolean;

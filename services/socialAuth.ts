@@ -8,6 +8,12 @@ import {
 
 let googleConfigured = false;
 
+export type SocialSignInResult = {
+  idToken: string;
+  /** Best-effort name from the provider for username prefills. */
+  displayName?: string;
+};
+
 function configureGoogleSignIn(): void {
   if (googleConfigured) return;
 
@@ -26,7 +32,7 @@ function configureGoogleSignIn(): void {
   googleConfigured = true;
 }
 
-export async function getGoogleIdToken(): Promise<string> {
+export async function getGoogleSignIn(): Promise<SocialSignInResult> {
   configureGoogleSignIn();
 
   if (Platform.OS === 'android') {
@@ -38,20 +44,33 @@ export async function getGoogleIdToken(): Promise<string> {
     throw new Error('Google sign-in was cancelled');
   }
 
-  const idToken = response.data?.idToken;
+  let idToken = response.data?.idToken ?? null;
   if (!idToken) {
-    // Some platforms require a second call after interactive sign-in
     const tokens = await GoogleSignin.getTokens();
     if (!tokens.idToken) {
       throw new Error('Google did not return an ID token');
     }
-    return tokens.idToken;
+    idToken = tokens.idToken;
   }
 
-  return idToken;
+  const displayName =
+    response.data?.user?.name?.trim() ||
+    [response.data?.user?.givenName, response.data?.user?.familyName]
+      .filter(Boolean)
+      .join(' ')
+      .trim() ||
+    undefined;
+
+  return { idToken, displayName: displayName || undefined };
 }
 
-export async function getAppleIdToken(): Promise<string> {
+/** @deprecated Prefer getGoogleSignIn for name prefills. */
+export async function getGoogleIdToken(): Promise<string> {
+  const result = await getGoogleSignIn();
+  return result.idToken;
+}
+
+export async function getAppleSignIn(): Promise<SocialSignInResult> {
   if (Platform.OS !== 'ios') {
     throw new Error('Apple sign-in is only available on iOS');
   }
@@ -72,5 +91,22 @@ export async function getAppleIdToken(): Promise<string> {
     throw new Error('Apple did not return an identity token');
   }
 
-  return credential.identityToken;
+  const displayName = [
+    credential.fullName?.givenName,
+    credential.fullName?.familyName,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+
+  return {
+    idToken: credential.identityToken,
+    displayName: displayName || undefined,
+  };
+}
+
+/** @deprecated Prefer getAppleSignIn for name prefills. */
+export async function getAppleIdToken(): Promise<string> {
+  const result = await getAppleSignIn();
+  return result.idToken;
 }

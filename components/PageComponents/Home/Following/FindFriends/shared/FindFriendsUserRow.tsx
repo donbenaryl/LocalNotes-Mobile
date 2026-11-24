@@ -6,6 +6,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { FollowButton } from "@/components/ui/FollowButton";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 interface FindFriendsUserRowProps {
   user: UnifiedSearchPersonDAO;
@@ -29,10 +30,12 @@ export const FindFriendsUserRow = memo(function FindFriendsUserRow({
   const icon =
     subtitle === undefined ? <MapPin size={12} color="#9CA3AF" /> : subtitleIcon ?? null;
 
+  const labels = resolveUserLabels(user);
+
   return (
     <View className="flex-row items-center gap-3 py-3">
       <Avatar
-        name={user.name}
+        name={labels.primary}
         src={resolveImageUrl(user.profile_image_url) ?? undefined}
         size="md"
       />
@@ -41,7 +44,7 @@ export const FindFriendsUserRow = memo(function FindFriendsUserRow({
           className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
           numberOfLines={1}
         >
-          {user.name}
+          {labels.primary}
         </Text>
         <View className="mt-0.5 flex-row items-center gap-1">
           {icon}

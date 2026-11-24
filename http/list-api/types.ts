@@ -9,6 +9,9 @@ export interface Tag {
 export interface Account {
   id: string;
   name: string;
+  username?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   profile_image: string | null;
   personality_color?: { [color: string]: number } | null;
   personality_name?: string | null;

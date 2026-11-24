@@ -22,6 +22,7 @@ import { brandColor } from "@/constants/colors";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 import type { profileItemDAO } from "@/http/account-api/types";
 import type { BusinessItemDAO } from "@/http/business-api/types";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 interface ProfileVitalBarProps {
   profile?: profileItemDAO | null;
@@ -51,7 +52,10 @@ export function ProfileVitalBar({
   const [interactive, setInteractive] = useState(false);
 
   const isBusinessMode = Boolean(business);
-  const displayName = business?.name ?? profile?.name ?? "";
+  const profileLabels = resolveUserLabels(profile);
+  const displayName = isBusinessMode
+    ? business?.name ?? ""
+    : profileLabels.primary;
   const displayImage = business?.logo ?? profile?.profile_image_url;
   const subtitle = isBusinessMode
     ? business?.business_type

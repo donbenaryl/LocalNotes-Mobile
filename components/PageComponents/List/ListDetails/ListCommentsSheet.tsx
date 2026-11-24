@@ -11,6 +11,7 @@ import { NoImage } from "@/components/ui/NoImage";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { formatListLocation } from "@/utils/listUi";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { ListDetailsComments } from "./ListDetailsComments";
 import type { Item, ListItemDAO } from "@/http/list-api/types";
 import type { ScreenRect } from "@/types/layout";
@@ -127,7 +128,7 @@ export function ListCommentsSheet({
         >
           <View className="flex-row items-center gap-2.5">
             <Avatar
-              name={list.account.name}
+              name={resolveUserLabels(list.account).primary}
               src={resolveImageUrl(list.account.profile_image) ?? undefined}
               size="sm"
               userId={list.account.id}
@@ -138,7 +139,7 @@ export function ListCommentsSheet({
                 className="font-geist-semibold text-[14px] text-ink dark:text-dk-text"
                 numberOfLines={1}
               >
-                {list.account.name}
+                {resolveUserLabels(list.account).primary}
               </Text>
               {list.personality_name || list.account.personality_name ? (
                 <Text

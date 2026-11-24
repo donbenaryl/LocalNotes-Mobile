@@ -27,6 +27,7 @@ import { PickDetailModal } from "./PickDetailModal";
 import { PickFormModal } from "./PickFormModal";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getEmbeddedMatchPercent } from "@/utils/matchScore";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import listService from "@/http/list-api/list.service";
 import { useToastStore } from "@/stores/useToastStore";
 import type { ListItemImage, ListItemPublic } from "@/http/list-api/types";
@@ -97,23 +98,28 @@ function formatLocationLabel(location: ListItemPublic["location"]): string | nul
 
 function PickCardOwnerRow({ data }: { data: ListItemPublic }) {
   if (!data.owner && data.list_usage_count <= 0) return null;
+  const ownerLabels = data.owner
+    ? resolveUserLabels(data.owner)
+    : null;
 
   return (
     <View className="flex-row items-center justify-between gap-2 border-t border-gray-200 dark:border-dk-border mt-2 pt-2">
-      {data.owner ? (
+      {data.owner && ownerLabels ? (
         <View className="flex-row items-center gap-1.5 min-w-0 flex-1">
           <Avatar
-            name={data.owner.name}
+            name={ownerLabels.primary}
             src={resolveImageUrl(data.owner.profile_image) ?? undefined}
             size="xs"
             userId={data.owner.id}
           />
-          <Text
-            className="text-xs text-gray-400 font-geist-medium flex-1"
-            numberOfLines={1}
-          >
-            {data.owner.name}
-          </Text>
+          <View className="min-w-0 flex-1">
+            <Text
+              className="text-xs text-gray-400 font-geist-medium"
+              numberOfLines={1}
+            >
+              {ownerLabels.primary}
+            </Text>
+          </View>
         </View>
       ) : (
         <View />
@@ -425,7 +431,7 @@ export function PickCard({
           visible={reportOpen}
           onClose={() => setReportOpen(false)}
           userId={data.owner.id}
-          displayName={data.owner.name}
+          displayName={resolveUserLabels(data.owner).primary}
           contentType="pick"
           contentId={data.id}
         />

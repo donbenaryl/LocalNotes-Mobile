@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../../../stores/useAuthStore";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { Avatar } from "../Avatar";
 import { LocalNotesText } from "../LocalNotesText";
 import { useSplashTarget } from "@/hooks/useSplashTarget";
@@ -44,7 +45,12 @@ export function GuardedHeader() {
         </TouchableOpacity>
         <TouchableOpacity onPress={handleRouteToProfile} className="cursor-pointer">
           <Avatar
-            name={user?.fullName ?? "?"}
+            name={resolveUserLabels({
+              username: user?.username,
+              firstName: user?.firstName,
+              lastName: user?.lastName,
+              name: user?.fullName,
+            }).primary}
             src={user?.profileImageUrl ?? undefined}
             size="sm"
             gradientColors={getPersonalityGradientColors(user?.personalityColor)}

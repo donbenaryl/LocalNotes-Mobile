@@ -35,6 +35,7 @@ import { getListMatchPercent } from "@/utils/matchScore";
 import { formatListLocation } from "@/utils/listUi";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getDominantPersonalityColor } from "@/utils/personalityRing";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import {
   formatRelativeTimeUpper,
@@ -569,7 +570,7 @@ export function ListCardDetailed({
           visible={reportOpen}
           onClose={() => setReportOpen(false)}
           userId={list.account.id}
-          displayName={list.account.name}
+          displayName={resolveUserLabels(list.account).primary}
           contentType="list"
           contentId={list.id}
           onReported={() => {

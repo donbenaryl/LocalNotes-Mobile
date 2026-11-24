@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { useColorScheme } from "nativewind";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { MapPin, Search, X } from "lucide-react-native";
 import * as Location from "expo-location";
@@ -128,6 +129,8 @@ export function LocationInput({
   );
   const isProgrammaticUpdateRef = useRef(false);
   const usePreciseLocation = useAccountSettingsStore((s) => s.privacy.usePreciseLocation);
+  const { colorScheme } = useColorScheme();
+  const iconColor = colorScheme === "dark" ? "#F7F3EC" : "#1A1714";
 
   const isCommittedQuery = (value: string) =>
     committedQueryRef.current !== null && value === committedQueryRef.current;
@@ -424,7 +427,7 @@ export function LocationInput({
       </View>
 
       {showSuggestions && suggestions.length > 0 && (
-        <View className="bg-card dark:bg-dk-page border border-gray-200 dark:border-dk-border rounded-xl overflow-hidden mb-4">
+        <View className="bg-card dark:bg-dk-card border border-gray-200 dark:border-dk-border rounded-xl overflow-hidden mb-4">
           {suggestions.map((place, index) => {
             const rowClassName = `flex-row items-start gap-3 px-4 py-3 ${
               index < suggestions.length - 1
@@ -434,7 +437,7 @@ export function LocationInput({
 
             const rowContent = (
               <View className={rowClassName}>
-                <MapPin size={18} color="#1A1714" className="mt-0.5 shrink-0" />
+                <MapPin size={18} color={iconColor} className="mt-0.5 shrink-0" />
                 <View className="flex-1">
                   <Text className="font-geist-medium text-[15px] text-ink dark:text-dk-text">
                     {place.primary_text}
@@ -513,17 +516,17 @@ export function LocationInput({
       <Pressable
         onPress={handleUseCurrentLocation}
         disabled={isGeolocating}
-        className={`flex-row items-center gap-3 bg-brand-tint rounded-2xl border-2 px-4 py-3.5 mb-4 cursor-pointer ${
+        className={`flex-row items-center gap-3 bg-card dark:bg-dk-card rounded-2xl border px-4 py-3.5 mb-4 cursor-pointer ${
           isGeolocating
-            ? "border-brand/30 bg-card dark:bg-dk-page opacity-60"
-            : "border-brand/30 bg-card dark:bg-dk-page"
+            ? "border-brand/30 opacity-60"
+            : "border-brand/30"
         }`}
       >
-        <View className="w-10 h-10 rounded-full bg-brand items-center justify-center">
+        <View className="w-10 h-10 rounded-full bg-bran items-center justify-center">
           {isGeolocating ? (
             <PageLoader fullPage={false} size="small" />
           ) : (
-            <Target size={18} color="white" />
+            <Target size={18} color={iconColor} />
           )}
         </View>
         <View className="flex-1">

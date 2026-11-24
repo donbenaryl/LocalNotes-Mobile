@@ -12,6 +12,7 @@ import {
 import type { LucideIcon } from "lucide-react-native";
 import type { ActivityItemDAO } from "@/http/home-api/type";
 import { formatRelativeTime } from "@/utils/time";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 interface ActivityFeedCardProps {
   item: ActivityItemDAO;
@@ -37,7 +38,7 @@ export function ActivityFeedCard({ item }: ActivityFeedCardProps) {
   return (
     <View className="flex-row items-start gap-3 p-3 rounded-xl">
       <Avatar
-        name={item.account.name}
+        name={resolveUserLabels(item.account).primary}
         src={item.account.profile_image ?? undefined}
         size="sm"
         userId={item.account.id}
@@ -45,7 +46,9 @@ export function ActivityFeedCard({ item }: ActivityFeedCardProps) {
 
       <View className="flex-1 min-w-0">
         <Text className="text-sm text-gray-800 dark:text-dk-body leading-snug">
-          <Text className="font-geist-semibold">{item.account.name}</Text>
+          <Text className="font-geist-semibold">
+            {resolveUserLabels(item.account).primary}
+          </Text>
           {" "}
           <Text className="text-gray-600 dark:text-dk-muted">{config.label}</Text>
           {item.data.name ? (

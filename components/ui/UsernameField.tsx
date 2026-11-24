@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { TextInput } from '@/components/ui/TextInput';
 import {
@@ -17,6 +17,7 @@ interface UsernameFieldProps {
   containerClassName?: string;
   label?: string;
   placeholder?: string;
+  hint?: string;
   required?: boolean;
 }
 
@@ -38,10 +39,11 @@ export function UsernameField({
   containerClassName,
   label,
   placeholder,
+  hint,
   required,
 }: UsernameFieldProps) {
   const { t } = useTranslation();
-  const { status, message } = useUsernameAvailability({
+  const { status, message, suggestions } = useUsernameAvailability({
     username: value,
     currentUsername,
   });
@@ -56,7 +58,7 @@ export function UsernameField({
       ? (message ?? undefined)
       : undefined);
 
-  const hint =
+  const statusHint =
     !displayError && message && status !== 'idle' ? message : undefined;
 
   return (
@@ -72,12 +74,37 @@ export function UsernameField({
         error={displayError}
         required={required}
       />
-      {hint ? (
+      {hint && !displayError && !statusHint ? (
+        <Text className="text-sm font-geist mt-1.5 text-gray-400 dark:text-dk-faint">
+          {hint}
+        </Text>
+      ) : null}
+      {statusHint ? (
         <Text
           className={cn('text-sm font-geist mt-1.5', statusClassName(status))}
         >
-          {hint}
+          {statusHint}
         </Text>
+      ) : null}
+      {status === 'taken' && suggestions.length > 0 ? (
+        <View className="mt-2 gap-2">
+          <Text className="text-xs font-geist-medium text-gray-500 dark:text-dk-muted">
+            {t('auth.signUp.usernameSuggestions')}
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {suggestions.map((suggestion) => (
+              <Pressable
+                key={suggestion}
+                onPress={() => onChangeText(suggestion)}
+                className="rounded-full border border-gray-200 dark:border-dk-border bg-card dark:bg-dk-card px-3 py-1.5 cursor-pointer"
+              >
+                <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
+                  {suggestion}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
       ) : null}
     </View>
   );

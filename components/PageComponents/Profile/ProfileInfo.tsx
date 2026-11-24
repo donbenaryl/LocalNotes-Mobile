@@ -24,6 +24,10 @@ import {
 import { getMatchPercentColor } from '@/utils/matchScore';
 import { isInferredPersonality } from '@/utils/personality';
 import { resolveImageUrl } from '@/utils/httpHelpers';
+import {
+  hasRealName,
+  resolveUserLabels,
+} from '@/utils/userDisplayName';
 import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
 import type { BusinessItemDAO, BusinessLocation } from '@/http/business-api/types';
 
@@ -282,12 +286,14 @@ function UserProfileInfo({
     ],
   );
 
+  const labels = resolveUserLabels(profile, t('common.user'));
+
   return (
     <>
       <View className="relative px-4 pb-1 pt-2">
         <View className="flex-row items-center gap-3.5">
           <Avatar
-            name={profile.name}
+            name={labels.primary}
             src={profile.profile_image_url}
             size="md2"
             gradientColors={gradientColors}
@@ -299,12 +305,24 @@ function UserProfileInfo({
           />
 
           <View className="min-w-0 flex-1">
-            <Text
-              className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-dk-text"
-              numberOfLines={2}
-            >
-              {profile.name}
-            </Text>
+            {labels.secondary ? (
+              <Text
+                className="font-geist-extrabold text-[22px] leading-7 tracking-tight text-ink dark:text-dk-text"
+                numberOfLines={2}
+              >
+                {labels.secondary}
+              </Text>
+            ) : null}
+            {isOwnProfile && !hasRealName(profile) ? (
+              <Pressable
+                onPress={() => router.push('/edit-profile' as never)}
+                className="mt-1 cursor-pointer"
+              >
+                <Text className="font-geist-medium text-[12.5px] text-brand dark:text-dk-text">
+                  {t('profile.info.addNameCta')}
+                </Text>
+              </Pressable>
+            ) : null}
 
             {profile.personality_name ? (
               <Text

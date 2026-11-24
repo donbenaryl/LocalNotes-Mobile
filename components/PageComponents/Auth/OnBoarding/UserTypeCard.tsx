@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { CheckCircle2 } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import { ReactNode } from 'react';
 
 interface UserTypeCardProps {
@@ -17,13 +18,16 @@ export function UserTypeCard({
   title,
   description,
 }: UserTypeCardProps) {
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   return (
     <Pressable
       onPress={onPress}
       className={`flex-row items-center gap-4 w-full px-4 py-4 rounded-xl border cursor-pointer ${
         selected
-          ? 'border-brand bg-brand-tint dark:bg-brand/20'
-          : 'border-gray-200 dark:border-dk-border bg-card dark:bg-dk-card'
+          ? 'border-brand bg-brand-tint dark:bg-dk-card'
+          : 'border-gray-200 dark:border-dk-border bg-card dark:bg-brand/20'
       }`}
     >
       <View className="w-6 items-center">{icon}</View>
@@ -36,7 +40,11 @@ export function UserTypeCard({
         </Text>
       </View>
       {selected ? (
-        <CheckCircle2 size={18} color="#E76E04" strokeWidth={2.25} />
+        <CheckCircle2
+          size={18}
+          color={isDark ? '#F7F3EC' : '#1A1714'}
+          strokeWidth={2.25}
+        />
       ) : null}
     </Pressable>
   );

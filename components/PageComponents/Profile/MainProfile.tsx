@@ -58,6 +58,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useBusinessStore } from "@/stores/useBusinessStore";
 import { useToastStore } from "@/stores/useToastStore";
 import { isBusinessAccountType } from "@/utils/businessAccount";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import type { profileItemDAO } from "@/http/account-api/types";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 
@@ -276,9 +277,9 @@ function MainProfileContent({
   const [reportOpen, setReportOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
-  const displayName =
-    (isBusinessPage ? business?.name : profile?.name)?.trim() ||
-    t("common.user");
+  const displayName = isBusinessPage
+    ? business?.name?.trim() || t("common.user")
+    : resolveUserLabels(profile, t("common.user")).primary;
   const profileUserId = profile?.id ?? userId ?? "";
   // Business page About/By: always scope "By" to the business primary owner account.
   const ownerAccountId = business?.owner_account_id?.trim() || "";

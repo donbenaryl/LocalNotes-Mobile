@@ -82,7 +82,6 @@ const EMPTY_BUSINESS_FORM: BusinessProfileFormValues = {
 const EMPTY_PERSONAL: EditProfilePersonalValues = {
   firstName: "",
   lastName: "",
-  name: "",
   dateOfBirth: "",
   username: "",
   bio: "",
@@ -98,7 +97,6 @@ function personalFromProfile(profile: profileItemDAO): EditProfilePersonalValues
   return {
     firstName: profile.first_name ?? "",
     lastName: profile.last_name ?? "",
-    name: profile.name ?? "",
     dateOfBirth: profile.date_of_birth ?? "",
     username: profile.username ?? "",
     bio: profile.bio ?? "",
@@ -261,7 +259,6 @@ export default function EditProfile() {
   const isPersonalDirty =
     personal.firstName.trim() !== (profile?.first_name ?? "").trim() ||
     personal.lastName.trim() !== (profile?.last_name ?? "").trim() ||
-    personal.name.trim() !== (profile?.name ?? "").trim() ||
     personal.dateOfBirth.trim() !== (profile?.date_of_birth ?? "").trim() ||
     personal.username.trim().toLowerCase() !==
       (profile?.username ?? "").trim().toLowerCase() ||
@@ -419,8 +416,6 @@ export default function EditProfile() {
   );
 
   async function savePersonal() {
-    const name = personal.name.trim();
-    if (!name) throw new Error(t("editProfile.validation.displayNameRequired"));
     const username = personal.username.trim().toLowerCase();
     if (!username) throw new Error(t("editProfile.validation.usernameRequired"));
     if (usernameBlocking) {
@@ -441,9 +436,10 @@ export default function EditProfile() {
     }
 
     const dto: updateAccountDTO = {
-      first_name: personal.firstName.trim() || undefined,
-      last_name: personal.lastName.trim() || undefined,
-      name,
+      first_name: personal.firstName.trim() || "",
+      last_name: personal.lastName.trim() || "",
+      // Keep API `name` in sync with username now that display name is gone.
+      name: username,
       username,
       date_of_birth: dobVal || null,
       bio: personal.bio.trim(),
@@ -743,10 +739,10 @@ export default function EditProfile() {
       >
         {view === "hub" ? (
           <EditProfileHub
-            avatarName={profile.name}
+            avatarName={personal.username || profile.username || profile.name}
             avatarSrc={profile.profile_image_url ?? undefined}
             gradientColors={gradientColors}
-            displayName={personal.name}
+            displayName={personal.username}
             username={personal.username}
             socialSummary={socialSummary}
             homeCity={homeCityValue}

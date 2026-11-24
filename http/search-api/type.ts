@@ -32,6 +32,8 @@ export interface UnifiedSearchPersonDAO {
   id: string;
   name: string;
   username: string;
+  first_name?: string | null;
+  last_name?: string | null;
   profile_image_url: string | null;
   bio: string | null;
   personality_description: string | null;

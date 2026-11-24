@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import type { Account } from "@/http/list-api/types";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getPersonalityGradientColors } from "@/utils/personalityRing";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 interface FollowingActivityHeaderProps {
   account: Account;
@@ -18,10 +19,12 @@ export function FollowingActivityHeader({
   locationLabel,
   right,
 }: FollowingActivityHeaderProps) {
+  const labels = resolveUserLabels(account);
+
   return (
     <View className="flex-row items-start gap-3">
       <Avatar
-        name={account.name}
+        name={labels.primary}
         src={resolveImageUrl(account.profile_image) ?? undefined}
         size="xs"
         userId={account.id}
@@ -30,7 +33,7 @@ export function FollowingActivityHeader({
 
       <View className="min-w-0 flex-1 justify-center gap-0.5 pt-0.5">
         <Text className="text-ink dark:text-dk-text" numberOfLines={2}>
-          <Text className="font-geist-semibold">{account.name}</Text>
+          <Text className="font-geist-semibold">{labels.primary}</Text>
           <Text className="font-geist text-sm dark:text-dk-body text-gray-400">
             {"  "}
             {actionText}

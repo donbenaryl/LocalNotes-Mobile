@@ -1,7 +1,11 @@
 export interface User {
   id: string;
   email: string;
+  /** Legacy API `name` field — do not show as the primary label. */
   fullName: string;
+  username?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   accountType: 'individual' | 'business';
   hasCompletedQuiz: boolean;
   personalityName?: string | null;
@@ -10,6 +14,7 @@ export interface User {
   personalitySource?: 'quiz' | 'inferred' | null;
   profileImageUrl?: string | null;
   createdAt: string;
+  dateOfBirth?: string | null;
 }
 
 export interface AuthState {
