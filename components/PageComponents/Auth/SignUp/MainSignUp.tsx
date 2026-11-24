@@ -186,7 +186,7 @@ export function MainSignUp() {
         </Text>
       </View>
 
-      <View className="gap-2 mb-6">
+      <View className="flex-row gap-2 mb-6">
         <UserTypeCard
           selected={userType === 'individual'}
           onPress={() => setUserType('individual')}
@@ -265,26 +265,8 @@ export function MainSignUp() {
               agreed={agreed}
               onChange={setAgreed}
               showBadge
-              className="mb-6"
+              className="mb-4"
             />
-
-            <Text className="font-geist-semibold text-[11px] tracking-[0.16em] uppercase text-gray-400 dark:text-gray-500 mb-3">
-              {t('auth.signUp.fastestWayIn')}
-            </Text>
-            <View className="flex-row gap-3 mb-5">
-              <SocialAuthButton
-                provider="google"
-                onPress={() => signInWithProvider('google')}
-                disabled={socialPending || signUpMutation.isPending || !agreed}
-              />
-              {Platform.OS === 'ios' ? (
-                <SocialAuthButton
-                  provider="apple"
-                  onPress={() => signInWithProvider('apple')}
-                  disabled={socialPending || signUpMutation.isPending || !agreed}
-                />
-              ) : null}
-            </View>
 
             <LocalNotesButton
               label={
@@ -303,7 +285,29 @@ export function MainSignUp() {
               }
             />
 
-            <View className="flex-row justify-center items-center mt-6 gap-1 mb-4">
+            <View className="flex-row items-center mt-7 mb-7 gap-2">
+              <View className="flex-1 h-px bg-gray-200 dark:bg-dk-elevated" />
+              <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
+                {t('auth.signUp.fastestWayIn')}
+              </Text>
+              <View className="flex-1 h-px bg-gray-200 dark:bg-dk-elevated" />
+            </View>
+            <View className="flex-row gap-3 mb-5">
+              <SocialAuthButton
+                provider="google"
+                onPress={() => signInWithProvider('google')}
+                disabled={socialPending || signUpMutation.isPending || !agreed}
+              />
+              {Platform.OS === 'ios' ? (
+                <SocialAuthButton
+                  provider="apple"
+                  onPress={() => signInWithProvider('apple')}
+                  disabled={socialPending || signUpMutation.isPending || !agreed}
+                />
+              ) : null}
+            </View>
+
+            <View className="flex-row justify-center items-center mt-0 gap-1 mb-4">
               <Text className="font-geist text-gray-500 dark:text-dk-muted">
                 {t('auth.signUpFooter.haveAccount')}
               </Text>
