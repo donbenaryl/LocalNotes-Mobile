@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Tabs, type TabItem } from '@/components/ui/Tabs';
-import { DateRangePicker } from '../ui/DateRangePicker';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { DetailNavRow } from '../ui/DetailNavRow';
 import { SectionHeading } from '../ui/SectionHeading';
 import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessHomeTopline';
@@ -93,7 +93,8 @@ export function BusinessHomeOverviewPage({
       refreshing={isRefetching}
       onRefresh={onRefresh}
       rightChild={
-        <DateRangePicker
+        <DatePicker
+          mode="range"
           dateFrom={dateFrom}
           dateTo={dateTo}
           displayValue={periodLabel}

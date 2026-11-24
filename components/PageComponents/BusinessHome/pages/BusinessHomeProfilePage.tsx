@@ -22,7 +22,7 @@ import { BusinessHomeTopline, type BusinessHomeToplineProps } from '../BusinessH
 import { BusinessSwitcherSheet } from '../sheets/BusinessSwitcherSheet';
 import { AlertsSection } from '../sections/AlertsSection';
 import { ActiveOffersList } from '../sections/ActiveOffersList';
-import { DateRangePicker } from '../ui/DateRangePicker';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { SectionHeading } from '../ui/SectionHeading';
 import { ThankYouContent } from '@/components/PageComponents/ThankYou/ThankYouContent';
 import { useOpenCreateOfferOnWeb } from '@/hooks/useOpenCreateOfferOnWeb';
@@ -243,7 +243,8 @@ export function BusinessHomeProfilePage({
             <View className="pt-2">
               <View className="px-4">
                 <View className="self-end">
-                  <DateRangePicker
+                  <DatePicker
+                    mode="range"
                     dateFrom={dateFrom}
                     dateTo={dateTo}
                     displayValue={periodLabel}

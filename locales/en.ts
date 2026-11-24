@@ -21,6 +21,9 @@ const en = {
     createPick: 'Create a Pick',
     createList: 'Create a List',
     listDrafts: 'List Drafts',
+    datePicker: {
+      title: 'Select date',
+    },
   },
   share: {
     sheetTitle: 'Share with people',

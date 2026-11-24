@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'nativewind';
 import { ChevronDown, MapPin } from 'lucide-react-native';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { DateRangePicker } from './ui/DateRangePicker';
+import { DatePicker } from '@/components/ui/DatePicker';
 import { BusinessSwitcherSheet } from './sheets/BusinessSwitcherSheet';
 
 interface BusinessHomeHeaderProps {
@@ -45,7 +45,8 @@ export function BusinessHomeHeader({
         onBack={onBack}
         borderless
         rightChild={
-          <DateRangePicker
+          <DatePicker
+            mode="range"
             dateFrom={dateFrom}
             dateTo={dateTo}
             displayValue={periodLabel}

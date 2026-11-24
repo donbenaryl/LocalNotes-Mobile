@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { DateField } from "@/components/ui/DateField";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { TextInput } from "@/components/ui/TextInput";
 import { UsernameField } from "@/components/ui/UsernameField";
 import type { UsernameAvailabilityStatus } from "@/hooks/useUsernameAvailability";
@@ -77,7 +77,7 @@ export function EditProfilePersonalFields({
         hint={t("auth.signUp.usernameHint")}
       />
 
-      <DateField
+      <DatePicker
         label={t("auth.onboarding.dateOfBirthLabel")}
         placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
         value={values.dateOfBirth}

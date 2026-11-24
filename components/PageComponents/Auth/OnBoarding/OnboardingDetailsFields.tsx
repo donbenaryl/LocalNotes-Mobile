@@ -2,7 +2,7 @@ import { View } from "react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { TextInput } from "../../../ui/TextInput";
-import { DateField } from "../../../ui/DateField";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { InputHint } from "../../../ui/InputHint";
 import { BusinessOnboardingFields } from "./BusinessOnboardingFields";
 import type {
@@ -95,7 +95,7 @@ export function OnboardingDetailsFields({
             onPasswordChange={(value) => patchIndividual("password", value)}
           />
         ) : null}
-        <DateField
+        <DatePicker
           label={t("auth.onboarding.dateOfBirthLabel")}
           placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
           value={individualForm.dateOfBirth}
@@ -129,7 +129,7 @@ export function OnboardingDetailsFields({
         clearFieldError={clearFieldError}
         afterContact={
           <>
-            <DateField
+            <DatePicker
               label={t("auth.onboarding.dateOfBirthLabel")}
               placeholder={t("auth.onboarding.dateOfBirthPlaceholder")}
               value={businessForm.dateOfBirth}
