@@ -187,13 +187,15 @@ export function StepStarters() {
           label={t("preHomeOnboarding.step2.cta")}
           onPress={handleComplete}
           variant="dark"
-          isRounded
-          disabled={!isReady || followMutation.isPending}
+          disabled={!isReady}
+          loading={followMutation.isPending}
           rightIcon={
-            <ChevronRight
-              size={18}
-              color={isReady && !followMutation.isPending ? "white" : "#9CA3AF"}
-            />
+            followMutation.isPending ? undefined : (
+              <ChevronRight
+                size={18}
+                color={isReady ? "white" : "#9CA3AF"}
+              />
+            )
           }
         />
       </PageFooterWrapper>

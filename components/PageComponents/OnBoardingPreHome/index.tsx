@@ -97,12 +97,13 @@ export function OnBoardingPreHome({ onComplete }: OnBoardingPreHomeProps) {
             label={t("common.continue")}
             onPress={handleContinue}
             variant="dark"
-            isRounded
-            disabled={
-              (currentStep === 1 && !selectedLocation) ||
-              saveLocationMutation.isPending
+            disabled={currentStep === 1 && !selectedLocation}
+            loading={saveLocationMutation.isPending}
+            rightIcon={
+              saveLocationMutation.isPending ? undefined : (
+                <ChevronRight size={18} color="white" />
+              )
             }
-            rightIcon={<ChevronRight size={18} color="white" />}
           />
         </PageFooterWrapper>
       )}

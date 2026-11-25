@@ -8,6 +8,7 @@ import DateTimePicker, {
   useDefaultStyles,
   type DateType,
 } from 'react-native-ui-datepicker';
+import { FieldLabel } from '@/components/ui/FieldLabel';
 import { Modal } from '@/components/ui/Modal';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
 import { BRAND, BRAND_DARK, BRAND_ON_DARK, BRAND_TINT } from '@/constants/colors';
@@ -20,6 +21,7 @@ type DatePickerBase = {
   minDate?: Date;
   variant?: 'default' | 'compact';
   label?: string;
+  required?: boolean;
   error?: string;
   placeholder?: string;
   title?: string;
@@ -57,6 +59,7 @@ export function DatePicker(props: DatePickerProps) {
     minDate,
     variant,
     label,
+    required,
     error,
     placeholder = 'Select date',
     title,
@@ -175,11 +178,7 @@ export function DatePicker(props: DatePickerProps) {
 
   return (
     <View className={isCompact ? undefined : 'w-full'}>
-      {label ? (
-        <Text className="text-gray-500 dark:text-dk-body font-geist-medium text-sm mb-1.5 capitalize">
-          {label}
-        </Text>
-      ) : null}
+      {label ? <FieldLabel label={label} required={required} /> : null}
 
       <Pressable
         onPress={() => setVisible(true)}

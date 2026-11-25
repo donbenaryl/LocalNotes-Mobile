@@ -102,6 +102,7 @@ export function OnboardingDetailsFields({
           value={individualForm.dateOfBirth}
           onChange={(value) => patchIndividual("dateOfBirth", value)}
           error={errors.dateOfBirth}
+          required
         />
         <InputHint hint={t("auth.signUp.dateOfBirthHint")} />
       </View>
@@ -136,6 +137,7 @@ export function OnboardingDetailsFields({
               value={businessForm.dateOfBirth}
               onChange={(value) => patchBusiness("dateOfBirth", value)}
               error={errors.dateOfBirth}
+              required
             />
             <InputHint hint={t("auth.signUp.dateOfBirthHint")} />
           </>

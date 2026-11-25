@@ -130,11 +130,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                 label={t("common.continue")}
                 onPress={() => void handleContinueHomeBase()}
                 variant="dark"
-                isRounded
-                disabled={
-                  !selectedLocation || saveLocationMutation.isPending
+                disabled={!selectedLocation}
+                loading={saveLocationMutation.isPending}
+                rightIcon={
+                  saveLocationMutation.isPending ? undefined : (
+                    <ChevronRight size={18} color="white" />
+                  )
                 }
-                rightIcon={<ChevronRight size={18} color="white" />}
               />
             </PageFooterWrapper>
           </>

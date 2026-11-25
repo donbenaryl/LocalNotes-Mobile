@@ -46,7 +46,7 @@ export interface PersonalityHandle {
 }
 
 interface PersonalityProps {
-  onComplete: () => void;
+  onComplete: () => void | Promise<void>;
   hideBack?: boolean;
   fromOnboarding?: boolean;
   /** Parent owns PageHeader — never render chrome here. */
@@ -72,6 +72,7 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
     const [touched, setTouched] = useState<Record<number, boolean>>({});
     const [profile, setProfile] = useState<UserProfileData | null>(null);
     const [isFlipped, setIsFlipped] = useState(false);
+    const [isCompleting, setIsCompleting] = useState(false);
     const cardRotation = useRef(new Animated.Value(0)).current;
 
     const allQuestions = useMemo(
@@ -133,6 +134,16 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
         void recordPersonalitySkip();
       }
       onComplete();
+    };
+
+    const handleComplete = async () => {
+      if (isCompleting) return;
+      setIsCompleting(true);
+      try {
+        await Promise.resolve(onComplete());
+      } catch {
+        setIsCompleting(false);
+      }
     };
 
     const setAnswer = (questionId: number, nextValue: number) => {
@@ -277,9 +288,7 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
               onPress={() => void submitQuiz()}
               variant="dark"
               className="px-5"
-              size="sm"
               isWidthFull={false}
-              isRounded
             />
           </View>
         </PageFooterWrapper>
@@ -348,7 +357,7 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
                       transform: [{ rotateY: frontRotate }],
                       backfaceVisibility: "hidden",
                     }}
-                    className="rounded-[28px] overflow-hidden"
+                    className="rounded-2xl overflow-hidden"
                   >
                     <LinearGradient
                       colors={gradientColors}
@@ -381,7 +390,7 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
                       transform: [{ rotateY: backRotate }],
                       backfaceVisibility: "hidden",
                     }}
-                    className="rounded-[28px] overflow-hidden"
+                    className="rounded-2xl overflow-hidden"
                   >
                     <LinearGradient
                       colors={gradientColors}
@@ -415,17 +424,17 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
                 label={t("personality.retake")}
                 onPress={resetQuiz}
                 variant="dark"
-                isRounded
                 isWidthFull={false}
                 className="flex-1"
               />
               <LocalNotesButton
                 label={t("personality.complete")}
-                onPress={onComplete}
+                onPress={() => void handleComplete()}
                 variant="light"
-                isRounded
                 isWidthFull={false}
                 className="flex-1"
+                disabled={isCompleting}
+                loading={isCompleting}
               />
             </View>
           </PageFooterWrapper>
