@@ -232,11 +232,12 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
                       <Text className="font-geist text-[15px] text-ink dark:text-dk-text mb-2">
                         {item.question}
                       </Text>
-                      <View className="flex-row items-center justify-between mb-1">
-                        <Text className="font-geist-medium text-[13px] text-gray-600 dark:text-dk-body">
+                      {/* Opposition Questions */}
+                      <View className="flex-row items-start justify-between gap-3 mb-1">
+                        <Text className="min-w-0 flex-1 font-geist-medium text-[13px] text-gray-600 dark:text-dk-body">
                           {item.leftLabel}
                         </Text>
-                        <Text className="font-geist-medium text-[13px] text-gray-600 dark:text-dk-body text-right">
+                        <Text className="min-w-0 flex-1 font-geist-medium text-[13px] text-gray-600 dark:text-dk-body text-right">
                           {item.rightLabel}
                         </Text>
                       </View>
