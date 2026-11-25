@@ -125,13 +125,11 @@ export function MainSignUp() {
   });
 
   function handleEmailSubmit() {
-    if (!validateOnboarding()) return;
+    const onboardingValid = validateOnboarding();
+    const emailErr = validateEmail(email);
+    setEmailError(emailErr);
 
-    const error = validateEmail(email);
-    if (error) {
-      setEmailError(error);
-      return;
-    }
+    if (!onboardingValid || emailErr) return;
 
     if (!agreed) {
       toast.error(t('auth.consent.error'));
@@ -255,6 +253,7 @@ export function MainSignUp() {
                       autoCapitalize="none"
                       autoComplete="email"
                       error={emailError}
+                      required
                     />
                   </>
                 }
