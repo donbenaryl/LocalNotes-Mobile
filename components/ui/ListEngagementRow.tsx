@@ -194,37 +194,6 @@ export function ListEngagementRow({
         )}
       >
         <Pressable
-          onPress={() => void handleSave()}
-          disabled={isSaving || isOwnList}
-          accessibilityRole="button"
-          accessibilityLabel={
-            isSaved ? t("listDetail.savedList") : t("home.saveList")
-          }
-          accessibilityState={{
-            disabled: isSaving || isOwnList,
-            selected: isSaved,
-          }}
-          className="cursor-pointer flex-row items-center gap-1.5"
-          hitSlop={4}
-        >
-          <Bookmark
-            size={13}
-            color={isSaved ? iconBrand : iconMuted}
-            fill={isSaved ? iconBrand : "transparent"}
-          />
-          <Text
-            className={cn(
-              "font-geist-semibold text-[12.5px]",
-              isSaved
-                ? "text-brand dark:text-dk-text"
-                : "text-gray-500 dark:text-dk-muted",
-            )}
-          >
-            {t("home.savesCountShort", { count: saves })}
-          </Text>
-        </Pressable>
-
-        <Pressable
           onPress={() => void handleLike()}
           disabled={isLiking}
           accessibilityRole="button"
@@ -275,6 +244,37 @@ export function ListEngagementRow({
           hitSlop={4}
         >
           <Share2 size={13} color={iconMuted} />
+        </Pressable>
+        
+        <Pressable
+          onPress={() => void handleSave()}
+          disabled={isSaving || isOwnList}
+          accessibilityRole="button"
+          accessibilityLabel={
+            isSaved ? t("listDetail.savedList") : t("home.saveList")
+          }
+          accessibilityState={{
+            disabled: isSaving || isOwnList,
+            selected: isSaved,
+          }}
+          className="cursor-pointer flex-row items-center gap-1.5"
+          hitSlop={4}
+        >
+          <Bookmark
+            size={13}
+            color={isSaved ? iconBrand : iconMuted}
+            fill={isSaved ? iconBrand : "transparent"}
+          />
+          <Text
+            className={cn(
+              "font-geist-semibold text-[12.5px]",
+              isSaved
+                ? "text-brand dark:text-dk-text"
+                : "text-gray-500 dark:text-dk-muted",
+            )}
+          >
+            {t("home.savesCountShort", { count: saves })}
+          </Text>
         </Pressable>
 
         <View className="flex-1" />

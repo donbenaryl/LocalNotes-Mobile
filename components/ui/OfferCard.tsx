@@ -285,13 +285,6 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
         </View>
 
         <View className="flex-row items-center gap-3 border-t border-gray-100 px-4 py-3 dark:border-dk-line">
-          <View className="flex-row items-center gap-1.5">
-            <Eye size={13} color={iconMuted} />
-            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
-              {offer.views}
-            </Text>
-          </View>
-
           <Pressable
             onPress={() => void handleLike()}
             disabled={isLiking}
@@ -335,6 +328,13 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
               {offer.shares}
             </Text>
           </Pressable>
+          
+          <View className="flex-row items-center gap-1.5">
+            <Eye size={13} color={iconMuted} />
+            <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
+              {offer.views}
+            </Text>
+          </View>
 
           <View className="flex-1" />
 
