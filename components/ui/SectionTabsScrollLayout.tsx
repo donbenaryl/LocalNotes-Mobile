@@ -54,8 +54,10 @@ interface SectionTabsScrollLayoutProps {
 }
 
 /**
- * iOS: GuardedHeader + Tabs are pinned above the pager; only page content
- * swipes and scrolls.
+ * iOS: each tab owns its ScrollView inside a PagerView, so GuardedHeader +
+ * Tabs are an overlay driven by the active page's scroll offset. The header
+ * scrolls away with the feed and the tabs stay pinned (pages inset their
+ * content by the chrome height).
  *
  * Android: KeyboardAwareScrollView as the section root (Smart Pick pattern)
  * with header + tabs + a content-sized active page inside. Plain ScrollView /
@@ -206,6 +208,10 @@ function IosSectionTabsScrollLayout({
 }: SectionTabsScrollLayoutProps) {
   const scrollRef = useRef<ScrollToTopTarget | null>(null);
   const { visible, onScrollY, scrollToTop } = useScrollToTopControl(scrollRef);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const [tabsHeight, setTabsHeight] = useState(0);
+  const scrollY = useSharedValue(0);
+  const headerHeightSv = useSharedValue(0);
 
   const handleActiveScrollRef = useCallback((ref: ScrollToTopTarget | null) => {
     scrollRef.current = ref;
@@ -215,23 +221,39 @@ function IosSectionTabsScrollLayout({
     (tabId: string) => {
       onTabChange(tabId);
       onScrollY(0);
+      scrollY.value = 0;
     },
-    [onScrollY, onTabChange],
+    [onScrollY, onTabChange, scrollY],
   );
+
+  const handleHeaderLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const height = event.nativeEvent.layout.height;
+      headerHeightSv.value = height;
+      setHeaderHeight((prev) => (prev === height ? prev : height));
+    },
+    [headerHeightSv],
+  );
+
+  const handleTabsLayout = useCallback((event: LayoutChangeEvent) => {
+    const height = event.nativeEvent.layout.height;
+    setTabsHeight((prev) => (prev === height ? prev : height));
+  }, []);
+
+  // Header scrolls away with the feed; tabs end up flush at the top.
+  // Overscroll (negative y) keeps the chrome in place.
+  const chromeStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: -Math.min(Math.max(scrollY.value, 0), headerHeightSv.value),
+      },
+    ],
+  }));
+
+  const chromeHeight = headerHeight + tabsHeight;
 
   return (
     <View className="bg-page dark:bg-dk-page" style={styles.column}>
-      <View className="px-4">
-        <GuardedHeader />
-      </View>
-      <View className="px-4 pt-2 mb-4">
-        <Tabs
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          className="border-b-0"
-        />
-      </View>
       <View style={styles.pagerHost} collapsable={false}>
         <SectionPager
           scrollable
@@ -241,8 +263,29 @@ function IosSectionTabsScrollLayout({
           onActiveIdChange={handleTabChange}
           onActiveScrollRef={handleActiveScrollRef}
           onScrollY={onScrollY}
+          contentInsetTop={chromeHeight}
+          scrollY={scrollY}
         />
       </View>
+      <Animated.View style={[styles.iosChrome, chromeStyle]} pointerEvents="box-none">
+        <View
+          className="bg-page px-4 dark:bg-dk-page"
+          onLayout={handleHeaderLayout}
+        >
+          <GuardedHeader />
+        </View>
+        <View
+          className="bg-page px-4 pb-4 pt-2 dark:bg-dk-page"
+          onLayout={handleTabsLayout}
+        >
+          <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            className="border-b-0"
+          />
+        </View>
+      </Animated.View>
       <ScrollToTopButton visible={visible} onPress={scrollToTop} />
     </View>
   );
@@ -343,6 +386,14 @@ const styles = StyleSheet.create({
   pagerHost: {
     flex: 1,
     minHeight: 0,
+  },
+  /** iOS collapsing chrome: overlays the pager; pages inset their content below it. */
+  iosChrome: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
   },
   /** Top-anchored only — must not fill the screen or it steals feed touches. */
   stickyHost: {

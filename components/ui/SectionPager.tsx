@@ -9,13 +9,10 @@ import {
 } from "react";
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   View,
   useWindowDimensions,
   type LayoutChangeEvent,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
 } from "react-native";
 import PagerView, {
   type PageScrollStateChangedNativeEvent,
@@ -25,10 +22,12 @@ import PagerView, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 import { useIsFocused } from "@react-navigation/native";
 import { usePathname, useRouter, type Href } from "expo-router";
@@ -89,6 +88,13 @@ interface SectionPagerProps {
   onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
   /** Forward active-page scroll Y for scroll-to-top visibility. */
   onScrollY?: (y: number) => void;
+  /**
+   * Scrollable mode, iOS: height of section chrome overlaid above the pager.
+   * Pages inset their content by this amount so the chrome can collapse.
+   */
+  contentInsetTop?: number;
+  /** Scrollable mode: receives the active page's scroll Y (0 = top, inset removed). */
+  scrollY?: SharedValue<number>;
 }
 
 /** Stable boundary so feed trees bail out when only `isActive` changes. */
@@ -130,15 +136,19 @@ function SectionScrollablePage({
   isActive,
   onActiveScrollRef,
   onScrollY,
+  contentInsetTop = 0,
+  scrollY,
   children,
 }: {
   pageId: string;
   isActive: boolean;
   onActiveScrollRef?: (ref: ScrollToTopTarget | null) => void;
   onScrollY?: (y: number) => void;
+  contentInsetTop?: number;
+  scrollY?: SharedValue<number>;
   children: ReactNode;
 }) {
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<Animated.ScrollView>(null);
   const contentBottomInset = useContentBottomInset();
   const { handler, infiniteScrollHandler } = useSectionPullToRefresh();
   const infiniteScrollHandlerRef = useRef(infiniteScrollHandler);
@@ -147,43 +157,69 @@ function SectionScrollablePage({
   onScrollYRef.current = onScrollY;
   const onActiveScrollRefStable = useRef(onActiveScrollRef);
   onActiveScrollRefStable.current = onActiveScrollRef;
+  const isActiveRef = useRef(isActive);
+  isActiveRef.current = isActive;
 
-  const handleScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (!isActive) return;
-      const { contentOffset, layoutMeasurement, contentSize } =
-        event.nativeEvent;
-      const y = contentOffset.y;
-      onScrollYRef.current?.(y);
+  // contentInset is iOS-only; Android never receives a chrome inset.
+  const insetTop = Platform.OS === "ios" ? contentInsetTop : 0;
+
+  const handleScrollJS = useCallback(
+    (rawY: number, viewportHeight: number, contentHeight: number) => {
+      if (!isActiveRef.current) return;
+      onScrollYRef.current?.(rawY + insetTop);
 
       const infiniteScroll = infiniteScrollHandlerRef.current;
       if (infiniteScroll?.hasNextPage && !infiniteScroll.isFetchingNextPage) {
-        const distanceFromBottom =
-          contentSize.height - layoutMeasurement.height - y;
+        const distanceFromBottom = contentHeight - viewportHeight - rawY;
         if (distanceFromBottom < 240) {
           infiniteScroll.onLoadMore();
         }
       }
     },
-    [isActive],
+    [insetTop],
+  );
+
+  const scrollHandler = useAnimatedScrollHandler(
+    {
+      onScroll: (event) => {
+        const rawY = event.contentOffset.y;
+        if (scrollY && isActive) {
+          scrollY.value = rawY + insetTop;
+        }
+        runOnJS(handleScrollJS)(
+          rawY,
+          event.layoutMeasurement.height,
+          event.contentSize.height,
+        );
+      },
+    },
+    [handleScrollJS, insetTop, isActive, scrollY],
   );
 
   useEffect(() => {
     if (!isActive) return;
-    onActiveScrollRefStable.current?.(scrollRef.current);
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    // Scroll-to-top callers use y = 0; translate into the inset coordinate space.
+    onActiveScrollRefStable.current?.({
+      scrollTo: ({ y, animated }) =>
+        scrollRef.current?.scrollTo({ y: y - insetTop, animated }),
+    });
+    scrollRef.current?.scrollTo({ y: -insetTop, animated: false });
+    if (scrollY) scrollY.value = 0;
     onScrollYRef.current?.(0);
     return () => onActiveScrollRefStable.current?.(null);
-  }, [isActive, pageId]);
+  }, [isActive, pageId, insetTop, scrollY]);
 
   return (
     <View style={styles.feedHost} collapsable={false}>
-      <ScrollView
+      <Animated.ScrollView
         ref={scrollRef}
         style={styles.feedScroll}
         contentContainerStyle={{ paddingBottom: contentBottomInset }}
+        contentInset={insetTop > 0 ? { top: insetTop } : undefined}
+        scrollIndicatorInsets={insetTop > 0 ? { top: insetTop } : undefined}
+        contentOffset={insetTop > 0 ? { x: 0, y: -insetTop } : undefined}
         nestedScrollEnabled
-        onScroll={handleScroll}
+        onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -194,7 +230,7 @@ function SectionScrollablePage({
         }
       >
         {children}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -219,6 +255,8 @@ export function SectionPager({
   lazy = false,
   onActiveScrollRef,
   onScrollY,
+  contentInsetTop,
+  scrollY,
 }: SectionPagerProps) {
   const { height: screenHeight } = useWindowDimensions();
   const pagerRef = useRef<PagerView>(null);
@@ -508,6 +546,8 @@ export function SectionPager({
               isActive={id === activeId}
               onActiveScrollRef={onActiveScrollRef}
               onScrollY={onScrollY}
+              contentInsetTop={contentInsetTop}
+              scrollY={scrollY}
             >
               {content}
             </SectionScrollablePage>
@@ -542,6 +582,8 @@ export function SectionPager({
       handleEmbeddedPageLayout,
       onActiveScrollRef,
       onScrollY,
+      contentInsetTop,
+      scrollY,
       pageContents,
       scrollable,
     ],
@@ -709,6 +751,8 @@ export function SectionPager({
             isActive
             onActiveScrollRef={onActiveScrollRef}
             onScrollY={onScrollY}
+            contentInsetTop={contentInsetTop}
+            scrollY={scrollY}
           >
             {content}
           </SectionScrollablePage>
