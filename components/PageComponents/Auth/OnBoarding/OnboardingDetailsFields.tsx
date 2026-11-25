@@ -49,6 +49,7 @@ function PasswordField({
         isPassword
         autoComplete="new-password"
         error={errors.password}
+        required
       />
       <InputHint hint={t("common.passwordHint")} />
     </>
