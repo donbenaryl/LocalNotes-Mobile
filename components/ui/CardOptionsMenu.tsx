@@ -202,7 +202,7 @@ export function CardOptionsMenu({
 
           {buttonLayout ? (
             <View
-              className={`absolute ${hasCustomItems ? "w-56" : "w-44"} overflow-hidden rounded-xl border border-gray-200 bg-card py-2 dark:border-dk-border dark:bg-dk-card`}
+              className={`absolute ${hasCustomItems ? "min-w-48" : "min-w-44"} w-auto overflow-hidden rounded-xl border border-gray-200 bg-card py-2 dark:border-dk-border dark:bg-dk-card`}
               style={{
                 top: dropdownTop,
                 right: dropdownRight,

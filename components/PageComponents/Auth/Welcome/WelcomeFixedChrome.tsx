@@ -77,7 +77,6 @@ export function WelcomeFixedChrome() {
             label={t('auth.welcome.createAccount')}
             onPress={() => router.push('/sign-up' as Href)}
             variant="light"
-            size="lg"
             className="!border-page !bg-page dark:!border-page dark:!bg-page"
             textClassName="!text-ink dark:!text-ink"
           />
@@ -86,7 +85,6 @@ export function WelcomeFixedChrome() {
               label={t('auth.welcome.signIn')}
               onPress={() => router.push('/sign-in' as Href)}
               variant="ghost"
-              size="lg"
               textClassName="text-white"
             />
           </View>
