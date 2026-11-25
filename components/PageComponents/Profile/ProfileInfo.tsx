@@ -313,16 +313,6 @@ function UserProfileInfo({
                 {labels.secondary}
               </Text>
             ) : null}
-            {isOwnProfile && !hasRealName(profile) ? (
-              <Pressable
-                onPress={() => router.push('/edit-profile' as never)}
-                className="mt-1 cursor-pointer"
-              >
-                <Text className="font-geist-medium text-[12.5px] text-brand dark:text-dk-text">
-                  {t('profile.info.addNameCta')}
-                </Text>
-              </Pressable>
-            ) : null}
 
             {profile.personality_name ? (
               <Text

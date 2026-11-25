@@ -8,7 +8,7 @@ import { toast } from "@/components/ui/Toast";
 import { FACEBOOK_BLUE, FacebookIcon } from "@/components/ui/icons/FacebookIcon";
 import { getWebAppUrl } from "@/http/environment.config";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { BRAND } from "@/constants/colors";
+import { BRAND, BRAND_ON_DARK } from "@/constants/colors";
 import { ConnectNowModal } from "./ConnectNow/ConnectNowModal";
 import { FindContactsModal } from "./FindContacts/FindContactsModal";
 
@@ -55,6 +55,7 @@ export function FollowingFindFriends() {
   const [findContactsMounted, setFindContactsMounted] = useState(false);
   const handoffTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chevronColor = colorScheme === "dark" ? "#A79E92" : "#6C727F";
+  const rowIconColor = colorScheme === "dark" ? BRAND_ON_DARK : BRAND;
 
   useEffect(
     () => () => {
@@ -103,11 +104,11 @@ export function FollowingFindFriends() {
         accessibilityLabel={t("home.following.findFriends.rowLabel")}
         className="mt-4 cursor-pointer flex-row items-center gap-3 rounded-2xl bg-soft px-4 py-4 dark:bg-dk-card/60"
       >
-        <BookUser size={22} color={BRAND} />
+        <BookUser size={22} color={rowIconColor} />
         <Text className="flex-1 font-geist-semibold text-base text-brand dark:text-dk-text">
           {t("home.following.findFriends.rowLabel")}
         </Text>
-        <ChevronRight size={20} color={BRAND} />
+        <ChevronRight size={20} color={rowIconColor} />
       </Pressable>
 
       <Modal

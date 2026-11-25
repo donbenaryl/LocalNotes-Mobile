@@ -222,7 +222,6 @@ export function ShareToUsersSheet({
           label={isSharing ? t('common.pleaseWait') : t('share.submit')}
           onPress={() => void handleShare()}
           variant="brand"
-          isRounded
           disabled={selectedUsers.length === 0 || isSharing || !target}
         />
       </View>
