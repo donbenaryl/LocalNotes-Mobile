@@ -33,6 +33,14 @@ const en = {
     submit: 'Share',
     success: 'Shared successfully',
     error: 'Couldn’t share. Try again.',
+    native: {
+      title: 'Share via',
+      subtitle: 'Messages, apps, and more',
+    },
+    orWithPeople: 'Or share with people on LocalNotes',
+    nativeMessage: '{{title}} — {{url}}',
+    nativeMessageUrlOnly: '{{url}}',
+    nativeMessageTitleOnly: '{{title}}',
   },
   imageUpload: {
     addPhoto: 'Add Photo',
