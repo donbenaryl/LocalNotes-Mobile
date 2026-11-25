@@ -1,12 +1,16 @@
-import { useRouter } from 'expo-router';
-import { OnBoardingPreHome } from '@/components/PageComponents/OnBoardingPreHome';
+import { Redirect } from 'expo-router';
+import type { Href } from 'expo-router';
 
+/** Pre-home steps live inside OnboardingFlow on /personality; keep route for old deep links. */
 export default function PreHomeOnboardingScreen() {
-  const router = useRouter();
-
-  const handleComplete = () => {
-    router.replace('/home');
-  };
-
-  return <OnBoardingPreHome onComplete={handleComplete} />;
+  return (
+    <Redirect
+      href={
+        {
+          pathname: '/personality',
+          params: { fromOnboarding: 'true' },
+        } as Href
+      }
+    />
+  );
 }

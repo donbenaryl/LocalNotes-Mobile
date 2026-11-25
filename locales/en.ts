@@ -21,6 +21,7 @@ const en = {
     createPick: 'Create a Pick',
     createList: 'Create a List',
     listDrafts: 'List Drafts',
+    stepOf: '{{current}} of {{total}}',
     datePicker: {
       title: 'Select date',
     },
@@ -308,6 +309,23 @@ const en = {
     basedOnActivity: 'Based on your activity',
     takeQuizCta: 'Take the quiz for a sharper match',
     complete: 'Complete',
+    choiceTitlePrefix: "Let's find your ",
+    choiceTitleVibe: 'vibe',
+    choiceTitleSuffix: '.',
+    choiceSubtitle: 'Pick how you want to start. You can always do the other later.',
+    discoverTitle: 'Discover My Vibe',
+    recommended: 'Recommended',
+    discoverBody:
+      '{{count}} quick sliders, about 2 minutes. Get picks tuned to you from day one.',
+    exploreTitle: 'Start Exploring',
+    exploreBody:
+      "Skip the questions. LocalNotes can learn what you like from the picks you save, people you follow, and places you explore.",
+    archetypes: {
+      explorer: 'Explorer',
+      connector: 'Connector',
+      curator: 'Curator',
+      creator: 'Creator',
+    },
     sections: {
       vibeAtmosphere: 'Vibe & Atmosphere',
       styleApproach: 'Style & Approach',
@@ -1053,7 +1071,7 @@ const en = {
   preHomeOnboarding: {
     skip: 'Skip',
     step1: {
-      kicker: 'STEP 1 · HOME BASE',
+      kicker: 'HOME BASE',
       titleRegular: 'Where do you',
       titleItalic: 'spend most of your time?',
       description: "We'll center your feed, your offers, and your search around this city. You can change it anytime from Settings.",
@@ -1063,7 +1081,7 @@ const en = {
       popularCities: 'POPULAR CITIES',
     },
     step2: {
-      kicker: 'STEP 2 · YOUR TASTE TRIBE',
+      kicker: 'YOUR TASTE TRIBE',
       titleRegular: 'Six curators',
       titleItalic: 'who match your blend.',
       description: 'Picked because their lists align with what you said you care about. Follow at least 3 to make Home actually useful on day one.',

@@ -18,6 +18,8 @@ interface PageHeaderProps {
   includeSafeArea?: boolean;
   /** Align back control to the top of taller children (default: vertically centered). */
   alignStart?: boolean;
+  /** Center children in the header row (absolute back/right chrome, like title mode). */
+  centerChildren?: boolean;
 }
 
 export function PageHeader({
@@ -31,6 +33,7 @@ export function PageHeader({
   borderless = false,
   includeSafeArea = true,
   alignStart = false,
+  centerChildren = false,
 }: PageHeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -59,7 +62,15 @@ export function PageHeader({
       className={`px-4 pb-4${borderless ? '' : ' border-b border-gray-100 dark:border-dk-line'}`}
     >
       <View className="min-h-10 justify-center">
-        {children ? (
+        {children && centerChildren ? (
+          <View className="w-full flex-row items-center justify-center">
+            <View className="absolute left-0 z-10">{backControl}</View>
+            {children}
+            {rightChild ? (
+              <View className="absolute right-0 z-10">{rightChild}</View>
+            ) : null}
+          </View>
+        ) : children ? (
           <View
             className={`w-full flex-row gap-2 ${alignStart ? 'items-start' : 'items-center'}`}
           >

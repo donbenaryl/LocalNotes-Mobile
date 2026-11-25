@@ -3,11 +3,14 @@ import { Pressable, Text, View } from "react-native";
 import { ChevronRight } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
+import type { Href } from "expo-router";
 import { StepHomeBase } from "./StepHomeBase";
 import { StepStarters } from "./StepStarters";
 import { LocalNotesButton } from "../../ui/LocalNotesButton";
 import { PageFooterWrapper } from "../../ui/PageFooterWrapper";
 import { PageHeader } from "../../ui/PageHeader";
+import { OnboardingStepper } from "../../ui/OnboardingStepper";
 import accountServices from "@/http/account-api/account.services";
 import type { Location } from "@/http/list-api/types";
 
@@ -19,8 +22,11 @@ interface OnBoardingPreHomeProps {
 
 export function OnBoardingPreHome({ onComplete }: OnBoardingPreHomeProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+
+  const globalStep = (currentStep === 1 ? 2 : 3) as 2 | 3;
 
   const saveLocationMutation = useMutation({
     mutationFn: async (location: Location) => {
@@ -42,32 +48,40 @@ export function OnBoardingPreHome({ onComplete }: OnBoardingPreHomeProps) {
     }
   };
 
+  const handleBack = () => {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+      return;
+    }
+    router.replace({
+      pathname: "/personality",
+      params: { fromOnboarding: "true" },
+    } as Href);
+  };
+
+  const handleSkip = () => {
+    if (currentStep === 1) {
+      setCurrentStep(2);
+      return;
+    }
+    onComplete();
+  };
+
   return (
     <View className="flex-1 bg-page dark:bg-dk-page">
       <PageHeader
         borderless
-        hideBack={currentStep === 1}
-        onBack={currentStep === 2 ? () => setCurrentStep(1) : undefined}
-      >
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row gap-2 items-center">
-            {([1, 2] as Step[]).map((dot) => (
-              <View
-                key={dot}
-                className={`rounded-full ${
-                  dot <= currentStep
-                    ? "w-2.5 h-2.5 bg-brand"
-                    : "w-2 h-2 bg-gray-300 dark:bg-dk-select"
-                }`}
-              />
-            ))}
-          </View>
-          <Pressable onPress={onComplete} className="cursor-pointer">
+        onBack={handleBack}
+        centerChildren
+        rightChild={
+          <Pressable onPress={handleSkip} className="cursor-pointer">
             <Text className="font-geist-semibold text-base text-gray-500 dark:text-dk-body">
               {t("preHomeOnboarding.skip")}
             </Text>
           </Pressable>
-        </View>
+        }
+      >
+        <OnboardingStepper current={globalStep} />
       </PageHeader>
 
       {/* Step content */}

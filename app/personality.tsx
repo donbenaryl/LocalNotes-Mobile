@@ -3,18 +3,18 @@ import type { Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { PageLoader } from '@/components/ui/PageLoader';
+import { OnboardingFlow } from '@/components/PageComponents/Onboarding/OnboardingFlow';
 import { Personality } from '../components/PageComponents/Personality.tsx';
 import { hydrateUserProfile } from '../services/authBootstrap';
 import { useAuthStore } from '../stores/useAuthStore';
 
 export default function PersonalityScreen() {
   const router = useRouter();
-  const { isRetake, fromOnboarding } = useLocalSearchParams<{
+  const { isRetake } = useLocalSearchParams<{
     isRetake?: string;
     fromOnboarding?: string;
   }>();
   const isRetakeMode = isRetake === 'true';
-  const hideBack = fromOnboarding === 'true' && !isRetakeMode;
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const [isHydrating, setIsHydrating] = useState(isAuthenticated && !user);
@@ -52,26 +52,25 @@ export default function PersonalityScreen() {
     return <PageLoader />;
   }
 
-  // const personalityName = useAuthStore.getState().user?.personalityName;
-  // if (hasCompletedPersonalityQuiz(personalityName)) {
-  //   return <Redirect href="/home" />;
-  // }
-
-  async function handleComplete() {
-    if (isRetakeMode) {
-      router.back();
-      return;
-    }
-
-    await hydrateUserProfile();
-    router.replace('/(app)/pre-home-onboarding' as Href);
+  // Full onboarding (personality → home base → starters) under one persistent header.
+  // Retake keeps the standalone quiz UI without the stepper shell.
+  if (!isRetakeMode) {
+    return (
+      <OnboardingFlow
+        onComplete={() => {
+          router.replace('/home' as Href);
+        }}
+      />
+    );
   }
 
   return (
     <View className="flex-1 bg-page dark:bg-dk-page">
       <Personality
-        hideBack={hideBack}
-        onComplete={() => void handleComplete()}
+        hideBack={false}
+        onComplete={() => {
+          router.back();
+        }}
       />
     </View>
   );

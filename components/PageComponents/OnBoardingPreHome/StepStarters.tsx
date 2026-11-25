@@ -12,6 +12,7 @@ import accountServices from "@/http/account-api/account.services";
 import searchService from "@/http/search-api/search.service";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
 import { UserCard } from "@/components/ui/UserCard";
+import { getPeopleMatchPercent } from "@/utils/matchScore";
 
 const STARTER_QUERY = {
   scope: "people" as const,
@@ -149,9 +150,9 @@ export function StepStarters() {
                   return (
                     <View key={person.id} className="flex-1">
                       <UserCard
-                        name={person.name}
+                        user={person}
                         role={person.personality_name ?? t("preHomeOnboarding.step2.roleFallback")}
-                        match={person.match ?? null}
+                        match={getPeopleMatchPercent(person)}
                         personalityDescription={
                           person.personality_description?.trim() ||
                           person.bio?.trim() ||

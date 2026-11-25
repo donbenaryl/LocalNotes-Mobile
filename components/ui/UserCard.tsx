@@ -7,9 +7,13 @@ import {
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
+import {
+  resolveUserLabels,
+  type UserNameFields,
+} from "@/utils/userDisplayName";
 
 interface UserCardProps {
-  name: string;
+  user: UserNameFields;
   role: string;
   match?: number | null;
   personalityDescription: string;
@@ -21,7 +25,7 @@ interface UserCardProps {
 }
 
 export function UserCard({
-  name,
+  user,
   role,
   match,
   personalityDescription,
@@ -31,6 +35,7 @@ export function UserCard({
   isSelected,
   onPress,
 }: UserCardProps) {
+  const { primary } = resolveUserLabels(user);
   const matchValue = match == null ? null : clampPercent(match);
   const roleColor = getPersonalityRoleColor(role);
   const matchColor = getMatchPercentColor(matchValue ?? 0);
@@ -42,22 +47,13 @@ export function UserCard({
       accessibilityRole="button"
       className="w-full cursor-pointer"
     >
-      <WhiteBox isSelected={isSelected} className="relative flex flex-col gap-2">
-        <View
-          className={`absolute right-2 top-2 z-10 h-5 w-5 items-center justify-center rounded-full border ${
-            isSelected
-              ? "border-brand bg-brand"
-              : "border-gray-300 bg-card dark:border-dk-border dark:bg-dk-elevated"
-          }`}
-        >
-          {isSelected ? (
-            <Check size={10} color="#FFFFFF" strokeWidth={2.4} />
-          ) : null}
-        </View>
-
-        <View className="flex-row items-center gap-2 pr-5">
+      <WhiteBox
+        isSelected={isSelected}
+        className="relative flex flex-col gap-2"
+      >
+        <View className="flex-row items-start gap-2">
           <Avatar
-            name={name}
+            name={primary}
             src={avatarUrl ?? undefined}
             size="md"
             gradientColors={gradientColors}
@@ -67,28 +63,16 @@ export function UserCard({
               className="font-geist-bold text-[12.5px] leading-[15px] text-ink dark:text-dk-text"
               numberOfLines={1}
             >
-              {name}
+              {primary}
             </Text>
             <Text
               className="mt-0.5 font-geist-medium text-[10.5px]"
               style={{ color: roleColor }}
+              numberOfLines={2}
             >
               {role}
             </Text>
           </View>
-          {matchValue != null ? (
-            <View
-              className="shrink-0 rounded-[5px] px-1.5 py-0.5"
-              style={{ backgroundColor: `${matchColor}24` }}
-            >
-              <Text
-                className="font-geist-bold text-[9.5px] leading-3"
-                style={{ color: matchColor }}
-              >
-                {matchValue}%
-              </Text>
-            </View>
-          ) : null}
         </View>
 
         <Text
@@ -97,12 +81,25 @@ export function UserCard({
         >
           {personalityDescription}
         </Text>
-
         <Image
           source={{ uri: coverImageUrl }}
           className="h-[60px] w-full rounded-lg"
           resizeMode="cover"
         />
+
+        {matchValue != null ? (
+          <View
+            className="mt-1 self-end rounded-[5px] px-1.5 py-0.5"
+            style={{ backgroundColor: `${matchColor}24` }}
+          >
+            <Text
+              className="font-geist-bold text-[9.5px] leading-3"
+              style={{ color: matchColor }}
+            >
+              {matchValue}%
+            </Text>
+          </View>
+        ) : null}
       </WhiteBox>
     </Pressable>
   );

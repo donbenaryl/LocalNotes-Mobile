@@ -41,7 +41,7 @@ export interface UnifiedSearchPersonDAO {
   personality_name: string | null;
   personality_color?: Record<string, number> | null;
   list_count: number;
-  match: number;
+  match: number | null;
   is_followed?: boolean;
   location?: {
     city: string;
