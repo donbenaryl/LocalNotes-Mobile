@@ -239,7 +239,6 @@ export function SearchResultsLayout<T>({
                 onPress={onRetry}
                 variant="brand"
                 size="xs"
-                isRounded
                 isWidthFull={false}
               />
             </View>

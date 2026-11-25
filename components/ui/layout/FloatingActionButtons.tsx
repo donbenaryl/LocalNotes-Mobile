@@ -106,10 +106,10 @@ function FloatingItem({
         onPress={() => onPress(option.value)}
         variant="brand"
         size="sm"
-        isRounded
         isWidthFull={false}
+        isRounded
         leftIcon={<Icon size={18} color={iconColor} strokeWidth={2.5} />}
-        className="min-w-[120px]"
+        className="min-w-[120px] border border-card/50"
       />
     </Animated.View>
   );

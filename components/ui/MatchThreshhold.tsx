@@ -63,7 +63,6 @@ function PresetChip({
       onPress={onPress}
       variant={isActive ? "dark" : "light"}
       size="xs"
-      isRounded
       isWidthFull={false}
     />
   );
@@ -305,7 +304,6 @@ export function MatchThreshhold({
               label="Apply →"
               onPress={handleApply}
               variant="dark"
-              isRounded
               size="sm"
               isWidthFull={false}
             />

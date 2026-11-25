@@ -468,7 +468,6 @@ export function HomeTab() {
           label={t("home.retry")}
           onPress={() => void refetch()}
           variant="dark"
-          isRounded
         />
       </View>
     );

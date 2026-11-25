@@ -83,7 +83,6 @@ export function SmartPickNoResults({
               label={t('smartPick.tryAgain')}
               onPress={onTryAgain}
               variant="brand"
-              isRounded
               isWidthFull={false}
               size="sm"
               className="self-center"

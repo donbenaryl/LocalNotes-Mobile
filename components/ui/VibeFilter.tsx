@@ -164,7 +164,6 @@ export function VibeFilter({
           label="Apply →"
           onPress={onApply}
           variant="dark"
-          isRounded={true}
           size="sm"
           isWidthFull={false}
         />

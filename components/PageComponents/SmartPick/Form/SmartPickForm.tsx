@@ -271,7 +271,6 @@ export function SmartPickForm({
           label={t('smartPick.getRecommendations')}
           onPress={onSubmit}
           variant="brand"
-          isRounded
           disabled={!canSubmit}
           loading={isSubmitting}
         />

@@ -104,7 +104,6 @@ export function SpotlightTab() {
             label={t("spotlight.retry")}
             onPress={() => void refetch()}
             variant="dark"
-            isRounded
           />
         </View>
       </SpotlightShell>

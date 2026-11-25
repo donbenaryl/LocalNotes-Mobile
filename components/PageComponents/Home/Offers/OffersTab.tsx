@@ -155,7 +155,6 @@ export function OffersTab() {
             label={t("offers.retry")}
             onPress={() => void refetch()}
             variant="dark"
-            isRounded
           />
         </View>
       </OffersShell>

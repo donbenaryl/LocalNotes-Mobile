@@ -49,7 +49,6 @@ export function SmartPickPeopleSheet({
           label={t('common.done')}
           onPress={onClose}
           variant="brand"
-          isRounded
         />
       </View>
     </Modal>

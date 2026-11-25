@@ -44,7 +44,6 @@ export function BlockUserModal({
             label={t("profile.safety.blockConfirm")}
             onPress={onConfirm}
             variant="danger"
-            isRounded
             loading={isLoading}
             disabled={isLoading}
           />
@@ -52,7 +51,6 @@ export function BlockUserModal({
             label={t("profile.safety.blockCancel")}
             onPress={onClose}
             variant="light"
-            isRounded
             disabled={isLoading}
           />
         </View>

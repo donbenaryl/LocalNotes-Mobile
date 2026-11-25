@@ -59,7 +59,6 @@ export function OwnedBusinessPickerModal({
                 onPress={onRetry}
                 variant="light"
                 size="xs"
-                isRounded
                 isWidthFull={false}
               />
             ) : null}

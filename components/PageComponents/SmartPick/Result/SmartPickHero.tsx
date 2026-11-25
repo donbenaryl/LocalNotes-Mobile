@@ -135,9 +135,8 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             label={t(isStretch ? 'smartPick.takeChance' : 'smartPick.takeMeThere')}
             onPress={handleTakeMeThere}
             variant="brand"
-            size="md"
-            leftIcon={<Navigation size={15} color="#fff" />}
-            isRounded
+            size="sm"
+            leftIcon={<Navigation size={12} color="#fff" />}
             className="flex-1"
             isWidthFull={false}
           />
@@ -145,28 +144,26 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             label=""
             onPress={handleSaveToList}
             variant="light"
-            size="md"
+            size="sm"
             leftIcon={
               <Bookmark
                 size={17}
                 color={colorScheme === 'dark' ? '#FFF' : '#1A1714'}
               />
             }
-            isRounded
             isWidthFull={false}
           />
           <LocalNotesButton
             label=""
             onPress={handleShare}
             variant="light"
-            size="md"
+            size="sm"
             leftIcon={
               <Share2
                 size={17}
                 color={colorScheme === 'dark' ? '#FFF' : '#1A1714'}
               />
             }
-            isRounded
             isWidthFull={false}
           />
         </View>

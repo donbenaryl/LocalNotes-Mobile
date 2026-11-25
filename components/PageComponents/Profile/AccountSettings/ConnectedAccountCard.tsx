@@ -86,7 +86,6 @@ export function ConnectedAccountCard({
         onPress={onPress}
         variant={connected && !comingSoon ? 'light' : 'dark'}
         size="xs"
-        isRounded
         isWidthFull={false}
         disabled={comingSoon || isLoading}
         loading={isLoading}

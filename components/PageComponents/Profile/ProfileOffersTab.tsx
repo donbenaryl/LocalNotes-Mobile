@@ -43,7 +43,6 @@ export function ProfileOffersTab({ businessId }: ProfileOffersTabProps) {
           label={t("offers.retry")}
           onPress={() => void refetch()}
           variant="dark"
-          isRounded
         />
       </View>
     );

@@ -73,9 +73,8 @@ export function SmartPickWebResultCard({ webResult }: SmartPickWebResultCardProp
         onPress={handleSave}
         size="xs"
         variant="brand"
-        isRounded
         isWidthFull={false}
-        className="shrink-0 self-center px-3 h-8"
+        className="shrink-0 self-center px-3"
       />
     </Pressable>
   );

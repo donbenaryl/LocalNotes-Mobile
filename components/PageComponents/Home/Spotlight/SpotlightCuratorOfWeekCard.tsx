@@ -128,7 +128,6 @@ export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCa
               onPress={handleViewLists}
               variant="light"
               size="sm"
-              isRounded
             />
           </View>
           <View className="flex-1">
