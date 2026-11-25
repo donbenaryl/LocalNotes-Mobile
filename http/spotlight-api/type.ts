@@ -26,6 +26,7 @@ export type SpotlightPickEntityDAO = {
   image: string | null;
   curator_id: string;
   curator_name: string;
+  curator_username?: string | null;
   save_count: number;
   featured_in_lists_count: number;
   personality_match?: number | null;
@@ -41,6 +42,7 @@ export type SpotlightListEntityDAO = {
   image: string | null;
   curator_id: string;
   curator_name: string;
+  curator_username?: string | null;
   save_count: number;
   personality_match?: number | null;
   overall_match?: number | null;
@@ -51,6 +53,7 @@ export type SpotlightCuratorEntityDAO = {
   id: string;
   spotlight_item_id: string | null;
   name: string;
+  username?: string | null;
   quote: string | null;
   image: string | null;
   /** Null when the curator has no profile or hides personality via privacy settings. */
@@ -81,6 +84,7 @@ export type SpotlightCollectionMemberDAO = {
   image: string | null;
   curator_id: string;
   curator_name: string;
+  curator_username?: string | null;
   item_count: number;
   met_criteria: boolean;
 };

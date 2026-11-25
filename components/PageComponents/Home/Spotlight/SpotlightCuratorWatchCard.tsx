@@ -6,23 +6,17 @@ import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import type { SpotlightCuratorEntityDAO } from "@/http/spotlight-api/type";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { withViewOrigin } from "@/utils/viewTracking";
 
 interface SpotlightCuratorWatchCardProps {
   curator: SpotlightCuratorEntityDAO;
 }
 
-/** "Don Lagadan" → "Don L."; single-word names are left unchanged. */
-function formatCuratorShortName(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length < 2) return parts[0] ?? name;
-  return `${parts[0]} ${parts[1][0]!.toUpperCase()}.`;
-}
-
 export function SpotlightCuratorWatchCard({ curator }: SpotlightCuratorWatchCardProps) {
   const router = useRouter();
   const impressionRef = useSpotlightImpressionTracking(curator.spotlight_item_id);
-  const displayName = formatCuratorShortName(curator.name);
+  const displayName = resolveUserLabels({ username: curator.username, name: curator.name }).primary;
 
   const handleOpen = () => {
     if (curator.spotlight_item_id) {
@@ -42,7 +36,7 @@ export function SpotlightCuratorWatchCard({ curator }: SpotlightCuratorWatchCard
       >
         <WhiteBox className="items-center gap-1.5 p-3">
           <Avatar
-            name={curator.name}
+            name={displayName}
             src={curator.image ?? undefined}
             userId={curator.id}
             size="md"

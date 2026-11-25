@@ -14,6 +14,7 @@ import type {
   SpotlightCollectionMemberDAO,
 } from "@/http/spotlight-api/type";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { SpotlightFallbackGradient } from "./SpotlightFallbackGradient";
 
 interface SpotlightCollectionCoverCardProps {
@@ -24,13 +25,6 @@ interface SpotlightCollectionCoverCardProps {
 // distinct from the Hero card's own `.hero` gradient (#3D2818 -> #C4622D).
 const FALLBACK_GRADIENT_COLORS = ["#6B3A1E", "#C4622D"] as const;
 const GRADIENT_FILL = { position: "absolute", top: 0, left: 0, right: 0, bottom: 0 } as const;
-
-/** "Danae R." style short name used in the mockup metadata line. */
-function formatCuratorShortName(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length < 2) return parts[0] ?? name;
-  return `${parts[0]} ${parts[1][0]!.toUpperCase()}.`;
-}
 
 interface CollectionMemberRowProps {
   member: SpotlightCollectionMemberDAO;
@@ -46,7 +40,10 @@ function CollectionMemberRow({
   const { t } = useTranslation();
   const imageUrl = resolveImageUrl(member.image);
   const { showFallback, onError } = useSpotlightImageFallback(imageUrl);
-  const curatorName = formatCuratorShortName(member.curator_name);
+  const curatorName = resolveUserLabels({
+    username: member.curator_username,
+    name: member.curator_name,
+  }).primary;
 
   return (
     <Pressable

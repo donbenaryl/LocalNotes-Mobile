@@ -8,6 +8,7 @@ import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTr
 import { useSpotlightListSave } from "@/hooks/useSpotlightListSave";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import { BRAND } from "@/constants/colors";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getListMatchPercent } from "@/utils/matchScore";
 import type { SpotlightListEntityDAO } from "@/http/spotlight-api/type";
@@ -94,7 +95,7 @@ export function SpotlightListsHeroCard({
         </Text>
         <View className="mt-0.5 flex-row items-center gap-1">
           <Text className="text-md text-white/85" numberOfLines={1}>
-            {list.curator_name}
+            {resolveUserLabels({ username: list.curator_username, name: list.curator_name }).primary}
           </Text>
           <Text className="text-md text-white/85">·</Text>
           <ArrowUp size={11} color="rgba(255,255,255,0.85)" />

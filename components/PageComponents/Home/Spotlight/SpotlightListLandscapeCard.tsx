@@ -8,6 +8,7 @@ import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTr
 import { useSpotlightListSave } from "@/hooks/useSpotlightListSave";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import { BRAND } from "@/constants/colors";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getListMatchPercent } from "@/utils/matchScore";
 import type { SpotlightListEntityDAO } from "@/http/spotlight-api/type";
@@ -94,7 +95,7 @@ export function SpotlightListLandscapeCard({
           {list.title}
         </Text>
         <Text className="mt-0.5 text-md text-white/85" numberOfLines={1}>
-          {list.curator_name} · {t("spotlight.sections.lists.savesCount", { count: saveCount })}
+          {resolveUserLabels({ username: list.curator_username, name: list.curator_name }).primary} · {t("spotlight.sections.lists.savesCount", { count: saveCount })}
         </Text>
       </View>
     </Pressable>

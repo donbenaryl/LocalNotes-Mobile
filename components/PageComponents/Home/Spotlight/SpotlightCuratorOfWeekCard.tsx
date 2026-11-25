@@ -11,6 +11,7 @@ import { WhiteBox } from "@/components/ui/WhiteBox";
 import { useSpotlightImpressionTracking } from "@/hooks/useSpotlightImpressionTracking";
 import spotlightService from "@/http/spotlight-api/spotlight.service";
 import type { SpotlightCuratorEntityDAO } from "@/http/spotlight-api/type";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { withViewOrigin } from "@/utils/viewTracking";
 
 interface SpotlightCuratorOfWeekCardProps {
@@ -35,6 +36,7 @@ const badgeGlowShadow = Platform.select({
 });
 
 export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCardProps) {
+  const displayName = resolveUserLabels({ username: curator.username, name: curator.name }).primary;
   const { t } = useTranslation();
   const router = useRouter();
   const impressionRef = useSpotlightImpressionTracking(curator.spotlight_item_id);
@@ -99,10 +101,10 @@ export function SpotlightCuratorOfWeekCard({ curator }: SpotlightCuratorOfWeekCa
         </View>
 
         <View className="mt-3.5 flex-row items-center gap-2.5">
-          <Avatar name={curator.name} src={curator.image ?? undefined} userId={curator.id} size="md2" />
+          <Avatar name={displayName} src={curator.image ?? undefined} userId={curator.id} size="md2" />
           <View className="min-w-0 flex-1">
             <Text className="font-geist-bold text-xl text-white" numberOfLines={1}>
-              {curator.name}
+              {displayName}
             </Text>
             {/* No curator "role"/persona field is exposed on SpotlightCuratorEntityDAO
                 (that data lives on accounts.PersonalityProfile, not wired into

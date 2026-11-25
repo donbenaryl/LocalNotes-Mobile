@@ -13,6 +13,7 @@ import spotlightService from "@/http/spotlight-api/spotlight.service";
 import { BRAND } from "@/constants/colors";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { getEmbeddedMatchPercent } from "@/utils/matchScore";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import type { ListItemPublic } from "@/http/list-api/types";
 import type { SpotlightPickEntityDAO } from "@/http/spotlight-api/type";
 import { SpotlightFallbackGradient } from "./SpotlightFallbackGradient";
@@ -37,7 +38,7 @@ function mapSpotlightPickToListItemPublic(
     is_owner: false,
     owner: {
       id: pick.curator_id,
-      name: pick.curator_name,
+      name: resolveUserLabels({ username: pick.curator_username, name: pick.curator_name }).primary,
       profile_image: null,
       personality_match: pick.personality_match ?? null,
       overall_match: pick.overall_match ?? null,
@@ -53,6 +54,10 @@ function mapSpotlightPickToListItemPublic(
 
 export function SpotlightPickPosterCard({ pick }: SpotlightPickPosterCardProps) {
   const { t } = useTranslation();
+  const curatorLabel = resolveUserLabels({
+    username: pick.curator_username,
+    name: pick.curator_name,
+  }).primary;
   const imageUrl = resolveImageUrl(pick.image);
   const { showFallback, onError } = useSpotlightImageFallback(imageUrl);
   const impressionRef = useSpotlightImpressionTracking(pick.spotlight_item_id);
@@ -162,12 +167,12 @@ export function SpotlightPickPosterCard({ pick }: SpotlightPickPosterCardProps) 
           </Text>
 
           <View className="mt-1 flex-row items-center gap-1.5">
-            <Avatar name={pick.curator_name} userId={pick.curator_id} size="xs" />
+            <Avatar name={curatorLabel} userId={pick.curator_id} size="xs" />
             <Text
               className="flex-1 font-geist-semibold text-sm text-white/90"
               numberOfLines={1}
             >
-              {t("spotlight.pickedBy", { name: pick.curator_name })}
+              {t("spotlight.pickedBy", { name: curatorLabel })}
             </Text>
           </View>
 
