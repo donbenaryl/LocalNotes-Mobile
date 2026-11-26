@@ -68,7 +68,7 @@ Alias `@/` → project root. Compose classes with `cn()` (`utils/cn.ts` = `twMer
 
 - Prefer **`className`** for static styles. Reserve `style` / `StyleSheet` for values NativeWind cannot express (animated values, `absoluteFillObject`, hairline borders).
 - Semantic tokens in `tailwind.config.js` (`page`, `soft`, `ink`, `brand`, …) — not ad-hoc magic colors.
-- Theme: `useThemeStore` → AsyncStorage `app_theme`; `app/_layout.tsx` calls `loadTheme()` then NativeWind `colorScheme.set(theme)` (default `'dark'`). Use `dark:` variants; never branch on `theme` to swap `className` strings. Reuse `ThemeToggle`.
+- Theme: `useThemeStore` → AsyncStorage `app_theme`; `app/_layout.tsx` calls `loadTheme()` then NativeWind `colorScheme.set(theme)` (default `'dark'`). Dark surfaces/text/borders use the `dk-*` tokens (`dark:bg-dk-card`, `dark:text-dk-muted`, …; palette in `tailwind.config.js`), not `dark:*-gray-*`. Use `dark:` variants; never branch on `theme` to swap `className` strings. Reuse `ThemeToggle`.
 - Compose classes with `cn()`. Use `cursor-pointer` on interactive controls where applicable.
 
 ---
