@@ -3,7 +3,7 @@ import { Text, View, type TextStyle } from 'react-native';
 type LocalNotesTextVariant = 'default' | 'light' | 'brand' | 'brandOnDark' | 'cream';
 
 interface LocalNotesTextProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'base' | 'md' | 'lg' | 'xl';
   variant?: LocalNotesTextVariant;
   withShadow?: boolean;
 }
@@ -13,6 +13,7 @@ export const WORDMARK_LG_TEXT_CLASS = 'font-madimi text-5xl pt-1';
 
 const sizeClasses: Record<NonNullable<LocalNotesTextProps['size']>, string> = {
   sm: 'text-2xl',
+  base: 'text-3xl',
   md: 'text-4xl',
   lg: 'text-5xl',
   xl: 'text-6xl',

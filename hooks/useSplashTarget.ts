@@ -6,9 +6,10 @@ import {
 } from '@/stores/useSplashStore';
 
 /**
- * Marks a logo as a landing spot for the splash wordmark. Attach `ref` and
- * `onLayout` to the logo's wrapper View and apply `hidden` as opacity 0 so the
- * real logo only appears once the splash wordmark has landed on it.
+ * Marks a wordmark as a landing spot for the splash animation. Attach `ref`
+ * and `onLayout` to the wordmark wrapper (not siblings like `LnTile`) and
+ * apply `hidden` as opacity 0 so the real text appears once the splash
+ * wordmark has landed on it.
  */
 export function useSplashTarget(key: SplashTargetKey) {
   const ref = useRef<View>(null);

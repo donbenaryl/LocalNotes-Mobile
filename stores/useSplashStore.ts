@@ -4,10 +4,15 @@ import { create } from 'zustand';
 export type SplashRect = { x: number; y: number; width: number; height: number };
 export type SplashTargetKey = 'home' | 'welcome';
 export type SplashTarget = SplashTargetKey | 'none';
+export type SplashPhase = 'running' | 'revealing' | 'done';
 
 interface SplashStore {
-  /** `running` from cold start until the logo has landed (or faded out). */
-  phase: 'running' | 'done';
+  /**
+   * `running` — splash owns the wordmark (destination text hidden).
+   * `revealing` — destination text visible under a fading splash overlay.
+   * `done` — overlay unmounted.
+   */
+  phase: SplashPhase;
   /** True once the intro clock has finished (word held at center). */
   introDone: boolean;
   /** Where the wordmark should land. `null` while the route is still resolving. */
@@ -16,6 +21,7 @@ interface SplashStore {
   setIntroDone: () => void;
   setTarget: (target: SplashTarget) => void;
   registerRect: (key: SplashTargetKey, rect: SplashRect) => void;
+  beginReveal: () => void;
   finish: () => void;
 }
 
@@ -32,6 +38,10 @@ export const useSplashStore = create<SplashStore>((set, get) => ({
     const { width } = Dimensions.get('window');
     if (rect.x < 0 || rect.x + rect.width > width + 1) return;
     set((s) => ({ rects: { ...s.rects, [key]: rect } }));
+  },
+  beginReveal: () => {
+    if (get().phase !== 'running') return;
+    set({ phase: 'revealing' });
   },
   finish: () => set({ phase: 'done' }),
 }));

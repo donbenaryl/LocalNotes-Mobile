@@ -2,6 +2,8 @@ import { Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { LocalNotesText } from "@/components/ui/LocalNotesText";
 
+type PageTitleHeadingTone = "default" | "cream";
+
 interface PageTitleHeadingProps {
   stepTitle?: string;
   title?: string;
@@ -9,7 +11,14 @@ interface PageTitleHeadingProps {
   description?: string;
   alignLeft?: boolean;
   hideLogo?: boolean;
+  /** Stack title and italic subtitle on separate lines (welcome hero). */
+  stackTitle?: boolean;
+  /** Cream-on-dark for photo backgrounds. */
+  tone?: PageTitleHeadingTone;
   containerClassName?: string;
+  titleClassName?: string;
+  subtitleClassName?: string;
+  descriptionClassName?: string;
 }
 
 export function PageTitleHeading({
@@ -19,14 +28,38 @@ export function PageTitleHeading({
   description,
   alignLeft = false,
   hideLogo = false,
-  containerClassName = '',
+  stackTitle = false,
+  tone = "default",
+  containerClassName = "",
+  titleClassName = "",
+  subtitleClassName = "",
+  descriptionClassName = "",
 }: PageTitleHeadingProps) {
   const { t } = useTranslation();
+  const isCream = tone === "cream";
+
+  const titleToneClass = isCream
+    ? "text-[#F3EBDD]"
+    : "text-ink dark:text-dk-text";
+  const subtitleToneClass = isCream
+    ? "text-[#F3EBDD]"
+    : "text-brand dark:text-dk-text";
+  const descriptionToneClass = isCream
+    ? "text-[rgba(243,235,221,0.86)]"
+    : "text-gray-500 dark:text-dk-text";
+  const stepToneClass = isCream
+    ? "text-[rgba(243,235,221,0.82)]"
+    : "text-brand dark:text-dk-text";
+
+  const alignClass = alignLeft ? "text-left" : "text-center";
+  const justifyClass = alignLeft ? "justify-start" : "justify-center";
 
   return (
     <View className={`w-full ${containerClassName}`}>
       {stepTitle && (
-        <Text className="font-geist-semibold text-[11px] tracking-[0.18em] uppercase text-brand dark:text-dk-text mt-6 mb-4">
+        <Text
+          className={`font-geist-semibold text-[11px] tracking-[0.18em] uppercase mt-6 mb-4 ${stepToneClass}`}
+        >
           {stepTitle}
         </Text>
       )}
@@ -43,23 +76,63 @@ export function PageTitleHeading({
       )}
 
       <View
-        className={`flex-row flex-wrap items-baseline mb-2 w-full ${hideLogo ? "mt-0" : "mt-5"} ${alignLeft ? "justify-start" : "justify-center"}`}
+        className={`mb-2 w-full ${hideLogo ? "mt-0" : "mt-5"} ${
+          stackTitle ? "" : `flex-row flex-wrap items-baseline ${justifyClass}`
+        }`}
       >
-        {title && (
-          <Text
-            className={`font-geist-bold text-4xl text-ink dark:text-dk-text leading-tight mr-2 ${alignLeft ? "text-left" : "text-center"}`}
-          >
-            {title + " "}
-            {subtitle && (
-              <Text className="text-4xl ml-2 text-brand dark:text-dk-text italic leading-tight">
-                {subtitle}
+        {title &&
+          (stackTitle ? (
+            <View className={alignLeft ? "items-start" : "items-center"}>
+              <Text
+                className={`font-geist-semibold text-[42px] leading-[44px] tracking-[-0.025em] ${titleToneClass} ${alignClass} ${titleClassName}`}
+                style={
+                  isCream
+                    ? {
+                        textShadowColor: "rgba(26,23,20,0.45)",
+                        textShadowOffset: { width: 0, height: 2 },
+                        textShadowRadius: 18,
+                      }
+                    : undefined
+                }
+              >
+                {title}
               </Text>
-            )}
-          </Text>
-        )}
+              {subtitle ? (
+                <Text
+                  className={`font-fraunces italic text-[42px] leading-[44px] tracking-[-0.01em] ${subtitleToneClass} ${alignClass} ${subtitleClassName}`}
+                  style={
+                    isCream
+                      ? {
+                          textShadowColor: "rgba(26,23,20,0.45)",
+                          textShadowOffset: { width: 0, height: 2 },
+                          textShadowRadius: 18,
+                        }
+                      : undefined
+                  }
+                >
+                  {subtitle}
+                </Text>
+              ) : null}
+            </View>
+          ) : (
+            <Text
+              className={`font-geist-bold text-4xl leading-tight mr-2 ${titleToneClass} ${alignClass} ${titleClassName}`}
+            >
+              {title + " "}
+              {subtitle && (
+                <Text
+                  className={`text-4xl ml-2 italic leading-tight ${subtitleToneClass} ${subtitleClassName}`}
+                >
+                  {subtitle}
+                </Text>
+              )}
+            </Text>
+          ))}
         {description && (
           <Text
-            className={`text-lg text-gray-500 dark:text-dk-text leading-tight mt-3 font-light ${alignLeft ? "text-left" : "text-center px-10"}`}
+            className={`text-[15px] leading-[21px] mt-2.5 font-geist ${descriptionToneClass} ${
+              alignLeft ? "text-left" : "text-center px-10"
+            } ${descriptionClassName}`}
           >
             {description}
           </Text>

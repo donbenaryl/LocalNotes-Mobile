@@ -37,6 +37,10 @@ const INTRO_MS = 1800;
 /** Failsafe: never leave the overlay on screen longer than this. */
 const FAILSAFE_MS = 6000;
 const TRAVEL_MS = 700;
+/** Wait for destination layout to settle before locking travel. */
+const TRAVEL_RECT_DEBOUNCE_MS = 120;
+/** Soft handoff: fade splash after destination text is revealed. */
+const HANDOFF_FADE_MS = 200;
 const CREAM = '#F7F3EC';
 const INK = '#1A1714';
 
@@ -125,6 +129,7 @@ export function SplashOverlay() {
   const target = useSplashStore((s) => s.target);
   const rects = useSplashStore((s) => s.rects);
   const setTarget = useSplashStore((s) => s.setTarget);
+  const beginReveal = useSplashStore((s) => s.beginReveal);
   const finish = useSplashStore((s) => s.finish);
   const markIntroDone = useSplashStore((s) => s.setIntroDone);
 
@@ -207,7 +212,8 @@ export function SplashOverlay() {
   // Failsafe so a missing target/rect can never leave the overlay stuck.
   useEffect(() => {
     const id = setTimeout(() => {
-      if (useSplashStore.getState().phase === 'running') {
+      const { phase: p } = useSplashStore.getState();
+      if (p === 'running' || p === 'revealing') {
         fadeOut.value = withTiming(1, { duration: 300 }, (done) => {
           if (done) runOnJS(finish)();
         });
@@ -220,15 +226,16 @@ export function SplashOverlay() {
   useEffect(() => {
     if (!introDone || !target || !ready || started.current) return;
 
+    const fadeOverlayAway = (duration: number) => {
+      fadeOut.value = withTiming(1, { duration }, (done) => {
+        if (done) runOnJS(finish)();
+      });
+    };
+
     const fadeAway = () => {
       started.current = true;
-      fadeOut.value = withTiming(
-        1,
-        { duration: reduceMotion ? 150 : 300 },
-        (done) => {
-          if (done) runOnJS(finish)();
-        },
-      );
+      beginReveal();
+      fadeOverlayAway(reduceMotion ? 150 : 300);
     };
 
     if (target === 'none' || reduceMotion) {
@@ -236,44 +243,66 @@ export function SplashOverlay() {
       return () => clearTimeout(id);
     }
 
-    const rect = rects[target];
-    if (!rect) {
+    if (!rects[target]) {
       // Destination logo never reported a position — don't hang the splash.
       const id = setTimeout(() => setTarget('none'), 1500);
       return () => clearTimeout(id);
     }
 
-    started.current = true;
-    const scale = rowW.current > 0 ? rect.width / rowW.current : 0.5;
-    scaleTo.value = scale;
-    toColor.value = target === 'welcome' ? CREAM : baseColor;
+    // Debounce so travel aims at the settled wordmark rect (e.g. welcome `base`).
+    const id = setTimeout(() => {
+      if (started.current) return;
+      const rect = useSplashStore.getState().rects[target];
+      if (!rect) {
+        setTarget('none');
+        return;
+      }
 
-    const startTravel = (originX: number, originY: number) => {
-      dx.value = rect.x + rect.width / 2 - originX;
-      dy.value = rect.y + rect.height / 2 - originY;
-      travel.value = withTiming(
-        1,
-        { duration: TRAVEL_MS, easing: Easing.inOut(Easing.cubic) },
-        (done) => {
-          if (done) runOnJS(finish)();
-        },
-      );
-    };
+      started.current = true;
+      const scale = rowW.current > 0 ? rect.width / rowW.current : 0.5;
+      const scaledH = rowH * scale;
+      scaleTo.value = scale;
+      toColor.value = target === 'welcome' ? CREAM : baseColor;
 
-    // The word row is centered inside this full-screen container, so its
-    // center is the container's center. Measure it in the same (window)
-    // coordinate space as the target rect: on Android (edge-to-edge) the
-    // useWindowDimensions() size differs from the real overlay by the system
-    // bar insets, which made the wordmark overshoot upward.
-    const container = centerRef.current;
-    if (container) {
-      container.measureInWindow((x, y, w, h) => {
-        if (w > 0 && h > 0) startTravel(x + w / 2, y + h / 2);
-        else startTravel(screenW / 2, screenH / 2);
-      });
-    } else {
-      startTravel(screenW / 2, screenH / 2);
-    }
+      const startTravel = (originX: number, originY: number) => {
+        dx.value = rect.x + rect.width / 2 - originX;
+        // Nudge by half the scaled-vs-target height delta so `base` metrics
+        // hand off without a downward jump.
+        dy.value =
+          rect.y +
+          rect.height / 2 -
+          originY +
+          (rect.height - scaledH) / 2;
+        const onTravelDone = () => {
+          beginReveal();
+          fadeOverlayAway(HANDOFF_FADE_MS);
+        };
+        travel.value = withTiming(
+          1,
+          { duration: TRAVEL_MS, easing: Easing.inOut(Easing.cubic) },
+          (done) => {
+            if (done) runOnJS(onTravelDone)();
+          },
+        );
+      };
+
+      // The word row is centered inside this full-screen container, so its
+      // center is the container's center. Measure it in the same (window)
+      // coordinate space as the target rect: on Android (edge-to-edge) the
+      // useWindowDimensions() size differs from the real overlay by the system
+      // bar insets, which made the wordmark overshoot upward.
+      const container = centerRef.current;
+      if (container) {
+        container.measureInWindow((x, y, w, h) => {
+          if (w > 0 && h > 0) startTravel(x + w / 2, y + h / 2);
+          else startTravel(screenW / 2, screenH / 2);
+        });
+      } else {
+        startTravel(screenW / 2, screenH / 2);
+      }
+    }, TRAVEL_RECT_DEBOUNCE_MS);
+
+    return () => clearTimeout(id);
   }, [
     introDone,
     target,
@@ -281,6 +310,7 @@ export function SplashOverlay() {
     rects,
     reduceMotion,
     baseColor,
+    rowH,
     screenW,
     screenH,
     dx,
@@ -289,6 +319,7 @@ export function SplashOverlay() {
     toColor,
     travel,
     fadeOut,
+    beginReveal,
     finish,
     setTarget,
   ]);
@@ -303,12 +334,16 @@ export function SplashOverlay() {
       { scale: interpolate(clock.value, [0, 400], [1.08, 1], clamp) },
     ],
   }));
-  const wordStyle = useAnimatedStyle(() => ({
+  // Translate and scale on separate nodes so scale does not pull the landed
+  // center short of the destination (visible with larger welcome `base` text).
+  const wordTranslateStyle = useAnimatedStyle(() => ({
     transform: [
       { translateX: travel.value * dx.value },
       { translateY: travel.value * dy.value },
-      { scale: 1 + (scaleTo.value - 1) * travel.value },
     ],
+  }));
+  const wordScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + (scaleTo.value - 1) * travel.value }],
   }));
 
   if (phase === 'done') return null;
@@ -354,24 +389,26 @@ export function SplashOverlay() {
         style={styles.center}
         pointerEvents="none"
       >
-        <Animated.View
-          style={[styles.row, { width: rowWidth, height: rowH }, wordStyle]}
-        >
-          {ready && LETTERS.map((char, i) => (
-            <Letter
-              key={`${char}-${i}`}
-              char={char}
-              index={i}
-              clock={clock}
-              travel={travel}
-              toColor={toColor}
-              fromColor={baseColor}
-              lOffset={lOffset}
-              nOffset={nOffset}
-              left={letterX[i]}
-              width={metrics[char]}
-            />
-          ))}
+        <Animated.View style={wordTranslateStyle}>
+          <Animated.View
+            style={[styles.row, { width: rowWidth, height: rowH }, wordScaleStyle]}
+          >
+            {ready && LETTERS.map((char, i) => (
+              <Letter
+                key={`${char}-${i}`}
+                char={char}
+                index={i}
+                clock={clock}
+                travel={travel}
+                toColor={toColor}
+                fromColor={baseColor}
+                lOffset={lOffset}
+                nOffset={nOffset}
+                left={letterX[i]}
+                width={metrics[char]}
+              />
+            ))}
+          </Animated.View>
         </Animated.View>
       </View>
     </Animated.View>

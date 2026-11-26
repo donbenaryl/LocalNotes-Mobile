@@ -1,126 +1,65 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
-import { LocalNotesText } from '@/components/ui/LocalNotesText';
-import { useSplashTarget } from '@/hooks/useSplashTarget';
+import { PageTitleHeading } from '@/components/ui/PageTitleHeading';
+import { WelcomeSlideDots } from './WelcomeSlideDots';
 
-export function WelcomeFixedChrome() {
+type WelcomeFixedChromeProps = {
+  activeIndex: number;
+  slideCount: number;
+  onSelectIndex?: (index: number) => void;
+};
+
+export function WelcomeFixedChrome({
+  activeIndex,
+  slideCount,
+  onSelectIndex,
+}: WelcomeFixedChromeProps) {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
-  const logoTop = Math.max(insets.top + 40, 76);
-
-  const logo = useSplashTarget('welcome');
-
   return (
-    <View className="absolute inset-0" pointerEvents="box-none">
-      <View
-        ref={logo.ref}
-        onLayout={logo.onLayout}
-        className="absolute self-center font-geist-extrabold text-[25px]"
-        style={{
-          top: logoTop,
-          opacity: logo.hidden ? 0 : 1,
-        }}
-      >
-        <LocalNotesText variant="cream" size="lg" withShadow/>
+    <View className="px-5" pointerEvents="box-none">
+      <View accessibilityLabel={t('auth.welcome.headlineA11y')}>
+        <PageTitleHeading
+          hideLogo
+          alignLeft
+          stackTitle
+          tone="cream"
+          title={t('auth.welcome.headlineLine1')}
+          subtitle={t('auth.welcome.headlineLine2')}
+          description={t('auth.welcome.subtitle')}
+          containerClassName="mb-0"
+          descriptionClassName="!px-0 max-w-[342px]"
+        />
       </View>
 
-      <View
-        className="absolute left-0 right-0 px-5"
-        style={{ bottom: insets.bottom + 8 }}
-        pointerEvents="box-none"
-      >
-        <View className="mb-6" accessibilityLabel={t('auth.welcome.headlineA11y')}>
-          <Text
-            className="font-geist-extrabold text-6xl leading-[50px] text-page"
-            maxFontSizeMultiplier={1.15}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.75}
-            style={{
-              textShadowColor: 'rgba(0,0,0,0.43)',
-              textShadowOffset: { width: 1.3, height: 1.3 },
-              textShadowRadius: 3.3,
-            }}
-          >
-            {t('auth.welcome.headlineLine1')}
-          </Text>
-          <Text
-            className="italic text-6xl leading-[50px] text-page"
-            maxFontSizeMultiplier={1.15}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.75}
-            style={{
-              textShadowColor: 'rgba(0,0,0,0.43)',
-              textShadowOffset: { width: 1.3, height: 1.3 },
-              textShadowRadius: 3.3,
-            }}
-          >
-            {t('auth.welcome.headlineLine2')}
-          </Text>
-          <Text
-            className="mt-2 max-w-[342px] font-geist text-xl leading-[22px] text-[#DDD5C8]"
-            maxFontSizeMultiplier={1.3}
-          >
-            {t('auth.welcome.subtitle')}
-          </Text>
-        </View>
-
-        <View className="gap-3">
-          <LocalNotesButton
-            label={t('auth.welcome.createAccount')}
-            onPress={() => router.push('/sign-up' as Href)}
-            variant="light"
-            className="!border-page !bg-page dark:!border-page dark:!bg-page"
-            textClassName="!text-ink dark:!text-ink"
-          />
-          <View className="overflow-hidden rounded-xl border border-white/30 bg-white/10">
-            <LocalNotesButton
-              label={t('auth.welcome.signIn')}
-              onPress={() => router.push('/sign-in' as Href)}
-              variant="ghost"
-              textClassName="text-white"
-            />
-          </View>
-        </View>
-
-        <Text
-          className="mt-5 text-center font-geist leading-[17px] text-[#A79E92]"
-          maxFontSizeMultiplier={1.3}
-        >
-          {t('auth.welcome.legalPrefix')}
-          <Text
-            className="text-page underline"
-            onPress={() => router.push('/terms' as Href)}
-            accessibilityRole="link"
-          >
-            {t('auth.welcome.terms')}
-          </Text>
-          {t('auth.welcome.legalSeparator')}
-          <Text
-            className="text-page underline"
-            onPress={() => router.push('/privacy-policy' as Href)}
-            accessibilityRole="link"
-          >
-            {t('auth.welcome.privacy')}
-          </Text>
-          {t('auth.welcome.legalAnd')}
-          <Text
-            className="text-page underline"
-            onPress={() => router.push('/community-guidelines' as Href)}
-            accessibilityRole="link"
-          >
-            {t('auth.welcome.guidelines')}
-          </Text>
-          {t('auth.welcome.legalSuffix')}
-        </Text>
+      <View className="mt-[22px] gap-2.5">
+        <LocalNotesButton
+          label={t('auth.welcome.createAccount')}
+          onPress={() => router.push('/sign-up' as Href)}
+          variant="light"
+          size="md"
+          className="!border-[#F3EBDD] !bg-[#F3EBDD] dark:!border-[#F3EBDD] dark:!bg-[#F3EBDD] !py-[13px]"
+          textClassName="!text-[#1A1714] dark:!text-[#1A1714] font-geist-semibold !text-[15px]"
+        />
+        <LocalNotesButton
+          label={t('auth.welcome.signIn')}
+          onPress={() => router.push('/sign-in' as Href)}
+          variant="outline"
+          size="md"
+          className="border border-[rgba(243,235,221,0.5)] !bg-transparent !py-[13px]"
+          textClassName="!text-[#F3EBDD] font-geist-semibold !text-[15px]"
+        />
       </View>
+
+      <WelcomeSlideDots
+        count={slideCount}
+        activeIndex={activeIndex}
+        onSelectIndex={onSelectIndex}
+      />
     </View>
   );
 }

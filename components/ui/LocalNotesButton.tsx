@@ -4,7 +4,13 @@ import { useColorScheme } from "nativewind";
 import { BRAND } from "@/constants/colors";
 
 type LocalNotesButtonSize = "xs" | "sm" | "md" | "lg";
-type LocalNotesButtonVariant = "dark" | "light" | "brand" | "danger" | "ghost";
+type LocalNotesButtonVariant =
+  | "dark"
+  | "light"
+  | "brand"
+  | "danger"
+  | "ghost"
+  | "outline";
 
 interface LocalNotesButtonProps {
   label: string;
@@ -41,6 +47,7 @@ const VARIANT_CONTAINER_CLASS: Record<LocalNotesButtonVariant, string> = {
   brand: "bg-brand dark:bg-dk-text border border-brand dark:border-dk-text",
   danger: "bg-red-700 border border-red-700",
   ghost: "bg-transparent border border-transparent",
+  outline: "bg-transparent border border-white",
 };
 
 const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
@@ -49,6 +56,7 @@ const VARIANT_TEXT_CLASS: Record<LocalNotesButtonVariant, string> = {
   brand: "text-white dark:text-ink",
   danger: "text-white",
   ghost: "text-gray-500 dark:text-dk-muted",
+  outline: "text-white",
 };
 
 export function LocalNotesButton({
@@ -68,17 +76,17 @@ export function LocalNotesButton({
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
   const isDisabled = disabled || loading;
-  const isDanger = variant === "danger";
+  const keepsStyleWhenDisabled = variant === "danger" || variant === "outline";
 
   const containerClass = isDisabled
-    ? isDanger
-      ? `${VARIANT_CONTAINER_CLASS.danger} opacity-50`
+    ? keepsStyleWhenDisabled
+      ? `${VARIANT_CONTAINER_CLASS[variant]} opacity-50`
       : "bg-disabled dark:bg-dk-elevated"
     : VARIANT_CONTAINER_CLASS[variant];
 
   const textClass = textClassName
     ? textClassName
-    : isDisabled && !isDanger
+    : isDisabled && !keepsStyleWhenDisabled
       ? "text-white"
       : VARIANT_TEXT_CLASS[variant];
 

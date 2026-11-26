@@ -1,7 +1,16 @@
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
-import { Image, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
+import {
+  Image,
+  type ImageSourcePropType,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
 import type { ViewOrigin } from "@/http/types";
 import { resolveViewOrigin } from "@/utils/viewTracking";
 
@@ -10,6 +19,8 @@ type AvatarSize = "xs" | "sm" | "md" | "md2" | "lg" | "xl";
 interface AvatarProps {
   name: string;
   src?: string;
+  /** Bundled / local image; takes precedence over `src`. */
+  source?: ImageSourcePropType;
   userId?: string;
   /** Background color Tailwind class used when there is no image. Defaults to `bg-brand`. */
   color?: string;
@@ -105,6 +116,7 @@ function AvatarContainer({
 export function Avatar({
   name,
   src,
+  source,
   userId,
   color = "bg-brand",
   size = "sm",
@@ -149,14 +161,24 @@ export function Avatar({
     );
   };
 
-  if (src) {
+  const imageSource: ImageSourcePropType | undefined = source
+    ? source
+    : src
+      ? { uri: resolveImageUrl(src) ?? undefined }
+      : undefined;
+
+  if (imageSource) {
     const imageAvatar = (
       <View
         style={avatarShellStyle}
         className={`${hasGradientRing ? "" : dimensionClass} shrink-0 items-center justify-center rounded-full bg-card dark:bg-dk-card`}
       >
         <View className="h-full w-full items-center justify-center overflow-hidden rounded-full">
-          <Image source={{ uri: resolveImageUrl(src) ?? undefined }} accessibilityLabel={name} className="h-[95%] w-[95%] rounded-full" />
+          <Image
+            source={imageSource}
+            accessibilityLabel={name}
+            className="h-[95%] w-[95%] rounded-full"
+          />
         </View>
       </View>
     );
