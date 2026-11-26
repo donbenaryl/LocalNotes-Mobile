@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { getBranchInsightsMembership } from '@/utils/insightsMembership';
 import { formatCompactNumber } from '@/utils/formatCompactNumber';
 import { formatIsoDate, formatPeriodLabel, parseIsoDate } from '@/utils/dateIso';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 import type {
   BusinessDiscoveryStatsDAO,
   StatsDateRangeParams,
@@ -275,7 +276,14 @@ export function useBusinessHomeData() {
     selectedBranch?.name?.trim() ||
     selectedBranch?.location?.city ||
     '';
-  const managerName = pickDisplayName(user?.fullName);
+  const managerName = pickDisplayName(
+    resolveUserLabels({
+      username: user?.username,
+      firstName: user?.firstName,
+      lastName: user?.lastName,
+      name: user?.fullName,
+    }).primary,
+  );
   const roleLabel = activeOwned?.role || 'Owner';
 
   const isLoading =

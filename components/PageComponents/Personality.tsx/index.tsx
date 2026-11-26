@@ -33,6 +33,7 @@ import {
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { hasPersonality } from "@/utils/personality";
 import { recordPersonalitySkip } from "@/utils/personalitySkips";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import {
   buildAnswersFromTraitScores,
   buildTouchedFromAnswers,
@@ -375,7 +376,14 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
                         <Globe size={34} color="#1F2937" strokeWidth={1.75} />
                       </View>
                       <Text className="font-geist-bold text-3xl text-white text-center">
-                        {user?.fullName ?? "User"}
+                        {
+                          resolveUserLabels({
+                            username: user?.username,
+                            firstName: user?.firstName,
+                            lastName: user?.lastName,
+                            name: user?.fullName,
+                          }).primary
+                        }
                       </Text>
                       <Text className="font-geist text-lg text-white/90 text-center mt-2">
                         {profile.tags}

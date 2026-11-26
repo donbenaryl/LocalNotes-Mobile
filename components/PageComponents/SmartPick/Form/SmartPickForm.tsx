@@ -15,6 +15,7 @@ import { PageSectionTitle } from '@/components/ui/PageSectionTitle';
 import type { searchUserDAO } from '@/http/account-api/types';
 import { LocationPickerChip } from '@/components/ui/LocationInputModal';
 import type { Location as GeoLocation } from '@/http/list-api/types';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 
 interface SmartPickFormProps {
   formState: SmartPickFormState;
@@ -153,7 +154,9 @@ export function SmartPickForm({
             numberOfLines={1}
           >
             {formState.linkedUsers.length > 0
-              ? formState.linkedUsers.map((user) => user.name).join(', ')
+              ? formState.linkedUsers
+                  .map((user) => resolveUserLabels(user).primary)
+                  .join(', ')
               : t('smartPick.justMe')}
           </Text>
           <Pressable

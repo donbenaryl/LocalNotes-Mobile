@@ -16,6 +16,7 @@ import type { ScreenRect } from "@/types/layout";
 import { brandColor } from "@/constants/colors";
 import { cn } from "@/utils/cn";
 import { resolveImageUrl } from "@/utils/httpHelpers";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 function getListShareImageUrl(list: ListItemDAO): string | null {
   const cover = resolveImageUrl(list.image_url);
@@ -313,7 +314,9 @@ export function ListEngagementRow({
         target={{ kind: "list", listId: list.id }}
         shareInfo={{
           title: list.name,
-          subtitle: list.account?.name,
+          subtitle: list.account
+            ? resolveUserLabels(list.account).primary
+            : undefined,
           imageUrl: getListShareImageUrl(list),
         }}
       />

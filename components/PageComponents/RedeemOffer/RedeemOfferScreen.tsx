@@ -28,6 +28,7 @@ import businessService from '@/http/business-api/business.service';
 import type { RedeemCodeLookupDAO } from '@/http/notes-api/types';
 import type { ThankYouRedeemLookupDAO } from '@/http/business-api/types';
 import { formatRelativeTime } from '@/utils/time';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 
 const REDEEMED_CODES_QUERY_KEY = 'redeemed-codes';
 const THANK_YOU_REDEEMED_QUERY_KEY = 'thank-you-redeemed-codes';
@@ -261,10 +262,9 @@ export default function RedeemOfferScreen() {
 
   const trimmed = code.trim().toUpperCase();
   const isUsed = Boolean(result?.used_at);
-  const customerLabel =
-    result?.customer?.first_name?.trim() ||
-    result?.customer?.username ||
-    t('redeemOffer.unknownCustomer');
+  const customerLabel = result?.customer
+    ? resolveUserLabels(result.customer, t('redeemOffer.unknownCustomer')).primary
+    : t('redeemOffer.unknownCustomer');
 
   const handleValidate = () => {
     if (!trimmed) {
@@ -355,11 +355,6 @@ export default function RedeemOfferScreen() {
               <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
                 {customerLabel}
               </Text>
-              {result.customer?.username ? (
-                <Text className="font-geist text-sm text-gray-500 dark:text-dk-muted">
-                  @{result.customer.username}
-                </Text>
-              ) : null}
             </View>
 
             <View>
@@ -433,10 +428,12 @@ export default function RedeemOfferScreen() {
           ) : (
             <View className="gap-2">
               {redeemedItems.map((item) => {
-                const name =
-                  item.customer?.first_name?.trim() ||
-                  item.customer?.username ||
-                  t('redeemOffer.unknownCustomer');
+                const displayName = item.customer
+                  ? resolveUserLabels(
+                      item.customer,
+                      t('redeemOffer.unknownCustomer'),
+                    ).primary
+                  : t('redeemOffer.unknownCustomer');
                 return (
                   <WhiteBox key={item.id} className="gap-1.5 p-4">
                     <Text className="font-geist-semibold text-base text-ink dark:text-dk-text">
@@ -446,8 +443,7 @@ export default function RedeemOfferScreen() {
                       {item.code}
                     </Text>
                     <Text className="font-geist text-sm text-gray-600 dark:text-dk-body">
-                      {name}
-                      {item.customer?.username ? ` (@${item.customer.username})` : ''}
+                      {displayName}
                     </Text>
                     {item.used_at ? (
                       <Text className="font-geist text-xs text-gray-500 dark:text-dk-muted">

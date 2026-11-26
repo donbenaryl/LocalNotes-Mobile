@@ -82,7 +82,9 @@ export function ListDetailsComments({
     mutationFn: async () => {
       const trimmedContent = commentText.trim();
       const mentionIds = pickedMentions
-        .filter((user) => trimmedContent.includes(`@${user.name}`))
+        .filter((user) =>
+          trimmedContent.includes(`@${resolveUserLabels(user).primary}`),
+        )
         .map((user) => user.id);
       const response = await listService.createListComment(
         list.id,

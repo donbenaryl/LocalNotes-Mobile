@@ -1,6 +1,7 @@
 import { Text } from "react-native";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import type { Account } from "@/http/list-api/types";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { resolveViewOrigin, withViewOrigin } from "@/utils/viewTracking";
 
 interface MentionedTextProps {
@@ -11,6 +12,10 @@ interface MentionedTextProps {
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function mentionTokenFor(account: Account): string {
+  return resolveUserLabels(account).primary;
 }
 
 export function MentionedText({
@@ -26,12 +31,18 @@ export function MentionedText({
     return <Text className={className}>{content}</Text>;
   }
 
-  // Longest names first, so e.g. a mentioned "John" doesn't shadow a
-  // separately-mentioned "John Smith" match.
-  const namesByLength = [...mentionedAccounts]
-    .sort((a, b) => b.name.length - a.name.length)
-    .map((account) => escapeRegExp(account.name));
-  const pattern = new RegExp(`@(${namesByLength.join("|")})`, "g");
+  // Longest tokens first, so shorter usernames don't shadow longer ones.
+  const tokensByLength = [...mentionedAccounts]
+    .map(mentionTokenFor)
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp);
+
+  if (tokensByLength.length === 0) {
+    return <Text className={className}>{content}</Text>;
+  }
+
+  const pattern = new RegExp(`@(${tokensByLength.join("|")})`, "g");
   const parts = content.split(pattern);
 
   return (
@@ -40,7 +51,9 @@ export function MentionedText({
         if (index % 2 === 0) {
           return <Text key={index}>{part}</Text>;
         }
-        const account = mentionedAccounts.find((a) => a.name === part);
+        const account = mentionedAccounts.find(
+          (a) => mentionTokenFor(a) === part,
+        );
         return (
           <Text
             key={index}

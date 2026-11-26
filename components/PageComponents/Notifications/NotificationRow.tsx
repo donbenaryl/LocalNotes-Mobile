@@ -15,6 +15,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
 import type { notificationItemDAO } from '@/http/account-api/types';
 import { formatRelativeTime } from '@/utils/time';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 
 interface NotificationRowProps {
   item: notificationItemDAO;
@@ -58,8 +59,9 @@ function getBadgeConfig(type: string): BadgeConfig {
 
 export function NotificationRow({ item, onPress }: NotificationRowProps) {
   const { t } = useTranslation();
-  const accountName =
-    item.related_account?.name ?? t('notifications.actions.someone');
+  const accountName = item.related_account
+    ? resolveUserLabels(item.related_account).primary
+    : t('notifications.actions.someone');
   const listName =
     item.related_list?.name ?? t('notifications.actions.aList');
   const badge = getBadgeConfig(item.notification_type);

@@ -134,7 +134,7 @@ export function ProfileActivityTab({ userId }: ProfileActivityTabProps) {
             <ProfileSimilarUserCard
               key={user.id}
               id={user.id}
-              name={user.name}
+              user={user}
               followers={user.followers_count}
               interactions={user.follows_summary}
               listCount={user.num_lists}

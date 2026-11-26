@@ -5,6 +5,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { WhiteBox } from "@/components/ui/WhiteBox";
 import { formatRelativeTime } from "@/utils/time";
 import { cn } from "@/utils/cn";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import type { ImportedReviewDAO } from "@/http/reviews-api/types";
 import { REVIEW_PROVIDER_BADGE } from "./ReviewSourceChips";
 
@@ -46,6 +47,10 @@ export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
     .filter(Boolean)
     .join(" · ");
   const editUrl = review.source_url || review.google_maps_url;
+  const authorLabel = resolveUserLabels({
+    username: review.author_username,
+    name: review.author_name,
+  }).primary;
 
   return (
     <WhiteBox className="mx-3.5 mb-2.5 p-3.5">
@@ -53,11 +58,11 @@ export function ProfileReviewCard({ review }: ProfileReviewCardProps) {
         <Avatar
           size="sm"
           src={review.author_profile_image_url ?? undefined}
-          name={review.author_name}
+          name={authorLabel}
         />
         <View className="min-w-0 flex-1">
           <Text className="font-geist-bold text-[13px] text-ink dark:text-dk-text">
-            {review.author_name}
+            {authorLabel}
             {review.author_personality_name ? (
               <Text className="font-geist-medium text-[11px] text-[#BA7517]">
                 {" "}

@@ -22,6 +22,7 @@ import { formatCityRegion } from "@/utils/followingFeed";
 import { resolveImageUrl } from "@/utils/httpHelpers";
 import { clampPercent, getMatchPercentColor } from "@/utils/matchScore";
 import { getPersonalityGradientColors, getPersonalityRoleColor } from "@/utils/personalityRing";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { cn } from "@/utils/cn";
 import { withViewOrigin } from "@/utils/viewTracking";
 
@@ -38,6 +39,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
   const { t } = useTranslation();
   const router = useRouter();
   const { colorScheme } = useColorScheme();
+  const displayName = resolveUserLabels(user).primary;
   const personalityName = user.personality_name?.trim() ?? "";
   const locationLabel = formatCityRegion(
     user.location
@@ -75,7 +77,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
     <Pressable
       onPress={openProfile}
       accessibilityRole="button"
-      accessibilityLabel={user.name}
+      accessibilityLabel={displayName}
       style={{ width }}
       className="cursor-pointer p-3.5 border border-gray-200 bg-soft dark:border-dk-border dark:bg-dk-card/60 rounded-2xl"
     >
@@ -83,7 +85,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
         <View className="min-w-0 flex-1 gap-2.5">
           <View className="flex-row items-center gap-2">
             <Avatar
-              name={user.name}
+              name={displayName}
               src={resolveImageUrl(user.profile_image) ?? undefined}
               size="sm"
               gradientColors={getPersonalityGradientColors(user.personality_color)}
@@ -92,7 +94,7 @@ function FreshPerspectiveCard({ user, width }: { user: similarCreatorItem; width
               className="min-w-0 flex-1 font-geist-bold text-sm text-ink dark:text-dk-text"
               numberOfLines={1}
             >
-              {user.name}
+              {displayName}
             </Text>
           </View>
 

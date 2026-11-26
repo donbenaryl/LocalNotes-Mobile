@@ -1,6 +1,7 @@
 export interface similarCreatorItem {
   id: string;
   name: string;
+  username?: string | null;
   profile_image: string;
   account_type: string;
   followers_count: number;

@@ -31,6 +31,9 @@ export function ListFormPickRow({ pick, onEdit, onDelete }: ListFormPickRowProps
       ? {
           id: user.id,
           name: user.fullName,
+          username: user.username,
+          first_name: user.firstName,
+          last_name: user.lastName,
           profile_image: user.profileImageUrl ?? null,
         }
       : null);

@@ -43,6 +43,7 @@ export interface PickImage {
 export interface PickUser {
   id: string;
   name: string;
+  username?: string | null;
   profile_image_url: string | null;
   personality_name: string | null;
   personality_color: unknown | null;

@@ -22,8 +22,15 @@ async function resolveSharedUsers(userIds: string[]): Promise<searchUserDAO[]> {
       try {
         const response = await accountService.fetchOtherUser(userId);
         const profile = response.data?.data;
-        if (profile?.name) {
-          return { id: userId, name: profile.name };
+        if (profile) {
+          return {
+            id: userId,
+            name: profile.name,
+            username: profile.username,
+            first_name: profile.first_name,
+            last_name: profile.last_name,
+            profile_image_url: profile.profile_image_url,
+          };
         }
       } catch {
         // Fall back to showing the raw id if profile lookup fails.

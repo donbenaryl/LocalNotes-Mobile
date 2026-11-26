@@ -2,10 +2,14 @@ import { Text, View } from "react-native";
 import { FollowButton } from "@/components/ui/FollowButton";
 import { Avatar } from "@/components/ui/Avatar";
 import { WhiteBox } from "@/components/ui/WhiteBox";
+import {
+  resolveUserLabels,
+  type UserNameFields,
+} from "@/utils/userDisplayName";
 
 interface ProfileSimilarUserCardProps {
   id: string;
-  name: string;
+  user: UserNameFields;
   followers: number;
   interactions: string;
   listCount: number;
@@ -14,24 +18,28 @@ interface ProfileSimilarUserCardProps {
 
 export function ProfileSimilarUserCard({
   id,
-  name,
+  user,
   followers,
   interactions,
   listCount,
   isFollowed,
 }: ProfileSimilarUserCardProps) {
+  const displayName = resolveUserLabels(user).primary;
+
   return (
     <WhiteBox>
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-3 flex-1">
           <Avatar
-            name={name}
+            name={displayName}
             size="sm"
             userId={id}
             viewOrigin="recommendation"
           />
           <View className="flex-1 min-w-0">
-            <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">{name}</Text>
+            <Text className="font-geist-medium text-sm text-ink dark:text-dk-text">
+              {displayName}
+            </Text>
             <Text className="text-xs text-gray-500 dark:text-dk-muted">
               {followers.toLocaleString()} follower{followers !== 1 ? "s" : ""}
             </Text>

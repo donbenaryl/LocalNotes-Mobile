@@ -15,6 +15,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { PageLoader } from "@/components/ui/PageLoader";
 import accountService from "@/http/account-api/account.services";
 import type { MentionSearchResultItem } from "@/http/account-api/types";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 interface MentionTextInputProps {
   value: string;
@@ -92,7 +93,8 @@ export function MentionTextInput({
   };
 
   const handleSelectMention = (user: MentionSearchResultItem) => {
-    const mentionText = `@${user.name} `;
+    const mentionToken = resolveUserLabels(user).primary;
+    const mentionText = `@${mentionToken} `;
     const newText =
       value.slice(0, mentionStart) + mentionText + value.slice(selection.start);
     const newCursor = mentionStart + mentionText.length;
@@ -128,33 +130,28 @@ export function MentionTextInput({
             </View>
           ) : (
             <ScrollView className="max-h-40" nestedScrollEnabled>
-              {results.map((user) => (
-                <Pressable
-                  key={user.id}
-                  onPress={() => handleSelectMention(user)}
-                  className="cursor-pointer flex-row items-center gap-2.5 px-3 py-2"
-                >
-                  <Avatar
-                    name={user.name}
-                    src={user.profile_image_url ?? undefined}
-                    size="xs"
-                  />
-                  <View className="min-w-0 flex-1">
+              {results.map((user) => {
+                const displayName = resolveUserLabels(user).primary;
+                return (
+                  <Pressable
+                    key={user.id}
+                    onPress={() => handleSelectMention(user)}
+                    className="cursor-pointer flex-row items-center gap-2.5 px-3 py-2"
+                  >
+                    <Avatar
+                      name={displayName}
+                      src={user.profile_image_url ?? undefined}
+                      size="xs"
+                    />
                     <Text
                       numberOfLines={1}
-                      className="font-geist-medium text-xs text-ink dark:text-dk-text"
+                      className="min-w-0 flex-1 font-geist-medium text-xs text-ink dark:text-dk-text"
                     >
-                      {user.name}
+                      {displayName}
                     </Text>
-                    <Text
-                      numberOfLines={1}
-                      className="font-geist text-[11px] text-gray-400"
-                    >
-                      @{user.username}
-                    </Text>
-                  </View>
-                </Pressable>
-              ))}
+                  </Pressable>
+                );
+              })}
             </ScrollView>
           )}
         </View>

@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { PageHeader } from "@/components/ui/PageHeader";
 import accountService from "@/http/account-api/account.services";
 import { useToastStore } from "@/stores/useToastStore";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 
 export default function BlockedUsersSettings() {
   const { t } = useTranslation();
@@ -71,6 +72,7 @@ export default function BlockedUsersSettings() {
               const isUnblocking =
                 unblockMutation.isPending &&
                 unblockMutation.variables === user.id;
+              const displayName = resolveUserLabels(user).primary;
               return (
                 <View
                   key={user.id}
@@ -81,7 +83,7 @@ export default function BlockedUsersSettings() {
                   }`}
                 >
                   <Avatar
-                    name={user.name}
+                    name={displayName}
                     src={user.profile_image_url ?? undefined}
                     userId={user.id}
                     size="md"
@@ -91,7 +93,7 @@ export default function BlockedUsersSettings() {
                       className="font-geist-semibold text-[15px] text-ink dark:text-dk-text"
                       numberOfLines={1}
                     >
-                      {user.name}
+                      {displayName}
                     </Text>
                   </View>
                   <Pressable

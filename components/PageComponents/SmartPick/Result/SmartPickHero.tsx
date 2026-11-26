@@ -12,6 +12,7 @@ import { mapSmartPickResultToPickDraft } from '@/utils/listPickMappers';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import { getPersonalityGradientColors } from '@/utils/personalityRing';
 import { openInMaps } from '@/utils/smartPick';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 import type { ConversationResult } from '@/http/smart-pick-api/types';
 import { SmartPickMatchPill } from './SmartPickMatchPill';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -117,7 +118,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
         {pick?.user ? (
           <View className="flex-row items-center gap-2">
             <Avatar
-              name={pick.user.name}
+              name={resolveUserLabels(pick.user).primary}
               src={pick.user.profile_image_url ?? undefined}
               size="xs"
               gradientColors={getPersonalityGradientColors(
@@ -125,7 +126,9 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
               )}
             />
             <Text className="font-geist text-[11.5px] text-gray-500 dark:text-dk-muted">
-              {t('smartPick.curatedBy', { name: pick.user.name })}
+              {t('smartPick.curatedBy', {
+                name: resolveUserLabels(pick.user).primary,
+              })}
             </Text>
           </View>
         ) : null}

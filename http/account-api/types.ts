@@ -279,6 +279,7 @@ type RelatedAccount = {
   account_is_followed: boolean;
   id: string;
   name: string;
+  username?: string | null;
   profile_image: string | null;
 };
 

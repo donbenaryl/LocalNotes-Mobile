@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { HeartHandshake } from 'lucide-react-native';
 import { WhiteBox } from '@/components/ui/WhiteBox';
 import type { ThankYouRecipientDAO } from '@/http/business-api/types';
+import { resolveUserLabels } from '@/utils/userDisplayName';
 
 function RecipientRow({ recipient }: { recipient: ThankYouRecipientDAO }) {
   const { t } = useTranslation();
+  const displayName = resolveUserLabels(recipient).primary;
 
   const actionLabel =
     recipient.action === 'pickedYouMentioned' && recipient.mention
@@ -19,7 +21,7 @@ function RecipientRow({ recipient }: { recipient: ThankYouRecipientDAO }) {
       ? t('thankYou.who.relative.daysAgo', { count: recipient.days_ago })
       : null;
 
-  const initial = (recipient.name.trim().charAt(0) || '?').toUpperCase();
+  const initial = (displayName.trim().charAt(0) || '?').toUpperCase();
 
   return (
     <View className="flex-row items-center gap-3 py-2">
@@ -31,7 +33,7 @@ function RecipientRow({ recipient }: { recipient: ThankYouRecipientDAO }) {
           className="font-geist-semibold text-sm text-ink dark:text-dk-text"
           numberOfLines={1}
         >
-          {recipient.name}
+          {displayName}
         </Text>
         <Text
           className="font-geist text-xs leading-4 text-gray-500 dark:text-dk-muted"

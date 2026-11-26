@@ -11,6 +11,7 @@ import {
   getPersonalityRoleColor,
 } from "@/utils/personalityRing";
 import { getMatchPercentColor, getPeopleMatchPercent } from "@/utils/matchScore";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import { withViewOrigin } from "@/utils/viewTracking";
 
 interface PeopleCardProps {
@@ -26,6 +27,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
   const roleColor = getPersonalityRoleColor(role);
   const matchColor = getMatchPercentColor(matchValue ?? 0);
   const gradientColors = getPersonalityGradientColors(data.personality_color);
+  const displayName = resolveUserLabels(data).primary;
   const blurb =
     data.personality_description?.trim() || data.bio?.trim() || "";
   const avatarSrc = data.profile_image_url
@@ -49,7 +51,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
       <WhiteBox className="gap-2 p-3">
         <View className="flex-row items-start gap-3">
           <Avatar
-            name={data.name}
+            name={displayName}
             src={avatarSrc}
             userId={data.id}
             viewOrigin="search"
@@ -64,7 +66,7 @@ export function PeopleCard({ data, onPress }: PeopleCardProps) {
                   className="font-geist-bold text-[13.5px] text-ink dark:text-dk-text"
                   numberOfLines={1}
                 >
-                  {data.name}
+                  {displayName}
                 </Text>
                 {role ? (
                   <Text

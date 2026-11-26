@@ -31,6 +31,7 @@ import { resolveImageUrl } from "@/utils/httpHelpers";
 import { openInMaps } from "@/utils/smartPick";
 import { isOthersCategoryName } from "@/utils/listCategories";
 import { getEmbeddedMatchPercent } from "@/utils/matchScore";
+import { resolveUserLabels } from "@/utils/userDisplayName";
 import listService from "@/http/list-api/list.service";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import { Badge } from "@/components/ui/Badge";
@@ -128,7 +129,9 @@ function AppearsInListCard({ list, onPress }: AppearsInListCardProps) {
           {list.name}
         </Text>
         <Text className="mt-1 text-xs text-gray-500 dark:text-dk-muted">
-          {t("profile.picks.byAuthor", { name: list.account.name })}
+          {t("profile.picks.byAuthor", {
+            name: resolveUserLabels(list.account).primary,
+          })}
         </Text>
       </View>
 
