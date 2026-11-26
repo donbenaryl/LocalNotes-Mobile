@@ -71,6 +71,14 @@ export async function authorizeGoogleReviews(): Promise<GoogleReviewsAuthResult>
     if (result.type === "cancel" || result.type === "dismiss") {
       throw new Error("Google connection was cancelled");
     }
+    if (result.type === "error") {
+      const detail =
+        result.params?.error_description ||
+        result.params?.error ||
+        result.error?.message ||
+        "";
+      throw new Error(detail || "Google returned an error");
+    }
     throw new Error("Google did not return an authorization code");
   }
 

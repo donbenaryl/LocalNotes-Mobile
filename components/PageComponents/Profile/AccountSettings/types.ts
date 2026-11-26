@@ -74,9 +74,9 @@ export const DEFAULT_PRIVACY_PREFS: PrivacyPrefs = {
 /** Unconnected defaults — live status comes from GET /api/reviews/connections. */
 export const DEFAULT_CONNECTED_PROVIDERS: ConnectedProvider[] = [
   { id: 'google', connected: false },
-  { id: 'yelp', connected: false, comingSoon: true },
-  { id: 'amazon', connected: false, comingSoon: true },
-  { id: 'tripadvisor', connected: false, comingSoon: true },
+  { id: 'yelp', connected: false },
+  { id: 'amazon', connected: false },
+  { id: 'tripadvisor', connected: false },
 ];
 
 export const DEFAULT_ACCOUNT_SETTINGS: AccountSettingsPrefs = {

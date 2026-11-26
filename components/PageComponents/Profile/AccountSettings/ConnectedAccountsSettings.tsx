@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -6,12 +6,15 @@ import { AppScrollView } from '@/components/ui/AppScrollView';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageSectionTitle } from '@/components/ui/PageSectionTitle';
 import { ConnectedAccountCard } from './ConnectedAccountCard';
+import { LinkProfileSheet } from './LinkProfileSheet';
 import type { ConnectedProviderId } from './types';
 import {
   useConnectGoogleReviews,
   useDisconnectGoogleReviews,
+  useDisconnectProvider,
   useReviewConnections,
 } from '@/hooks/useProfileReviews';
+import type { ProfileLinkProviderId } from '@/http/reviews-api/types';
 import { authorizeGoogleReviews } from '@/services/googleReviewsAuth';
 import { formatRelativeTime } from '@/utils/time';
 import { useToastStore } from '@/stores/useToastStore';
@@ -30,6 +33,11 @@ export default function ConnectedAccountsSettings() {
   const { data: connections = [], isPending, refetch } = useReviewConnections();
   const connectMutation = useConnectGoogleReviews();
   const disconnectMutation = useDisconnectGoogleReviews();
+  const disconnectProviderMutation = useDisconnectProvider();
+  const [linkProvider, setLinkProvider] =
+    useState<ProfileLinkProviderId | null>(null);
+  const [disconnectingProvider, setDisconnectingProvider] =
+    useState<ConnectedProviderId | null>(null);
 
   const providers = useMemo(() => {
     const byId = Object.fromEntries(
@@ -48,7 +56,9 @@ export default function ConnectedAccountsSettings() {
         reviewCount: row?.review_count ?? undefined,
         lastSyncedAt: row?.last_synced_at ?? undefined,
         syncStatus: row?.sync_status ?? undefined,
-        comingSoon: row?.coming_soon ?? id !== 'google',
+        pendingVerification: row?.pending_verification ?? false,
+        // The server decides which providers are enabled.
+        comingSoon: row?.coming_soon ?? false,
       };
     });
   }, [connections]);
@@ -61,6 +71,9 @@ export default function ConnectedAccountsSettings() {
       const provider = providers.find((p) => p.id === id);
       if (provider?.comingSoon) {
         return t(`accountSettings.connectedAccounts.${id}Hint`);
+      }
+      if (!connectedFlag && provider?.pendingVerification) {
+        return t('accountSettings.connectedAccounts.pendingVerification');
       }
       if (
         connectedFlag &&
@@ -127,6 +140,20 @@ export default function ConnectedAccountsSettings() {
     } catch (error) {
       const message =
         error instanceof Error ? error.message : String(error ?? '');
+      const lower = message.toLowerCase();
+      if (
+        lower.includes('country') ||
+        lower.includes('region') ||
+        lower.includes('not available') ||
+        lower.includes('access_denied')
+      ) {
+        showToast({
+          type: 'error',
+          message: t('accountSettings.connectedAccounts.googleRegionUnsupported'),
+          duration: 8000,
+        });
+        return;
+      }
       if (
         message.toLowerCase().includes('cancel') ||
         message.toLowerCase().includes('dismiss')
@@ -151,20 +178,53 @@ export default function ConnectedAccountsSettings() {
     t,
   ]);
 
+  const handleDisconnectProvider = useCallback(
+    async (id: ProfileLinkProviderId) => {
+      setDisconnectingProvider(id);
+      try {
+        await disconnectProviderMutation.mutateAsync(id);
+        showToast({
+          type: 'success',
+          message: t('accountSettings.connectedAccounts.disconnect'),
+        });
+        void refetch();
+      } catch {
+        showToast({
+          type: 'error',
+          message: t('accountSettings.connectedAccounts.disconnectError'),
+        });
+      } finally {
+        setDisconnectingProvider(null);
+      }
+    },
+    [disconnectProviderMutation, refetch, showToast, t],
+  );
+
   const handlePress = useCallback(
     (id: ConnectedProviderId) => {
       if (id === 'google') {
         void handleGooglePress();
+        return;
+      }
+      const provider = providers.find((p) => p.id === id);
+      if (!provider || provider.comingSoon) return;
+      if (provider.connected) {
+        void handleDisconnectProvider(id);
+      } else {
+        setLinkProvider(id);
       }
     },
-    [handleGooglePress],
+    [handleDisconnectProvider, handleGooglePress, providers],
   );
 
-  const busyProvider: ConnectedProviderId | null = connectMutation.isPending
-    ? 'google'
-    : disconnectMutation.isPending
+  const busyProvider: ConnectedProviderId | null =
+    connectMutation.isPending || disconnectMutation.isPending
       ? 'google'
-      : null;
+      : disconnectingProvider;
+
+  const linkConnection = linkProvider
+    ? connections.find((c) => c.provider === linkProvider)
+    : undefined;
 
   return (
     <View className="flex-1 bg-page dark:bg-dk-page">
@@ -238,6 +298,15 @@ export default function ConnectedAccountsSettings() {
           </Text>
         </View>
       </AppScrollView>
+
+      {linkProvider ? (
+        <LinkProfileSheet
+          visible
+          provider={linkProvider}
+          connection={linkConnection}
+          onClose={() => setLinkProvider(null)}
+        />
+      ) : null}
     </View>
   );
 }

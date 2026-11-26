@@ -2,6 +2,8 @@ import { AppHttpService } from "..";
 import type {
   GoogleConnectDTO,
   ImportedReviewDAO,
+  ProfileLinkProviderId,
+  ProfileLinkStartDTO,
   ReviewConnectionDAO,
   ReviewProviderId,
   ReviewSummaryDAO,
@@ -36,6 +38,32 @@ class ReviewsService extends AppHttpService {
     });
   }
 
+  async startProfileLink(
+    provider: ProfileLinkProviderId,
+    body: ProfileLinkStartDTO,
+  ) {
+    return await this.SendRequest<ReviewConnectionDAO>({
+      method: "post",
+      path: `/connections/${provider}/start`,
+      body,
+    });
+  }
+
+  async verifyProfileLink(provider: ProfileLinkProviderId) {
+    return await this.SendRequest<ReviewConnectionDAO>({
+      method: "post",
+      path: `/connections/${provider}/verify`,
+      body: {},
+    });
+  }
+
+  async disconnectProvider(provider: ProfileLinkProviderId) {
+    return await this.SendRequest<ReviewConnectionDAO>({
+      method: "delete",
+      path: `/connections/${provider}`,
+    });
+  }
+
   async fetchReviews(query?: {
     user_id?: string;
     provider?: ReviewProviderId;
@@ -56,10 +84,11 @@ class ReviewsService extends AppHttpService {
     });
   }
 
-  async syncReviews() {
+  async syncReviews(provider: ReviewProviderId = "google") {
     return await this.SendRequest<ReviewConnectionDAO>({
       method: "post",
       path: "/sync",
+      body: { provider },
       options: { throwError: true },
     });
   }

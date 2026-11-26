@@ -97,7 +97,7 @@ export function ProfileReviewsTab({
     const ageMs = Date.now() - last;
     if (ageMs > 24 * 60 * 60 * 1000 && !syncMutation.isPending) {
       try {
-        await syncMutation.mutateAsync();
+        await syncMutation.mutateAsync('google');
       } catch {
         // 429 / network — list refetch already happened.
       }

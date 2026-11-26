@@ -10,6 +10,19 @@ export interface ReviewConnectionDAO {
   sync_status?: ReviewSyncStatus | null;
   last_error?: string | null;
   coming_soon?: boolean;
+  /** Profile-link providers: ownership proven (always true for Google when connected). */
+  verified?: boolean;
+  /** Profile link started; waiting for the user to place the code in their bio. */
+  pending_verification?: boolean;
+  verification_code?: string | null;
+  profile_url?: string | null;
+  display_name?: string | null;
+}
+
+export type ProfileLinkProviderId = Exclude<ReviewProviderId, "google">;
+
+export interface ProfileLinkStartDTO {
+  profile_url: string;
 }
 
 export interface ImportedReviewDAO {
