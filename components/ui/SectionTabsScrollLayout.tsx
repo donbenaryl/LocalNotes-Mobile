@@ -44,6 +44,8 @@ const REVEAL_TIMING = {
 const REVEAL_SLACK_PX = 8;
 /** Hide hysteresis band — same 32px gap as profile chrome (300/260). */
 const HIDE_SLACK_PX = 40;
+/** iOS: gap between pinned tabs and first content, kept in the content inset (not the opaque chrome). */
+const TABS_CONTENT_GAP = 16;
 
 interface SectionTabsScrollLayoutProps {
   sectionId: SectionId;
@@ -263,7 +265,7 @@ function IosSectionTabsScrollLayout({
           onActiveIdChange={handleTabChange}
           onActiveScrollRef={handleActiveScrollRef}
           onScrollY={onScrollY}
-          contentInsetTop={chromeHeight}
+          contentInsetTop={chromeHeight + TABS_CONTENT_GAP}
           scrollY={scrollY}
         />
       </View>
@@ -275,7 +277,7 @@ function IosSectionTabsScrollLayout({
           <GuardedHeader />
         </View>
         <View
-          className="bg-page px-4 pb-4 pt-2 dark:bg-dk-page"
+          className="bg-page px-4 pt-2 dark:bg-dk-page"
           onLayout={handleTabsLayout}
         >
           <Tabs
