@@ -20,10 +20,14 @@ export function useSimilarScores(userId: string, enabled = true) {
   });
 
   const similarScores = data ?? undefined;
+  const tasteMatchBlurb =
+    similarScores?.reason?.reasons?.find((r) => Boolean(r?.message))?.message ??
+    null;
 
   return {
     similarScores,
     matchPercent: getMatchPercentFromSimilarity(similarScores ?? null),
+    tasteMatchBlurb,
     isLoading: isPending,
     isError,
   };

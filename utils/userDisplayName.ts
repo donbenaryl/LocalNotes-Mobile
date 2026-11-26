@@ -21,12 +21,18 @@ export type UserDisplayLabels = {
   secondary: string | null;
 };
 
+function capitalizeName(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
 function firstNameOf(user: UserNameFields): string {
-  return (user.first_name ?? user.firstName ?? '').trim();
+  return capitalizeName(user.first_name ?? user.firstName ?? '');
 }
 
 function lastNameOf(user: UserNameFields): string {
-  return (user.last_name ?? user.lastName ?? '').trim();
+  return capitalizeName(user.last_name ?? user.lastName ?? '');
 }
 
 export function formatRealName(user: UserNameFields): string | null {

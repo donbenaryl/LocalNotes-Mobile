@@ -1,15 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
-import { Calendar, MapPin } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/ui/Avatar';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
-import {
-  StatsSection,
-  type StatsSectionItem,
-} from '@/components/ui/StatsSection';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
 import { FeaturedInCard } from '@/components/PageComponents/Profile/FeaturedInCard';
 import { FollowersFollowingModal } from '@/components/PageComponents/Profile/FollowersFollowingModal';
@@ -24,10 +21,8 @@ import {
 import { getMatchPercentColor } from '@/utils/matchScore';
 import { isInferredPersonality } from '@/utils/personality';
 import { resolveImageUrl } from '@/utils/httpHelpers';
-import {
-  hasRealName,
-  resolveUserLabels,
-} from '@/utils/userDisplayName';
+import { resolveUserLabels } from '@/utils/userDisplayName';
+import { cn } from '@/utils/cn';
 import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
 import type { BusinessItemDAO, BusinessLocation } from '@/http/business-api/types';
 
@@ -37,7 +32,13 @@ interface ProfileInfoProps {
   isOwnProfile?: boolean;
 }
 
-const BIO_COLLAPSE_LINES = 3;
+interface CompactStatItem {
+  value: string;
+  label: string;
+  onPress?: () => void;
+}
+
+const BIO_COLLAPSE_LINES = 2;
 
 function formatStatCount(value: number | string | undefined): string {
   const n = typeof value === 'string' ? Number(value) : (value ?? 0);
@@ -53,12 +54,6 @@ function formatStatCount(value: number | string | undefined): string {
   return String(Math.round(n));
 }
 
-function formatJoinedYear(createdAt?: string): string | null {
-  if (!createdAt) return null;
-  const year = new Date(createdAt).getFullYear();
-  return Number.isFinite(year) ? String(year) : null;
-}
-
 function formatLocationLabel(
   location: AccountLocationDTO | BusinessLocation | null | undefined,
 ): string {
@@ -66,43 +61,118 @@ function formatLocationLabel(
   return location.city || location.region || location.country || '';
 }
 
-function hexToRgba(hex: string, alpha: number): string {
-  const normalized = hex.replace('#', '');
-  if (normalized.length !== 6) return `rgba(15, 139, 126, ${alpha})`;
-  const r = Number.parseInt(normalized.slice(0, 2), 16);
-  const g = Number.parseInt(normalized.slice(2, 4), 16);
-  const b = Number.parseInt(normalized.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+function CompactStatsRow({
+  items,
+  className,
+}: {
+  items: CompactStatItem[];
+  className?: string;
+}) {
+  return (
+    <View className={cn('flex-row items-baseline', className)}>
+      {items.map((item, index) => {
+        const content = (
+          <Text className="font-geist text-[13px] text-gray-400 dark:text-dk-faint">
+            <Text className="font-geist-bold text-ink dark:text-dk-text">
+              {item.value}
+            </Text>
+            {` ${item.label}`}
+          </Text>
+        );
+
+        return (
+          <View
+            key={`${item.label}-${index}`}
+            className="min-w-0 flex-1 items-center"
+          >
+            {item.onPress ? (
+              <Pressable
+                onPress={item.onPress}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.value} ${item.label}`}
+                className="active:opacity-70"
+                hitSlop={6}
+              >
+                {content}
+              </Pressable>
+            ) : (
+              content
+            )}
+          </View>
+        );
+      })}
+    </View>
+  );
 }
 
 function ExpandableBio({ bio }: { bio: string }) {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [expanded, setExpanded] = useState(false);
-  const [truncated, setTruncated] = useState(false);
+  const [canExpand, setCanExpand] = useState(false);
+  // Match MainProfile page background so the fade + "more" chip blend in.
+  const fadeColors = isDark
+    ? (['rgba(22, 20, 18, 0)', 'rgba(22, 20, 18, 1)'] as const)
+    : (['rgba(247, 243, 236, 0)', 'rgba(247, 243, 236, 1)'] as const);
+
+  useEffect(() => {
+    setExpanded(false);
+    setCanExpand(false);
+  }, [bio]);
 
   return (
     <View className="mt-3">
       <Text
-        className="font-geist text-sm leading-[1.45] text-gray-600 dark:text-dk-body"
-        numberOfLines={expanded ? undefined : BIO_COLLAPSE_LINES}
+        className="absolute left-0 right-0 font-geist text-sm leading-[1.45] opacity-0"
+        pointerEvents="none"
         onTextLayout={(event) => {
-          if (expanded || truncated) return;
-          if (event.nativeEvent.lines.length >= BIO_COLLAPSE_LINES) {
-            setTruncated(true);
-          }
+          const next = event.nativeEvent.lines.length > BIO_COLLAPSE_LINES;
+          setCanExpand((prev) => (prev === next ? prev : next));
         }}
       >
         {bio}
       </Text>
-      {truncated ? (
+      <View className="relative">
+        <Text
+          className="font-geist text-sm leading-[1.45] text-ink dark:text-dk-text"
+          numberOfLines={expanded ? undefined : BIO_COLLAPSE_LINES}
+        >
+          {bio}
+        </Text>
+        {canExpand && !expanded ? (
+          <View
+            pointerEvents="box-none"
+            className="absolute bottom-0 right-0 flex-row items-end"
+          >
+            <LinearGradient
+              colors={[...fadeColors]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ width: 28, height: 18 }}
+            />
+            <Pressable
+              onPress={() => setExpanded(true)}
+              accessibilityRole="button"
+              hitSlop={6}
+              className="bg-page pl-0.5 active:opacity-70 dark:bg-dk-page"
+            >
+              <Text className="font-geist-bold text-sm text-ink dark:text-dk-text">
+                {t('profile.info.bioMore')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
+      </View>
+      {canExpand && expanded ? (
         <Pressable
-          onPress={() => setExpanded((prev) => !prev)}
+          onPress={() => setExpanded(false)}
           accessibilityRole="button"
           hitSlop={6}
           className="mt-0.5 self-start active:opacity-70"
         >
           <Text className="font-geist-bold text-sm text-ink dark:text-dk-text">
-            {expanded ? t('profile.info.bioLess') : t('profile.info.bioMore')}
+            {t('profile.info.bioLess')}
           </Text>
         </Pressable>
       ) : null}
@@ -127,7 +197,7 @@ function BusinessProfileInfo({
     business.branches?.[0]?.location ?? business.location,
   );
 
-  const stats: StatsSectionItem[] = useMemo(
+  const stats: CompactStatItem[] = useMemo(
     () => [
       {
         value: formatStatCount(business.list_count),
@@ -179,6 +249,8 @@ function BusinessProfileInfo({
           </View>
         </View>
 
+        <CompactStatsRow items={stats} className="mt-4" />
+
         {business.bio ? <ExpandableBio bio={business.bio} /> : null}
 
         {locationLabel ? (
@@ -192,8 +264,6 @@ function BusinessProfileInfo({
             </Text>
           </View>
         ) : null}
-
-        <StatsSection items={stats} className="mt-4" />
       </View>
 
       {avatarImageUri ? (
@@ -216,23 +286,21 @@ function UserProfileInfo({
 }) {
   const { t } = useTranslation();
   const router = useRouter();
-  const { colorScheme } = useColorScheme();
   const authAccountType = useAuthStore((s) => s.accountType);
-  const isDark = colorScheme === 'dark';
   const accountType = profile.account_type ?? authAccountType ?? undefined;
   const gradientColors = getPersonalityGradientColors(profile.personality_color);
   const accentColor = getDominantPersonalityColor(profile.personality_color);
-  const mutedIconColor = isDark ? '#A79E92' : '#9EA4AF';
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
   const [followModalVisible, setFollowModalVisible] = useState(false);
   const [followModalTab, setFollowModalTab] =
     useState<FollowListTab>('followers');
   const avatarImageUri = resolveImageUrl(profile.profile_image_url);
-  const { matchPercent, isLoading: isMatchLoading } = useSimilarScores(
-    profile.id ?? '',
-    !isOwnProfile && Boolean(profile.id),
-  );
+  const {
+    matchPercent,
+    tasteMatchBlurb,
+    isLoading: isMatchLoading,
+  } = useSimilarScores(profile.id ?? '', !isOwnProfile && Boolean(profile.id));
   const {
     showBusinessSections,
     listCount: featuredListCount,
@@ -242,10 +310,7 @@ function UserProfileInfo({
   const showTasteMatch = !isOwnProfile && !isMatchLoading && matchPercent != null;
   const matchColor = getMatchPercentColor(matchPercent ?? 0);
 
-  const locationLabel = formatLocationLabel(profile.location);
-  const joinedYear = formatJoinedYear(profile.created_at);
-
-  const stats: StatsSectionItem[] = useMemo(
+  const stats: CompactStatItem[] = useMemo(
     () => [
       {
         value: formatStatCount(profile.list_count),
@@ -287,6 +352,7 @@ function UserProfileInfo({
   );
 
   const labels = resolveUserLabels(profile, t('common.user'));
+  const blurb = tasteMatchBlurb ?? t('profile.info.tasteMatchBlurb');
 
   return (
     <>
@@ -315,13 +381,19 @@ function UserProfileInfo({
             ) : null}
 
             {profile.personality_name ? (
-              <Text
-                className="mt-0.5 font-fraunces text-[15px] italic"
-                style={{ color: accentColor }}
-                numberOfLines={1}
-              >
-                {profile.personality_name}
-              </Text>
+              <View className="mt-0.5 flex-row items-center gap-1.5">
+                <View
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: accentColor }}
+                />
+                <Text
+                  className="shrink font-fraunces text-[15px] italic"
+                  style={{ color: accentColor }}
+                  numberOfLines={1}
+                >
+                  {profile.personality_name}
+                </Text>
+              </View>
             ) : null}
             {profile.personality_name && isInferredPersonality(profile.personality_source) ? (
               <Text className="mt-0.5 font-geist-medium text-[11.5px] text-gray-400 dark:text-dk-faint">
@@ -343,33 +415,21 @@ function UserProfileInfo({
           </View>
         </View>
 
+        <CompactStatsRow items={stats} className="mt-4" />
+
         {profile.bio ? <ExpandableBio bio={profile.bio} /> : null}
 
-        {joinedYear || locationLabel ? (
-          <View className="mt-2 gap-1">
-            {joinedYear ? (
-              <View className="flex-row items-center gap-1.5">
-                <Calendar size={12} color={mutedIconColor} />
-                <Text className="font-geist-medium text-[12.5px] text-gray-400 dark:text-dk-faint">
-                  {t('profile.info.joined', { year: joinedYear })}
-                </Text>
-              </View>
-            ) : null}
-            {locationLabel ? (
-              <View className="flex-row items-center gap-1.5">
-                <MapPin size={12} color={mutedIconColor} />
-                <Text
-                  className="font-geist-medium text-[12.5px] text-gray-400 dark:text-dk-faint"
-                  numberOfLines={1}
-                >
-                  {locationLabel}
-                </Text>
-              </View>
-            ) : null}
-          </View>
+        {showTasteMatch ? (
+          <Text className="mt-2.5 font-geist text-[13px] leading-[1.4]">
+            <Text className="font-geist-bold" style={{ color: matchColor }}>
+              {t('home.forYou.tasteMatch', { percent: matchPercent ?? 0 })}
+            </Text>
+            <Text className="text-gray-400 dark:text-dk-faint">
+              {' · '}
+              {blurb}
+            </Text>
+          </Text>
         ) : null}
-
-        <StatsSection items={stats} className="mt-4" />
 
         {showBusinessSections ? (
           <>
@@ -380,32 +440,6 @@ function UserProfileInfo({
               topTypes={topTypes}
             />
           </>
-        ) : null}
-
-        {showTasteMatch ? (
-          <View className="mt-3 flex-row items-start gap-2.5 rounded-2xl border border-gray-200 bg-card px-3.5 py-3 dark:border-dk-border dark:bg-dk-card">
-            <View
-              className="mt-0.5 h-4 w-4 items-center justify-center rounded-full"
-              style={{ backgroundColor: hexToRgba(matchColor, 0.2) }}
-            >
-              <View
-                className="h-2 w-2 rounded-full"
-                style={{ backgroundColor: matchColor }}
-              />
-            </View>
-            <Text className="min-w-0 flex-1 font-geist text-[13px] leading-[1.4]">
-              <Text
-                className="font-geist-bold"
-                style={{ color: matchColor }}
-              >
-                {t('home.forYou.tasteMatch', { percent: matchPercent ?? 0 })}
-              </Text>
-              <Text className="text-gray-600 dark:text-dk-muted">
-                {' — '}
-                {t('profile.info.tasteMatchBlurb')}
-              </Text>
-            </Text>
-          </View>
         ) : null}
       </View>
 

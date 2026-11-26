@@ -14,6 +14,12 @@ export interface similarCreatorItem {
   match?: number;
 }
 
+export interface SimilarityReason {
+  type: string;
+  message: string;
+  count?: number;
+}
+
 export interface similarUserScore{
   personality_similarity:number;
   taste_similarity:number;
@@ -21,7 +27,7 @@ export interface similarUserScore{
   overall_similarity:number;
   reason:{
     overall_score:number;
-    reasons:[]
+    reasons: SimilarityReason[];
   };
   last_calculated:Date;
 }
