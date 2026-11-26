@@ -13,6 +13,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppScrollView } from "@/components/ui/AppScrollView";
 import { PageLoader } from "@/components/ui/PageLoader";
 import { LinearGradient } from "expo-linear-gradient";
@@ -66,6 +67,7 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
     ref,
   ) {
     const { t } = useTranslation();
+    const insets = useSafeAreaInsets();
     const user = useAuthStore((state) => state.user);
     const [phase, setPhase] = useState<PersonalityPhase>("choice");
     const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -211,7 +213,7 @@ export const Personality = forwardRef<PersonalityHandle, PersonalityProps>(
       <>
         <AppScrollView
           className="flex-1 px-6 mt-4"
-          contentContainerStyle={{ paddingBottom: 90 }}
+          contentContainerStyle={{ paddingBottom: 90 + insets.bottom }}
           showsVerticalScrollIndicator={false}
         >
           {showInferredHint ? (

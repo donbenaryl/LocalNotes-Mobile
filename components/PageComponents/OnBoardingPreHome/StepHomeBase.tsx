@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppScrollView } from "@/components/ui/AppScrollView";
 import { LocationInput } from "@/components/ui/LocationInput";
 import { PageTitleHeading } from "@/components/ui/PageTitleHeading";
@@ -10,11 +11,12 @@ interface StepHomeBaseProps {
 
 export function StepHomeBase({ onLocationSelect }: StepHomeBaseProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
 
   return (
     <AppScrollView
       className="flex-1 px-6"
-      contentContainerStyle={{ paddingBottom: 110 }}
+      contentContainerStyle={{ paddingBottom: 110 + insets.bottom }}
       showsVerticalScrollIndicator={false}
     >
       <PageTitleHeading

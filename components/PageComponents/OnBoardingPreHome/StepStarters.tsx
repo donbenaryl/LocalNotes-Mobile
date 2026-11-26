@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppScrollView } from "@/components/ui/AppScrollView";
 import { LocalNotesButton } from "../../ui/LocalNotesButton";
 import { PageFooterWrapper } from "../../ui/PageFooterWrapper";
@@ -34,6 +35,7 @@ const MIN_SELECTION = 3;
 
 export function StepStarters() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
@@ -88,7 +90,7 @@ export function StepStarters() {
     <View className="flex-1">
       <AppScrollView
         className="flex-1 px-6"
-        contentContainerStyle={{ paddingBottom: 130 }}
+        contentContainerStyle={{ paddingBottom: 130 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         <PageTitleHeading
