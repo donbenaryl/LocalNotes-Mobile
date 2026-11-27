@@ -1,12 +1,14 @@
-import { Image, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import Svg, { Path, G } from 'react-native-svg';
 import type { WelcomeListRowData } from '@/constants/welcomeScreens';
 import { WELCOME_CREAM } from '@/constants/welcomeScreens';
 import { useTranslation } from 'react-i18next';
+import { LNText } from '@/components/ui/LNText';
 
 type WelcomeListRowProps = {
   row: WelcomeListRowData;
   isLast?: boolean;
+  compact?: boolean;
 };
 
 function MountainIcon() {
@@ -36,7 +38,7 @@ function BridgeIcon() {
   );
 }
 
-export function WelcomeListRow({ row, isLast = false }: WelcomeListRowProps) {
+export function WelcomeListRow({ row, isLast = false, compact = false }: WelcomeListRowProps) {
   const { t } = useTranslation();
   const name = t(row.nameKey);
   const place = t(row.placeKey);
@@ -44,7 +46,7 @@ export function WelcomeListRow({ row, isLast = false }: WelcomeListRowProps) {
 
   return (
     <View
-      className="flex-row items-center gap-[11px] py-[7px]"
+      className={`flex-row items-center gap-[11px] ${compact ? 'py-1' : 'py-[7px]'}`}
       style={
         isLast
           ? undefined
@@ -67,13 +69,13 @@ export function WelcomeListRow({ row, isLast = false }: WelcomeListRowProps) {
         </View>
       )}
       <View className="min-w-0 flex-1">
-        <Text className="font-geist-semibold text-[13px] leading-[17px] text-[#F3EBDD]" numberOfLines={1}>
+        <LNText className="font-geist-semibold text-[13px] leading-[17px] text-[#F3EBDD]" numberOfLines={1}>
           {name}
-          <Text className="font-geist-medium text-[rgba(243,235,221,0.72)]">{` · ${place}`}</Text>
-        </Text>
-        <Text className="font-geist text-[12px] leading-4 text-[rgba(243,235,221,0.72)]" numberOfLines={1}>
+          <LNText className="font-geist-medium text-[rgba(243,235,221,0.72)]">{` · ${place}`}</LNText>
+        </LNText>
+        <LNText className="font-geist text-[12px] leading-4 text-[rgba(243,235,221,0.72)]" numberOfLines={1}>
           {note}
-        </Text>
+        </LNText>
       </View>
     </View>
   );

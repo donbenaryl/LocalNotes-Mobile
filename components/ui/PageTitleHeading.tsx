@@ -1,5 +1,6 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { LNText } from "@/components/ui/LNText";
 import { LocalNotesText } from "@/components/ui/LocalNotesText";
 
 type PageTitleHeadingTone = "default" | "cream";
@@ -57,11 +58,11 @@ export function PageTitleHeading({
   return (
     <View className={`w-full ${containerClassName}`}>
       {stepTitle && (
-        <Text
+        <LNText
           className={`font-geist-semibold text-[11px] tracking-[0.18em] uppercase mt-6 mb-4 ${stepToneClass}`}
         >
           {stepTitle}
-        </Text>
+        </LNText>
       )}
       {!hideLogo && (
         <View
@@ -69,9 +70,9 @@ export function PageTitleHeading({
           pointerEvents="none"
         >
           <LocalNotesText size="lg" />
-          <Text className="italic text-gray-500 dark:text-dk-text text-lg">
+          <LNText className="italic text-gray-500 dark:text-dk-text text-lg">
             {t("auth.signIn.logoDescription")}
-          </Text>
+          </LNText>
         </View>
       )}
 
@@ -83,7 +84,7 @@ export function PageTitleHeading({
         {title &&
           (stackTitle ? (
             <View className={alignLeft ? "items-start" : "items-center"}>
-              <Text
+              <LNText
                 className={`font-geist-semibold text-[42px] leading-[44px] tracking-[-0.025em] ${titleToneClass} ${alignClass} ${titleClassName}`}
                 style={
                   isCream
@@ -96,9 +97,9 @@ export function PageTitleHeading({
                 }
               >
                 {title}
-              </Text>
+              </LNText>
               {subtitle ? (
-                <Text
+                <LNText
                   className={`font-fraunces italic text-[42px] leading-[44px] tracking-[-0.01em] ${subtitleToneClass} ${alignClass} ${subtitleClassName}`}
                   style={
                     isCream
@@ -111,31 +112,31 @@ export function PageTitleHeading({
                   }
                 >
                   {subtitle}
-                </Text>
+                </LNText>
               ) : null}
             </View>
           ) : (
-            <Text
+            <LNText
               className={`font-geist-bold text-4xl leading-tight mr-2 ${titleToneClass} ${alignClass} ${titleClassName}`}
             >
               {title + " "}
               {subtitle && (
-                <Text
+                <LNText
                   className={`text-4xl ml-2 italic leading-tight ${subtitleToneClass} ${subtitleClassName}`}
                 >
                   {subtitle}
-                </Text>
+                </LNText>
               )}
-            </Text>
+            </LNText>
           ))}
         {description && (
-          <Text
+          <LNText
             className={`text-[15px] leading-[21px] mt-2.5 font-geist ${descriptionToneClass} ${
               alignLeft ? "text-left" : "text-center px-10"
             } ${descriptionClassName}`}
           >
             {description}
-          </Text>
+          </LNText>
         )}
       </View>
     </View>

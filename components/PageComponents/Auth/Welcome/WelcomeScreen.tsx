@@ -153,6 +153,7 @@ export function WelcomeScreen() {
 
   const slide = WELCOME_SLIDES[activeIndex] ?? WELCOME_SLIDES[0];
   const topPad = Math.max(insets.top + 12, 44);
+  const compact = height < 740;
 
   return (
     <GestureDetector gesture={panGesture}>
@@ -184,11 +185,11 @@ export function WelcomeScreen() {
           <WelcomeLogoRow />
 
           <Animated.View
-            className="shrink"
+            className="shrink overflow-hidden"
             style={fadeStyle}
             pointerEvents="box-none"
           >
-            <WelcomeSlideMid mid={slide.mid} />
+            <WelcomeSlideMid mid={slide.mid} compact={compact} />
           </Animated.View>
 
           <View className="min-h-2 flex-1" pointerEvents="none" />
@@ -197,6 +198,7 @@ export function WelcomeScreen() {
             activeIndex={activeIndex}
             slideCount={SLIDE_COUNT}
             onSelectIndex={goToSlide}
+            compact={compact}
           />
         </View>
       </View>

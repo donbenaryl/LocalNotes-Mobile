@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
-import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { useColorScheme } from "nativewind";
 import { BRAND } from "@/constants/colors";
+import { LNText } from "@/components/ui/LNText";
 
 type LocalNotesButtonSize = "xs" | "sm" | "md" | "lg";
 type LocalNotesButtonVariant =
@@ -105,9 +106,9 @@ export function LocalNotesButton({
       <View className="shrink-0 flex-row items-center justify-center gap-2">
         {leftIcon ? <View className="shrink-0">{leftIcon}</View> : null}
         {label ? (
-          <Text className={`shrink-0 font-geist ${SIZE_TEXT_CLASS[size]} ${textClass}`}>
+          <LNText className={`shrink-0 font-geist ${SIZE_TEXT_CLASS[size]} ${textClass}`}>
             {label}
-          </Text>
+          </LNText>
         ) : null}
         {loading ? (
           <View className="shrink-0">

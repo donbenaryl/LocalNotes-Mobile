@@ -5,16 +5,18 @@ type WelcomeSlideDotsProps = {
   count: number;
   activeIndex: number;
   onSelectIndex?: (index: number) => void;
+  compact?: boolean;
 };
 
 export function WelcomeSlideDots({
   count,
   activeIndex,
   onSelectIndex,
+  compact = false,
 }: WelcomeSlideDotsProps) {
   return (
     <View
-      className="mt-4 flex-row items-center justify-center gap-2"
+      className={`flex-row items-center justify-center gap-2 ${compact ? 'mt-2.5' : 'mt-4'}`}
       accessibilityRole="adjustable"
       accessibilityLabel={`Slide ${activeIndex + 1} of ${count}`}
     >

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import {
   ChevronRight,
   Heart,
@@ -17,12 +17,14 @@ import {
   WELCOME_MATCH_GREEN,
   type WelcomeSmartPicksSlideData,
 } from '@/constants/welcomeScreens';
+import { LNText } from '@/components/ui/LNText';
 import { WelcomeFrostedSurface } from './WelcomeFrostedSurface';
 
 type Mode = 'solo' | 'date' | 'group';
 
 type WelcomeSmartPicksPreviewProps = {
   data: WelcomeSmartPicksSlideData;
+  compact?: boolean;
 };
 
 const MODES: { id: Mode; labelKey: string; Icon: typeof User }[] = [
@@ -31,14 +33,20 @@ const MODES: { id: Mode; labelKey: string; Icon: typeof User }[] = [
   { id: 'group', labelKey: 'auth.welcome.slides.smartpicks.group', Icon: Users },
 ];
 
-export function WelcomeSmartPicksPreview({ data }: WelcomeSmartPicksPreviewProps) {
+export function WelcomeSmartPicksPreview({
+  data,
+  compact = false,
+}: WelcomeSmartPicksPreviewProps) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>('date');
   const { pick } = data;
 
   return (
     <View>
-      <View className="mt-3 flex-row gap-2" accessibilityRole="tablist">
+      <View
+        className={`flex-row gap-2 ${compact ? 'mt-2' : 'mt-3'}`}
+        accessibilityRole="tablist"
+      >
         {MODES.map(({ id, labelKey, Icon }) => {
           const selected = mode === id;
           return (
@@ -47,7 +55,9 @@ export function WelcomeSmartPicksPreview({ data }: WelcomeSmartPicksPreviewProps
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               onPress={() => setMode(id)}
-              className="h-[38px] flex-row items-center gap-1.5 rounded-full px-3.5"
+              className={`flex-row items-center gap-1.5 rounded-full px-3.5 ${
+                compact ? 'h-8' : 'h-[38px]'
+              }`}
               style={
                 selected
                   ? {
@@ -62,60 +72,72 @@ export function WelcomeSmartPicksPreview({ data }: WelcomeSmartPicksPreviewProps
                     }
               }
             >
-              <Icon size={16} color={selected ? WELCOME_INK : WELCOME_CREAM} strokeWidth={1.8} />
-              <Text
-                className="font-geist-semibold text-[14px]"
+              <Icon
+                size={compact ? 14 : 16}
+                color={selected ? WELCOME_INK : WELCOME_CREAM}
+                strokeWidth={1.8}
+              />
+              <LNText
+                className={
+                  compact ? 'font-geist-semibold text-[13px]' : 'font-geist-semibold text-[14px]'
+                }
                 style={{ color: selected ? WELCOME_INK : WELCOME_CREAM }}
               >
                 {t(labelKey)}
-              </Text>
+              </LNText>
             </Pressable>
           );
         })}
       </View>
 
       <WelcomeFrostedSurface
-        className="mt-3.5"
+        className={compact ? 'mt-2.5' : 'mt-3.5'}
         radius={18}
         style={{ backgroundColor: 'rgba(43,34,28,0.55)', borderColor: 'rgba(243,235,221,0.22)' }}
       >
-        <View className="px-[15px] pb-3 pt-3.5">
+        <View className={compact ? 'px-3 pb-2.5 pt-2.5' : 'px-[15px] pb-3 pt-3.5'}>
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-1.5">
               <Sparkles size={13} color={WELCOME_CREAM} fill={WELCOME_CREAM} />
-              <Text className="font-geist-semibold text-[11px] uppercase leading-[14px] tracking-[0.1em] text-[rgba(243,235,221,0.9)]">
+              <LNText className="font-geist-semibold text-[11px] uppercase leading-[14px] tracking-[0.1em] text-[rgba(243,235,221,0.9)]">
                 {t('auth.welcome.slides.smartpicks.yourPick')}
-              </Text>
+              </LNText>
             </View>
             <View
               className="rounded-full px-[9px] py-[3px]"
               style={{ borderWidth: 1, borderColor: 'rgba(93,211,166,0.6)' }}
             >
-              <Text
+              <LNText
                 className="font-geist-semibold text-[12px] leading-4"
                 style={{ color: WELCOME_MATCH_GREEN }}
               >
                 {t(pick.matchKey)}
-              </Text>
+              </LNText>
             </View>
           </View>
 
-          <View className="mt-3 flex-row items-center gap-3">
+          <View className={`flex-row items-center gap-3 ${compact ? 'mt-2' : 'mt-3'}`}>
             <Image
               source={pick.image}
-              className="h-[92px] w-[92px] rounded-[14px]"
+              className={compact ? 'h-[72px] w-[72px] rounded-xl' : 'h-[92px] w-[92px] rounded-[14px]'}
               resizeMode="cover"
               accessibilityLabel={t(pick.nameKey)}
             />
             <View className="min-w-0 flex-1">
-              <Text className="font-geist-semibold text-[18px] leading-[23px] text-[#F3EBDD]">
+              <LNText
+                className={
+                  compact
+                    ? 'font-geist-semibold text-[16px] leading-5 text-[#F3EBDD]'
+                    : 'font-geist-semibold text-[18px] leading-[23px] text-[#F3EBDD]'
+                }
+              >
                 {t(pick.nameKey)}
-              </Text>
+              </LNText>
               <View className="mt-0.5 flex-row items-center gap-1">
                 <MapPin size={13} color={WELCOME_CREAM} strokeWidth={2} />
-                <Text className="font-geist text-[13px] leading-[17px] text-[rgba(243,235,221,0.82)]">
+                <LNText className="font-geist text-[13px] leading-[17px] text-[rgba(243,235,221,0.82)]">
                   {t(pick.locationKey)}
-                </Text>
+                </LNText>
               </View>
               <View
                 className="mt-1.5 flex-row items-center gap-[5px] self-start rounded-full px-[9px] py-[3px]"
@@ -126,18 +148,25 @@ export function WelcomeSmartPicksPreview({ data }: WelcomeSmartPicksPreviewProps
                 }}
               >
                 <Mountain size={12} color={WELCOME_CREAM} fill={WELCOME_CREAM} />
-                <Text className="font-geist-medium text-[11px] leading-[15px] text-[#F3EBDD]">
+                <LNText className="font-geist-medium text-[11px] leading-[15px] text-[#F3EBDD]">
                   {t(pick.categoryKey)}
-                </Text>
+                </LNText>
               </View>
-              <Text className="mt-1.5 font-geist text-[13px] leading-[18px] text-[rgba(243,235,221,0.9)]">
+              <LNText
+                className={
+                  compact
+                    ? 'mt-1 font-geist text-[12px] leading-4 text-[rgba(243,235,221,0.9)]'
+                    : 'mt-1.5 font-geist text-[13px] leading-[18px] text-[rgba(243,235,221,0.9)]'
+                }
+                numberOfLines={compact ? 2 : undefined}
+              >
                 {t(pick.blurbKey)}
-              </Text>
+              </LNText>
             </View>
           </View>
 
           <View
-            className="mt-3 flex-row items-center gap-2 pt-2.5"
+            className={`flex-row items-center gap-2 ${compact ? 'mt-2 pt-2' : 'mt-3 pt-2.5'}`}
             style={{ borderTopWidth: 1, borderTopColor: 'rgba(243,235,221,0.16)' }}
           >
             <View className="flex-row items-center pl-[1.5px]">
@@ -147,8 +176,8 @@ export function WelcomeSmartPicksPreview({ data }: WelcomeSmartPicksPreviewProps
                   source={saver.avatar}
                   accessibilityLabel={saver.name}
                   style={{
-                    width: 24,
-                    height: 24,
+                    width: compact ? 20 : 24,
+                    height: compact ? 20 : 24,
                     borderRadius: 999,
                     marginLeft: index === 0 ? 0 : -6,
                     zIndex: pick.savers.length - index,
@@ -158,27 +187,29 @@ export function WelcomeSmartPicksPreview({ data }: WelcomeSmartPicksPreviewProps
                 />
               ))}
             </View>
-            <Text className="flex-1 font-geist text-[12px] leading-4 text-[rgba(243,235,221,0.72)]">
+            <LNText className="flex-1 font-geist text-[12px] leading-4 text-[rgba(243,235,221,0.72)]">
               {t(pick.savedByKey)}
-            </Text>
+            </LNText>
           </View>
 
-          <View
-            className="mt-2.5 pt-2.5"
-            style={{ borderTopWidth: 1, borderTopColor: 'rgba(243,235,221,0.16)' }}
-          >
-            <Pressable
-              accessibilityRole="button"
-              className="flex-row items-center gap-1.5 self-start"
-              onPress={() => undefined}
+          {!compact ? (
+            <View
+              className="mt-2.5 pt-2.5"
+              style={{ borderTopWidth: 1, borderTopColor: 'rgba(243,235,221,0.16)' }}
             >
-              <Shuffle size={15} color={WELCOME_CREAM} strokeWidth={2} />
-              <Text className="font-geist-semibold text-[13px] leading-[17px] text-[#F3EBDD]">
-                {t('auth.welcome.slides.smartpicks.pickAgain')}
-              </Text>
-              <ChevronRight size={14} color={WELCOME_CREAM} strokeWidth={2} />
-            </Pressable>
-          </View>
+              <Pressable
+                accessibilityRole="button"
+                className="flex-row items-center gap-1.5 self-start"
+                onPress={() => undefined}
+              >
+                <Shuffle size={15} color={WELCOME_CREAM} strokeWidth={2} />
+                <LNText className="font-geist-semibold text-[13px] leading-[17px] text-[#F3EBDD]">
+                  {t('auth.welcome.slides.smartpicks.pickAgain')}
+                </LNText>
+                <ChevronRight size={14} color={WELCOME_CREAM} strokeWidth={2} />
+              </Pressable>
+            </View>
+          ) : null}
         </View>
       </WelcomeFrostedSurface>
     </View>

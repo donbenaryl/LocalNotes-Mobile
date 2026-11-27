@@ -1,18 +1,27 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { Avatar } from '@/components/ui/Avatar';
+import { LNText } from '@/components/ui/LNText';
 import { WELCOME_CREAM, WELCOME_MATCH_GREEN } from '@/constants/welcomeScreens';
 
 type WelcomeMatchPillProps = {
   name: string;
   matchLabel: string;
   avatar: ImageSourcePropType;
+  compact?: boolean;
 };
 
-export function WelcomeMatchPill({ name, matchLabel, avatar }: WelcomeMatchPillProps) {
+export function WelcomeMatchPill({
+  name,
+  matchLabel,
+  avatar,
+  compact = false,
+}: WelcomeMatchPillProps) {
   return (
     <View
-      className="mt-3 flex-row items-center self-start gap-[9px] rounded-full border py-1 pl-1 pr-3.5"
+      className={`flex-row items-center self-start gap-[9px] rounded-full border py-1 pl-1 pr-3.5 ${
+        compact ? 'mt-2' : 'mt-3'
+      }`}
       style={{
         backgroundColor: 'rgba(26,23,20,0.5)',
         borderColor: 'rgba(243,235,221,0.22)',
@@ -24,13 +33,19 @@ export function WelcomeMatchPill({ name, matchLabel, avatar }: WelcomeMatchPillP
         size="sm"
         gradientColors={[WELCOME_CREAM, WELCOME_CREAM]}
       />
-      <Text className="font-geist-medium text-[13px] leading-4 text-[#F3EBDD]">
-        <Text className="font-geist-semibold">{name}</Text>
+      <LNText
+        className={
+          compact
+            ? 'font-geist-medium text-[12px] leading-4 text-[#F3EBDD]'
+            : 'font-geist-medium text-[13px] leading-4 text-[#F3EBDD]'
+        }
+      >
+        <LNText className="font-geist-semibold">{name}</LNText>
         {' · '}
-        <Text className="font-geist-semibold" style={{ color: WELCOME_MATCH_GREEN }}>
+        <LNText className="font-geist-semibold" style={{ color: WELCOME_MATCH_GREEN }}>
           {matchLabel}
-        </Text>
-      </Text>
+        </LNText>
+      </LNText>
     </View>
   );
 }
