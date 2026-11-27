@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { Search } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FilterHeader } from "@/components/ui/FilterHeader";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { Modal } from "@/components/ui/Modal";
@@ -11,6 +12,7 @@ import { MOST_PICKED_VIBES, VIBE_OPTIONS } from "@/constants/vibes";
 type VibeColor = "explorer" | "connector" | "curator" | "creator";
 
 const COLOR_CYCLE: VibeColor[] = ["explorer", "connector", "curator", "creator"];
+const FOOTER_CONTENT_PAD = 88;
 
 const SELECTED_CLASSES: Record<VibeColor, { container: string; text: string }> = {
   explorer: { container: "bg-explorer border-explorer", text: "text-white" },
@@ -53,17 +55,15 @@ function VibeChip({
 interface VibeFilterProps {
   selectedVibes: string[];
   onVibesChange: (vibes: string[]) => void;
-  onApply: () => void;
   onClear: () => void;
-  matchCount?: number;
+  contentBottomPad?: number;
 }
 
 export function VibeFilter({
   selectedVibes,
   onVibesChange,
-  onApply,
   onClear,
-  matchCount,
+  contentBottomPad = FOOTER_CONTENT_PAD,
 }: VibeFilterProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -146,21 +146,8 @@ export function VibeFilter({
         )}
       </ScrollView>
 
-      <View className="flex-row items-center justify-between pt-4 border-t border-gray-100 dark:border-dk-line">
-        <Text className="font-geist text-sm text-ink dark:text-dk-text">
-          <Text className="font-geist-bold">{selectedVibes.length} vibes</Text>
-          {matchCount !== undefined ? (
-            <Text className="text-gray-500 dark:text-dk-muted"> · {matchCount} lists match</Text>
-          ) : null}
-        </Text>
-        <LocalNotesButton
-          label="Apply →"
-          onPress={onApply}
-          variant="dark"
-          size="sm"
-          isWidthFull={false}
-        />
-      </View>
+      {/* In-flow spacer so absolute Modal footer does not cover content. */}
+      <View style={{ height: contentBottomPad }} />
     </View>
   );
 }
@@ -180,6 +167,7 @@ export function VibeFilterModal({
   onVibesChange,
   matchCount,
 }: VibeFilterModalProps) {
+  const insets = useSafeAreaInsets();
   const [localVibes, setLocalVibes] = useState<string[]>(selectedVibes);
 
   useEffect(() => {
@@ -198,13 +186,35 @@ export function VibeFilterModal({
   }
 
   return (
-    <Modal visible={isVisible} onClose={onClose}>
+    <Modal
+      visible={isVisible}
+      onClose={onClose}
+      footer={
+        <View className="flex-row items-center justify-between gap-3">
+          <Text className="flex-1 font-geist text-sm text-ink dark:text-dk-text">
+            <Text className="font-geist-bold">{localVibes.length} vibes</Text>
+            {matchCount !== undefined ? (
+              <Text className="text-gray-500 dark:text-dk-muted">
+                {" "}
+                · {matchCount} lists match
+              </Text>
+            ) : null}
+          </Text>
+          <LocalNotesButton
+            label="Apply →"
+            onPress={handleApply}
+            variant="dark"
+            size="sm"
+            isWidthFull={false}
+          />
+        </View>
+      }
+    >
       <VibeFilter
         selectedVibes={localVibes}
         onVibesChange={setLocalVibes}
-        onApply={handleApply}
         onClear={handleClear}
-        matchCount={matchCount}
+        contentBottomPad={FOOTER_CONTENT_PAD + insets.bottom}
       />
     </Modal>
   );

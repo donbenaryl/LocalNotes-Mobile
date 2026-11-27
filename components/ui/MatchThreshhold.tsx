@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Modal } from "@/components/ui/Modal";
 import { Slider } from "@/components/ui/Slider";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
@@ -146,6 +147,7 @@ export function MatchThreshhold({
   matchingCount,
 }: MatchThreshholdProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const [localThreshold, setLocalThreshold] = useState<number | null>(
     initialThreshold ?? null
   );
@@ -307,7 +309,9 @@ export function MatchThreshhold({
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: FOOTER_CONTENT_PAD }}
+        contentContainerStyle={{
+          paddingBottom: FOOTER_CONTENT_PAD + insets.bottom,
+        }}
         keyboardShouldPersistTaps="handled"
       >
         <FilterHeader

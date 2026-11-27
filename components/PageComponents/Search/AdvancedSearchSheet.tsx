@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
-import { X } from "lucide-react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Modal } from "@/components/ui/Modal";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { CategoryChip } from "@/components/ui/CategoryChip";
@@ -30,6 +30,7 @@ export function AdvancedSearchSheet({
   matchingCount,
 }: AdvancedSearchSheetProps) {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { categories } = useCategories();
 
   const distanceMiles = useSearchStore((s) => s.distanceMiles);
@@ -120,7 +121,9 @@ export function AdvancedSearchSheet({
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: FOOTER_CONTENT_PAD }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom,
+        }}
         keyboardShouldPersistTaps="handled"
       >
         <SectionLabel label={t("search.filters.distance")} className="mb-3" />
