@@ -39,7 +39,7 @@ export function useListSearch() {
   const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const selectedVibes = useSearchStore((s) => s.selectedVibes);
   const coordinates = useEffectiveSearchLocation();
-  const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
+  const setResultCount = useSearchChromeStore((s) => s.setResultCount);
 
   const filterParams = useMemo((): Omit<serchDTO, "limit" | "offset"> => {
     const p: Omit<serchDTO, "limit" | "offset"> = { query: committedQuery };
@@ -97,8 +97,8 @@ export function useListSearch() {
   const totalCount = listQuery.data?.pages[0]?.total ?? lists.length;
 
   useEffect(() => {
-    setActiveResultCount(totalCount);
-  }, [totalCount, setActiveResultCount]);
+    setResultCount("lists", totalCount);
+  }, [totalCount, setResultCount]);
 
   return {
     lists,

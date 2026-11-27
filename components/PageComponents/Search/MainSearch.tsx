@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Pressable, Text, View } from "react-native";
 import { usePathname, useRouter, type Href } from "expo-router";
-import { List, Sparkles, Users } from "lucide-react-native";
+import { Building2, LayoutGrid, List, Users } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import {
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { SearchFilterHeader } from "@/components/PageComponents/Search/SearchFilterHeader";
 import { SearchFocusDropdown } from "@/components/PageComponents/Search/SearchFocusDropdown";
+import { SearchAll } from "@/components/PageComponents/Search/SearchAll/SearchAll";
 import { SearchPicks } from "@/components/PageComponents/Search/SearchPicks/SearchPicks";
 import { SearchLists } from "@/components/PageComponents/Search/SearchLists/SearchLists";
 import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/SearchPeople";
@@ -34,7 +35,8 @@ interface SearchTabItem extends TabItem {
 function getActiveTab(pathname: string): string {
   if (pathname.includes("/people")) return "people";
   if (pathname.includes("/lists")) return "lists";
-  return "picks";
+  if (pathname.includes("/picks")) return "picks";
+  return "all";
 }
 
 function formatCityLabel(location: GeoLocation): string {
@@ -63,7 +65,7 @@ export default function MainSearch() {
       const tab = resolveSectionTabFromPathname({
         pathname,
         sectionSegment: "/search",
-        defaultTabId: "picks",
+        defaultTabId: "all",
         getActiveTabFromPathname: getActiveTab,
         lastHref,
         currentActiveTab: current,
@@ -82,7 +84,7 @@ export default function MainSearch() {
       didMountRef.current = true;
       return;
     }
-    setActiveTab("picks");
+    setActiveTab("all");
   }, [resetToken]);
 
   const query = useSearchStore((s) => s.query);
@@ -101,9 +103,20 @@ export default function MainSearch() {
   const setFilterHeaderBottom = useSearchChromeStore(
     (s) => s.setFilterHeaderBottom,
   );
-  const activeResultCount = useSearchChromeStore((s) => s.activeResultCount);
+  const resultCounts = useSearchChromeStore((s) => s.resultCounts);
   const returnTo = useSearchChromeStore((s) => s.returnTo);
   const setReturnTo = useSearchChromeStore((s) => s.setReturnTo);
+
+  const allResultCount =
+    resultCounts.picks + resultCounts.lists + resultCounts.people;
+  const activeResultCount =
+    activeTab === "all"
+      ? allResultCount
+      : activeTab === "picks"
+        ? resultCounts.picks
+        : activeTab === "lists"
+          ? resultCounts.lists
+          : resultCounts.people;
 
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
 
@@ -202,34 +215,53 @@ export default function MainSearch() {
   const tabs: SearchTabItem[] = useMemo(
     () => [
       {
+        id: "all",
+        label: t("search.tabs.all"),
+        stat: allResultCount,
+        icon: LayoutGrid,
+        href: "/(app)/(tabs)/search/all",
+      },
+      {
         id: "picks",
         label: t("search.tabs.picks"),
-        icon: Sparkles,
+        stat: resultCounts.picks,
+        icon: Building2,
         href: "/(app)/(tabs)/search/picks",
       },
       {
         id: "lists",
         label: t("search.tabs.lists"),
+        stat: resultCounts.lists,
         icon: List,
         href: "/(app)/(tabs)/search/lists",
       },
       {
         id: "people",
         label: t("search.tabs.people"),
+        stat: resultCounts.people,
         icon: Users,
         href: "/(app)/(tabs)/search/people",
       },
     ],
-    [t],
+    [t, allResultCount, resultCounts.picks, resultCounts.lists, resultCounts.people],
   );
+
+  const handleSeeAll = useCallback((tabId: "picks" | "lists" | "people") => {
+    setActiveTab(tabId);
+  }, []);
 
   const pages: SectionPagerPage[] = useMemo(
     () => [
-      { id: "picks", href: tabs[0].href, render: () => <SearchPicks /> },
-      { id: "lists", href: tabs[1].href, render: () => <SearchLists /> },
-      { id: "people", href: tabs[2].href, render: () => <SearchPeople /> },
+      {
+        id: "all",
+        href: tabs[0].href,
+        render: () => <SearchAll onSeeAll={handleSeeAll} />,
+      },
+      { id: "picks", href: tabs[1].href, render: () => <SearchPicks /> },
+      { id: "lists", href: tabs[2].href, render: () => <SearchLists /> },
+      { id: "people", href: tabs[3].href, render: () => <SearchPeople /> },
     ],
-    [tabs],
+    [tabs, handleSeeAll],
   );
 
   // Stay on "all" / choose-location until default resolves so we don't flash "Unknown".
@@ -347,11 +379,15 @@ export default function MainSearch() {
                 histogramSurface={
                   activeTab === "people"
                     ? "people"
-                    : activeTab === "picks"
-                      ? "picks"
-                      : "lists"
+                    : activeTab === "lists"
+                      ? "lists"
+                      : "picks"
                 }
-                showVibeFilter={activeTab === "lists" || activeTab === "picks"}
+                showVibeFilter={
+                  activeTab === "all" ||
+                  activeTab === "lists" ||
+                  activeTab === "picks"
+                }
               />
             </View>
           </>

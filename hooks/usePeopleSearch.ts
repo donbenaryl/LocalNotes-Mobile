@@ -40,7 +40,7 @@ export function usePeopleSearch() {
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
   const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const coordinates = useEffectiveSearchLocation();
-  const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
+  const setResultCount = useSearchChromeStore((s) => s.setResultCount);
 
   const filterParams = useMemo((): Omit<peopleDiscoverySearchDTO, "limit" | "offset"> => {
     const p: Omit<peopleDiscoverySearchDTO, "limit" | "offset"> = {
@@ -105,8 +105,8 @@ export function usePeopleSearch() {
   const totalCount = peopleQuery.data?.pages[0]?.total ?? people.length;
 
   useEffect(() => {
-    setActiveResultCount(totalCount);
-  }, [totalCount, setActiveResultCount]);
+    setResultCount("people", totalCount);
+  }, [totalCount, setResultCount]);
 
   return {
     people,

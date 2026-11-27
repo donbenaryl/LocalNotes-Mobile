@@ -34,11 +34,10 @@ import {
 import type { BusinessItemDAO } from "@/http/business-api/types";
 import type { ListItemDAO, ListItemPublic } from "@/http/list-api/types";
 import type { UnifiedSearchPersonDAO } from "@/http/search-api/type";
-import { Badge } from "@/components/ui/Badge";
 import { useScrollToTopControl } from "@/hooks/useScrollToTopControl";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 
-type SearchResultsKind = "lists" | "places" | "people" | "picks";
+type SearchResultsKind = "all" | "lists" | "places" | "people" | "picks";
 const SHEET_HEADER_CLEARANCE = 12;
 
 interface SearchResultsLayoutProps<T> {
@@ -211,13 +210,6 @@ export function SearchResultsLayout<T>({
           pointerEvents={isSheetCollapsed ? "none" : "auto"}
           style={styles.fill}
         >
-          <Badge
-            label={resultsLabel}
-            className="ml-4 mb-4 -mt-2"
-            variant="primary"
-            size="md"
-          />
-
           {isPending && data.length === 0 ? (
             <View
               style={styles.fill}

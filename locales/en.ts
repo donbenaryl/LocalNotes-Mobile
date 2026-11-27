@@ -1042,6 +1042,7 @@ const en = {
   },
   search: {
     tabs: {
+      all: 'All',
       picks: 'Picks',
       lists: 'Lists',
       places: 'Places',
@@ -1063,13 +1064,16 @@ const en = {
     error: 'Could not load search results',
     retry: 'Try again',
     resultsMeta: {
+      all: '{{count}} results',
       picks: '{{count}} picks',
       lists: '{{count}} lists',
       places: '{{count}} places',
       people: '{{count}} people',
       inLocation: '{{count}} in {{location}}',
     },
+    seeAll: 'See all {{count}}',
     empty: {
+      all: 'No results found',
       picks: 'No picks found',
       lists: 'No lists found',
       places: 'No places found',

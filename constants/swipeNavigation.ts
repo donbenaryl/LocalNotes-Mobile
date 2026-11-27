@@ -10,6 +10,7 @@ export const SMART_PICK = "/(app)/(tabs)/smart-pick" as const;
 export const SAVED_DRAFT = "/(app)/(tabs)/saved/draft" as const;
 const SAVED_SAVED = "/(app)/(tabs)/saved/saved" as const;
 const SAVED_SHARED = "/(app)/(tabs)/saved/shared-with-me" as const;
+export const SEARCH_ALL = "/(app)/(tabs)/search/all" as const;
 export const SEARCH_PICKS = "/(app)/(tabs)/search/picks" as const;
 const SEARCH_LISTS = "/(app)/(tabs)/search/lists" as const;
 const SEARCH_PLACES = "/(app)/(tabs)/search/businesses" as const;
@@ -44,7 +45,8 @@ export function pathnameToAppHref(pathname: string): Href {
   if (pathname.includes("/search/people")) return SEARCH_PEOPLE;
   if (pathname.includes("/search/businesses")) return SEARCH_PLACES;
   if (pathname.includes("/search/lists")) return SEARCH_LISTS;
-  if (pathname.includes("/search")) return SEARCH_PICKS;
+  if (pathname.includes("/search/picks")) return SEARCH_PICKS;
+  if (pathname.includes("/search")) return SEARCH_ALL;
 
   return HOME_HREF;
 }
@@ -67,7 +69,7 @@ export const SECTION_ENTRY_HREF: Record<SectionId, Href> = {
   home: HOME_HREF,
   "smart-pick": SMART_PICK,
   saved: SAVED_DRAFT,
-  search: SEARCH_PICKS,
+  search: SEARCH_ALL,
 };
 
 /**

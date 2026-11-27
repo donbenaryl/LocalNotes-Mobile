@@ -26,7 +26,7 @@ import {
   type SearchMapMarker,
 } from "@/utils/searchMapMarkers";
 
-export type SearchMapMode = "lists" | "places" | "people";
+export type SearchMapMode = "all" | "lists" | "places" | "people";
 
 /** Extra map height clipped by host overflow to cover Apple Maps  Maps label. */
 const LEGAL_LABEL_CLIP = 28;
@@ -151,6 +151,13 @@ export function SearchMap({
   const markers = useMemo((): SearchMapMarker[] => {
     if (mode === "places") {
       return buildBusinessMapMarkers(businesses);
+    }
+    if (mode === "all") {
+      return [
+        ...buildPickMapMarkers(picks ?? []),
+        ...buildListMapMarkers(lists ?? []),
+        ...buildPeopleMapMarkers(people ?? []),
+      ];
     }
     if (mode === "people") {
       return buildPeopleMapMarkers(people ?? []);

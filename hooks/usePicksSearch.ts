@@ -41,7 +41,7 @@ export function usePicksSearch() {
   const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const selectedVibes = useSearchStore((s) => s.selectedVibes);
   const coordinates = useEffectiveSearchLocation();
-  const setActiveResultCount = useSearchChromeStore((s) => s.setActiveResultCount);
+  const setResultCount = useSearchChromeStore((s) => s.setResultCount);
 
   const filterParams = useMemo((): Omit<PicksSearchParams, "limit" | "offset"> => {
     const p: Omit<PicksSearchParams, "limit" | "offset"> = { scope: "all" };
@@ -100,8 +100,8 @@ export function usePicksSearch() {
   const totalCount = picksQuery.data?.pages[0]?.total ?? picks.length;
 
   useEffect(() => {
-    setActiveResultCount(totalCount);
-  }, [totalCount, setActiveResultCount]);
+    setResultCount("picks", totalCount);
+  }, [totalCount, setResultCount]);
 
   return {
     picks,

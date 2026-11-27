@@ -13,6 +13,8 @@ import { cn } from '@/utils/cn';
 export interface TabItem {
   id: string;
   label: string;
+  /** Optional trailing count; Tabs wraps it as "(N)" in smaller text. */
+  stat?: string | number;
   icon?: LucideIcon;
 }
 
@@ -121,23 +123,45 @@ function AnimatedTabButton({
             </Animated.View>
           </View>
         ) : null}
-        <View>
-          <Animated.Text
-            style={[{ color: activeTextColor }, activeTextStyle]}
-            className={`${textClassName ?? ''} font-geist-bold`}
-          >
-            {tab.label}
-          </Animated.Text>
-          <Animated.Text
-            style={[
-              { color: inactiveTextColor },
-              inactiveTextStyle,
-              { position: 'absolute', left: 0, top: 0 },
-            ]}
-            className={`${textClassName ?? ''} font-geist-semibold`}
-          >
-            {tab.label}
-          </Animated.Text>
+        <View className="flex-row items-baseline gap-1">
+          <View>
+            <Animated.Text
+              style={[{ color: activeTextColor }, activeTextStyle]}
+              className={`${textClassName ?? ''} font-geist-bold`}
+            >
+              {tab.label}
+            </Animated.Text>
+            <Animated.Text
+              style={[
+                { color: inactiveTextColor },
+                inactiveTextStyle,
+                { position: 'absolute', left: 0, top: 0 },
+              ]}
+              className={`${textClassName ?? ''} font-geist-semibold`}
+            >
+              {tab.label}
+            </Animated.Text>
+          </View>
+          {tab.stat != null && tab.stat !== '' ? (
+            <View>
+              <Animated.Text
+                style={[{ color: activeTextColor }, activeTextStyle]}
+                className="font-geist-bold text-[10px] leading-[14px]"
+              >
+                ({tab.stat})
+              </Animated.Text>
+              <Animated.Text
+                style={[
+                  { color: inactiveTextColor },
+                  inactiveTextStyle,
+                  { position: 'absolute', left: 0, top: 0 },
+                ]}
+                className="font-geist-semibold text-[10px] leading-[14px]"
+              >
+                ({tab.stat})
+              </Animated.Text>
+            </View>
+          ) : null}
         </View>
       </Animated.View>
     </GestureDetector>
@@ -191,18 +215,34 @@ export function Tabs({
             {Icon ? (
               <Icon size={12} color={isActive ? BRAND : MUTED_ICON} />
             ) : null}
-            <Text
-              className={cn(
-                textClassName,
-                isActive
-                  ? equalWidth
-                    ? 'font-geist-bold text-brand dark:text-dk-text'
-                    : 'font-geist-bold text-ink dark:text-dk-text'
-                  : 'font-geist-semibold text-gray-500 dark:text-dk-muted',
-              )}
-            >
-              {tab.label}
-            </Text>
+            <View className="flex-row items-baseline gap-1">
+              <Text
+                className={cn(
+                  textClassName,
+                  isActive
+                    ? equalWidth
+                      ? 'font-geist-bold text-brand dark:text-dk-text'
+                      : 'font-geist-bold text-ink dark:text-dk-text'
+                    : 'font-geist-semibold text-gray-500 dark:text-dk-muted',
+                )}
+              >
+                {tab.label}
+              </Text>
+              {tab.stat != null && tab.stat !== '' ? (
+                <Text
+                  className={cn(
+                    'text-[10px] leading-[14px]',
+                    isActive
+                      ? equalWidth
+                        ? 'font-geist-bold text-brand dark:text-dk-text'
+                        : 'font-geist-bold text-ink dark:text-dk-text'
+                      : 'font-geist-semibold text-gray-500 dark:text-dk-muted',
+                  )}
+                >
+                  ({tab.stat})
+                </Text>
+              ) : null}
+            </View>
           </TouchableOpacity>
         );
       });

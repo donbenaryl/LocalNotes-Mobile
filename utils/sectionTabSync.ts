@@ -66,8 +66,16 @@ export function pathnameMatchesTabId(pathname: string, tabId: string): boolean {
     }
     case "shared-with-me":
       return pathname.includes("/shared-with-me");
+    case "all":
+      return (
+        pathname.includes("/search") &&
+        !pathname.includes("/search/picks") &&
+        !pathname.includes("/search/lists") &&
+        !pathname.includes("/search/people") &&
+        !pathname.includes("/search/businesses")
+      );
     case "picks":
-      return pathname.includes("/search") && !pathname.includes("/lists") && !pathname.includes("/people");
+      return pathname.includes("/search/picks");
     case "lists":
       return pathname.includes("/lists");
     case "people":
