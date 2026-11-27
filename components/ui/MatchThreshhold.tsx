@@ -5,6 +5,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Slider } from "@/components/ui/Slider";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { FilterHeader } from "@/components/ui/FilterHeader";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { QUESTION_GROUPS } from "@/constants/personality";
 import {
   countFromMatchHistogramBins,
@@ -38,14 +39,6 @@ interface MatchThreshholdProps {
   histogramFilters?: Omit<MatchHistogramFilters, "personalitySides">;
   /** Fallback count when bins are not yet available. */
   matchingCount?: number;
-}
-
-function SectionLabel({ label }: { label: string }) {
-  return (
-    <Text className="font-geist-bold text-[10.5px] uppercase tracking-[0.15em] text-gray-400 dark:text-dk-faint">
-      {label}
-    </Text>
-  );
 }
 
 function PresetChip({
@@ -320,7 +313,7 @@ export function MatchThreshhold({
         <FilterHeader
           title="Match"
           accentTitle="threshold."
-          actionLabel="Reset"
+          actionLabel="Clear"
           onAction={handleReset}
         />
 

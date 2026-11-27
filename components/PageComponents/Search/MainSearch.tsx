@@ -363,7 +363,7 @@ export default function MainSearch() {
                 onTabChange={handleTabChange}
               />
               <SearchFilterHeader
-                className="-mt-2 mb-3 absolute top-10 z-20"
+                className="-mt-2 mb-3 absolute left-0 right-0 top-10 z-20"
                 onMeasuredBottomChange={setFilterHeaderBottom}
                 cityLabel={cityLabel}
                 isAllLocations={effectiveLocationMode === "all"}

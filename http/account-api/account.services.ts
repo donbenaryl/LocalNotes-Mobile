@@ -177,6 +177,9 @@ class AccountService extends AppHttpService {
       query.longitude = dto.longitude;
       if (dto.radiusKm !== undefined) query.radius_km = dto.radiusKm;
     }
+    if (dto.sortBy) query.sort_by = dto.sortBy;
+    if (dto.sortOrder) query.sort_order = dto.sortOrder;
+    if (dto.followingOnly) query.following_only = "true";
 
     return await this.SendRequest<UnifiedSearchPersonDAO[]>({
       method: "get",

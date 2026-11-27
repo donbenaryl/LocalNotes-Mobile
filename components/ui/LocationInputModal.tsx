@@ -18,6 +18,7 @@ import { useColorScheme } from 'nativewind';
 import { LocationInput } from '@/components/ui/LocationInput';
 import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
+import { SectionLabel } from '@/components/ui/SectionLabel';
 import { Skeleton } from '@/components/ui/Skeleton';
 import type { Location as GeoLocation } from '@/http/list-api/types';
 
@@ -374,9 +375,7 @@ export function LocationInputModal({
 
                     {recentSearches.length > 0 && (
                       <View className="mb-5">
-                        <Text className="font-geist-semibold text-xs text-gray-400 dark:text-dk-faint uppercase tracking-widest mb-3 px-6">
-                          Recent
-                        </Text>
+                        <SectionLabel label="Recent" className="mb-3 px-6" />
                         {recentSearches.map((entry, index) => (
                           <Pressable
                             key={`${entry.location.city}-${entry.location.region}`}
@@ -404,9 +403,7 @@ export function LocationInputModal({
 
                     {savedLocations.length > 0 && (
                       <View>
-                        <Text className="font-geist-semibold text-xs text-gray-400 dark:text-dk-faint uppercase tracking-widest mb-3">
-                          Saved
-                        </Text>
+                        <SectionLabel label="Saved" className="mb-3" />
                         {savedLocations.map((entry) => (
                           <Pressable
                             key={`${entry.location.city}-${entry.location.region}`}

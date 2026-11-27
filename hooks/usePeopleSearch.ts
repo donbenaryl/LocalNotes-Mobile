@@ -10,10 +10,13 @@ import {
   FEED_MAX_POOL,
   FEED_PAGE_SIZE_LISTS,
 } from "@/constants/feedPagination";
-import { SEARCH_MAP_RADIUS_KM } from "@/utils/searchMapMarkers";
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 import { dedupeById } from "@/utils/dedupeById";
+import {
+  distanceMilesToRadiusKm,
+  searchSortToApi,
+} from "@/utils/searchAdvancedFilters";
 
 type PeopleSearchPage = {
   items: UnifiedSearchPersonDAO[];
@@ -39,6 +42,9 @@ export function usePeopleSearch() {
   const committedQuery = useSearchStore((s) => s.committedQuery);
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
   const matchPriorities = useSearchStore((s) => s.matchPriorities);
+  const distanceMiles = useSearchStore((s) => s.distanceMiles);
+  const followingOnly = useSearchStore((s) => s.followingOnly);
+  const sort = useSearchStore((s) => s.sort);
   const coordinates = useEffectiveSearchLocation();
   const setResultCount = useSearchChromeStore((s) => s.setResultCount);
 
@@ -49,6 +55,23 @@ export function usePeopleSearch() {
     if (matchThreshold !== null) p.matchMin = matchThreshold;
     const personalitySides = personalitySidesFromPriorities(matchPriorities);
     if (personalitySides.length > 0) p.personalitySides = personalitySides;
+    if (followingOnly) p.followingOnly = true;
+
+    const hasLatLng = Boolean(
+      coordinates &&
+        !coordinates.city &&
+        coordinates.latitude != null &&
+        coordinates.longitude != null,
+    );
+    const { sortBy, sortOrder } = searchSortToApi(sort);
+    if (sortBy === "distance" && !hasLatLng) {
+      p.sortBy = "match";
+      p.sortOrder = "desc";
+    } else {
+      p.sortBy = sortBy;
+      p.sortOrder = sortOrder;
+    }
+
     if (coordinates) {
       if (coordinates.city) {
         p.city = coordinates.city;
@@ -56,11 +79,19 @@ export function usePeopleSearch() {
       } else {
         p.latitude = coordinates.latitude;
         p.longitude = coordinates.longitude;
-        p.radiusKm = SEARCH_MAP_RADIUS_KM;
+        p.radiusKm = distanceMilesToRadiusKm(distanceMiles);
       }
     }
     return p;
-  }, [committedQuery, matchThreshold, matchPriorities, coordinates]);
+  }, [
+    committedQuery,
+    matchThreshold,
+    matchPriorities,
+    followingOnly,
+    sort,
+    distanceMiles,
+    coordinates,
+  ]);
 
   const queryKey = useMemo(
     () => [
@@ -68,6 +99,9 @@ export function usePeopleSearch() {
       filterParams.query ?? "",
       filterParams.matchMin ?? null,
       filterParams.personalitySides ?? [],
+      filterParams.followingOnly ?? false,
+      filterParams.sortBy ?? null,
+      filterParams.sortOrder ?? null,
       filterParams.city ?? null,
       filterParams.region ?? null,
       filterParams.latitude ?? null,

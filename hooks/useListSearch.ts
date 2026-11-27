@@ -12,8 +12,10 @@ import {
 import { FEED_STALE_TIME_MS } from "@/constants/queryCache";
 import { personalitySidesFromPriorities } from "@/utils/personalityQuiz";
 import { dedupeById } from "@/utils/dedupeById";
-
-const DEFAULT_RADIUS_KM = 15;
+import {
+  distanceMilesToRadiusKm,
+  searchSortToApi,
+} from "@/utils/searchAdvancedFilters";
 
 type ListSearchPage = {
   items: ListItemDAO[];
@@ -38,6 +40,10 @@ export function useListSearch() {
   const matchThreshold = useSearchStore((s) => s.matchThreshold);
   const matchPriorities = useSearchStore((s) => s.matchPriorities);
   const selectedVibes = useSearchStore((s) => s.selectedVibes);
+  const distanceMiles = useSearchStore((s) => s.distanceMiles);
+  const selectedCategories = useSearchStore((s) => s.selectedCategories);
+  const followingOnly = useSearchStore((s) => s.followingOnly);
+  const sort = useSearchStore((s) => s.sort);
   const coordinates = useEffectiveSearchLocation();
   const setResultCount = useSearchChromeStore((s) => s.setResultCount);
 
@@ -47,13 +53,34 @@ export function useListSearch() {
     if (selectedVibes.length > 0) p.vibe = selectedVibes;
     const personalitySides = personalitySidesFromPriorities(matchPriorities);
     if (personalitySides.length > 0) p.personalitySides = personalitySides;
+    if (selectedCategories.length > 0) p.categoryIds = selectedCategories;
+    if (followingOnly) p.followingOnly = true;
+    const { sortBy, sortOrder } = searchSortToApi(sort);
+    // Nearest requires coords; otherwise fall back to match.
+    if (sortBy === "distance" && !coordinates) {
+      p.sortBy = "match";
+      p.sortOrder = "desc";
+    } else {
+      p.sortBy = sortBy;
+      p.sortOrder = sortOrder;
+    }
     if (coordinates) {
       p.latitude = coordinates.latitude;
       p.longitude = coordinates.longitude;
-      p.radiusKm = DEFAULT_RADIUS_KM;
+      p.radiusKm = distanceMilesToRadiusKm(distanceMiles);
     }
     return p;
-  }, [committedQuery, matchThreshold, matchPriorities, selectedVibes, coordinates]);
+  }, [
+    committedQuery,
+    matchThreshold,
+    matchPriorities,
+    selectedVibes,
+    selectedCategories,
+    followingOnly,
+    sort,
+    distanceMiles,
+    coordinates,
+  ]);
 
   const queryKey = useMemo(
     () => [
@@ -62,6 +89,10 @@ export function useListSearch() {
       filterParams.matchMin ?? null,
       filterParams.vibe ?? [],
       filterParams.personalitySides ?? [],
+      filterParams.categoryIds ?? [],
+      filterParams.followingOnly ?? false,
+      filterParams.sortBy ?? null,
+      filterParams.sortOrder ?? null,
       filterParams.latitude ?? null,
       filterParams.longitude ?? null,
       filterParams.radiusKm ?? null,

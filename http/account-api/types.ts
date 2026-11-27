@@ -213,6 +213,9 @@ export interface peopleDiscoverySearchDTO{
   latitude?: number;
   longitude?: number;
   radiusKm?: number;
+  sortBy?: "created_at" | "match" | "distance";
+  sortOrder?: "asc" | "desc";
+  followingOnly?: boolean;
 }
 
 /** Response from GET /accounts/search/match-histogram. */

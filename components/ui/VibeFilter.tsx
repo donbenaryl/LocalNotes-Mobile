@@ -4,6 +4,7 @@ import { Search } from "lucide-react-native";
 import { FilterHeader } from "@/components/ui/FilterHeader";
 import { LocalNotesButton } from "@/components/ui/LocalNotesButton";
 import { Modal } from "@/components/ui/Modal";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { TextInput } from "@/components/ui/TextInput";
 import { MOST_PICKED_VIBES, VIBE_OPTIONS } from "@/constants/vibes";
 
@@ -46,14 +47,6 @@ function VibeChip({
     >
       <Text className={`font-geist-medium text-sm ${styles.text}`}>{label}</Text>
     </Pressable>
-  );
-}
-
-function SectionHeader({ label }: { label: string }) {
-  return (
-    <Text className="font-geist-medium text-xs uppercase tracking-widest text-gray-400 dark:text-dk-faint mb-3">
-      {label}
-    </Text>
   );
 }
 
@@ -120,7 +113,7 @@ export function VibeFilter({
       >
         {filteredMostPicked.length > 0 && (
           <View className="mb-6">
-            <SectionHeader label="Most Picked" />
+            <SectionLabel label="Most Picked" className="mb-3" />
             <View className="flex-row flex-wrap gap-2">
               {filteredMostPicked.map((vibe, index) => (
                 <VibeChip
@@ -137,7 +130,7 @@ export function VibeFilter({
 
         {filteredMoreVibes.length > 0 && (
           <View className="mb-6">
-            <SectionHeader label="More Vibes" />
+            <SectionLabel label="More Vibes" className="mb-3" />
             <View className="flex-row flex-wrap gap-2">
               {filteredMoreVibes.map((vibe, index) => (
                 <VibeChip

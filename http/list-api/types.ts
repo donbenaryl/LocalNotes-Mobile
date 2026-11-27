@@ -189,8 +189,9 @@ export interface serchDTO{
   radiusKm?: number;
   limit?: number;
   offset?: number;
-  sortBy?: "created_at" | "match";
+  sortBy?: "created_at" | "match" | "distance";
   sortOrder?: "asc" | "desc";
+  followingOnly?: boolean;
   businessId?: string;
 }
 
