@@ -37,6 +37,16 @@ export const useSplashStore = create<SplashStore>((set, get) => ({
     // Ignore logos that live in off-screen pager pages.
     const { width } = Dimensions.get('window');
     if (rect.x < 0 || rect.x + rect.width > width + 1) return;
+    const prev = get().rects[key];
+    if (
+      prev &&
+      Math.abs(prev.x - rect.x) < 0.5 &&
+      Math.abs(prev.y - rect.y) < 0.5 &&
+      Math.abs(prev.width - rect.width) < 0.5 &&
+      Math.abs(prev.height - rect.height) < 0.5
+    ) {
+      return;
+    }
     set((s) => ({ rects: { ...s.rects, [key]: rect } }));
   },
   beginReveal: () => {

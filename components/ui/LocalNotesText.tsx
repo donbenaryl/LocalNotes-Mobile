@@ -11,7 +11,8 @@ interface LocalNotesTextProps {
 /** Shared with SplashOverlay so the animated wordmark matches the logo exactly. */
 export const WORDMARK_LG_TEXT_CLASS = 'font-madimi text-5xl pt-1';
 
-const sizeClasses: Record<NonNullable<LocalNotesTextProps['size']>, string> = {
+/** Shared with SplashOverlay so it can calibrate against the real logo's text metrics. */
+export const WORDMARK_SIZE_CLASSES: Record<NonNullable<LocalNotesTextProps['size']>, string> = {
   sm: 'text-2xl',
   base: 'text-3xl',
   md: 'text-4xl',
@@ -48,7 +49,7 @@ export function LocalNotesText({
   variant = 'default',
   withShadow = false,
 }: LocalNotesTextProps) {
-  const textClass = `font-madimi ${sizeClasses[size]}`;
+  const textClass = `font-madimi ${WORDMARK_SIZE_CLASSES[size]}`;
   const shadowStyle = withShadow ? textShadowStyle : undefined;
 
   return (

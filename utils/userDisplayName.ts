@@ -43,7 +43,7 @@ export function formatRealName(user: UserNameFields): string | null {
 
 export function resolveUserLabels(
   user: UserNameFields | null | undefined,
-  fallback = 'User',
+  fallback = '-',
 ): UserDisplayLabels {
   const username = user?.username?.trim() || '';
   const legacyName = user?.name?.trim() || '';

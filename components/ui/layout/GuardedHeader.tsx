@@ -32,6 +32,7 @@ export function GuardedHeader() {
       <View
         ref={logo.ref}
         onLayout={logo.onLayout}
+        collapsable={false}
         style={{ opacity: logo.hidden ? 0 : 1 }}
       >
         <LocalNotesText size="sm" />

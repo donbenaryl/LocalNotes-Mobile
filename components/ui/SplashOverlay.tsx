@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
+  Platform,
   StyleSheet,
   Text,
   View,
@@ -19,8 +20,11 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 import { LnTile } from '@/components/ui/LnTile';
-import { WORDMARK_LG_TEXT_CLASS } from '@/components/ui/LocalNotesText';
-import { useSplashStore } from '@/stores/useSplashStore';
+import {
+  WORDMARK_LG_TEXT_CLASS,
+  WORDMARK_SIZE_CLASSES,
+} from '@/components/ui/LocalNotesText';
+import { useSplashStore, type SplashTargetKey } from '@/stores/useSplashStore';
 
 const WORD = 'LocalNotes';
 const LETTERS = WORD.split('');
@@ -45,6 +49,16 @@ const CREAM = '#F7F3EC';
 const INK = '#1A1714';
 
 const clamp = Extrapolation.CLAMP;
+
+/** `pt-1` on every wordmark Text (see LocalNotesText / WORDMARK_LG_TEXT_CLASS). */
+const TEXT_PAD_TOP = 4;
+/** Size each landing target renders `LocalNotesText` at. */
+const TARGET_SIZE: Record<SplashTargetKey, keyof typeof WORDMARK_SIZE_CLASSES> = {
+  home: 'sm',
+  welcome: 'base',
+};
+const TARGET_KEYS = Object.keys(TARGET_SIZE) as SplashTargetKey[];
+
 
 interface LetterProps {
   char: string;
@@ -152,6 +166,10 @@ export function SplashOverlay() {
   const [reduceMotion, setReduceMotion] = useState<boolean | null>(null);
   const [introDone, setIntroDone] = useState(false);
   const started = useRef(false);
+  // First-line baseline (from the top of the text content, excluding `pt-1`) of
+  // the splash's large wordmark and of each target's real wordmark size.
+  const splashBaseline = useRef<number | null>(null);
+  const targetBaseline = useRef<Partial<Record<SplashTargetKey, number>>>({});
 
   const ready = MEASURE_KEYS.every((k) => metrics[k] > 0) && rowH > 0;
 
@@ -264,15 +282,28 @@ export function SplashOverlay() {
       scaleTo.value = scale;
       toColor.value = target === 'welcome' ? CREAM : baseColor;
 
+      // Vertical correction on top of centering the scaled row on the target.
+      // Android: align the text baselines using the platform's real line
+      // metrics, since glyph placement inside the line box does not scale
+      // linearly between the splash size and the logo size. Elsewhere (or if
+      // metrics are missing) keep the original half-height-delta nudge.
+      const handoffOffsetY = (targetH: number, rowScaledH: number, s: number) => {
+        const from = splashBaseline.current;
+        const to = targetBaseline.current[target];
+        if (Platform.OS === 'android' && from != null && to != null) {
+          return (
+            TEXT_PAD_TOP + to - targetH / 2 + rowScaledH / 2 - s * (TEXT_PAD_TOP + from)
+          );
+        }
+        return (targetH - rowScaledH) / 2;
+      };
+
       const startTravel = (originX: number, originY: number) => {
         dx.value = rect.x + rect.width / 2 - originX;
         // Nudge by half the scaled-vs-target height delta so `base` metrics
         // hand off without a downward jump.
         dy.value =
-          rect.y +
-          rect.height / 2 -
-          originY +
-          (rect.height - scaledH) / 2;
+          rect.y + rect.height / 2 - originY + handoffOffsetY(rect.height, scaledH, scale);
         const onTravelDone = () => {
           beginReveal();
           fadeOverlayAway(HANDOFF_FADE_MS);
@@ -379,8 +410,33 @@ export function SplashOverlay() {
               setRowH((h) => (h === height ? h : Math.max(h, height)));
             }}
           >
-            <Text className={WORDMARK_LG_TEXT_CLASS}>{key}</Text>
+            <Text
+              className={WORDMARK_LG_TEXT_CLASS}
+              onTextLayout={
+                k === 0
+                  ? (e) => {
+                      const line = e.nativeEvent.lines[0];
+                      if (line) splashBaseline.current = line.y + line.ascender;
+                    }
+                  : undefined
+              }
+            >
+              {key}
+            </Text>
           </View>
+        ))}
+        {/* Real-logo text metrics per target, for baseline alignment on landing. */}
+        {TARGET_KEYS.map((targetKey) => (
+          <Text
+            key={`ref-${targetKey}`}
+            className={`font-madimi pt-1 ${WORDMARK_SIZE_CLASSES[TARGET_SIZE[targetKey]]}`}
+            onTextLayout={(e) => {
+              const line = e.nativeEvent.lines[0];
+              if (line) targetBaseline.current[targetKey] = line.y + line.ascender;
+            }}
+          >
+            Local
+          </Text>
         ))}
       </View>
       <View
