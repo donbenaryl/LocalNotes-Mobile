@@ -1,5 +1,7 @@
 import { AppHttpService } from "..";
 import type {
+  SearchSuggestionDAO,
+  SearchSuggestionParams,
   UnifiedSearchParams,
   UnifiedSearchPeopleQueryDTO,
   UnifiedSearchPeopleResultDAO,
@@ -84,6 +86,20 @@ class SearchService extends AppHttpService {
       method: "get",
       path: "/unified-search",
       query: queryParams,
+    });
+  }
+
+  async fetchSuggestions(params: SearchSuggestionParams) {
+    const query: Record<string, unknown> = {};
+    if (params.q) query.q = params.q;
+    if (params.city) query.city = params.city;
+    if (params.region) query.region = params.region;
+    if (params.limit !== undefined) query.limit = params.limit;
+
+    return await this.SendRequest<SearchSuggestionDAO[]>({
+      method: "get",
+      path: "/search/suggestions",
+      query,
     });
   }
 

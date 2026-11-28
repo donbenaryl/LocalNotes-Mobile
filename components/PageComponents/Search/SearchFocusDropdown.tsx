@@ -41,6 +41,10 @@ function reasonForSource(
       return t("search.vibeYouUseOften");
     case "popular_city":
       return t("search.popularIn", { city: row.city ?? "" });
+    case "trending":
+      return t("search.trendingNow");
+    case "your_searches":
+      return t("search.fromYourSearches");
     default:
       return "";
   }
@@ -234,29 +238,31 @@ export function SearchFocusDropdown({
                           numberOfLines={1}
                           className="font-geist text-sm text-gray-500 dark:text-dk-muted"
                         >
-                          {pick.category} · {pick.place}
+                          {[pick.category, pick.place].filter(Boolean).join(" · ")}
                         </Text>
                         <Text
                           numberOfLines={1}
                           className="font-geist text-sm text-gray-500 dark:text-dk-muted"
                         >
-                          <Text className="font-geist-medium text-brand dark:text-dk-text">
-                            {t("search.matchPercent", {
-                              percent: pick.matchPercent,
-                            })}
-                          </Text>
+                          {pick.matchPercent !== undefined ? (
+                            <Text className="font-geist-medium text-brand dark:text-dk-text">
+                              {t("search.matchPercent", {
+                                percent: pick.matchPercent,
+                              })}
+                            </Text>
+                          ) : null}
                           {t("search.matchByAuthor", {
                             username: pick.username,
                           })}
                         </Text>
-                        {pick.reason ? (
+                        {/* {pick.reason ? (
                           <Text
                             numberOfLines={2}
                             className="mt-0.5 font-geist text-sm text-gray-500 dark:text-dk-muted"
                           >
                             {pick.reason}
                           </Text>
-                        ) : null}
+                        ) : null} */}
                       </View>
                     </Pressable>
                   );

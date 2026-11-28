@@ -44,13 +44,11 @@ function coversLabel(existing: SearchSuggestion[], candidate: string): boolean {
 
 /**
  * Builds "Suggested for you" rows from personality + often-used vibes.
- * Popular-in-city is intentionally omitted until a consumer API exists.
+ * Popular / trending / own-search rows come from GET /search/suggestions instead.
  */
 export function buildSearchSuggestions(options: {
   profile: UserProfileData | null | undefined;
   recentVibes: string[];
-  /** Reserved for a later plan — ignored today. */
-  popularTerm?: string | null;
 }): SearchSuggestion[] {
   const rows: SearchSuggestion[] = [];
 
@@ -72,11 +70,6 @@ export function buildSearchSuggestions(options: {
       return rows;
     }
   }
-
-  // Extension point: when popular-in-city API lands, append:
-  // if (options.popularTerm && !coversLabel(rows, options.popularTerm)) {
-  //   rows.push({ label: options.popularTerm, source: "popular_city" });
-  // }
 
   return rows.slice(0, SEARCH_SUGGESTIONS_LIMIT);
 }

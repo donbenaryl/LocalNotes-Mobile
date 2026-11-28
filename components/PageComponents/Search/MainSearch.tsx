@@ -16,16 +16,21 @@ import { SearchAll } from "@/components/PageComponents/Search/SearchAll/SearchAl
 import { SearchPicks } from "@/components/PageComponents/Search/SearchPicks/SearchPicks";
 import { SearchLists } from "@/components/PageComponents/Search/SearchLists/SearchLists";
 import { SearchPeople } from "@/components/PageComponents/Search/SearchPeople/SearchPeople";
+import { PickDetailModal } from "@/components/PageComponents/Profile/PickDetailModal";
 import { useSearchChromeStore } from "@/stores/useSearchChromeStore";
 import { useSearchStore } from "@/stores/useSearchStore";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
 import { resolveSectionTabFromPathname } from "@/utils/sectionTabSync";
 import { useHomeLocationLabel } from "@/hooks/useHomeLocationLabel";
 import { useInitializeSearchLocation } from "@/hooks/useInitializeSearchLocation";
+import type { SearchFollowPick } from "@/constants/searchSuggestions";
 import { useSearchFocusSuggestions } from "@/hooks/useSearchFocusSuggestions";
 import { HOME_HREF } from "@/constants/swipeNavigation";
 import { recordVibeUsage } from "@/utils/searchRecents";
-import type { Location as GeoLocation } from "@/http/list-api/types";
+import type {
+  ListItemPublic,
+  Location as GeoLocation,
+} from "@/http/list-api/types";
 import type { MatchPriorities } from "@/components/ui/MatchThreshhold";
 
 interface SearchTabItem extends TabItem {
@@ -121,16 +126,19 @@ export default function MainSearch() {
   const { cityLabel: detectedCityLabel } = useHomeLocationLabel();
 
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [selectedFollowPick, setSelectedFollowPick] =
+    useState<ListItemPublic | null>(null);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const {
     recentQueries,
     suggestions,
     followingPicks,
+    followingPickItems,
     rememberQuery,
     removeQuery,
     clearQueries,
     refreshLocal,
-  } = useSearchFocusSuggestions();
+  } = useSearchFocusSuggestions({ enabled: isSearchFocused, query });
 
   const dismissFocusDropdown = useCallback(() => {
     if (blurTimeoutRef.current) {
@@ -192,9 +200,15 @@ export default function MainSearch() {
     [commitQuery, dismissFocusDropdown, rememberQuery, setQuery],
   );
 
-  const handleSelectFollowPick = useCallback(() => {
-    dismissFocusDropdown();
-  }, [dismissFocusDropdown]);
+  const handleSelectFollowPick = useCallback(
+    (pick: SearchFollowPick) => {
+      Keyboard.dismiss();
+      dismissFocusDropdown();
+      const full = followingPickItems.find((item) => item.id === pick.id);
+      if (full) setSelectedFollowPick(full);
+    },
+    [dismissFocusDropdown, followingPickItems],
+  );
 
   const handleVibesChange = useCallback(
     (vibes: string[]) => {
@@ -396,6 +410,15 @@ export default function MainSearch() {
         activeId={activeTab}
         onActiveIdChange={handleTabChange}
       />
+
+      {selectedFollowPick ? (
+        <PickDetailModal
+          visible
+          onClose={() => setSelectedFollowPick(null)}
+          data={selectedFollowPick}
+          viewOrigin="search"
+        />
+      ) : null}
     </View>
   );
 }

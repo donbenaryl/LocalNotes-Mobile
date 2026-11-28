@@ -2,6 +2,7 @@ import { Image, View } from "react-native";
 import { NoImage } from "@/components/ui/NoImage";
 import { useImageGradientColor } from "@/hooks/useImageGradientColor";
 import { cn } from "@/utils/cn";
+import { resolveImageUrl } from "@/utils/httpHelpers";
 
 type PickPreviewImageSize = "sm" | "md";
 
@@ -24,7 +25,8 @@ export function PickPreviewImage({
   personalityColor,
   size = "sm",
 }: PickPreviewImageProps) {
-  useImageGradientColor(imageUrl);
+  const resolvedUrl = resolveImageUrl(imageUrl);
+  useImageGradientColor(resolvedUrl);
 
   return (
     <View
@@ -33,9 +35,9 @@ export function PickPreviewImage({
         SIZE_CLASS[size],
       )}
     >
-      {imageUrl ? (
+      {resolvedUrl ? (
         <Image
-          source={{ uri: imageUrl }}
+          source={{ uri: resolvedUrl }}
           className="absolute inset-0 h-full w-full"
           resizeMode="cover"
         />

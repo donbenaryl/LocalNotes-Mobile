@@ -109,3 +109,17 @@ export interface SearchFilters {
   categoryIds?: string[];
   matchScoreRange?: [number, number];
 }
+
+export interface SearchSuggestionParams {
+  q?: string;
+  city?: string;
+  region?: string;
+  limit?: number;
+}
+
+/** Row from GET /search/suggestions. */
+export interface SearchSuggestionDAO {
+  label: string;
+  source: "your_searches" | "popular_city" | "trending" | "prefix";
+  city?: string;
+}

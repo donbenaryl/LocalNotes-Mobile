@@ -1058,6 +1058,8 @@ const en = {
     fromYourVibeAnswers: 'From your vibe answers',
     vibeYouUseOften: 'A vibe you use often',
     popularIn: 'Popular in {{city}}',
+    trendingNow: 'Trending now',
+    fromYourSearches: 'From your searches',
     newFromPeopleYouFollow: 'New from people you follow',
     matchPercent: '{{percent}}% match',
     matchByAuthor: ' · by @{{username}}',
