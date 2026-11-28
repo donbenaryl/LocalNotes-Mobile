@@ -52,9 +52,11 @@ export function ProfileChromeHeader({
   }));
 
   const hasEntity = Boolean(business) || Boolean(profile);
-  const headerLabel = business
-    ? business.name?.trim() || t("common.user")
-    : resolveUserLabels(profile, t("common.user")).primary;
+  const headerLabel = isPending
+    ? ""
+    : business
+      ? business.name?.trim() || t("common.user")
+      : resolveUserLabels(profile, t("common.user")).primary;
 
   return (
     <View className="relative z-10">
