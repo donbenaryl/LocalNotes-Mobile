@@ -118,6 +118,7 @@ export function CardOptionsMenu({
   const iconColorDefault = brandColor(isDark);
   const iconColorBrand = brandColor(isDark);
   const iconColorDestructive = "#EF4444";
+  const triggerIconColor = isDark ? "#FFFFFF" : "#6B7280";
   const hasCustomItems = Boolean(menuItems?.length);
 
   const dropdownTop = buttonLayout
@@ -183,9 +184,9 @@ export function CardOptionsMenu({
           {isDeleting ? (
             <ActivityIndicator size="small" color="#9CA3AF" />
           ) : iconOrientation === "vertical" ? (
-            <MoreVertical size={20} color="#6B7280" />
+            <MoreVertical size={20} color={triggerIconColor} />
           ) : (
-            <MoreVertical size={20} color="#6B7280" />
+            <MoreVertical size={20} color={triggerIconColor} />
           )}
         </Pressable>
       </View>

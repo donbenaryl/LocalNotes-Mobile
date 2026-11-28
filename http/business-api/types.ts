@@ -65,9 +65,11 @@ export type BusinessItemDAO = {
   bio?: string;
   branches: BusinessBranchDAO[];
   is_followed?: boolean;
+  is_liked?: boolean;
   list_count: number;
   share_count?: number;
   follower_count?: number;
+  like_count?: number;
   /** Primary owner account id for About/By authorship on the business page. */
   owner_account_id?: string | null;
   /** Answers to the business type's requirements, keyed by requirement key. */

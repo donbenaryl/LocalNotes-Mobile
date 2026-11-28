@@ -198,6 +198,18 @@ class BusinessService extends AppHttpService{
             path: `/${businessId}/follow`,
         });
     }
+    async likeBusiness(businessId: string) {
+        return await this.SendRequest<{ is_liked: boolean }>({
+            method: "post",
+            path: `/${businessId}/like`,
+        });
+    }
+    async unlikeBusiness(businessId: string) {
+        return await this.SendRequest<{ is_liked: boolean }>({
+            method: "delete",
+            path: `/${businessId}/like`,
+        });
+    }
     async fetchBusinessNotes(businessId: string) {
         return await this.SendRequest<NoteDAO[]>({
             method: "get",

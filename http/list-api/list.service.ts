@@ -351,6 +351,13 @@ async fetchListComments(listId: string, params?: { page?: number; parent_comment
       });
     }
 
+    async likeUnlikeListItem(itemId: string) {
+      return await this.SendRequest<{ is_liked: boolean }>({
+        method: "post",
+        path: `/items/${itemId}/like`,
+      });
+    }
+
     async fetchListItem(itemId: string) {
       return await this.SendRequest<ListItemPublic>({
         method: "get",

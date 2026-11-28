@@ -77,6 +77,8 @@ export interface Item {
   location?: Location | null;
   branch?: BusinessBranchDAO | null;
   is_favorite?: boolean;
+  is_liked?: boolean;
+  likes?: number;
 }
 export interface Location {
   street_address?: string | null;
@@ -260,6 +262,8 @@ export interface ListItemPublic {
   business_id: string | null;
   is_verified: boolean;
   is_favorite: boolean;
+  is_liked?: boolean;
+  likes?: number;
   is_owner: boolean;
   owner: Account;
   description: string;

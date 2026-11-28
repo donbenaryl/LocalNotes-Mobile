@@ -13,8 +13,6 @@ const COLUMN_GAP = 12;
 const HERO_ASPECT_RATIO = 12 / 16; // matches PickCard's CardHero aspect-[16/12]
 const BODY_BASE_HEIGHT = 24; // p-3 vertical padding
 const TITLE_ROW_HEIGHT = 22;
-const LOCATION_ROW_HEIGHT = 16;
-const DESCRIPTION_ROW_HEIGHT = 16;
 const CATEGORIES_ROW_HEIGHT = 26;
 const TAGS_ROW_HEIGHT = 26;
 const OWNER_ROW_HEIGHT = 30;
@@ -31,16 +29,13 @@ function estimatePickHeight(item: ListItemPublic, columnWidth: number): number {
 
   let bodyHeight = BODY_BASE_HEIGHT;
   if (!hasImage && item.business_name) bodyHeight += TITLE_ROW_HEIGHT;
-  if (item.location) bodyHeight += LOCATION_ROW_HEIGHT;
-  if (item.description) bodyHeight += DESCRIPTION_ROW_HEIGHT;
-  if (item.categories.length > 0) bodyHeight += CATEGORIES_ROW_HEIGHT;
-  if (!hasImage && item.tags.length > 0) bodyHeight += TAGS_ROW_HEIGHT;
-  if (item.owner || item.list_usage_count > 0) bodyHeight += OWNER_ROW_HEIGHT;
+  if (!hasImage && item.categories.length > 0) bodyHeight += CATEGORIES_ROW_HEIGHT;
+  if (item.tags.length > 0) bodyHeight += TAGS_ROW_HEIGHT;
+  bodyHeight += OWNER_ROW_HEIGHT;
   if (!hasImage && !item.is_owner) bodyHeight += MATCH_OVERLAY_PADDING;
 
   return height + bodyHeight;
 }
-
 /** Two-column Pinterest-style grid: assigns each pick to the currently shorter column. */
 export function PicksMasonryGrid({ picks, onRefresh, readOnly }: PicksMasonryGridProps) {
   const [containerWidth, setContainerWidth] = useState(0);

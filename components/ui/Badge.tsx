@@ -54,7 +54,7 @@ export function Badge({
 
   return (
     <View
-      className={`flex-row items-center self-start dark:bg-dk-page ${sizeStyle.container} ${styles.container} ${className ?? ''}`}
+      className={`flex-row items-center self-start dark:bg-dk-line ${sizeStyle.container} ${styles.container} ${className ?? ''}`}
     >
       {leftIcon}
       <Text className={`${sizeStyle.text} ${styles.text} ${textClassname ?? ''}`}>{label}</Text>

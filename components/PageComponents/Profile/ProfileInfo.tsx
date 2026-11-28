@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin } from 'lucide-react-native';
+import { Heart, MapPin } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { Avatar } from '@/components/ui/Avatar';
 import { ImageFullScreen } from '@/components/ui/ImageFullScreen';
 import { BusinessHomeRow } from '@/components/PageComponents/Profile/BusinessHomeRow';
@@ -14,6 +15,7 @@ import { useBusinessOwnerProfileInsights } from '@/hooks/useBusinessOwnerProfile
 import type { FollowListTab } from '@/hooks/useFollowList';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useSimilarScores } from '@/hooks/useSimilarScores';
+import { brandColor } from '@/constants/colors';
 import {
   getDominantPersonalityColor,
   getPersonalityGradientColors,
@@ -23,6 +25,7 @@ import { isInferredPersonality } from '@/utils/personality';
 import { resolveImageUrl } from '@/utils/httpHelpers';
 import { resolveUserLabels } from '@/utils/userDisplayName';
 import { cn } from '@/utils/cn';
+import businessService from '@/http/business-api/business.service';
 import type { AccountLocationDTO, profileItemDAO } from '@/http/account-api/types';
 import type { BusinessItemDAO, BusinessLocation } from '@/http/business-api/types';
 
@@ -182,20 +185,84 @@ function ExpandableBio({ bio }: { bio: string }) {
 
 function BusinessProfileInfo({
   business,
+  isOwnProfile = false,
 }: {
   business: BusinessItemDAO;
+  isOwnProfile?: boolean;
 }) {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
+  const queryClient = useQueryClient();
   const isDark = colorScheme === 'dark';
   const mutedIconColor = isDark ? '#A79E92' : '#9EA4AF';
+  const iconBrand = brandColor(isDark);
   const [isAvatarFullScreenVisible, setIsAvatarFullScreenVisible] =
     useState(false);
+  const [isLiked, setIsLiked] = useState(business.is_liked ?? false);
+  const [likeCount, setLikeCount] = useState(business.like_count ?? 0);
+  const [isLiking, setIsLiking] = useState(false);
   const avatarImageUri = resolveImageUrl(business.logo);
+
+  useEffect(() => {
+    setIsLiked(business.is_liked ?? false);
+    setLikeCount(business.like_count ?? 0);
+  }, [business.id, business.is_liked, business.like_count]);
 
   const locationLabel = formatLocationLabel(
     business.branches?.[0]?.location ?? business.location,
   );
+
+  const patchBusinessCache = useCallback(
+    (nextLiked: boolean, nextCount: number) => {
+      queryClient.setQueryData<BusinessItemDAO | null>(
+        ['business', business.id],
+        (previous) =>
+          previous
+            ? { ...previous, is_liked: nextLiked, like_count: nextCount }
+            : previous,
+      );
+    },
+    [business.id, queryClient],
+  );
+
+  const handleLike = useCallback(async () => {
+    if (isLiking || isOwnProfile) return;
+
+    setIsLiking(true);
+    const previousLiked = isLiked;
+    const previousCount = likeCount;
+    const nextLiked = !previousLiked;
+    const nextCount = nextLiked
+      ? previousCount + 1
+      : Math.max(0, previousCount - 1);
+
+    setIsLiked(nextLiked);
+    setLikeCount(nextCount);
+    patchBusinessCache(nextLiked, nextCount);
+
+    try {
+      const response = nextLiked
+        ? await businessService.likeBusiness(business.id)
+        : await businessService.unlikeBusiness(business.id);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+    } catch (error) {
+      console.error('Failed to toggle business like:', error);
+      setIsLiked(previousLiked);
+      setLikeCount(previousCount);
+      patchBusinessCache(previousLiked, previousCount);
+    } finally {
+      setIsLiking(false);
+    }
+  }, [
+    business.id,
+    isLiked,
+    isLiking,
+    isOwnProfile,
+    likeCount,
+    patchBusinessCache,
+  ]);
 
   const stats: CompactStatItem[] = useMemo(
     () => [
@@ -208,11 +275,15 @@ function BusinessProfileInfo({
         label: t('profile.info.stats.followers'),
       },
       {
+        value: formatStatCount(likeCount),
+        label: t('profile.info.stats.likes'),
+      },
+      {
         value: formatStatCount(business.share_count),
         label: t('profile.info.stats.shares'),
       },
     ],
-    [business.follower_count, business.list_count, business.share_count, t],
+    [business.follower_count, business.list_count, business.share_count, likeCount, t],
   );
 
   return (
@@ -247,6 +318,26 @@ function BusinessProfileInfo({
               </Text>
             ) : null}
           </View>
+
+          {!isOwnProfile ? (
+            <Pressable
+              onPress={() => void handleLike()}
+              disabled={isLiking}
+              accessibilityRole="button"
+              accessibilityLabel={
+                isLiked ? t('listDetail.liked') : t('listDetail.like')
+              }
+              accessibilityState={{ disabled: isLiking, selected: isLiked }}
+              className="cursor-pointer items-center justify-center rounded-full bg-gray-100 p-2.5 active:opacity-70 dark:bg-dk-elevated"
+              hitSlop={4}
+            >
+              <Heart
+                size={18}
+                color={isLiked ? iconBrand : mutedIconColor}
+                fill={isLiked ? iconBrand : 'transparent'}
+              />
+            </Pressable>
+          ) : null}
         </View>
 
         <CompactStatsRow items={stats} className="mt-4" />
@@ -470,7 +561,12 @@ export function ProfileInfo({
   isOwnProfile = true,
 }: ProfileInfoProps) {
   if (business) {
-    return <BusinessProfileInfo business={business} />;
+    return (
+      <BusinessProfileInfo
+        business={business}
+        isOwnProfile={Boolean(isOwnProfile)}
+      />
+    );
   }
 
   if (!profile) return null;

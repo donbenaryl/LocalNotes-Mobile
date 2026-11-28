@@ -630,6 +630,7 @@ const en = {
         lists: 'Lists',
         following: 'Following',
         followers: 'Followers',
+        likes: 'Likes',
         saves: 'Saves',
         shares: 'Shares',
       },
