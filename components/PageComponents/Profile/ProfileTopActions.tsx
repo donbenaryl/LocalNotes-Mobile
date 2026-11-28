@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Pressable, View } from "react-native";
-import { MoreVertical, Pencil, Share2 } from "lucide-react-native";
+import { MoreVertical, Pencil, Send } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { ICON_COLOR_DARK, ICON_COLOR_LIGHT } from "@/constants/colors";
@@ -66,7 +66,7 @@ export function ProfileTopActions({
       ) : null}
 
       <HeaderIconButton onPress={onSharePress} accessibilityLabel={shareLabel}>
-        <Share2 size={16} color={iconColor} strokeWidth={2.2} />
+        <Send size={16} color={iconColor} strokeWidth={2.2} />
       </HeaderIconButton>
 
       {showOwnMenu ? (

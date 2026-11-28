@@ -8,7 +8,6 @@ import {
   Flag,
   Heart,
   Send,
-  Share2,
   Trash2,
 } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
@@ -160,7 +159,7 @@ function PickCardOwnerRow({
           <Avatar
             name={ownerLabels.primary}
             src={resolveImageUrl(data.owner.profile_image) ?? undefined}
-            size="xs"
+            size="xs2"
             userId={data.owner.id}
           />
         ) : null}
@@ -204,7 +203,7 @@ function PickCardOwnerRow({
         className="cursor-pointer shrink-0"
         hitSlop={4}
       >
-        <Send size={14} color={iconMuted} />
+        <Send size={16} color={iconMuted} />
       </Pressable>
     </View>
   );

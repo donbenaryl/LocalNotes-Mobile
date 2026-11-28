@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Pressable, Share, Text, View } from 'react-native';
-import { ChevronRight, Share2 } from 'lucide-react-native';
+import { ChevronRight, Send } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 import { LocalNotesButton } from '@/components/ui/LocalNotesButton';
@@ -182,7 +182,7 @@ export function ShareToUsersSheet({
             className="h-12 w-12 items-center justify-center rounded-full"
             style={{ backgroundColor: NATIVE_SHARE_ICON_BG }}
           >
-            <Share2
+            <Send
               size={NATIVE_SHARE_ICON_SIZE}
               color={NATIVE_SHARE_ICON_COLOR}
               fill={NATIVE_SHARE_ICON_COLOR}

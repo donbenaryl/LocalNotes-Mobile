@@ -9,7 +9,7 @@ import {
   Bell,
   Building2,
   BellRing,
-  Share2,
+  Send,
 } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
@@ -51,7 +51,7 @@ function getBadgeConfig(type: string): BadgeConfig {
     case 'PICK_SHARED_WITH_YOU':
     case 'OFFER_SHARED_WITH_YOU':
     case 'PLACE_SHARED_WITH_YOU':
-      return { icon: Share2, bgClass: 'bg-violet-600' };
+      return { icon: Send, bgClass: 'bg-violet-600' };
     default:
       return { icon: Bell, bgClass: 'bg-gray-600' };
   }

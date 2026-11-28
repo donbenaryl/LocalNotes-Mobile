@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { ChevronUp, MapPin, Share2 } from "lucide-react-native";
+import { ChevronUp, MapPin, Send } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import { CardHero } from "@/components/ui/CardHero";
@@ -309,7 +309,7 @@ export function BusinessCardDetailed({
           className="cursor-pointer flex-row items-center gap-1.5"
           hitSlop={4}
         >
-          <Share2 size={11} color={iconColor} />
+          <Send size={11} color={iconColor} />
           {/* <Text className="font-geist-semibold text-sm text-gray-500 dark:text-dk-muted">
             {shareCount}
           </Text> */}

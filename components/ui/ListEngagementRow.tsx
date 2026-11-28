@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { RefObject } from "react";
 import { Pressable, Text, View } from "react-native";
-import { Bookmark, Heart, MessageCircle, Share2 } from "lucide-react-native";
+import { Bookmark, Heart, MessageCircle, Send } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
@@ -244,7 +244,7 @@ export function ListEngagementRow({
           className="cursor-pointer flex-row items-center gap-1.5"
           hitSlop={4}
         >
-          <Share2 size={13} color={iconMuted} />
+          <Send size={13} color={iconMuted} />
         </Pressable>
         
         <Pressable

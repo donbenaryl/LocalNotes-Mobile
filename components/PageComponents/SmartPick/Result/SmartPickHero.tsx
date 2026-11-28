@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bookmark, Navigation, Share2 } from 'lucide-react-native';
+import { Bookmark, Navigation, Send } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { ShareToUsersSheet } from '@/components/ui/ShareToUsersSheet';
@@ -162,7 +162,7 @@ export function SmartPickHero({ result, isStretch, eyebrow }: SmartPickHeroProps
             variant="light"
             size="sm"
             leftIcon={
-              <Share2
+              <Send
                 size={17}
                 color={colorScheme === 'dark' ? '#FFF' : '#1A1714'}
               />

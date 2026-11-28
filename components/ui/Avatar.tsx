@@ -14,7 +14,7 @@ import {
 import type { ViewOrigin } from "@/http/types";
 import { resolveViewOrigin } from "@/utils/viewTracking";
 
-type AvatarSize = "xs" | "sm" | "md" | "md2" | "lg" | "xl";
+type AvatarSize = "xs" | "xs2" | "sm" | "md" | "md2" | "lg" | "xl";
 
 interface AvatarProps {
   name: string;
@@ -33,6 +33,7 @@ interface AvatarProps {
 
 const sizeClasses: Record<AvatarSize, string> = {
   xs: "h-5 w-5",
+  xs2: "h-6 w-6",
   sm: "h-8 w-8",
   md: "h-10 w-10",
   md2: "h-14 w-14",
@@ -42,6 +43,7 @@ const sizeClasses: Record<AvatarSize, string> = {
 
 const textSizeClasses: Record<AvatarSize, string> = {
   xs: "text-[10px]",
+  xs2: "text-xs",
   sm: "text-base",
   md: "text-xl",
   md2: "text-2xl",
@@ -52,6 +54,7 @@ const textSizeClasses: Record<AvatarSize, string> = {
 /** Matches Tailwind `h-*` / `w-*` pixel sizes used in `sizeClasses`. */
 const avatarInnerSizes: Record<AvatarSize, number> = {
   xs: 20,
+  xs2: 24,
   sm: 30,
   md: 40,
   md2: 60,

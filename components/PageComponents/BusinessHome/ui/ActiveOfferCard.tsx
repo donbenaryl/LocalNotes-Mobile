@@ -6,7 +6,7 @@ import {
   Eye,
   Heart,
   Play,
-  Share2,
+  Send,
   Tag,
 } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
@@ -98,7 +98,7 @@ export function ActiveOfferCard({ offer, onPress }: ActiveOfferCardProps) {
             </Text>
           </View>
           <View className="flex-row items-center gap-1.5">
-            <Share2 size={13} color={iconMuted} />
+            <Send size={13} color={iconMuted} />
             <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.shares}
             </Text>

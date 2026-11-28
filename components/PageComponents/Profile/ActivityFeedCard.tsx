@@ -6,7 +6,7 @@ import {
   MessageCircle,
   Pencil,
   PlusCircle,
-  Share2,
+  Send,
   UserPlus,
 } from "lucide-react-native";
 import type { LucideIcon } from "lucide-react-native";
@@ -26,7 +26,7 @@ const ACTION_CONFIG: Record<
   update: { label: "updated a list", icon: Pencil, color: "#60A5FA" },
   like: { label: "liked", icon: Heart, color: "#EF4444" },
   save: { label: "saved", icon: Bookmark, color: "#EAB308" },
-  share: { label: "shared", icon: Share2, color: "#A855F7" },
+  share: { label: "shared", icon: Send, color: "#A855F7" },
   comment: { label: "commented on", icon: MessageCircle, color: "#3B82F6" },
   follow: { label: "followed", icon: UserPlus, color: "#1A1714" },
 };

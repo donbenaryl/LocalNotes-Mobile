@@ -9,7 +9,7 @@ import {
   Clock,
   Eye,
   Heart,
-  Share2,
+  Send,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -323,7 +323,7 @@ export function OfferCard({ offer, badge, onPress }: OfferCardProps) {
             className="cursor-pointer flex-row items-center gap-1.5"
             hitSlop={4}
           >
-            <Share2 size={13} color={iconMuted} />
+            <Send size={13} color={iconMuted} />
             <Text className="font-geist-semibold text-[12.5px] text-gray-500 dark:text-dk-muted">
               {offer.shares}
             </Text>

@@ -11,7 +11,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { Calendar, Clock, Eye, Heart, Play, Share2, X } from "lucide-react-native";
+import { Calendar, Clock, Eye, Heart, Play, Send, X } from "lucide-react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useColorScheme } from "nativewind";
@@ -795,7 +795,7 @@ export function OfferDetailsMain({
                     className="cursor-pointer flex-row items-center gap-1.5"
                     hitSlop={4}
                   >
-                    <Share2 size={14} color={iconMuted} />
+                    <Send size={14} color={iconMuted} />
                     <Text className="font-geist-semibold text-[13px] text-gray-500 dark:text-dk-muted">
                       {offer.shares}
                     </Text>

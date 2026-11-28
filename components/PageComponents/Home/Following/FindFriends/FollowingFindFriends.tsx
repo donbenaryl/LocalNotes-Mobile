@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Pressable, Share, Text, View } from "react-native";
-import { BookUser, ChevronRight, Contact2Icon, RadioTower, Share2Icon } from "lucide-react-native";
+import { BookUser, ChevronRight, Contact2Icon, RadioTower, Send } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
@@ -34,7 +34,7 @@ const OPTIONS: FindFriendsOption[] = [
   {
     id: "inviteFriends",
     color: "#E8B23F",
-    icon: <Share2Icon size={ICON_SIZE} color={ICON_COLOR} fill={ICON_COLOR} />,
+    icon: <Send size={ICON_SIZE} color={ICON_COLOR} fill={ICON_COLOR} />,
   },
   {
     id: "findContacts",

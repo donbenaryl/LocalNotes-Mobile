@@ -18,7 +18,7 @@ export interface ListAuthorRowAccount {
   personality_name?: string | null;
 }
 
-type AvatarSize = "xs" | "sm" | "md" | "md2" | "lg" | "xl";
+type AvatarSize = "xs" | "xs2" | "sm" | "md" | "md2" | "lg" | "xl";
 
 interface ListAuthorRowProps {
   account: ListAuthorRowAccount;

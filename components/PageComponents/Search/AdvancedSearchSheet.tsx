@@ -119,7 +119,7 @@ export function AdvancedSearchSheet({
       />
 
       <ScrollView
-        className="flex-1"
+        className="flex-1 mb-44"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: insets.bottom,
