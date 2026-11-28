@@ -1,5 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import { useColorScheme } from "nativewind";
+import Animated from "react-native-reanimated";
 import { Bell } from "lucide-react-native";
 import { router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -10,11 +11,16 @@ import { Avatar } from "../Avatar";
 import { LocalNotesText } from "../LocalNotesText";
 import { useSplashTarget } from "@/hooks/useSplashTarget";
 
-export function GuardedHeader() {
+interface GuardedHeaderProps {
+  /** True only for the header the splash wordmark should land on (Home). */
+  splashTarget?: boolean;
+}
+
+export function GuardedHeader({ splashTarget = false }: GuardedHeaderProps) {
   const { colorScheme } = useColorScheme();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const logo = useSplashTarget('home');
+  const logo = useSplashTarget('home', { enabled: splashTarget });
 
   const handleOpenNotifications = () => {
     router.push("/(app)/(stack)/notifications" as never);
@@ -29,14 +35,14 @@ export function GuardedHeader() {
     <View
       className="bg-page dark:bg-dk-page pt-2 pb-3 flex-row items-center justify-between"
     >
-      <View
+      <Animated.View
         ref={logo.ref}
         onLayout={logo.onLayout}
         collapsable={false}
-        style={{ opacity: logo.hidden ? 0 : 1 }}
+        style={logo.style}
       >
         <LocalNotesText size="sm" />
-      </View>
+      </Animated.View>
       <View className="flex-row items-center gap-3">
         <TouchableOpacity
           onPress={handleOpenNotifications}

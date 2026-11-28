@@ -120,11 +120,13 @@ function SectionInFlowChrome({
   activeTab,
   onTabChange,
   onHeaderHeight,
+  splashTarget,
 }: {
   tabs: TabItem[];
   activeTab: string;
   onTabChange: (tabId: string) => void;
   onHeaderHeight: (height: number) => void;
+  splashTarget: boolean;
 }) {
   const handleHeaderLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -136,7 +138,7 @@ function SectionInFlowChrome({
   return (
     <>
       <View className="px-4" onLayout={handleHeaderLayout}>
-        <GuardedHeader />
+        <GuardedHeader splashTarget={splashTarget} />
       </View>
       <View className="px-4 pt-2 mb-4">
         <Tabs
@@ -274,7 +276,7 @@ function IosSectionTabsScrollLayout({
           className="bg-page px-4 dark:bg-dk-page"
           onLayout={handleHeaderLayout}
         >
-          <GuardedHeader />
+          <GuardedHeader splashTarget={sectionId === 'home'} />
         </View>
         <View
           className="bg-page px-4 pt-2 dark:bg-dk-page"
@@ -361,6 +363,7 @@ function AndroidSectionTabsScrollLayout({
           activeTab={activeTab}
           onTabChange={handleTabChange}
           onHeaderHeight={handleHeaderHeight}
+          splashTarget={sectionId === 'home'}
         />
         <SectionPager
           sectionId={sectionId}

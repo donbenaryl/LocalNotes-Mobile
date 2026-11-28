@@ -57,14 +57,14 @@ export function WelcomeLogoRow() {
       <Animated.View style={[{ zIndex: 0 }, tileRevealStyle]}>
         <LnTile size={TILE_SIZE} variant="light" />
       </Animated.View>
-      <View
+      <Animated.View
         ref={logo.ref}
         onLayout={logo.onLayout}
         collapsable={false}
-        style={{ opacity: logo.hidden ? 0 : 1, zIndex: 1 }}
+        style={[{ zIndex: 1 }, logo.style]}
       >
         <LocalNotesText variant="cream" size="base" withShadow />
-      </View>
+      </Animated.View>
     </View>
   );
 }

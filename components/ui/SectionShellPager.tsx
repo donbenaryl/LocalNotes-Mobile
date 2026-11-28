@@ -30,6 +30,7 @@ import {
   type SectionId,
 } from "@/constants/swipeNavigation";
 import { useSectionRouteStore } from "@/stores/useSectionRouteStore";
+import { useSplashStore } from "@/stores/useSplashStore";
 import { useSectionSwipeStore } from "@/stores/useSectionSwipeStore";
 import { navigateToSection } from "@/utils/navigateToSection";
 
@@ -106,6 +107,7 @@ export function SectionShellPager() {
   const swipeEnabled = useSectionSwipeStore((s) => s.swipeEnabled);
   const setSwipeEnabled = useSectionSwipeStore((s) => s.setSwipeEnabled);
   const activeSection = useSectionRouteStore((s) => s.activeSection);
+  const splashDone = useSplashStore((s) => s.phase === "done");
   const pendingSection = useSectionRouteStore((s) => s.pendingSection);
   const requestSection = useSectionRouteStore((s) => s.requestSection);
   const syncSectionFromPathname = useSectionRouteStore(
@@ -253,6 +255,15 @@ export function SectionShellPager() {
     );
   }
 
+  // Mounting all four sections at once saturates the JS thread right as the
+  // splash hands off. Only the boot section renders until the splash is done.
+  const renderPagerSection = (section: SectionId): ReactNode =>
+    splashDone || section === SECTION_ORDER[bootIndex] ? (
+      renderSection(section)
+    ) : (
+      <View style={styles.fill} className="bg-page dark:bg-dk-page" />
+    );
+
   return (
     <FillPagerView
       ref={pagerRef}
@@ -265,16 +276,16 @@ export function SectionShellPager() {
       onPageSelected={handlePageSelected}
     >
       <View key="home" style={pagerPageFillStyle} collapsable={false}>
-        {renderSection("home")}
+        {renderPagerSection("home")}
       </View>
       <View key="smart-pick" style={pagerPageFillStyle} collapsable={false}>
-        {renderSection("smart-pick")}
+        {renderPagerSection("smart-pick")}
       </View>
       <View key="saved" style={pagerPageFillStyle} collapsable={false}>
-        {renderSection("saved")}
+        {renderPagerSection("saved")}
       </View>
       <View key="search" style={pagerPageFillStyle} collapsable={false}>
-        {renderSection("search")}
+        {renderPagerSection("search")}
       </View>
     </FillPagerView>
   );

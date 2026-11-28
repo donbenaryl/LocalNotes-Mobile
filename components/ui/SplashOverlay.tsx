@@ -25,6 +25,7 @@ import {
   WORDMARK_SIZE_CLASSES,
 } from '@/components/ui/LocalNotesText';
 import { useSplashStore, type SplashTargetKey } from '@/stores/useSplashStore';
+import { showSplashLogos, splashLogoVisible } from '@/utils/splashLogoVisibility';
 
 const WORD = 'LocalNotes';
 const LETTERS = WORD.split('');
@@ -41,6 +42,8 @@ const INTRO_MS = 1800;
 /** Failsafe: never leave the overlay on screen longer than this. */
 const FAILSAFE_MS = 6000;
 const TRAVEL_MS = 700;
+/** How long to wait for the destination logo to report a rect (< FAILSAFE_MS - INTRO_MS). */
+const NO_RECT_TIMEOUT_MS = 3500;
 /** Wait for destination layout to settle before locking travel. */
 const TRAVEL_RECT_DEBOUNCE_MS = 120;
 /** Soft handoff: fade splash after destination text is revealed. */
@@ -232,6 +235,7 @@ export function SplashOverlay() {
     const id = setTimeout(() => {
       const { phase: p } = useSplashStore.getState();
       if (p === 'running' || p === 'revealing') {
+        showSplashLogos();
         fadeOut.value = withTiming(1, { duration: 300 }, (done) => {
           if (done) runOnJS(finish)();
         });
@@ -252,18 +256,21 @@ export function SplashOverlay() {
 
     const fadeAway = () => {
       started.current = true;
+      showSplashLogos();
       beginReveal();
       fadeOverlayAway(reduceMotion ? 150 : 300);
     };
 
     if (target === 'none' || reduceMotion) {
-      const id = setTimeout(fadeAway, 150);
+      // Reveal the real logo right away on the fallback path.
+      const id = setTimeout(fadeAway, reduceMotion ? 150 : 0);
       return () => clearTimeout(id);
     }
 
     if (!rects[target]) {
       // Destination logo never reported a position — don't hang the splash.
-      const id = setTimeout(() => setTarget('none'), 1500);
+      // Generous: mounting the destination can stall the JS thread for a while.
+      const id = setTimeout(() => setTarget('none'), NO_RECT_TIMEOUT_MS);
       return () => clearTimeout(id);
     }
 
@@ -312,7 +319,11 @@ export function SplashOverlay() {
           1,
           { duration: TRAVEL_MS, easing: Easing.inOut(Easing.cubic) },
           (done) => {
-            if (done) runOnJS(onTravelDone)();
+            if (done) {
+              // UI thread: show the real logo now, don't wait for a JS render.
+              splashLogoVisible.value = 1;
+              runOnJS(onTravelDone)();
+            }
           },
         );
       };

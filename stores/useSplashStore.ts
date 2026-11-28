@@ -35,8 +35,11 @@ export const useSplashStore = create<SplashStore>((set, get) => ({
   registerRect: (key, rect) => {
     if (get().phase !== 'running') return;
     // Ignore logos that live in off-screen pager pages.
-    const { width } = Dimensions.get('window');
+    const { width, height } = Dimensions.get('window');
     if (rect.x < 0 || rect.x + rect.width > width + 1) return;
+    if (rect.y < 0 || rect.y + rect.height > height + 1) return;
+    // A rect as wide as the screen is a page that has not been laid out yet.
+    if (rect.x === 0 && rect.width >= width) return;
     const prev = get().rects[key];
     if (
       prev &&
